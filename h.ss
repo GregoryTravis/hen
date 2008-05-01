@@ -115,5 +115,5 @@
 
 ;(tracefun evl evl-primitive evl-app primitive? apply-match-env find-match match-this-pat match-this-pat-list match-this-pat-quote match-this-pat-top)
 
-(define forms (read-objects "src.ss"))
-(map top-level-deal forms)
+(define (run-file filename)
+  (map top-level-deal (read-objects filename)))
