@@ -26,28 +26,8 @@
 (define (quote-quoted o)
   (cadr o))
 
-(define (evl-primitive e)
+(define (apply-primitive e)
   (apply (cdr (assoc (car e) primitives)) (cdr e)))
-
-(define (evl-app e)
-  (err '?))
-
-(define (evl e)
-  (cond
-   ((and (proper-list? e) (primitive? (car e)))
-    (evl-primitive e))
-   ((proper-list? e)
-    (evl-app e))
-   (#t (err 'what-is e))))
-
-;(define (evl-app e)
-;  (normal-form e))
-;;   (let ((match (normal-form e)))
-;;     (if (null? match)
-;;         e
-;;         (let ((env (car match))
-;;               (body (cdr match)))
-;;           (apply-match-env env body)))))
 
 (define (define-rule r)
   (assert (proper-list? r)
@@ -68,17 +48,9 @@
            (just (list 'match env rule)))))
    rules))
 
-;; (define (normal-form e)
-;;   (if (and (pair? e) (primitive? (car e)))
-;;       (evl-primitive e)
-;;       (let ((match (find-matching-rule e)))
-;;         (if (fail? match)
-;;             e
-;;             (normal-form (apply-matching-rule (just-value match) e))))))
-
 (define (normal-form-step e)
   (if (and (pair? e) (primitive? (car e)))
-      (cons 'not-normal (evl-primitive e))
+      (cons 'not-normal (apply-primitive e))
       (let ((match (find-matching-rule e)))
         (if (fail? match)
             (cons 'normal e)
