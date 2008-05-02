@@ -239,10 +239,10 @@
     (lshew (cons name args))
     (display "\n")
     (flush-output)
-    (set! impl-tracefun-indentation (+ impl-tracefun-indentation 2))
+    (set! impl-tracefun-indentation (+ impl-tracefun-indentation 1))
     (let ((result (apply f args)))
       (flush-output)
-      (set! impl-tracefun-indentation (- impl-tracefun-indentation 2))
+      (set! impl-tracefun-indentation (- impl-tracefun-indentation 1))
       (display (make-string-string impl-tracefun-indentation "| "))
       (display "-> ")
       (lshew result)
@@ -261,16 +261,6 @@
    ((null? lyst) (err pred))
    ((pred (car lyst)) (car lyst))
    (#t (find-first pred (cdr lyst)))))
-
-;; f should return (successful-value) or #f for failure.
-;; Returns #f if no success.
-(define (first-success f lyst)
-  (if (null? lyst)
-      #f
-      (let ((v (f (car lyst))))
-        (if (eq? #f v)
-            (first-success f (cdr lyst))
-            (list v)))))
 
 (define (cton? o)
   (and (pair? o) (ctor? (car o))))
@@ -350,38 +340,38 @@
         (cons (cons group-of-car in-group)
               (group-by f not-in-group)))))
 
-;; maybe stuff.
+;; ;; maybe stuff.
 
-;; f should return either (value) or #f; find-first-maybe will return
-;; the first one it finds that's not null, in the same format: (value)
-;; or #f.
-(define (find-first-maybe f lyst)
-  (if (null? lyst)
-      #f
-      (let ((r (f lyst)))
-        (if (null? r)
-            (find-first-maybe f (cdr lyst))
-            r))))
+;; ;; f should return either (value) or #f; find-first-maybe will return
+;; ;; the first one it finds that's not null, in the same format: (value)
+;; ;; or #f.
+;; (define (find-first-maybe f lyst)
+;;   (if (null? lyst)
+;;       #f
+;;       (let ((r (f lyst)))
+;;         (if (null? r)
+;;             (find-first-maybe f (cdr lyst))
+;;             r))))
 
-;; If any sub-call returns #f, return #f.  Otherwise, extract the
-;; value from each singlet and return the list of them.  If you get an
-;; #f, don't bother doing the rest.
-(define (maybe-map f lyst)
-  (if (null? lyst)
-      '()
-      (let ((v (f (car lyst))))
-        (if (eq? #f v)
-            #f
-            (let ((rest (maybe-map f (cdr lyst))))
-              (if (eq? #f rest)
-                  #f
-                  (cons v rest)))))))
+;; ;; If any sub-call returns #f, return #f.  Otherwise, extract the
+;; ;; value from each singlet and return the list of them.  If you get an
+;; ;; #f, don't bother doing the rest.
+;; (define (maybe-map f lyst)
+;;   (if (null? lyst)
+;;       '()
+;;       (let ((v (f (car lyst))))
+;;         (if (eq? #f v)
+;;             #f
+;;             (let ((rest (maybe-map f (cdr lyst))))
+;;               (if (eq? #f rest)
+;;                   #f
+;;                   (cons v rest)))))))
 
-(define (maybe-map-append f lyst)
-  (let ((r (maybe-map f lyst)))
-    (if (eq? #f r)
-        #f
-        (apply append r))))
+;; (define (maybe-map-append f lyst)
+;;   (let ((r (maybe-map f lyst)))
+;;     (if (eq? #f r)
+;;         #f
+;;         (apply append r))))
 
 (define (zip f . lysts)
   ;(shew 'um-zip lysts)
@@ -391,3 +381,35 @@
           '())
       (cons (apply f (map car lysts))
             (apply zip (cons f (map cdr lysts))))))
+
+;; maybe stuff, for real
+
+(define (just a) (list 'just a))
+(define fail 'fail)
+
+(define (fail? a) (eq? a fail))
+(define (just? a) (and (pair a) (eq? (car a) 'just) (null? (cddr a))))
+(define just-value cadr)
+
+(define (maybe-combine combiner args)
+  (if (any fail? args)
+      fail
+      (begin
+        ;(shew 'combine combiner args (map just-value args) (apply combiner (map just-value args)))
+        (apply combiner (map just-value args)))))
+
+(define (maybe-append . things)
+  (maybe-combine append things))
+
+(define (maybe-list . things)
+  (maybe-combine list things))
+
+;; f should return (successful-value) or #f for failure.
+;; Returns #f if no success.
+(define (first-success f lyst)
+  (if (null? lyst)
+      fail
+      (let ((v (f (car lyst))))
+        (if (eq? #f v)
+            (first-success f (cdr lyst))
+            (just v)))))
