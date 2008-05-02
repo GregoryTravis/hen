@@ -2,6 +2,8 @@
 
 (define rules '())
 
+(define trace-normal-form #t)
+
 (define primitives-names (list '+ '- '* '/))
 (define primitives
   (map (lambda (primitive) (cons primitive (eval primitive))) primitives-names))
@@ -63,16 +65,36 @@
      (let ((env (match-pat (car rule) e)))
        (if (fail? env)
            fail
-           (list 'match env rule))))
+           (just (list 'match env rule)))))
    rules))
 
-(define (normal-form e)
+;; (define (normal-form e)
+;;   (if (and (pair? e) (primitive? (car e)))
+;;       (evl-primitive e)
+;;       (let ((match (find-matching-rule e)))
+;;         (if (fail? match)
+;;             e
+;;             (normal-form (apply-matching-rule (just-value match) e))))))
+
+(define (normal-form-step e)
   (if (and (pair? e) (primitive? (car e)))
-      (evl-primitive e)
+      (cons 'not-normal (evl-primitive e))
       (let ((match (find-matching-rule e)))
         (if (fail? match)
-            e
-            (normal-form (apply-matching-rule (just-value match) e))))))
+            (cons 'normal e)
+            (cons 'not-normal (apply-matching-rule (just-value match) e))))))
+
+(define (normal-form e)
+  (if trace-normal-form
+      (shew e))
+  (let* ((r (normal-form-step e))
+         (normal-p (car r))
+         (re (cdr r)))
+    (if (eq? normal-p 'normal)
+        re
+        (begin
+          (display "  ==>\n")
+          (normal-form re)))))
 
 (define (apply-matching-rule match e)
   (let* ((env (cadr match))
@@ -119,9 +141,10 @@
    ((is-quote? pat) (match-pat-quote (quote-quoted pat) e))
    ((and (pair? pat) (pair? e)) (match-pat-list pat e))
    ((and (symbol? pat)) (just (list (cons pat e))))
-   (#t (err pat e))))
+   ((not (eq? (pair? pat) (pair? e))) fail)
+   (#t (err 'match-pat pat e))))
 
-(tracefun evl evl-primitive evl-app primitive? match-pat match-pat-list match-pat-quote normal-form apply-matching-rule rewrite-body find-matching-rule is-fun-def?); maybe-append maybe-combine maybe-list)
+;(tracefun evl evl-primitive evl-app primitive? match-pat match-pat-list match-pat-quote normal-form apply-matching-rule rewrite-body find-matching-rule is-fun-def? normal-form-step fail? first-success)
 
 (define (run-file filename)
   (map top-level-deal (read-objects filename)))

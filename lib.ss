@@ -410,6 +410,6 @@
   (if (null? lyst)
       fail
       (let ((v (f (car lyst))))
-        (if (eq? #f v)
+        (if (fail? v)
             (first-success f (cdr lyst))
-            (just v)))))
+            v))))
