@@ -1,1 +1,1 @@
-mzscheme -G -r main.ss
+mzscheme -g -r main.ss
