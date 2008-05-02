@@ -1,4 +1,45 @@
++ (is-fun-def? (fun (ack a b) (+ a b))) 
+-> () 
 * ('ack a b)
-(ack 20 34)
-  =>
-(+ 20 34)
++ (is-fun-def? (ack 20 34)) 
+-> #f 
++ (normal-form (ack 20 34)) 
+| + (primitive? ack) 
+| -> #f 
+| + (find-matching-rule (ack 20 34)) 
+| | + (match-pat ('ack a b) (ack 20 34)) 
+| | | + (match-pat-list ('ack a b) (ack 20 34)) 
+| | | | + (match-pat 'ack ack) 
+| | | | | + (match-pat-quote ack ack) 
+| | | | | -> (just ()) 
+| | | | -> (just ()) 
+| | | | + (match-pat a 20) 
+| | | | -> (just ((a . 20))) 
+| | | | + (match-pat b 34) 
+| | | | -> (just ((b . 34))) 
+| | | -> ((a . 20) (b . 34)) 
+| | -> ((a . 20) (b . 34)) 
+| -> (just (match ((a . 20) (b . 34)) (('ack a b) + a b))) 
+| + (apply-matching-rule   (match ((a . 20) (b . 34)) (('ack a b) + a b))   (ack 20 34)) 
+| | + (rewrite-body ((a . 20) (b . 34)) (+ a b)) 
+| | | + (rewrite-body ((a . 20) (b . 34)) +) 
+| | | -> + 
+| | | + (rewrite-body ((a . 20) (b . 34)) (a b)) 
+| | | | + (rewrite-body ((a . 20) (b . 34)) a) 
+| | | | -> 20 
+| | | | + (rewrite-body ((a . 20) (b . 34)) (b)) 
+| | | | | + (rewrite-body ((a . 20) (b . 34)) b) 
+| | | | | -> 34 
+| | | | | + (rewrite-body ((a . 20) (b . 34)) ()) 
+| | | | | -> () 
+| | | | -> (34) 
+| | | -> (20 34) 
+| | -> (+ 20 34) 
+| -> (+ 20 34) 
+| + (normal-form (+ 20 34)) 
+| | + (primitive? +) 
+| | -> #t 
+| | + (evl-primitive (+ 20 34)) 
+| | -> 54 
+| -> 54 
+-> 54 
