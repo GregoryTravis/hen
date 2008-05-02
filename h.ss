@@ -34,7 +34,9 @@
     (cond
      ((eq? #f info) (err 'no-such-primitive e))
      ((eq? (cadr info) 'builtin)
-      (apply (cddr info) (cdr e)))
+      (begin
+        (set! e (normal-form-children e))
+        (apply (cddr info) (cdr e))))
      (#f (err bad-primitive e)))))
 
 (define (define-rule r)
@@ -61,12 +63,15 @@
 (define trace-normal-form-level 0)
 
 (define (normal-form-step e)
-  (if (and (pair? e) (primitive? (car e)))
-      (cons 'not-normal (apply-primitive e))
-      (let ((match (find-matching-rule e)))
-        (if (fail? match)
-            (cons 'normal e)
-            (cons 'not-normal (apply-matching-rule (just-value match) e))))))
+  (if (not (pair? e))
+      (cons 'normal e)
+      (if (primitive? (car e))
+          (cons 'not-normal (apply-primitive e))
+          (let ((e (normal-form-children e)))
+            (let ((match (find-matching-rule e)))
+              (if (fail? match)
+                  (cons 'normal e)
+                  (cons 'not-normal (apply-matching-rule (just-value match) e))))))))
 
 (define (normal-form-iterate e)
   (if trace-normal-form
@@ -75,8 +80,6 @@
         (display "+  ")
         (lshew e)
         (display "\n")))
-  (if (pair? e)
-      (set! e (normal-form-children e)))
   (let* ((r (normal-form-step e))
          (normal-p (car r))
          (re (cdr r)))
@@ -148,7 +151,7 @@
    ((not (eq? (pair? pat) (pair? e))) fail)
    (#t (err 'match-pat pat e))))
 
-;(tracefun primitive? match-pat match-pat-list match-pat-quote normal-form normal-form-step normal-form-iterate normal-form-children apply-matching-rule rewrite-body find-matching-rule is-fun-def? first-success)
+;(tracefun primitive? match-pat match-pat-list match-pat-quote normal-form normal-form-step normal-form-iterate normal-form-children apply-matching-rule apply-primitive rewrite-body find-matching-rule is-fun-def? first-success)
 
 (define (run-file filename)
   (map top-level-deal (read-objects filename)))
