@@ -62,6 +62,14 @@
             (cons 'not-normal (apply-matching-rule (just-value match) e))))))
 
 (define (normal-form-iterate e)
+  (if trace-normal-form
+      (begin
+        (display (make-string-string trace-normal-form-level "| "))
+        (display "+  ")
+        (lshew e)
+        (display "\n")))
+  (if (pair? e)
+      (set! e (normal-form-children e)))
   (let* ((r (normal-form-step e))
          (normal-p (car r))
          (re (cdr r)))
@@ -76,14 +84,6 @@
     r))
 
 (define (normal-form e)
-  (if trace-normal-form
-      (begin
-        (display (make-string-string trace-normal-form-level "| "))
-        (display "+  ")
-        (lshew e)
-        (display "\n")))
-  (if (pair? e)
-      (set! e (normal-form-children e)))
   (let ((r (normal-form-iterate e)))
     (if trace-normal-form
         (begin
