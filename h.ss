@@ -3,6 +3,7 @@
 (define rules '())
 
 (define trace-normal-form #t)
+(define trace-rule-definitions #f)
 
 (define primitives-names (list '+ '- '* '/))
 (define primitives
@@ -36,8 +37,10 @@
         (body (caddr r)))
     (let ((pat (cons `(quote ,(car pat)) (cdr pat))))
       (set! rules (append rules (list (cons pat body))))
-      (display "* ")
-      (shew pat))))
+      (if trace-rule-definitions
+          (begin
+            (display "* ")
+            (shew pat))))))
 
 (define (find-matching-rule e)
   (first-success
@@ -56,7 +59,7 @@
             (cons 'normal e)
             (cons 'not-normal (apply-matching-rule (just-value match) e))))))
 
-(define (normal-form e)
+(define (normal-form-iterate e)
   (if trace-normal-form
       (shew e))
   (let* ((r (normal-form-step e))
@@ -66,7 +69,15 @@
         re
         (begin
           (display "  ==>\n")
-          (normal-form re)))))
+          (normal-form-iterate re)))))
+
+(define (normal-form-children e)
+  (cons (car e) (map normal-form (cdr e))))
+
+(define (normal-form e)
+  (if (pair? e)
+      (set! e (normal-form-children e)))
+  (normal-form-iterate e))
 
 (define (apply-matching-rule match e)
   (let* ((env (cadr match))
