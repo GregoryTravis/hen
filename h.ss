@@ -51,6 +51,8 @@
            (just (list 'match env rule)))))
    rules))
 
+(define trace-normal-form-level 0)
+
 (define (normal-form-step e)
   (if (and (pair? e) (primitive? (car e)))
       (cons 'not-normal (apply-primitive e))
@@ -60,24 +62,36 @@
             (cons 'not-normal (apply-matching-rule (just-value match) e))))))
 
 (define (normal-form-iterate e)
-  (if trace-normal-form
-      (shew e))
   (let* ((r (normal-form-step e))
          (normal-p (car r))
          (re (cdr r)))
     (if (eq? normal-p 'normal)
         re
-        (begin
-          (display "  ==>\n")
-          (normal-form-iterate re)))))
+        (normal-form-iterate re))))
 
 (define (normal-form-children e)
-  (cons (car e) (map normal-form (cdr e))))
+  (set! trace-normal-form-level (+ trace-normal-form-level 1))
+  (let ((r (cons (car e) (map normal-form (cdr e)))))
+    (set! trace-normal-form-level (- trace-normal-form-level 1))
+    r))
 
 (define (normal-form e)
+  (if trace-normal-form
+      (begin
+        (display (make-string-string trace-normal-form-level "| "))
+        (display "+  ")
+        (lshew e)
+        (display "\n")))
   (if (pair? e)
       (set! e (normal-form-children e)))
-  (normal-form-iterate e))
+  (let ((r (normal-form-iterate e)))
+    (if trace-normal-form
+        (begin
+          (display (make-string-string trace-normal-form-level "| "))
+          (display "-> ")
+          (lshew r)
+          (display "\n")))
+    r))
 
 (define (apply-matching-rule match e)
   (let* ((env (cadr match))
@@ -127,7 +141,7 @@
    ((not (eq? (pair? pat) (pair? e))) fail)
    (#t (err 'match-pat pat e))))
 
-;(tracefun evl evl-primitive evl-app primitive? match-pat match-pat-list match-pat-quote normal-form apply-matching-rule rewrite-body find-matching-rule is-fun-def? normal-form-step fail? first-success)
+;(tracefun primitive? match-pat match-pat-list match-pat-quote normal-form normal-form-step normal-form-iterate normal-form-children apply-matching-rule rewrite-body find-matching-rule is-fun-def? first-success)
 
 (define (run-file filename)
   (map top-level-deal (read-objects filename)))
