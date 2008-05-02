@@ -5,9 +5,11 @@
 (define trace-normal-form #t)
 (define trace-rule-definitions #f)
 
-(define primitives-names (list '+ '- '* '/))
 (define primitives
-  (map (lambda (primitive) (cons primitive (eval primitive))) primitives-names))
+  `((+ . (builtin . ,+))
+    (- . (builtin . ,-))
+    (* . (builtin . ,*))
+    (/ . (builtin . ,/))))
 
 (define (constant? k)
   (or (null? k) (numeric? l)))
@@ -28,7 +30,12 @@
   (cadr o))
 
 (define (apply-primitive e)
-  (apply (cdr (assoc (car e) primitives)) (cdr e)))
+  (let ((info (assoc (car e) primitives)))
+    (cond
+     ((eq? #f info) (err 'no-such-primitive e))
+     ((eq? (cadr info) 'builtin)
+      (apply (cddr info) (cdr e)))
+     (#f (err bad-primitive e)))))
 
 (define (define-rule r)
   (assert (proper-list? r)
