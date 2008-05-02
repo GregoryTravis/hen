@@ -234,6 +234,7 @@
 
 (define (tracefun-hookist name f)
   (lambda args
+    (display "        ")
     (display (make-string-string impl-tracefun-indentation "| "))
     (display "+ ")
     (lshew (cons name args))
@@ -243,6 +244,7 @@
     (let ((result (apply f args)))
       (flush-output)
       (set! impl-tracefun-indentation (- impl-tracefun-indentation 1))
+      (display "        ")
       (display (make-string-string impl-tracefun-indentation "| "))
       (display "-> ")
       (lshew result)
