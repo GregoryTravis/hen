@@ -6,32 +6,11 @@
 (define trace-normal-form #f)
 (define trace-rule-definitions #f)
 
-;; (define (special-form-if b t e)
-;;   (let ((nb (normal-form b)))
-;;     (cond
-;;      ((eq? nb 'true) (normal-form t))
-;;      ((eq? nb 'false) (normal-form e))
-;;      (#t (err 'bad-conditional-boolean b t e)))))
-
-;; (define primitives
-;;   `((+ . (builtin . ,+))
-;;     (- . (builtin . ,-))
-;;     (* . (builtin . ,*))
-;;     (/ . (builtin . ,/))
-;;     (< . (primitive . ,primitive-<))
-;;     (> . (primitive . ,primitive->))
-;;     (<= . (primitive . ,primitive-<=))
-;;     (>= . (primitive . ,primitive->=))
-;;     (== . (primitive . ,primitive-==))
-;;     (!= . (primitive . ,primitive-!=))
-;;     (if . (special-form . ,special-form-if))))
-
 (define (constant? k)
   (or (null? k) (number? l)))
 
 (define (primitive? e)
   (member? e all-primitives))
-;  (not (eq? #f (assoc e primitives))))
 
 (define (is-fun-def? o)
   (and (pair? o) (eq? (car o) 'fun) (assert (and (not (null? (cdr o))) (not (null? (cddr o)))))))
@@ -44,19 +23,6 @@
 
 (define (quote-quoted o)
   (cadr o))
-
-;; (define (apply-primitive e)
-;;   (let ((info (assoc (car e) primitives)))
-;;     (cond
-;;      ((eq? #f info) (err 'no-such-primitive e))
-;;      ((eq? (cadr info) 'builtin)
-;;       (begin
-;;         (set! e (normal-form-children e))
-;;         (apply (cddr info) (cdr e))))
-;;      ((eq? (cadr info) 'special-form)
-;;       (begin
-;;         (apply (cddr info) (cdr e))))
-;;      (#f (err bad-primitive e)))))
 
 (define (apply-primitive e)
   (assert (primitive? (car e)))
