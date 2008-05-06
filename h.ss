@@ -7,7 +7,7 @@
 (define trace-rule-definitions #f)
 
 (define (constant? k)
-  (or (null? k) (number? l)))
+  (or (null? k) (number? k)))
 
 (define (primitive? e)
   (member? e all-primitives))
@@ -55,6 +55,7 @@
 (define trace-normal-form-level 0)
 
 (define (normal-form-step e)
+  ;(shew 'oof e (primitive? e))
   (if (not (pair? e))
       (cons 'normal e)
       (if (primitive? (car e))
@@ -142,20 +143,22 @@
 
 ;; Literal match; if the pat matches the value, return the empty
 ;; environment.
-(define (match-pat-quote pat e)
+(define (match-constants pat e)
   (if (equal? pat e)
       (just '())
       'fail))
 
 (define (match-pat pat e)
   (cond
-   ((is-quote? pat) (match-pat-quote (quote-quoted pat) e))
+   ((is-quote? pat) (match-constants (quote-quoted pat) e))
    ((and (pair? pat) (pair? e)) (match-pat-list pat e))
    ((and (symbol? pat)) (just (list (cons pat e))))
    ((not (eq? (pair? pat) (pair? e))) fail)
+   ((constant? pat) (match-constants pat e))
    (#t (err 'match-pat pat e))))
 
-;(tracefun primitive? match-pat match-pat-list match-pat-quote normal-form normal-form-step normal-form-iterate normal-form-children apply-matching-rule apply-primitive rewrite-body find-matching-rule is-fun-def? first-success primitive-==)
+;(tracefun primitive? match-pat match-pat-list match-constants normal-form normal-form-step normal-form-iterate normal-form-children apply-matching-rule apply-primitive rewrite-body find-matching-rule is-fun-def? first-success primitive-==)
+;(tracefun primitive? match-pat match-pat-list match-constants apply-matching-rule find-matching-rule)
 
 (define (run-file filename)
   (map top-level-deal (read-objects filename)))

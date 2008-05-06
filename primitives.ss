@@ -1,6 +1,6 @@
 (define pass-thrus '(+ - * /))
 (define pass-thrus-tf '(< >))
-(define special-forms '("if"))
+(define special-forms '(if))
 (define custom '(==))
 
 (define all-primitives
@@ -18,12 +18,12 @@
   (string->symbol (++ 'primitive- x)))
 
 (define (eval-primitive e)
-;  (shew e)
+  ;(shew e)
   (eval e))
 
 (map (lambda (p)
        (eval-primitive `(define ,(prim-name p) ,(eval p))))
-     (append pass-thrus special-forms))
+     (append pass-thrus))
 
 (map (lambda (p) (eval-primitive `(define ,(prim-name p) ,(t/f->true/false (eval p)))))
      pass-thrus-tf)
@@ -36,6 +36,13 @@
     (if (number? b) (if (= a b) 'true 'false) 'false))
    (#t
     (if (equal? a b) 'true 'false))))
+
+(define (primitive-if b t e)
+  (let ((eb (normal-form b)))
+    (cond
+     ((eq? eb 'true) (normal-form t))
+     ((eq? eb 'false) (normal-form e))
+     (#t (err 'bad-boolean eb t e)))))
 
 (define (special-form? x)
   (member? x special-forms))
