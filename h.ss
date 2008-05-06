@@ -3,7 +3,7 @@
 
 (define rules '())
 
-(define trace-normal-form #t)
+(define trace-normal-form #f)
 (define trace-rule-definitions #f)
 
 ;; (define (special-form-if b t e)
@@ -149,10 +149,22 @@
    ((constant? body) body)
    (#t (err 'rewrite-body env body))))
 
+(define (normal-form-top e)
+  (if (not trace-normal-form)
+      (begin
+        (display "+  ")
+        (shew e)))
+  (let ((r (normal-form e)))
+    (if (not trace-normal-form)
+        (begin
+          (display "=> ")
+          (shew r)))
+    r))
+
 (define (top-level-deal o)
   (cond
    ((is-fun-def? o) (define-rule o))
-   (#t (normal-form o))))
+   (#t (normal-form-top o))))
 
 ;; Match the pats and es pairwise, and return the concatenation of the result.
 ;; However, if any of them are #f, it's a failure.
