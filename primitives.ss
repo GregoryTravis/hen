@@ -6,6 +6,9 @@
 (define all-primitives
   (append pass-thrus pass-thrus-tf special-forms custom))
 
+(define (primitive? e)
+  (member? e all-primitives))
+
 (define (t/f->true/false f)
   (lambda args
     (let ((r (apply f args)))
@@ -46,3 +49,6 @@
 
 (define (special-form? x)
   (member? x special-forms))
+
+(define (primitive-read-objects filename)
+  (cons 'blap (read-objects filename)))

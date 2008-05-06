@@ -9,9 +9,6 @@
 (define (constant? k)
   (or (null? k) (number? k)))
 
-(define (primitive? e)
-  (member? e all-primitives))
-
 (define (is-fun-def? o)
   (and (pair? o) (eq? (car o) 'fun) (assert (and (not (null? (cdr o))) (not (null? (cddr o)))))))
 
