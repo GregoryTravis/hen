@@ -57,11 +57,13 @@
       (cons 'normal e)
       (if (primitive? (car e))
           (cons 'not-normal (apply-primitive e))
-          (let ((e (normal-form-children e)))
-            (let ((match (find-matching-rule e)))
-              (if (fail? match)
-                  (cons 'normal e)
-                  (cons 'not-normal (apply-matching-rule (just-value match) e))))))))
+          (if (is-quote? e)
+              (cons 'normal e)
+              (let ((e (normal-form-children e)))
+                (let ((match (find-matching-rule e)))
+                  (if (fail? match)
+                      (cons 'normal e)
+                      (cons 'not-normal (apply-matching-rule (just-value match) e)))))))))
 
 (define (normal-form-iterate e)
   (if trace-normal-form

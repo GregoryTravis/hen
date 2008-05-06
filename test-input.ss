@@ -20,3 +20,7 @@
          (* n (fact (- n 1)))
          1))
 (fact 10)
+
+(read-objects "read-input.ss")
+
+'(1 2)

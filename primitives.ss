@@ -1,7 +1,7 @@
 (define pass-thrus '(+ - * /))
 (define pass-thrus-tf '(< >))
 (define special-forms '(if))
-(define custom '(==))
+(define custom '(== read-objects))
 
 (define all-primitives
   (append pass-thrus pass-thrus-tf special-forms custom))
@@ -51,4 +51,4 @@
   (member? x special-forms))
 
 (define (primitive-read-objects filename)
-  (cons 'blap (read-objects filename)))
+  (list 'quote (read-objects filename)))

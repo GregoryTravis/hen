@@ -1,0 +1,6 @@
+(fun (fact 0) 1)
+(fun (fact n)
+     (if (>= n 1)
+         (* n (fact (- n 1)))
+         1))
+(fact 10)
