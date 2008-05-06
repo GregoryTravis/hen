@@ -1,21 +1,37 @@
 (load "lib.ss")
+(load "primitives.ss")
 
 (define rules '())
 
 (define trace-normal-form #t)
 (define trace-rule-definitions #f)
 
-(define primitives
-  `((+ . (builtin . ,+))
-    (- . (builtin . ,-))
-    (* . (builtin . ,*))
-    (/ . (builtin . ,/))))
+;; (define (special-form-if b t e)
+;;   (let ((nb (normal-form b)))
+;;     (cond
+;;      ((eq? nb 'true) (normal-form t))
+;;      ((eq? nb 'false) (normal-form e))
+;;      (#t (err 'bad-conditional-boolean b t e)))))
+
+;; (define primitives
+;;   `((+ . (builtin . ,+))
+;;     (- . (builtin . ,-))
+;;     (* . (builtin . ,*))
+;;     (/ . (builtin . ,/))
+;;     (< . (primitive . ,primitive-<))
+;;     (> . (primitive . ,primitive->))
+;;     (<= . (primitive . ,primitive-<=))
+;;     (>= . (primitive . ,primitive->=))
+;;     (== . (primitive . ,primitive-==))
+;;     (!= . (primitive . ,primitive-!=))
+;;     (if . (special-form . ,special-form-if))))
 
 (define (constant? k)
-  (or (null? k) (numeric? l)))
+  (or (null? k) (number? l)))
 
 (define (primitive? e)
-  (not (eq? #f (assoc e primitives))))
+  (member? e all-primitives))
+;  (not (eq? #f (assoc e primitives))))
 
 (define (is-fun-def? o)
   (and (pair? o) (eq? (car o) 'fun) (assert (and (not (null? (cdr o))) (not (null? (cddr o)))))))
@@ -29,15 +45,25 @@
 (define (quote-quoted o)
   (cadr o))
 
+;; (define (apply-primitive e)
+;;   (let ((info (assoc (car e) primitives)))
+;;     (cond
+;;      ((eq? #f info) (err 'no-such-primitive e))
+;;      ((eq? (cadr info) 'builtin)
+;;       (begin
+;;         (set! e (normal-form-children e))
+;;         (apply (cddr info) (cdr e))))
+;;      ((eq? (cadr info) 'special-form)
+;;       (begin
+;;         (apply (cddr info) (cdr e))))
+;;      (#f (err bad-primitive e)))))
+
 (define (apply-primitive e)
-  (let ((info (assoc (car e) primitives)))
-    (cond
-     ((eq? #f info) (err 'no-such-primitive e))
-     ((eq? (cadr info) 'builtin)
-      (begin
-        (set! e (normal-form-children e))
-        (apply (cddr info) (cdr e))))
-     (#f (err bad-primitive e)))))
+  (assert (primitive? (car e)))
+  (let ((real-name (string->symbol (++ "primitive-" (car e)))))
+    (if (not (special-form? (car e)))
+        (set! e (normal-form-children e)))
+    (apply (eval real-name) (cdr e))))
 
 (define (define-rule r)
   (assert (proper-list? r)
@@ -151,7 +177,9 @@
    ((not (eq? (pair? pat) (pair? e))) fail)
    (#t (err 'match-pat pat e))))
 
-;(tracefun primitive? match-pat match-pat-list match-pat-quote normal-form normal-form-step normal-form-iterate normal-form-children apply-matching-rule apply-primitive rewrite-body find-matching-rule is-fun-def? first-success)
+;(tracefun primitive? match-pat match-pat-list match-pat-quote normal-form normal-form-step normal-form-iterate normal-form-children apply-matching-rule apply-primitive rewrite-body find-matching-rule is-fun-def? first-success primitive-==)
 
 (define (run-file filename)
   (map top-level-deal (read-objects filename)))
+
+(run-file "prelude.ss")

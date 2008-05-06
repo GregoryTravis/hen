@@ -415,3 +415,22 @@
         (if (fail? v)
             (first-success f (cdr lyst))
             v))))
+
+(define (++ . stuff)
+  (apply concat (map (lambda (o) (->string o)) stuff)))
+
+(define (->int o)
+  (cond
+   ((number? o) (inexact->exact (floor o)))
+   ((string? o) (->int (string->number o)))
+   (#f (err))))
+
+(define (->string o)
+  (cond
+   ((symbol? o) (symbol->string o))
+   ((string? o) o)
+   ((number? o) (number->string o))
+   ((char? o) (make-string 1 o))
+   (#t (sdisplay o))))
+
+(define member? member)
