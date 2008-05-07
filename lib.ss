@@ -398,7 +398,7 @@
       fail
       (begin
         ;(shew 'combine combiner args (map just-value args) (apply combiner (map just-value args)))
-        (apply combiner (map just-value args)))))
+        (just (apply combiner (map just-value args))))))
 
 (define (maybe-append . things)
   (maybe-combine append things))

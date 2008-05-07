@@ -46,7 +46,7 @@
      (let ((env (match-pat (car rule) e)))
        (if (fail? env)
            fail
-           (just (list 'match env rule)))))
+           (just (list 'match (just-value env) rule)))))
    rules))
 
 (define trace-normal-form-level 0)
@@ -132,13 +132,10 @@
    ((is-fun-def? o) (define-rule o))
    (#t (normal-form-top o))))
 
-;; Match the pats and es pairwise, and return the concatenation of the result.
-;; However, if any of them are #f, it's a failure.
-;; And if the pattern is nonlinear, we aren't handling that yet.
-(define (match-pat-list pat e)
-  (if (not (= (length pat) (length e)))
-      fail
-      (apply maybe-append (zip match-pat pat e))))
+(define (match-pat-pair pat e)
+  (assert (and (pair? pat) (pair? e)))
+  (maybe-append (match-pat (car pat) (car e))
+                (match-pat (cdr pat) (cdr e))))
 
 ;; Literal match; if the pat matches the value, return the empty
 ;; environment.
@@ -150,7 +147,7 @@
 (define (match-pat pat e)
   (cond
    ((is-quote? pat) (match-constants (quote-quoted pat) e))
-   ((and (pair? pat) (pair? e)) (match-pat-list pat e))
+   ((and (pair? pat) (pair? e)) (match-pat-pair pat e))
    ((and (symbol? pat)) (just (list (cons pat e))))
    ((not (eq? (pair? pat) (pair? e))) fail)
    ((constant? pat) (match-constants pat e))
