@@ -1,28 +1,4 @@
-+  (+ 1 2)
-=> 3
-+  (ack 20 34)
-=> 54
-+  (+ 1 (+ 2 3))
-=> 6
-+  (> 10 20)
-=> false
-+  (< 10 20)
-=> true
-+  (>= 10 20)
-=> false
-+  (<= 10 20)
-=> true
-+  (== 10 20)
-=> false
-+  (!= 10 20)
-=> true
-+  (if (== 10 10) 20 30)
-=> 20
-+  (fact 10)
-=> 3628800
-+  (read-objects "read-input.ss")
-=> '((fun (fact 0) 1)
-  (fun (fact n) (if (>= n 1) (* n (fact (- n 1))) 1))
-  (fact 10))
-+  '(1 2)
-=> '(1 2)
+* (fun (f (bark a) (jok b t y)) (+ a y))
++ (f (bark 20) (jok (vah 10) 20 (gurk 30 40)))
+    =>
+  (+ 20 (gurk 30 40))

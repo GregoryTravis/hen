@@ -140,5 +140,3 @@
   (map exec-top-level-form forms))
 
 ;(tracefun match)
-
-(run-file "src.ss")
