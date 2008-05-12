@@ -109,7 +109,7 @@
     (display "* ")
     (shew o)))
 
-(define (try-a-rule simplified-e)
+(define (try-to-rewrite-funs simplified-e)
   (find-first-maybe
    (lambda (rewrite)
      (let ((simplified-pat (car rewrite))
@@ -119,6 +119,23 @@
              fail
              (just (apply-match-env (just-value matched-maybe) simplified-body))))))
    rewrite-rules))
+
+(define (try-to-rewrite-primitives e)
+  (let ((e (unsimplify e)))
+    (let ((f (car e))
+          (args (cdr e)))
+      (if (symbol? f)
+          (let ((prim-fun (get-primitive f)))
+            (if (fail? prim-fun)
+                fail
+                (just (simplify-exp (apply (just-value prim-fun) args)))))
+          fail))))
+
+(define (try-to-rewrite e)
+  (let ((try-funs (try-to-rewrite-funs e)))
+    (if (just? try-funs)
+        try-funs
+        (try-to-rewrite-primitives e))))
 
 (define (normal-form-kids e)
   (cond
@@ -136,7 +153,7 @@
    ((eq? 'pair (car e))
     (begin
       (let ((ee (normal-form-kids e)))
-        (let ((rewrite-maybe (try-a-rule ee)))
+        (let ((rewrite-maybe (try-to-rewrite ee)))
           (if (fail? rewrite-maybe)
               ee
               (normal-form (just-value rewrite-maybe)))))))
@@ -161,4 +178,4 @@
 (define (run-file-src forms)
   (map exec-top-level-form forms))
 
-;(tracefun match)
+;(tracefun try-to-rewrite try-to-rewrite-primitives try-to-rewrite-funs)

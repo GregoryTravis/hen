@@ -7,7 +7,7 @@
    (map (lambda (identifier)
           (if (starts-with (->string identifier) primitive-prefix)
               (let ((real-name (->symbol (substring (->string identifier) (string-length primitive-prefix)))))
-                (just (list real-name (eval identifier))))
+                (just (cons real-name (eval identifier))))
               fail))
         (namespace-mapped-symbols))))
 
@@ -17,3 +17,9 @@
 (begin
   (display "primitives: ")
   (shew (map car primitives)))
+
+(define (get-primitive name)
+  (let ((blah (assoc name primitives)))
+    (if (eq? #f blah)
+        fail
+        (just (cdr blah)))))
