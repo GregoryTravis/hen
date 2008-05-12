@@ -77,6 +77,20 @@
             (just-value binding))))
      (#t (err 'apply-env env body)))))
 
+(define (hshew . args)
+  (apply shew (map unsimplify args)))
+
+(define (unsimplify o)
+  (cond
+   ((eq? (car o) 'pair)
+    (cons (unsimplify (cadr o))
+          (unsimplify (caddr o))))
+   ((eq? (car o) 'literal)
+    (cadr o))
+   ((eq? (car o) 'nil) '())
+   ((eq? (car o) 'var) (cadr o))
+   (#t (err 'unsimplify o))))
+
 ;(tracefun match apply-env look-up-binding simplify simplify-exp simplify-pat simplify-list simplify-list-cdr)
 
 (define la
@@ -93,11 +107,14 @@
               (spat (simplify-pat pat))
               (sbody (simplify-pat body))
               (st (simplify-exp t)))
-         (shew pat body t spat sbody st)
+         (shew pat body t)
+         ;(shew spat sbody st)
+         ;(hshew spat sbody st)
          (let ((menv (match spat st)))
-           (shew menv)
+           ;(shew menv)
            (if (fail? menv)
                (err 'fail)
                (let ((rbody (apply-env (just-value menv) sbody)))
-                 (shew rbody))))))
+                 ;(shew rbody)
+                 (shew (unsimplify rbody)))))))
      la)
