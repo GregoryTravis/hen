@@ -1,3 +1,4 @@
 (fun (f (bark a) (jok b t y)) (+ a y))
 
 (f (bark 20) (jok (vah 10) 20 (gurk 30 40)))
+(asdf asd)

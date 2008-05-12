@@ -53,7 +53,7 @@
        fail))
      ((eq? p-what 'var)
       (just (list (list 'binding (cadr p) t))))
-     (#t (err 'match p-what t-what p t)))))
+     (#t fail))))
 
 (define (look-up-binding env varname)
   (if (null? env)
