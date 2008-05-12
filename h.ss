@@ -10,7 +10,7 @@
            (quote? p)
            (and
             (atom? (car p))
-            (all pat-ok? (cdr p)))))
+            (all (map pat-ok? (cdr p))))))
       #t))
 
 (define (simplify-list-cdr d pat-p)

@@ -71,6 +71,12 @@
 (define (proper-cons? c)
   (and (pair? c) (or (pair? (cdr c)) (null? (cdr c)))))
 
+(define (proper-tree? t)
+  (if (pair? t)
+      (and (proper-list? t)
+           (all (map proper-tree? t)))
+      #t))
+
 (define (make-dict . args)
   (cond
    ((null? args) (make-dict equal?))
@@ -174,11 +180,10 @@
       (or (f (car lyst))
           (any f (cdr lyst)))))
 
-(define (all f  lyst)
+(define (all lyst)
   (if (null? lyst)
       #t
-      (and (f (car lyst))
-           (all f (cdr lyst)))))
+      (and (car lyst) (all (cdr lyst)))))
 
 (define-macro (assert exp . stuff)
   `(if ,exp
@@ -393,7 +398,7 @@
 (define (zip f . lysts)
   ;(shew 'um-zip lysts)
   (if (any null? lysts)
-      (if (not (all null? lysts))
+      (if (not (all (map null? lysts)))
           (err 'uneven-zip-params lysts (map null? lysts))
           '())
       (cons (apply f (map car lysts))
