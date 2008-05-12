@@ -68,6 +68,9 @@
 (define (proper-list? l)
   (or (eq? l '()) (and (pair? l) (proper-list? (cdr l)))))
 
+(define (proper-cons? c)
+  (and (pair? c) (or (pair? (cdr c)) (null? (cdr c)))))
+
 (define (make-dict . args)
   (cond
    ((null? args) (make-dict equal?))
@@ -390,8 +393,10 @@
 (define fail 'fail)
 
 (define (fail? a) (eq? a fail))
-(define (just? a) (and (pair a) (eq? (car a) 'just) (null? (cddr a))))
-(define just-value cadr)
+(define (just? a) (and (pair? a) (eq? (car a) 'just) (null? (cddr a))))
+(define (just-value o)
+  (assert (just? o) o)
+  (cadr o))
 
 (define (maybe-combine combiner args)
   (if (any fail? args)
@@ -434,3 +439,20 @@
    (#t (sdisplay o))))
 
 (define member? member)
+
+(define (atom? o)
+  (or
+   (symbol? o)
+   (number? o)
+   (eq? o #t)
+   (eq? o #f)
+   (string? o)))
+
+(define (is-quote? o)
+  (and (pair? o)
+       (eq? (car o) 'quote)
+       (pair? (cdr o))
+       (null? (cddr o))))
+
+(define (quote-quoted o)
+  (cadr o))

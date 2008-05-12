@@ -12,15 +12,6 @@
 (define (is-fun-def? o)
   (and (pair? o) (eq? (car o) 'fun) (assert (and (not (null? (cdr o))) (not (null? (cddr o)))))))
 
-(define (is-quote? o)
-  (and (pair? o)
-       (eq? (car o) 'quote)
-       (pair? (cdr o))
-       (null? (cddr o))))
-
-(define (quote-quoted o)
-  (cadr o))
-
 (define (apply-primitive e)
   (assert (primitive? (car e)))
   (let ((real-name (string->symbol (++ "primitive-" (car e)))))
