@@ -1,153 +1,103 @@
+;; (load "h.ss")
 (load "lib.ss")
-(load "primitives.ss")
 
-(define rules '())
+;; (run-file "src.ss")
 
-(define trace-normal-form #f)
-(define trace-rule-definitions #f)
+(define (pat-ok? p)
+  (if (pair? p)
+      (and
+       (proper-list? p)
+       (if (eq? (car p) 'quote)
+           (quote? p)
+           (and
+            (atom? (car p))
+            (all pat-ok? (cdr p)))))
+      #t))
 
-(define (constant? k)
-  (or (null? k) (number? k)))
+(define (simplify-list-cdr d pat-p)
+  (if (pair? d)
+      (list 'pair (simplify (car d) pat-p) (simplify-list-cdr (cdr d) pat-p))
+      (if (null? d)
+          (list 'nil)
+          (err d))))
 
-(define (is-fun-def? o)
-  (and (pair? o) (eq? (car o) 'fun) (assert (and (not (null? (cdr o))) (not (null? (cddr o)))))))
+(define (simplify-list p pat-p)
+  (list 'pair (list 'literal (car p)) (simplify-list-cdr (cdr p) pat-p)))
 
-(define (apply-primitive e)
-  (assert (primitive? (car e)))
-  (let ((real-name (string->symbol (++ "primitive-" (car e)))))
-    (if (not (special-form? (car e)))
-        (set! e (normal-form-children e)))
-    (apply (eval real-name) (cdr e))))
-
-(define (define-rule r)
-  (assert (proper-list? r)
-          (= (length r) 3))
-  (let ((pat (cadr r))
-        (body (caddr r)))
-    (let ((pat (cons `(quote ,(car pat)) (cdr pat))))
-      (set! rules (append rules (list (cons pat body))))
-      (if trace-rule-definitions
-          (begin
-            (display "* ")
-            (shew pat))))))
-
-(define (find-matching-rule e)
-  (first-success
-   (lambda (rule)
-     (let ((env (match-pat (car rule) e)))
-       (if (fail? env)
-           fail
-           (just (list 'match (just-value env) rule)))))
-   rules))
-
-(define trace-normal-form-level 0)
-
-(define (normal-form-step e)
-  ;(shew 'oof e (primitive? e))
-  (if (not (pair? e))
-      (cons 'normal e)
-      (if (primitive? (car e))
-          (cons 'not-normal (apply-primitive e))
-          (if (is-quote? e)
-              (cons 'normal e)
-              (let ((e (normal-form-children e)))
-                (let ((match (find-matching-rule e)))
-                  (if (fail? match)
-                      (cons 'normal e)
-                      (cons 'not-normal (apply-matching-rule (just-value match) e)))))))))
-
-(define (normal-form-iterate e)
-  (if trace-normal-form
-      (begin
-        (display (make-string-string trace-normal-form-level "| "))
-        (display "+  ")
-        (lshew e)
-        (display "\n")))
-  (let* ((r (normal-form-step e))
-         (normal-p (car r))
-         (re (cdr r)))
-    (if (eq? normal-p 'normal)
-        re
-        (normal-form-iterate re))))
-
-(define (normal-form-children e)
-  (set! trace-normal-form-level (+ trace-normal-form-level 1))
-  (let ((r (cons (car e) (map normal-form (cdr e)))))
-    (set! trace-normal-form-level (- trace-normal-form-level 1))
-    r))
-
-(define (normal-form e)
-  (let ((r (normal-form-iterate e)))
-    (if trace-normal-form
-        (begin
-          (display (make-string-string trace-normal-form-level "| "))
-          (display "-> ")
-          (lshew r)
-          (display "\n")))
-    r))
-
-(define (apply-matching-rule match e)
-  (let* ((env (cadr match))
-         (rule (caddr match))
-         (body (cdr rule)))
-    (rewrite-body env body)))
-
-(define (rewrite-body env body)
+(define (simplify p pat-p)
+  (assert (pat-ok? p))
   (cond
-   ((is-quote? body) body)
-   ((pair? body)
-    (cons (rewrite-body env (car body))
-          (rewrite-body env (cdr body))))
-   ((symbol? body)
-    (let ((v (assoc body env)))
-      (if (eq? #f v)
-          body
-          (cdr v))))
-   ((constant? body) body)
-   (#t (err 'rewrite-body env body))))
+   ((is-quote? p) p)
+   ((pair? p) (simplify-list p pat-p))
+   ((symbol? p) (if pat-p (list 'var p) (list 'literal p)))
+   (#t (list 'literal p))))
 
-(define (normal-form-top e)
-  (if (not trace-normal-form)
-      (begin
-        (display "+  ")
-        (shew e)))
-  (let ((r (normal-form e)))
-    (if (not trace-normal-form)
-        (begin
-          (display "=> ")
-          (shew r)))
-    r))
+(define (simplify-pat p) (simplify p #t))
+(define (simplify-exp p) (simplify p #f))
 
-(define (top-level-deal o)
-  (cond
-   ((is-fun-def? o) (define-rule o))
-   (#t (normal-form-top o))))
+(define (match p t)
+  (let ((p-what (car p))
+        (t-what (car t)))
+    (cond
+     ((and (eq? p-what 'nil)
+           (eq? t-what 'nil))
+      (just '()))
+     ((and (eq? p-what 'pair)
+           (eq? t-what 'pair))
+      (maybe-append (match (cadr p) (cadr t))
+                    (match (caddr p) (caddr t))))
+     ((and (eq? p-what 'literal)
+           (eq? t-what 'literal))
+      (if
+       (equal? (cadr p) (cadr t))
+       (just '())
+       fail))
+     ((eq? p-what 'var)
+      (just (list (list 'binding (cadr p) t))))
+     (#t (err 'match p t)))))
 
-(define (match-pat-pair pat e)
-  (assert (and (pair? pat) (pair? e)))
-  (maybe-append (match-pat (car pat) (car e))
-                (match-pat (cdr pat) (cdr e))))
+(define (look-up-binding env varname)
+  (if (null? env)
+      fail
+      (if (eq? varname (cadar env))
+          (just (caddar env))
+          (look-up-binding (cdr env) varname))))
 
-;; Literal match; if the pat matches the value, return the empty
-;; environment.
-(define (match-constants pat e)
-  (if (equal? pat e)
-      (just '())
-      'fail))
+(define (apply-env env body)
+  (let ((b-what (car body)))
+    (cond
+     ((eq? b-what 'nil) body)
+     ((eq? b-what 'pair)
+      (list 'pair (apply-env env (cadr body)) (apply-env env (caddr body))))
+     ((eq? b-what 'literal) body)
+     ((eq? b-what 'var)
+      (let ((binding (look-up-binding env (cadr body))))
+        (if (fail? binding)
+            (err 'unbound env body)
+            (just-value binding))))
+     (#t (err 'apply-env env body)))))
 
-(define (match-pat pat e)
-  (cond
-   ((is-quote? pat) (match-constants (quote-quoted pat) e))
-   ((and (pair? pat) (pair? e)) (match-pat-pair pat e))
-   ((and (symbol? pat)) (just (list (cons pat e))))
-   ((not (eq? (pair? pat) (pair? e))) fail)
-   ((constant? pat) (match-constants pat e))
-   (#t (err 'match-pat pat e))))
+;(tracefun match apply-env look-up-binding simplify simplify-exp simplify-pat simplify-list simplify-list-cdr)
 
-;(tracefun primitive? match-pat match-pat-list match-constants normal-form normal-form-step normal-form-iterate normal-form-children apply-matching-rule apply-primitive rewrite-body find-matching-rule is-fun-def? first-success primitive-==)
-;(tracefun primitive? match-pat match-pat-list match-constants apply-matching-rule find-matching-rule)
+(define la
+  '(
+;    ((f b) (+ b b) (f 20))
+;    ((f (ha b)) (* b b b) (f (ha 20)))
+    ((f (bark a) (jok b t y)) (+ a y) (f (bark 20) (jok (vah 10) 20 (gurk 30 40))))
+    ))
 
-(define (run-file filename)
-  (map top-level-deal (read-objects filename)))
-
-(run-file "prelude.ss")
+(map (lambda (p)
+       (let* ((pat (car p))
+              (body (cadr p))
+              (t (caddr p))
+              (spat (simplify-pat pat))
+              (sbody (simplify-pat body))
+              (st (simplify-exp t)))
+         (shew pat body t spat sbody st)
+         (let ((menv (match spat st)))
+           (shew menv)
+           (if (fail? menv)
+               (err 'fail)
+               (let ((rbody (apply-env (just-value menv) sbody)))
+                 (shew rbody))))))
+     la)
