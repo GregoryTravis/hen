@@ -106,7 +106,7 @@
          (simplified-rule (list (simplify-pat pat) (simplify-pat body))))
     (set! rewrite-rules (snoc rewrite-rules simplified-rule))
     (display "* ")
-    (shew simplified-rule)))
+    (shew o)))
 
 (define (try-a-rule simplified-e)
   (find-first-maybe
@@ -121,14 +121,14 @@
 
 (define (exec-exp e)
   (let ((e (simplify-exp e)))
-    (display "--> ")
+    (display "+ ")
     (hshew e)
     (display "    =>\n")
     (let ((rewrite-maybe (try-a-rule e)))
       (if (fail? rewrite-maybe)
           (display "Cain't.\n")
           (begin
-            (display "<-- ")
+            (display "  ")
             (hshew (just-value rewrite-maybe)))))))
 
 (define (exec-top-level-form o)
@@ -139,6 +139,6 @@
 (define (run-file-src forms)
   (map exec-top-level-form forms))
 
-(tracefun match)
+;(tracefun match)
 
 (run-file "src.ss")
