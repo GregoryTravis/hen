@@ -1,5 +1,20 @@
 primitives: (+)
-* (fun (f (bark a) (jok b t y)) (+ a y))
-+ (f (bark 20) (jok (vah 10) 20 (gurk 30 40)))
+* (fun (f (bark a) (jok b t y)) (lemon a y))
+* (fun (loo a) (f (bark a) (jok a a (+ a a))))
++ (f (bark 20) (jok (var 10) 20 (gurk 30 40)))
     =>
-  (+ 20 (gurk 30 40))
+  (lemon 20 (gurk 30 40))
++ (loo 44)
+    =>
+  (lemon 44 88)
+* (fun (la (cons a d)) (cons a (joe (la d))))
+* (fun (la nil) nil)
++ (la (cons 1 (cons 2 (cons 3 nil))))
+    =>
+  (cons 1 (joe (cons 2 (joe (cons 3 (joe nil))))))
++ (asdf asd)
+    =>
+  (asdf asd)
++ (+ 1 (+ 2 20))
+    =>
+  23
