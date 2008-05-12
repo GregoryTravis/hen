@@ -1,5 +1,3 @@
-;; (fun (map f (a . d)) (cons (f a) (map f d)))
+(fun (f (bark a) (jok b t y)) (+ a y))
 
-;; (fun (x2 x) (* x 2))
-
-;; (map x2 '(1 2 3 4))
+(f (bark 20) (jok (vah 10) 20 (gurk 30 40)))

@@ -347,16 +347,16 @@
 
 ;; ;; maybe stuff.
 
-;; ;; f should return either (value) or #f; find-first-maybe will return
-;; ;; the first one it finds that's not null, in the same format: (value)
-;; ;; or #f.
-;; (define (find-first-maybe f lyst)
-;;   (if (null? lyst)
-;;       #f
-;;       (let ((r (f lyst)))
-;;         (if (null? r)
-;;             (find-first-maybe f (cdr lyst))
-;;             r))))
+;; f should return either (value) or #f; find-first-maybe will return
+;; the first one it finds that's not null, in the same format: (value)
+;; or #f.
+(define (find-first-maybe f lyst)
+  (if (null? lyst)
+      #f
+      (let ((r (f (car lyst))))
+        (if (null? r)
+            (find-first-maybe f (cdr lyst))
+            r))))
 
 ;; ;; If any sub-call returns #f, return #f.  Otherwise, extract the
 ;; ;; value from each singlet and return the list of them.  If you get an
@@ -456,3 +456,12 @@
 
 (define (quote-quoted o)
   (cadr o))
+
+(define (rdc riap) (reverse (cdr (reverse riap))))
+(define (snoc d a) (reverse (cons a (reverse d))))
+
+(define (rac lyst)
+  (cond
+   ((null? lyst) (err))
+   ((null? (cdr lyst)) (car lyst))
+   (#t (rac (cdr lyst)))))
