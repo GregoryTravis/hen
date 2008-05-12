@@ -1,5 +1,6 @@
 ;; (load "h.ss")
 (load "lib.ss")
+(load "primitives.ss")
 
 (define (pat-ok? p)
   (if (pair? p)

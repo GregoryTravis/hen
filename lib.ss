@@ -358,6 +358,18 @@
             (find-first-maybe f (cdr lyst))
             r))))
 
+;; Retrieve x for each (just x) in list, and throw away failures.
+;; Good advice for the youth of today!
+(define (maybe-successes lyst)
+  (cond
+   ((null? lyst) '())
+   ((pair? lyst)
+    (if (fail? (car lyst))
+        (maybe-successes (cdr lyst))
+        (cons (just-value (car lyst))
+              (maybe-successes (cdr lyst)))))
+   (#t (err 'maybe-successes lyst))))
+
 ;; ;; If any sub-call returns #f, return #f.  Otherwise, extract the
 ;; ;; value from each singlet and return the list of them.  If you get an
 ;; ;; #f, don't bother doing the rest.
@@ -465,3 +477,22 @@
    ((null? lyst) (err))
    ((null? (cdr lyst)) (car lyst))
    (#t (rac (cdr lyst)))))
+
+(define (ends-with string suffix)
+  (let ((suflen (string-length suffix))
+        (slen (string-length string)))
+    (and (>= slen suflen)
+         (string= suffix (substring string (- (string-length string)
+                                              (string-length suffix)))))))
+
+(define (starts-with string prefix)
+  (let ((prelen (string-length prefix))
+        (slen (string-length string)))
+    (and (>= slen prelen)
+         (string= prefix (substring string 0 prelen)))))
+
+(define (->symbol o)
+  (cond
+   ((string? o) (string->symbol o))
+   ((symbol? o) o)
+   (#t (err))))
