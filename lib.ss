@@ -357,9 +357,9 @@
 ;; or #f.
 (define (find-first-maybe f lyst)
   (if (null? lyst)
-      #f
+      fail
       (let ((r (f (car lyst))))
-        (if (null? r)
+        (if (fail? r)
             (find-first-maybe f (cdr lyst))
             r))))
 

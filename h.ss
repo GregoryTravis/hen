@@ -120,17 +120,38 @@
              (just (apply-match-env (just-value matched-maybe) simplified-body))))))
    rewrite-rules))
 
+(define (normal-form-kids e)
+  (cond
+   ((eq? 'pair (car e))
+    (list 'pair (normal-form (cadr e)) (normal-form-kids (caddr e))))
+   ((eq? 'nil (car e)) '(nil))
+   (#t (err normal-form-kids e))))
+
+(define (normal-form e)
+  (assert (pair? e) e)
+  (cond
+   ((or (eq? 'literal (car e))
+        (eq? 'nil (car e)))
+    e)
+   ((eq? 'pair (car e))
+    (begin
+      (let ((ee (normal-form-kids e)))
+        (let ((rewrite-maybe (try-a-rule ee)))
+          (if (fail? rewrite-maybe)
+              ee
+              (normal-form (just-value rewrite-maybe)))))))
+   (#t (err 'normal-form e))))
+
+;(tracefun normal-form try-a-rule)
+
 (define (exec-exp e)
   (let ((e (simplify-exp e)))
     (display "+ ")
     (hshew e)
     (display "    =>\n")
-    (let ((rewrite-maybe (try-a-rule e)))
-      (if (fail? rewrite-maybe)
-          (display "Cain't.\n")
-          (begin
-            (display "  ")
-            (hshew (just-value rewrite-maybe)))))))
+    (let ((nf (normal-form e)))
+      (display "  ")
+      (hshew nf))))
 
 (define (exec-top-level-form o)
   (if (fun? o)
