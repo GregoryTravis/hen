@@ -444,12 +444,12 @@
   (if (null? (cdr fs))
       (lambda args
         (let ((r (apply (car fs) args)))
-          (assert (or (just? r) (fail? r)))
+          (assert (or (just? r) (fail? r)) r)
           r))
       (let ((rest (apply maybe-compose (cdr fs))))
         (lambda args
           (let ((r (apply (car fs) args)))
-            (assert (or (just? r) (fail? r)))
+            (assert (or (just? r) (fail? r)) r)
             (if (fail? r)
                 fail
                 (rest (just-value r))))))))
@@ -460,7 +460,7 @@
       (let ((rest (apply maybe-try (cdr fs))))
         (lambda args
           (let ((r (apply (car fs) args)))
-            (assert (or (just? r) (fail? r)))
+            (assert (or (just? r) (fail? r)) r)
             (if (fail? r)
                 (apply rest args)
                 (just-value r)))))))

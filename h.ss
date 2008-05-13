@@ -133,10 +133,9 @@
     (let ((f (car e))
           (args (cdr e)))
       (if (symbol? f)
-          (let ((prim-fun (get-primitive f)))
-            (if (fail? prim-fun)
-                fail
-                (just (simplify-exp (apply (just-value prim-fun) args)))))
+          ((maybe-compose
+            (lambda () (get-primitive f))
+            (lambda (prim-fun) (just (simplify-exp (apply prim-fun args))))))
           fail))))
 
 (define (try-to-rewrite e)
