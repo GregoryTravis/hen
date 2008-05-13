@@ -122,10 +122,10 @@
    (lambda (rewrite)
      (let ((simplified-pat (car rewrite))
            (simplified-body (cadr rewrite)))
-       (let ((matched-maybe (match simplified-pat simplified-e)))
-         (if (fail? matched-maybe)
-             fail
-             (just (apply-match-env (just-value matched-maybe) simplified-body))))))
+       ((maybe-compose
+         (lambda () (match simplified-pat simplified-e))
+         (lambda (env) (just (apply-match-env env simplified-body)))
+))))
    rewrite-rules))
 
 (define (try-to-rewrite-primitives e)
@@ -189,3 +189,4 @@
 ;(tracefun simplify simplify-exp simplify-pat simplify-list simplify-list-cdr)
 ;(tracefun is-quote? pat-ok?)
 ;(tracefun get-primitive try-to-rewrite-primitives)
+;(tracefun maybe-compose maybe-try)
