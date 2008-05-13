@@ -7,7 +7,7 @@
       (and
        (proper-list? p)
        (if (eq? (car p) 'quote)
-           (quote? p)
+           (is-quote? p)
            (and
             (atom? (car p))
             (all (map pat-ok? (cdr p))))))
@@ -26,7 +26,9 @@
 (define (simplify p pat-p)
   (assert (pat-ok? p))
   (cond
-   ((is-quote? p) p)
+   ((is-quote? p) (if pat-p
+                      (list 'literal (quote-quoted p))
+                      (err 'quote-outside-pattern p pat-p)))
    ((pair? p) (simplify-list p pat-p))
    ((symbol? p) (if pat-p (list 'var p) (list 'literal p)))
    (#t (list 'literal p))))
@@ -81,6 +83,7 @@
 
 (define (unsimplify o)
   (cond
+   ((is-quote? o) o)
    ((eq? (car o) 'pair)
     (cons (unsimplify (cadr o))
           (unsimplify (caddr o))))
@@ -92,8 +95,11 @@
 
 (define (fun? p)
   (and (pair? p)
-       (eq? (car p) 'fun)
+       (or (eq? (car p) 'fun) (eq? (car p) 'macro))
        (and (= 3 (length p)))))
+
+(define (macro? p)
+  (and (fun? p) (eq? 'macro (car p))))
 
 (define (run-file f)
   (run-file-src (read-objects f)))
@@ -105,7 +111,9 @@
   (let* ((pat (cadr o))
          (body (caddr o))
          (simplified-rule (list (simplify-pat pat) (simplify-pat body))))
-    (set! rewrite-rules (snoc rewrite-rules simplified-rule))
+    (if (macro? o)
+        (set! macros (snoc macros simplified-rule))
+        (set! rewrite-rules (snoc rewrite-rules simplified-rule)))
     (display "* ")
     (shew o)))
 
@@ -159,10 +167,9 @@
               (normal-form (just-value rewrite-maybe)))))))
    (#t (err 'normal-form e))))
 
-;(tracefun normal-form try-a-rule)
-
 (define (exec-exp e)
-  (let ((e (simplify-exp e)))
+  (let ((oe e)
+        (e (simplify-exp e)))
     (display "+ ")
     (hshew e)
     (display "    =>\n")
@@ -178,4 +185,4 @@
 (define (run-file-src forms)
   (map exec-top-level-form forms))
 
-;(tracefun try-to-rewrite try-to-rewrite-primitives try-to-rewrite-funs)
+;(tracefun match apply-match-env)
