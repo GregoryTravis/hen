@@ -58,12 +58,11 @@
   (display (apply lsshew args)))
 
 (define (lsshew . args)
-                                        ;  (string-collapse-spaces
-  (string-one-line
-   (call-with-output-string
-    (lambda (port)
-      (map (lambda (j) (pretty-print j port)) args)))))
-                                        ;)
+  (string-collapse-spaces
+   (string-one-line
+    (call-with-output-string
+     (lambda (port)
+       (map (lambda (j) (pretty-print j port)) args))))))
 
 (define (proper-list? l)
   (or (eq? l '()) (and (pair? l) (proper-list? (cdr l)))))
@@ -237,6 +236,18 @@
   (string-map
    (lambda (c) (if (eq? c #\newline) #\space c))
    s))
+
+(define (string-collapse-spaces s)
+  (list->string
+   (foldr
+    (lambda (a rest)
+      (if (and (eq? a #\space)
+               (pair? rest)
+               (eq? (car rest) #\space))
+          rest
+          (cons a rest)))
+    '()
+    (string->list s))))
 
 (define impl-tracefun-indentation 0)
 
@@ -501,3 +512,8 @@
    ((string? o) (string->symbol o))
    ((symbol? o) o)
    (#t (err))))
+
+(define (foldr f e lyst)
+  (if (null? lyst)
+      e
+      (f (car lyst) (foldr f e (cdr lyst)))))
