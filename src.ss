@@ -12,3 +12,9 @@
 (asdf asd)
 
 (+ 1 (+ 2 20))
+
+(fun (hi1 (r 'f)) 67)
+(fun (hi2 (r f)) 67)
+
+(hi1 (r f))
+(hi2 (r f))
