@@ -439,15 +439,27 @@
 (define (maybe-list . things)
   (maybe-combine list things))
 
-;; f should return (successful-value) or #f for failure.
-;; Returns #f if no success.
-(define (first-success f lyst)
-  (if (null? lyst)
+(define (maybe-compose . fs)
+  (assert (not (null? fs)))
+  (if (null? (cdr fs))
+      (lambda args
+        (apply (car fs) args))
+      (let ((rest (apply maybe-compose (cdr fs))))
+        (lambda args
+          (let ((r (apply (car fs) args)))
+            (if (fail? r)
+                fail
+                (rest (just-value r))))))))
+
+(define (maybe-try . fs)
+  (if (null? fs)
       fail
-      (let ((v (f (car lyst))))
-        (if (fail? v)
-            (first-success f (cdr lyst))
-            v))))
+      (let ((rest (apply maybe-try (cdr fs))))
+        (lambda args
+          (let ((r (apply (car fs) args)))
+            (if (fail? r)
+                (apply rest args)
+                (just-value r)))))))
 
 (define (++ . stuff)
   (apply concat (map (lambda (o) (->string o)) stuff)))
