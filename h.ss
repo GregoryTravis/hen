@@ -24,7 +24,7 @@
   (list 'pair (list 'literal (car p)) (simplify-list-cdr (cdr p) pat-p)))
 
 (define (simplify p pat-p)
-  (assert (pat-ok? p))
+  (assert (pat-ok? p) p)
   (cond
    ((is-quote? p) (if pat-p
                       (list 'literal (quote-quoted p))
@@ -186,3 +186,5 @@
   (map exec-top-level-form forms))
 
 ;(tracefun match apply-match-env)
+;(tracefun simplify simplify-exp simplify-pat simplify-list simplify-list-cdr)
+;(tracefun is-quote? pat-ok?)
