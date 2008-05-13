@@ -1,4 +1,4 @@
-primitives: (+)
+primitives: (+ =)
 * (fun (f (bark a) (jok b t y)) (lemon a y))
 * (fun (loo a) (f (bark a) (jok a a (+ a a))))
 + (f (bark 20) (jok (var 10) 20 (gurk 30 40)))
@@ -26,3 +26,17 @@ primitives: (+)
 + (hi2 (r f))
     =>
   67
++ (= 1 2)
+    =>
+  false
++ (= 1 1)
+    =>
+  true
+* (fun (bif 'true t e) t)
+* (fun (bif 'false t e) e)
++ (bif (= 1 2) right wrong)
+    =>
+  wrong
++ (bif (= 1 1) right wrong)
+    =>
+  right

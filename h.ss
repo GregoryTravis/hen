@@ -188,3 +188,4 @@
 ;(tracefun match apply-match-env)
 ;(tracefun simplify simplify-exp simplify-pat simplify-list simplify-list-cdr)
 ;(tracefun is-quote? pat-ok?)
+;(tracefun get-primitive try-to-rewrite-primitives)

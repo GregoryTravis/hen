@@ -18,3 +18,12 @@
 
 (hi1 (r f))
 (hi2 (r f))
+
+(= 1 2)
+(= 1 1)
+
+(fun (bif 'true t e) t)
+(fun (bif 'false t e) e)
+
+(bif (= 1 2) right wrong)
+(bif (= 1 1) right wrong)

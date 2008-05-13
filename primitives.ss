@@ -12,6 +12,10 @@
         (namespace-mapped-symbols))))
 
 (define (h-primitive-+ a b) (+ a b))
+(define (h-primitive-= a b)
+  (if (equal? a b)
+      'true
+      'false))
 
 (define primitives (find-primitives))
 (begin
