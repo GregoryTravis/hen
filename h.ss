@@ -105,6 +105,7 @@
   (run-file-src (read-objects f)))
 
 (define rewrite-rules '())
+(define macros '())
 
 (define (define-rule o)
   (assert (fun? o))
@@ -117,7 +118,7 @@
     (display "* ")
     (shew o)))
 
-(define (try-to-rewrite-funs simplified-e)
+(define (try-to-rewrite-funlikes funlikes simplified-e)
   (find-first-maybe
    (lambda (rewrite)
      (let ((simplified-pat (car rewrite))
@@ -125,7 +126,12 @@
        ((maybe-compose
          (lambda () (match simplified-pat simplified-e))
          (lambda (env) (just (apply-match-env env simplified-body)))))))
-   rewrite-rules))
+   funlikes))
+
+(define (try-to-rewrite-funs simplified-e)
+  (try-to-rewrite-funlikes rewrite-rules simplified-e))
+(define (try-to-rewrite-macros simplified-e)
+  (try-to-rewrite-funlikes macros simplified-e))
 
 (define (try-to-rewrite-primitives e)
   (let ((e (unsimplify e)))
@@ -157,12 +163,14 @@
         (eq? 'nil (car e)))
     e)
    ((eq? 'pair (car e))
-    (begin
-      (let ((ee (normal-form-kids e)))
-        (let ((rewrite-maybe (try-to-rewrite ee)))
-          (if (fail? rewrite-maybe)
-              ee
-              (normal-form (just-value rewrite-maybe)))))))
+    (let ((guh (try-to-rewrite-macros e)))
+      (if (just? guh)
+          (normal-form (just-value guh))
+          (let ((ee (normal-form-kids e)))
+            (let ((rewrite-maybe (try-to-rewrite ee)))
+              (if (fail? rewrite-maybe)
+                  ee
+                  (normal-form (just-value rewrite-maybe))))))))
    (#t (err 'normal-form e))))
 
 (define (exec-exp e)

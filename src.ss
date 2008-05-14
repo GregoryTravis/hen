@@ -1,5 +1,10 @@
-(fun (bif 'true t e) t)
-(fun (bif 'false t e) e)
+;(fun (add a b) (+ a b))
 
-(bif (= 1 2) right wrong)
-(bif (= 1 1) right wrong)
+(fun (a-fun (+ a b)) 100)
+(fun (a-fun c) 200)
+
+(macro (a-macro (+ a b)) 100)
+(macro (a-macro c) 200)
+
+(a-fun (+ 1 2))
+(a-macro (+ 1 2))

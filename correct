@@ -40,3 +40,13 @@ primitives: (+ =)
 + (bif (= 1 1) right wrong)
     =>
   right
+* (fun (a-fun (+ a b)) 100)
+* (fun (a-fun c) 200)
+* (macro (a-macro (+ a b)) 100)
+* (macro (a-macro c) 200)
++ (a-fun (+ 1 2))
+    =>
+  200
++ (a-macro (+ 1 2))
+    =>
+  100
