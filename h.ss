@@ -124,8 +124,7 @@
            (simplified-body (cadr rewrite)))
        ((maybe-compose
          (lambda () (match simplified-pat simplified-e))
-         (lambda (env) (just (apply-match-env env simplified-body)))
-))))
+         (lambda (env) (just (apply-match-env env simplified-body)))))))
    rewrite-rules))
 
 (define (try-to-rewrite-primitives e)
