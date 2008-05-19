@@ -6,6 +6,13 @@
 (require (lib "pretty.ss"))
 (require-for-syntax (lib "list.ss"))
 
+(define concat string-append)
+
+(define (call-with-output-string pf)
+  (let ((p (open-output-string)))
+    (pf p)
+    (get-output-string p)))
+
 (define (read-objects filename)
   (call-with-input-file filename read-objects-port))
 
@@ -60,6 +67,15 @@
 (define (proper-list? l)
   (or (eq? l '()) (and (pair? l) (proper-list? (cdr l)))))
 
+(define (proper-cons? c)
+  (and (pair? c) (or (pair? (cdr c)) (null? (cdr c)))))
+
+(define (proper-tree? t)
+  (if (pair? t)
+      (and (proper-list? t)
+           (all (map proper-tree? t)))
+      #t))
+
 (define (make-dict . args)
   (cond
    ((null? args) (make-dict equal?))
@@ -67,7 +83,7 @@
    ((eq? (car args) eqv?) (make-dict-1 hashv-ref hashv-set!))
    ((eq? (car args) equal?) (make-dict-1 hash-ref hash-set!))
    (#t (err))))
-      
+
 (define (make-dict-1 reffer setter)
   (let ((hashtable (make-hash-table))
         (missing (cons '() '())))
@@ -91,7 +107,7 @@
        ((eq? (car args) 'values)
         (hash-values hashtable))
        ((eq? (car args) 'kv-pairs)
-;(shew 'urg hashtable)
+                                        ;(shew 'urg hashtable)
         (hash-kv-pairs hashtable))
        ((and (eq? (car args) 'put)
              (null? (cdddr args)))
@@ -154,17 +170,19 @@
    ((member (car lyst) (cdr lyst)) (unique (cdr lyst)))
    (#t (cons (car lyst) (unique (cdr lyst))))))
 
+(define (has-duplicates? lyst)
+  (not (eq? (length lyst) (length (unique lyst)))))
+
 (define (any f lyst)
   (if (null? lyst)
       #f
       (or (f (car lyst))
           (any f (cdr lyst)))))
 
-(define (all f . lyst)
+(define (all lyst)
   (if (null? lyst)
       #t
-      (and (f (car lyst))
-           (all f (cdr lyst)))))
+      (and (car lyst) (all (cdr lyst)))))
 
 (define-macro (assert exp . stuff)
   `(if ,exp
@@ -209,31 +227,55 @@
           (last (cdr l)))
       (err)))
 
-(define (tracefun-hookist name)
-  (lambda (f)
-    (lambda args
+(define (make-string-string n s)
+  (if (<= n 0)
+      ""
+      (concat s (make-string-string (1- n) s))))
+
+(define (string-one-line s)
+  (string-map
+   (lambda (c) (if (eq? c #\newline) #\space c))
+   s))
+
+(define (string-collapse-spaces s)
+  (list->string
+   (foldr
+    (lambda (a rest)
+      (if (and (eq? a #\space)
+               (pair? rest)
+               (eq? (car rest) #\space))
+          rest
+          (cons a rest)))
+    '()
+    (string->list s))))
+
+(define impl-tracefun-indentation 0)
+
+(define (tracefun-hookist name f)
+  (lambda args
+    (display "        ")
+    (display (make-string-string impl-tracefun-indentation "| "))
+    (display "+ ")
+    (lshew (cons name args))
+    (display "\n")
+    (flush-output)
+    (set! impl-tracefun-indentation (+ impl-tracefun-indentation 1))
+    (let ((result (apply f args)))
+      (flush-output)
+      (set! impl-tracefun-indentation (- impl-tracefun-indentation 1))
+      (display "        ")
       (display (make-string-string impl-tracefun-indentation "| "))
-      (display "+ ")
-      (lshew (cons name args))
+      (display "-> ")
+      (lshew result)
       (display "\n")
-      (swat-flush)
-      (set! impl-tracefun-indentation (+ impl-tracefun-indentation 2))
-      (let ((result (apply f args)))
-        (swat-flush)
-        (set! impl-tracefun-indentation (- impl-tracefun-indentation 2))
-        (display (make-string-string impl-tracefun-indentation "| "))
-        (display "-> ")
-        (lshew result)
-        (display "\n")
-        (swat-flush)
-        result))))
+      (flush-output)
+      result)))
 
 (define-macro (tracefun . funs)
   (cons 'begin
-        (map
-         (lambda (f)
-           `(fun-hook ',f (tracefun-hookist ',f)))
-         funs)))
+        (map (lambda (f)
+               `(set! ,f (tracefun-hookist ',f ,f)))
+             funs)))
 
 (define (find-first pred lyst)
   (cond
@@ -318,3 +360,176 @@
              (not-in-group (cdr divided)))
         (cons (cons group-of-car in-group)
               (group-by f not-in-group)))))
+
+;; ;; maybe stuff.
+
+;; f should return either (value) or #f; find-first-maybe will return
+;; the first one it finds that's not null, in the same format: (value)
+;; or #f.
+(define (find-first-maybe f lyst)
+  (if (null? lyst)
+      fail
+      (let ((r (f (car lyst))))
+        (if (fail? r)
+            (find-first-maybe f (cdr lyst))
+            r))))
+
+;; Retrieve x for each (just x) in list, and throw away failures.
+;; Good advice for the youth of today!
+(define (maybe-successes lyst)
+  (cond
+   ((null? lyst) '())
+   ((pair? lyst)
+    (if (fail? (car lyst))
+        (maybe-successes (cdr lyst))
+        (cons (just-value (car lyst))
+              (maybe-successes (cdr lyst)))))
+   (#t (err 'maybe-successes lyst))))
+
+;; ;; If any sub-call returns #f, return #f.  Otherwise, extract the
+;; ;; value from each singlet and return the list of them.  If you get an
+;; ;; #f, don't bother doing the rest.
+;; (define (maybe-map f lyst)
+;;   (if (null? lyst)
+;;       '()
+;;       (let ((v (f (car lyst))))
+;;         (if (eq? #f v)
+;;             #f
+;;             (let ((rest (maybe-map f (cdr lyst))))
+;;               (if (eq? #f rest)
+;;                   #f
+;;                   (cons v rest)))))))
+
+;; (define (maybe-map-append f lyst)
+;;   (let ((r (maybe-map f lyst)))
+;;     (if (eq? #f r)
+;;         #f
+;;         (apply append r))))
+
+(define (zip f . lysts)
+  ;(shew 'um-zip lysts)
+  (if (any null? lysts)
+      (if (not (all (map null? lysts)))
+          (err 'uneven-zip-params lysts (map null? lysts))
+          '())
+      (cons (apply f (map car lysts))
+            (apply zip (cons f (map cdr lysts))))))
+
+;; maybe stuff, for real
+
+(define (just a) (list 'just a))
+(define fail 'fail)
+
+(define (fail? a) (eq? a fail))
+(define (just? a) (and (pair? a) (eq? (car a) 'just) (null? (cddr a))))
+(define (just-value o)
+  (assert (just? o) o)
+  (cadr o))
+
+(define (maybe-combine combiner args)
+  (if (any fail? args)
+      fail
+      (begin
+        ;(shew 'combine combiner args (map just-value args) (apply combiner (map just-value args)))
+        (just (apply combiner (map just-value args))))))
+
+(define (maybe-append . things)
+  (maybe-combine append things))
+
+(define (maybe-list . things)
+  (maybe-combine list things))
+
+(define (maybe-compose . fs)
+  (assert (not (null? fs)))
+  (if (null? (cdr fs))
+      (lambda args
+        (let ((r (apply (car fs) args)))
+          (assert (or (just? r) (fail? r)) r)
+          r))
+      (let ((rest (apply maybe-compose (cdr fs))))
+        (lambda args
+          (let ((r (apply (car fs) args)))
+            (assert (or (just? r) (fail? r)) r)
+            (if (fail? r)
+                fail
+                (rest (just-value r))))))))
+
+(define (maybe-try . fs)
+  (if (null? fs)
+      fail
+      (let ((rest (apply maybe-try (cdr fs))))
+        (lambda args
+          (let ((r (apply (car fs) args)))
+            (assert (or (just? r) (fail? r)) r)
+            (if (fail? r)
+                (apply rest args)
+                (just-value r)))))))
+
+(define (++ . stuff)
+  (apply concat (map (lambda (o) (->string o)) stuff)))
+
+(define (->int o)
+  (cond
+   ((number? o) (inexact->exact (floor o)))
+   ((string? o) (->int (string->number o)))
+   (#f (err))))
+
+(define (->string o)
+  (cond
+   ((symbol? o) (symbol->string o))
+   ((string? o) o)
+   ((number? o) (number->string o))
+   ((char? o) (make-string 1 o))
+   (#t (sdisplay o))))
+
+(define member? member)
+
+(define (atom? o)
+  (or
+   (symbol? o)
+   (number? o)
+   (eq? o #t)
+   (eq? o #f)
+   (string? o)))
+
+(define (is-quote? o)
+  (and (pair? o)
+       (eq? (car o) 'quote)
+       (pair? (cdr o))
+       (null? (cddr o))))
+
+(define (quote-quoted o)
+  (cadr o))
+
+(define (rdc riap) (reverse (cdr (reverse riap))))
+(define (snoc d a) (reverse (cons a (reverse d))))
+
+(define (rac lyst)
+  (cond
+   ((null? lyst) (err))
+   ((null? (cdr lyst)) (car lyst))
+   (#t (rac (cdr lyst)))))
+
+(define (ends-with string suffix)
+  (let ((suflen (string-length suffix))
+        (slen (string-length string)))
+    (and (>= slen suflen)
+         (string= suffix (substring string (- (string-length string)
+                                              (string-length suffix)))))))
+
+(define (starts-with string prefix)
+  (let ((prelen (string-length prefix))
+        (slen (string-length string)))
+    (and (>= slen prelen)
+         (string= prefix (substring string 0 prelen)))))
+
+(define (->symbol o)
+  (cond
+   ((string? o) (string->symbol o))
+   ((symbol? o) o)
+   (#t (err))))
+
+(define (foldr f e lyst)
+  (if (null? lyst)
+      e
+      (f (car lyst) (foldr f e (cdr lyst)))))
