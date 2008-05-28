@@ -98,6 +98,12 @@
        (or (eq? (car p) 'fun) (eq? (car p) 'macro))
        (and (= 3 (length p)))))
 
+(define (type-declaration? p)
+  (and
+   (proper-list? p)
+   (eq? 'type (car p))
+   (none (map atom? (cdr p)))))
+
 (define (macro? p)
   (and (fun? p) (eq? 'macro (car p))))
 
@@ -115,6 +121,7 @@
     (if (macro? o)
         (set! macros (snoc macros simplified-rule))
         (set! rewrite-rules (snoc rewrite-rules simplified-rule)))
+    (define-type-promoters o)
     (display "* ")
     (shew o)))
 
@@ -183,13 +190,36 @@
       (display "  ")
       (hshew nf))))
 
+(define base-type-promoters '())
+
+(define (note-type-declaration t)
+  (set! base-type-promoters (append base-type-promoters
+                               (gen-base-type-promoters t))))
+
+(define (gen-base-type-promoters t)
+  (assert (type-declaration? t))
+  (let ((type-pat (cadr t))
+        (ctors (cddr t)))
+    (map (lambda (ctor)
+           (list type-pat ctor))
+         ctors)))
+
 (define (exec-top-level-form o)
-  (if (fun? o)
-      (define-rule o)
-      (exec-exp o)))
+  (cond
+   ((type-declaration? o) (note-type-declaration o))
+   ((fun? o) (define-rule o))
+   (#t (exec-exp o))))
 
 (define (run-file-src forms)
   (map exec-top-level-form forms))
+
+(define (define-type-promoters-for-type rule promoter)
+  (shew 'oik rule promoter))
+
+(define (define-type-promoters rule)
+  (map (lambda (promoter)
+         (define-type-promoters-for-type rule promoter))
+       base-type-promoters))
 
 ;(tracefun match apply-match-env)
 ;(tracefun simplify simplify-exp simplify-pat simplify-list simplify-list-cdr)
