@@ -536,3 +536,28 @@
   (if (null? lyst)
       e
       (f (car lyst) (foldr f e (cdr lyst)))))
+
+(define (pat-ok? p)
+  (if (pair? p)
+      (and
+       (proper-list? p)
+       (if (eq? (car p) 'quote)
+           (is-quote? p)
+           (and
+            (atom? (car p))
+            (all (map pat-ok? (cdr p))))))
+      #t))
+
+(define (fun? p)
+  (and (pair? p)
+       (or (eq? (car p) 'fun) (eq? (car p) 'macro))
+       (and (= 3 (length p)))))
+
+(define (type-declaration? p)
+  (and
+   (proper-list? p)
+   (eq? 'type (car p))
+   (none (map atom? (cdr p)))))
+
+(define (macro? p)
+  (and (fun? p) (eq? 'macro (car p))))
