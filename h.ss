@@ -18,9 +18,21 @@
 
 ;(tracefun linearize)
 
-(define pat '(larp a (finch b) (garp c d)))
-(set! pat (preprocess pat))
-(shew pat)
-(shew (linearize pat))
+;; (define pat '(larp a (finch b) (garp c d)))
+;; (set! pat (preprocess pat))
+;; (shew pat)
+;; (shew (linearize pat))
 
-;(define forms (read-objects "src.ss"))
+(define forms (read-objects "src.ss"))
+(define funs (grep fun? forms))
+
+(shew forms)
+(shew (map
+       (lambda (form)
+         (let ((pat (cadr form))
+               (body (caddr form)))
+           `(fun ,(linearize pat) ,body)))
+       (map preprocess forms)))
+
+(define exp (preprocess '(foo (hey (cat 10)) (her (cat 20)))))
+(shew exp (linearize exp))
