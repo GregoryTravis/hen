@@ -3,3 +3,4 @@
 (fun (!= a b) (not (== a b)))
 (fun (not 'true) false)
 (fun (not 'false) true)
+(fun (and 'true 'true) 'true)
