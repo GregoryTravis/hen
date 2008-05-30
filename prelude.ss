@@ -4,5 +4,6 @@
 (fun (not 'true) false)
 (fun (not 'false) true)
 (fun (and 'true 'true) 'true)
+(fun (and 'false 'false) 'false)
 (fun (and 'true 'false) 'false)
 (fun (and 'false 'true) 'false)
