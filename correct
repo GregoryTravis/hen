@@ -37,3 +37,21 @@
 + (a-macro (+ 1 2))
     =>
   100
++ (isType (A (G g) (H m n)) (B (G 10) (G (20 30))))
+    =>
+  (and true true)
++ (isType (A (G g) (H m n)) (C (G 40) (H 50 60)))
+    =>
+  (and true true)
++ (isType (A (G g) (H m n)) (B (G 10) (H 50 60)))
+    =>
+  (and true false)
++ (isType (A (G g) (H m n)) (C (G 10) (G (20 30))))
+    =>
+  (and true false)
++ (isType (A (G g) (H m n)) (Q (G 10) (H 50 60)))
+    =>
+  false
++ (isType (A (G g) (H m n)) (R (G 10) (G (20 30))))
+    =>
+  false
