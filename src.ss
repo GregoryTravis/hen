@@ -1,10 +1,39 @@
-;(fun (add a b) (+ a b))
+;; (type (A b c) (B b b) (C b c))
 
-(fun (a-fun (+ a b)) 100)
-(fun (a-fun c) 200)
+;; (fun (foo (A (G (Int) x) y) p)
+;;      (blah p))
+;; =>
+;; (fun (foo p)
+;;      (guard (isType (A (G (Int) x) y) p))
+;;      (blah p))
 
-(macro (a-macro (+ a b)) 100)
-(macro (a-macro c) 200)
+;(fun (isType (A (G g) (H m n))
 
-(a-fun (+ 1 2))
-(a-macro (+ 1 2))
+;(isType (A (G (Int) 10) 20))
+
+;; (fun (type-expand (A b c t))
+;;      (list (B b b) (C b c)))
+
+
+;; (type-expand (A (G g) (H m n) t))
+
+(fun (isType (A b c) (B b0 b1))
+     (and (isType b b0)
+          (isType b b1)))
+
+(fun (isType (A b c) (C b0 c0))
+     (and (isType b b0)
+          (isType c c0)))
+
+;; (fun (foo (A (G g) (H m n) v))
+;;      body)
+;; =>
+;; (fun (foo v)
+;;      (guard (isType (A (G g) (H m n)) v))
+;;      body)
+;;
+;; (foo (B (G 10) (G (20 30))))
+
+(fun (isType (G g) (G g0)) 'true)
+
+(isType (A (G g) (H m n)) (B (G 10) (G (20 30))))

@@ -1,5 +1,7 @@
 (load "lib.ss")
 
+(define verbose-list-primitives #f)
+
 (define primitive-prefix "h-primitive-")
 
 (define (find-primitives)
@@ -18,9 +20,10 @@
       'false))
 
 (define primitives (find-primitives))
-(begin
-  (display "primitives: ")
-  (shew (map car primitives)))
+(if verbose-list-primitives
+    (begin
+      (display "primitives: ")
+      (shew (map car primitives))))
 
 (define (get-primitive name)
   (let ((blah (assoc name primitives)))

@@ -2,6 +2,8 @@
 (load "lib.ss")
 (load "primitives.ss")
 
+(define verbose-show-defined-rules #f)
+
 (define (pat-ok? p)
   (if (pair? p)
       (and
@@ -115,8 +117,8 @@
     (if (macro? o)
         (set! macros (snoc macros simplified-rule))
         (set! rewrite-rules (snoc rewrite-rules simplified-rule)))
-    (display "* ")
-    (shew o)))
+    (if verbose-show-defined-rules
+        (begin (display "* ") (shew o)))))
 
 (define (try-to-rewrite-funlikes funlikes simplified-e)
   (find-first-maybe
