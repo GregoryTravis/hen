@@ -173,16 +173,19 @@
 (define (has-duplicates? lyst)
   (not (eq? (length lyst) (length (unique lyst)))))
 
-(define (any f lyst)
+(define (any lyst)
   (if (null? lyst)
       #f
-      (or (f (car lyst))
-          (any f (cdr lyst)))))
+      (or (car lyst)
+          (any (cdr lyst)))))
 
 (define (all lyst)
   (if (null? lyst)
       #t
       (and (car lyst) (all (cdr lyst)))))
+
+(define (none lyst)
+  (not (any lyst)))
 
 (define-macro (assert exp . stuff)
   `(if ,exp
@@ -408,7 +411,7 @@
 
 (define (zip f . lysts)
   ;(shew 'um-zip lysts)
-  (if (any null? lysts)
+  (if (any (map null? lysts))
       (if (not (all (map null? lysts)))
           (err 'uneven-zip-params lysts (map null? lysts))
           '())
@@ -427,7 +430,7 @@
   (cadr o))
 
 (define (maybe-combine combiner args)
-  (if (any fail? args)
+  (if (any (map fail? args))
       fail
       (begin
         ;(shew 'combine combiner args (map just-value args) (apply combiner (map just-value args)))
