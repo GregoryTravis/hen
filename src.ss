@@ -34,6 +34,12 @@
 ;;
 ;; (foo (B (G 10) (G (20 30))))
 
+;; Do I need one of these for every constructor?
+;;
+;; No, but you do for every alternative from a type def, perhaps.
 (fun (isType (G g) (G g0)) 'true)
+(fun (isType (H m n) (H m0 n0)) 'true)
 
 (isType (A (G g) (H m n)) (B (G 10) (G (20 30))))
+(isType (A (G g) (H m n)) (C (G 40) (H 50 60)))
+
