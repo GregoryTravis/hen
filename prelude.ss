@@ -7,3 +7,4 @@
 (fun (and 'false 'false) 'false)
 (fun (and 'true 'false) 'false)
 (fun (and 'false 'true) 'false)
+(fun (id x) x)
