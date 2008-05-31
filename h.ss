@@ -15,28 +15,28 @@
             (all (map pat-ok? (cdr p))))))
       #t))
 
-(define (simplify-list-cdr d pat-p)
+(define (orthogonalize-list-cdr d pat-p)
   (if (pair? d)
-      (list 'pair (simplify (car d) pat-p) (simplify-list-cdr (cdr d) pat-p))
+      (list 'pair (orthogonalize (car d) pat-p) (orthogonalize-list-cdr (cdr d) pat-p))
       (if (null? d)
           (list 'nil)
           (err d))))
 
-(define (simplify-list p pat-p)
-  (list 'pair (list 'literal (car p)) (simplify-list-cdr (cdr p) pat-p)))
+(define (orthogonalize-list p pat-p)
+  (list 'pair (list 'literal (car p)) (orthogonalize-list-cdr (cdr p) pat-p)))
 
-(define (simplify p pat-p)
+(define (orthogonalize p pat-p)
   (assert (pat-ok? p) p)
   (cond
    ((is-quote? p) (if pat-p
                       (list 'literal (quote-quoted p))
                       (err 'quote-outside-pattern p pat-p)))
-   ((pair? p) (simplify-list p pat-p))
+   ((pair? p) (orthogonalize-list p pat-p))
    ((symbol? p) (if pat-p (list 'var p) (list 'literal p)))
    (#t (list 'literal p))))
 
-(define (simplify-pat p) (simplify p #t))
-(define (simplify-exp p) (simplify p #f))
+(define (orthogonalize-pat p) (orthogonalize p #t))
+(define (orthogonalize-exp p) (orthogonalize p #f))
 
 (define (match p t)
   (let ((p-what (car p))
@@ -81,19 +81,19 @@
      (#t (err 'apply-match-env env body)))))
 
 (define (hshew . args)
-  (apply shew (map unsimplify args)))
+  (apply shew (map unorthogonalize args)))
 
-(define (unsimplify o)
+(define (unorthogonalize o)
   (cond
    ((is-quote? o) o)
    ((eq? (car o) 'pair)
-    (cons (unsimplify (cadr o))
-          (unsimplify (caddr o))))
+    (cons (unorthogonalize (cadr o))
+          (unorthogonalize (caddr o))))
    ((eq? (car o) 'literal)
     (cadr o))
    ((eq? (car o) 'nil) '())
    ((eq? (car o) 'var) (cadr o))
-   (#t (err 'unsimplify o))))
+   (#t (err 'unorthogonalize o))))
 
 (define (fun? p)
   (and (pair? p)
@@ -113,36 +113,36 @@
   (assert (fun? o))
   (let* ((pat (cadr o))
          (body (caddr o))
-         (simplified-rule (list (simplify-pat pat) (simplify-pat body))))
+         (orthogonalized-rule (list (orthogonalize-pat pat) (orthogonalize-pat body))))
     (if (macro? o)
-        (set! macros (snoc macros simplified-rule))
-        (set! rewrite-rules (snoc rewrite-rules simplified-rule)))
+        (set! macros (snoc macros orthogonalized-rule))
+        (set! rewrite-rules (snoc rewrite-rules orthogonalized-rule)))
     (if verbose-show-defined-rules
         (begin (display "* ") (shew o)))))
 
-(define (try-to-rewrite-funlikes funlikes simplified-e)
+(define (try-to-rewrite-funlikes funlikes orthogonalized-e)
   (find-first-maybe
    (lambda (rewrite)
-     (let ((simplified-pat (car rewrite))
-           (simplified-body (cadr rewrite)))
+     (let ((orthogonalized-pat (car rewrite))
+           (orthogonalized-body (cadr rewrite)))
        ((maybe-compose
-         (lambda () (match simplified-pat simplified-e))
-         (lambda (env) (just (apply-match-env env simplified-body)))))))
+         (lambda () (match orthogonalized-pat orthogonalized-e))
+         (lambda (env) (just (apply-match-env env orthogonalized-body)))))))
    funlikes))
 
-(define (try-to-rewrite-funs simplified-e)
-  (try-to-rewrite-funlikes rewrite-rules simplified-e))
-(define (try-to-rewrite-macros simplified-e)
-  (try-to-rewrite-funlikes macros simplified-e))
+(define (try-to-rewrite-funs orthogonalized-e)
+  (try-to-rewrite-funlikes rewrite-rules orthogonalized-e))
+(define (try-to-rewrite-macros orthogonalized-e)
+  (try-to-rewrite-funlikes macros orthogonalized-e))
 
 (define (try-to-rewrite-primitives e)
-  (let ((e (unsimplify e)))
+  (let ((e (unorthogonalize e)))
     (let ((f (car e))
           (args (cdr e)))
       (if (symbol? f)
           ((maybe-compose
             (lambda () (get-primitive f))
-            (lambda (prim-fun) (just (simplify-exp (apply prim-fun args))))))
+            (lambda (prim-fun) (just (orthogonalize-exp (apply prim-fun args))))))
           fail))))
 
 (define (try-to-rewrite e)
@@ -177,7 +177,7 @@
 
 (define (exec-exp e)
   (let ((oe e)
-        (e (simplify-exp e)))
+        (e (orthogonalize-exp e)))
     (display "+ ")
     (hshew e)
     (display "    =>\n")
@@ -194,7 +194,7 @@
   (map exec-top-level-form forms))
 
 ;(tracefun match apply-match-env)
-;(tracefun simplify simplify-exp simplify-pat simplify-list simplify-list-cdr)
+;(tracefun orthogonalize orthogonalize-exp orthogonalize-pat orthogonalize-list orthogonalize-list-cdr)
 ;(tracefun is-quote? pat-ok?)
 ;(tracefun get-primitive try-to-rewrite-primitives)
 ;(tracefun maybe-compose maybe-try)
