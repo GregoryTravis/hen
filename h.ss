@@ -176,8 +176,7 @@
    (#t (err 'normal-form e))))
 
 (define (exec-exp e)
-  (let ((oe e)
-        (e (orthogonalize-exp e)))
+  (let ((e (orthogonalize-exp e)))
     (display "+ ")
     (hshew e)
     (display "    =>\n")
