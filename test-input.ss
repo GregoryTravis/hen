@@ -6,8 +6,8 @@
 (loo 44)
 
 (fun (la (cons a d)) (cons a (joe (la d))))
-(fun (la nil) nil)
-(la (cons 1 (cons 2 (cons 3 nil))))
+(fun (la ()) ())
+(la (cons 1 (cons 2 (cons 3 ()))))
 
 (asdf asd)
 

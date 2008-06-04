@@ -81,7 +81,7 @@
      (#t (err 'apply-match-env env body)))))
 
 (define (hshew . args)
-  (apply shew (map unorthogonalize args)))
+  (apply shew (map unprepare args)))
 
 (define (unorthogonalize o)
   (cond
@@ -175,8 +175,48 @@
                   (normal-form (just-value rewrite-maybe))))))))
    (#t (err 'normal-form e))))
 
+(define (consy? e)
+  (or (null? e)
+      (and (pair? e)
+           (= 3 (length e))
+           (eq? 'cons (car e))
+           (consy? (caddr e)))))
+
+(define (consy-cons e)
+  (cond
+   ((pair? e) (list 'cons (car e) (consy-cons (cdr e))))
+   ((null? e) '())
+   (#t (err 'consy-cons e))))
+
+(define (unconsy-cons e)
+  (cond
+   ((null? e) e)
+   ((and (= 3 (length e)) (eq? 'cons (car e)))
+    (cons (cadr e) (unconsy-cons (caddr e))))
+   (#t (err 'unconsy-cons e))))
+
+(define (syntax-preprocess e)
+  (cond
+   ((and (pair? e) (eq? 'list (car e))) (consy-cons (cdr e)))
+   ((proper-list? e) (map syntax-preprocess e))
+   ((atom? e) e)
+   (#t (err 'syntax-preprocess e))))
+
+(define (unsyntax-preprocess e)
+  (cond
+   ((consy? e) (cons 'list (unconsy-cons e)))
+   ((proper-list? e) (map unsyntax-preprocess e))
+   ((atom? e) e)
+   (#t (err 'unsyntax-preprocess e))))
+
+(define (prepare e)
+  (orthogonalize-exp (syntax-preprocess e)))
+
+(define (unprepare e)
+  (unsyntax-preprocess (unorthogonalize e)))
+
 (define (exec-exp e)
-  (let ((e (orthogonalize-exp e)))
+  (let ((e (prepare e)))
     (display "+ ")
     (hshew e)
     (display "    =>\n")
