@@ -67,7 +67,7 @@
 
 (define (fun? p)
   (and (pair? p)
-       (or (eq? (car p) 'fun) (eq? (car p) 'macro))
+       (or (equal? (car p) ''fun) (equal? (car p) ''macro))
        (and (= 3 (length p)))))
 
 (define (macro? p)
@@ -144,11 +144,10 @@
    (#t (err 'normal-form e))))
 
 (define (exec-exp e)
-  (let ((e (preprocess e)))
-    (display "+ ")
-    (hshew e)
-    (let ((nf (normal-form e)))
-      (hshew nf))))
+  (display "+ ")
+  (hshew e)
+  (let ((nf (normal-form e)))
+    (hshew nf)))
 
 (define (exec-top-level-form o)
   (if (fun? o)
@@ -156,7 +155,7 @@
       (exec-exp o)))
 
 (define (run-file-src forms)
-  (map exec-top-level-form forms))
+  (map exec-top-level-form (preprocess forms)))
 
 ;(tracefun match apply-match-env)
 ;(tracefun orthogonalize orthogonalize-exp orthogonalize-pat orthogonalize-list orthogonalize-list-cdr)
@@ -164,4 +163,4 @@
 ;(tracefun get-primitive try-to-rewrite-primitives)
 ;(tracefun maybe-compose maybe-try)
 ;(tracefun normal-form normal-form-kids)
-;(tracefun preprocess un-preprocess quote-first-maybe un-quote-first-maybe)
+;(tracefun preprocess un-preprocess auto-quote-ctor un-auto-quote-ctor)
