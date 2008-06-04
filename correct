@@ -1,57 +1,38 @@
 + (f (bark 20) (jok (var 10) 20 (gurk 30 40)))
-    =>
-  (lemon 20 (gurk 30 40))
+(lemon 20 (gurk 30 40))
 + (loo 44)
-    =>
-  (lemon 44 88)
-+ (la (cons 1 (cons 2 (cons 3 nil))))
-    =>
-  (cons 1 (joe (cons 2 (joe (cons 3 (joe nil))))))
-+ (asdf asd)
-    =>
-  (asdf asd)
+(lemon 44 (+ 44 44))
++ (la (cons 1 (cons 2 (cons 3 'nil))))
+(cons 1 (joe (cons 2 (joe (cons 3 (joe 'nil))))))
++ (asdf 'asd)
+(asdf 'asd)
 + (+ 1 (+ 2 20))
-    =>
-  23
-+ (hi1 (r f))
-    =>
-  67
-+ (hi2 (r f))
-    =>
-  67
+(+ 1 (+ 2 20))
++ (hi1 (r 'f))
+67
++ (hi2 (r 'f))
+67
 + (= 1 2)
-    =>
-  false
+(= 1 2)
 + (= 1 1)
-    =>
-  true
-+ (bif (= 1 2) right wrong)
-    =>
-  wrong
-+ (bif (= 1 1) right wrong)
-    =>
-  right
+(= 1 1)
++ (bif (= 1 2) 'right 'wrong)
+(bif (= 1 2) 'right 'wrong)
++ (bif (= 1 1) 'right 'wrong)
+(bif (= 1 1) 'right 'wrong)
 + (a-fun (+ 1 2))
-    =>
-  200
+100
 + (a-macro (+ 1 2))
-    =>
-  100
-+ (isType (A (G g) (H m n)) (B (G 10) (G (20 30))))
-    =>
-  (and true true)
-+ (isType (A (G g) (H m n)) (C (G 40) (H 50 60)))
-    =>
-  (and true true)
-+ (isType (A (G g) (H m n)) (B (G 10) (H 50 60)))
-    =>
-  (and true false)
-+ (isType (A (G g) (H m n)) (C (G 10) (G (20 30))))
-    =>
-  (and true false)
-+ (isType (A (G g) (H m n)) (Q (G 10) (H 50 60)))
-    =>
-  false
-+ (isType (A (G g) (H m n)) (R (G 10) (G (20 30))))
-    =>
-  false
+100
++ (isType (A (G 'g) (H 'm 'n)) (B (G 10) (G (20 30))))
+'true
++ (isType (A (G 'g) (H 'm 'n)) (C (G 40) (H 50 60)))
+'true
++ (isType (A (G 'g) (H 'm 'n)) (B (G 10) (H 50 60)))
+'false
++ (isType (A (G 'g) (H 'm 'n)) (C (G 10) (G (20 30))))
+'false
++ (isType (A (G 'g) (H 'm 'n)) (Q (G 10) (H 50 60)))
+'false
++ (isType (A (G 'g) (H 'm 'n)) (R (G 10) (G (20 30))))
+'false
