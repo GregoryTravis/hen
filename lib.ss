@@ -504,6 +504,11 @@
 (define (quote-quoted o)
   (cadr o))
 
+(define (literal? o)
+  (or (is-quote? o)
+      (number? o)
+      (null? o)))
+
 (define (rdc riap) (reverse (cdr (reverse riap))))
 (define (snoc d a) (reverse (cons a (reverse d))))
 
