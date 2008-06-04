@@ -34,6 +34,9 @@
 (define (preprocess e)
   (auto-quote-ctor e))
 
+(define (preprocess e)
+  (auto-quote-ctor e))
+
 (define (un-preprocess e)
   (un-auto-quote-ctor e))
 
@@ -155,7 +158,7 @@
       (exec-exp o)))
 
 (define (run-file-src forms)
-  (map exec-top-level-form (preprocess forms)))
+  (map exec-top-level-form (map preprocess forms)))
 
 ;(tracefun match apply-match-env)
 ;(tracefun orthogonalize orthogonalize-exp orthogonalize-pat orthogonalize-list orthogonalize-list-cdr)
