@@ -148,9 +148,7 @@
   (let ((e (preprocess e)))
     (display "+ ")
     (hshew e)
-    (display "    =>\n")
     (let ((nf (normal-form e)))
-      (display "  ")
       (hshew nf))))
 
 (define (exec-top-level-form o)
