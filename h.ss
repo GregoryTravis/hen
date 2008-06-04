@@ -15,27 +15,20 @@
             (all (map pat-ok? (cdr p))))))
       #t))
 
-(define (quote-first-maybe e)
-  (if (and (not (is-quote? e)) (pair? e) (symbol? (car e)))
-      (cons `(quote ,(car e)) (cdr e))
-      e))
-
-(define (un-quote-first-maybe e)
-  (if (and (pair? e) (is-quote? (car e)) (symbol? (quote-quoted (car e))))
-      (cons (quote-quoted (car e)) (cdr e))
-      e))
-
 (define (preprocess e)
   (cond
-   ((is-quote? e) e)
+   ((and (not (is-quote? e)) (pair? e) (symbol? (car e)))
+    (map preprocess (cons `(quote ,(car e)) (cdr e))))
    ((pair? e)
-    (map preprocess (quote-first-maybe e)))
+    (map preprocess e))
    (#t e)))
 
 (define (un-preprocess e)
   (cond
+   ((and (pair? e) (is-quote? (car e)) (symbol? (quote-quoted (car e))))
+    (map un-preprocess (cons (quote-quoted (car e)) (cdr e))))
    ((pair? e)
-    (map un-preprocess (un-quote-first-maybe e)))
+    (map un-preprocess e))
    (#t e)))
 
 (define (match p t)
