@@ -2,7 +2,7 @@
 (load "lib.ss")
 (load "primitives.ss")
 
-(define verbose-show-defined-rules #t)
+(define verbose-show-defined-rules #f)
 
 (define (pat-ok? p)
   (if (pair? p)
@@ -48,8 +48,6 @@
    ((pair? p)
     (maybe-apply append (maybe-zip match p t)))
    (#t (err))))
-
-;(tracefun maybe-zip maybe-list maybe-append maybe-apply maybe-map)
 
 (define (look-up-binding env varname)
   (if (null? env)
@@ -163,10 +161,10 @@
 (define (run-file-src forms)
   (map exec-top-level-form forms))
 
-(tracefun match apply-match-env)
+;(tracefun match apply-match-env)
 ;(tracefun orthogonalize orthogonalize-exp orthogonalize-pat orthogonalize-list orthogonalize-list-cdr)
 ;(tracefun is-quote? pat-ok?)
 ;(tracefun get-primitive try-to-rewrite-primitives)
 ;(tracefun maybe-compose maybe-try)
-(tracefun normal-form normal-form-kids)
-(tracefun preprocess un-preprocess quote-first-maybe un-quote-first-maybe)
+;(tracefun normal-form normal-form-kids)
+;(tracefun preprocess un-preprocess quote-first-maybe un-quote-first-maybe)
