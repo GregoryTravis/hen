@@ -4,9 +4,13 @@
 (require (lib "process.ss"))
 (require (lib "compat.ss"))
 (require (lib "pretty.ss"))
+(require (lib "../errortrace/errortrace.ss"))
 (require-for-syntax (lib "list.ss"))
 
 (define concat string-append)
+
+(define (applyer f)
+  (lambda (args) (apply f args)))
 
 (define (call-with-output-string pf)
   (let ((p (open-output-string)))
@@ -187,6 +191,13 @@
 (define (none lyst)
   (not (any lyst)))
 
+(define (same lyst)
+  (if (or (null? lyst) (null? (cdr lyst)))
+      #t
+      (if (equal? (car lyst) (cadr lyst))
+          (same (cdr lyst))
+          #f)))
+
 (define-macro (assert exp . stuff)
   `(if ,exp
        '()
@@ -197,7 +208,8 @@
 (define (err . args)
   (display "Error!\n")
   (shew (map show-shorten args))
-  (exit))
+(car '()))
+;  (exit))
 
 (define show-shorten-length 5)
 (define (show-shorten-list lyst) (show-shorten-list1 lyst 0))
@@ -409,6 +421,14 @@
 ;;         #f
 ;;         (apply append r))))
 
+(define (invert-listy-matrix lists)
+  (let ((ns (map null? lists)))
+    (if (any ns)
+        (if (not (all ns))
+            (err 'invert-listy-matrix 'uneven lists)
+            '())
+        (cons (map car lists) (invert-listy-matrix (map cdr lists))))))
+
 (define (zip f . lysts)
   ;(shew 'um-zip lysts)
   (if (any (map null? lysts))
@@ -467,6 +487,33 @@
             (if (fail? r)
                 (apply rest args)
                 (just-value r)))))))
+
+(define (maybe-apply f args)
+  (if (fail? args)
+      fail
+      (just (apply f (just-value args)))))
+
+(define (maybe-map f as)
+  (maybe-apply reverse (maybe-list (maybe-map-1 f as '()))))
+
+(define (maybe-map-1 f as accum)
+  (if (null? as)
+      (just accum)
+      (let ((v (f (car as))))
+        (if (fail? v)
+            fail
+            (maybe-map-1 f (cdr as) (cons (just-value v) accum))))))
+
+;; (define (cons-onto-each a dses)
+;;   (if (null? dses)
+;;       '()
+;;       (cons (cons a (car dses))
+;;             (cons-onto-each a (cdr dses)))))
+
+(define (maybe-zip f . args)
+  (if (not (same (map length args)))
+      fail
+      (maybe-map (applyer f) (invert-listy-matrix args))))
 
 (define (++ . stuff)
   (apply concat (map (lambda (o) (->string o)) stuff)))
