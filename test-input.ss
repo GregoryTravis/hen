@@ -6,18 +6,18 @@
 (loo 44)
 
 (fun (la (cons a d)) (cons a (joe (la d))))
-(fun (la nil) nil)
-(la (cons 1 (cons 2 (cons 3 nil))))
+(fun (la 'nil) 'nil)
+(la (cons 1 (cons 2 (cons 3 'nil))))
 
-(asdf asd)
+(asdf 'asd)
 
 (+ 1 (+ 2 20))
 
 (fun (hi1 (r 'f)) 67)
 (fun (hi2 (r f)) 67)
 
-(hi1 (r f))
-(hi2 (r f))
+(hi1 (r 'f))
+(hi2 (r 'f))
 
 (= 1 2)
 (= 1 1)
@@ -25,8 +25,8 @@
 (fun (bif 'true t e) t)
 (fun (bif 'false t e) e)
 
-(bif (= 1 2) right wrong)
-(bif (= 1 1) right wrong)
+(bif (= 1 2) 'right 'wrong)
+(bif (= 1 1) 'right 'wrong)
 
 (fun (a-fun (+ a b)) 100)
 (fun (a-fun c) 200)
@@ -74,11 +74,11 @@
 ;; after everything else.  Problem.
 (fun (isType a b) 'false)
 
-(isType (A (G g) (H m n)) (B (G 10) (G (20 30))))
-(isType (A (G g) (H m n)) (C (G 40) (H 50 60)))
+(isType (A (G 'g) (H 'm 'n)) (B (G 10) (G (20 30))))
+(isType (A (G 'g) (H 'm 'n)) (C (G 40) (H 50 60)))
 
-(isType (A (G g) (H m n)) (B (G 10) (H 50 60)))
-(isType (A (G g) (H m n)) (C (G 10) (G (20 30))))
+(isType (A (G 'g) (H 'm 'n)) (B (G 10) (H 50 60)))
+(isType (A (G 'g) (H 'm 'n)) (C (G 10) (G (20 30))))
 
-(isType (A (G g) (H m n)) (Q (G 10) (H 50 60)))
-(isType (A (G g) (H m n)) (R (G 10) (G (20 30))))
+(isType (A (G 'g) (H 'm 'n)) (Q (G 10) (H 50 60)))
+(isType (A (G 'g) (H 'm 'n)) (R (G 10) (G (20 30))))
