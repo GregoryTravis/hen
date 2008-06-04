@@ -15,21 +15,27 @@
             (all (map pat-ok? (cdr p))))))
       #t))
 
-(define (preprocess e)
+(define (auto-quote-ctor e)
   (cond
    ((and (not (is-quote? e)) (pair? e) (symbol? (car e)))
-    (map preprocess (cons `(quote ,(car e)) (cdr e))))
+    (map auto-quote-ctor (cons `(quote ,(car e)) (cdr e))))
    ((pair? e)
-    (map preprocess e))
+    (map auto-quote-ctor e))
    (#t e)))
 
-(define (un-preprocess e)
+(define (un-auto-quote-ctor e)
   (cond
    ((and (pair? e) (is-quote? (car e)) (symbol? (quote-quoted (car e))))
-    (map un-preprocess (cons (quote-quoted (car e)) (cdr e))))
+    (map un-auto-quote-ctor (cons (quote-quoted (car e)) (cdr e))))
    ((pair? e)
-    (map un-preprocess e))
+    (map un-auto-quote-ctor e))
    (#t e)))
+
+(define (preprocess e)
+  (auto-quote-ctor e))
+
+(define (un-preprocess e)
+  (un-auto-quote-ctor e))
 
 (define (match p t)
   (cond
