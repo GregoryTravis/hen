@@ -101,7 +101,7 @@
   (let* ((pat (cadr o))
          (guard (caddr o))
          (body (cadddr o))
-         (rule (list (preprocess pat) (preprocess guard) (preprocess body))))
+         (rule (list pat guard body)))
     (if (macro? o)
         (set! macros (snoc macros rule))
         (set! rewrite-rules (snoc rewrite-rules rule)))
