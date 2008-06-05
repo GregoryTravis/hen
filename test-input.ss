@@ -82,3 +82,12 @@
 
 (isType (A (G 'g) (H 'm 'n)) (Q (G 10) (H 50 60)))
 (isType (A (G 'g) (H 'm 'n)) (R (G 10) (G (20 30))))
+
+(fun (bar a) (list a a))
+(bar 10)
+
+(fun (foo a) (? 'true) (list a a))
+(foo 20)
+
+(fun (baz a) (? 'false) (list a a))
+(baz 30)

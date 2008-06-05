@@ -36,3 +36,9 @@
 'false
 + (isType (A (G 'g) (H 'm 'n)) (R (G 10) (G (20 30))))
 'false
++ (bar 10)
+(list 10 10)
++ (foo 20)
+(list 20 20)
++ (baz 30)
+(baz 30)

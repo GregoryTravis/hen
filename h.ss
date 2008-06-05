@@ -31,11 +31,13 @@
     (map un-auto-quote-ctor e))
    (#t e)))
 
-(define (preprocess e)
-  (auto-quote-ctor e))
+(define (add-missing-guard e)
+  (if (fun-without-guard? e)
+      `('fun ,(cadr e) ('? 'true) ,(caddr e))
+      e))
 
 (define (preprocess e)
-  (auto-quote-ctor e))
+  (add-missing-guard (auto-quote-ctor e)))
 
 (define (un-preprocess e)
   (un-auto-quote-ctor e))
@@ -68,10 +70,22 @@
 (define (hshew . args)
   (apply shew (map un-preprocess args)))
 
-(define (fun? p)
+(define (guard? e)
+  (and (= 2 (length e)) (equal? ''? (car e))))
+
+(define (fun-with-guard? p)
   (and (pair? p)
        (or (equal? (car p) ''fun) (equal? (car p) ''macro))
-       (and (= 3 (length p)))))
+       (= 4 (length p))
+       (guard? (caddr p))))
+
+(define (fun-without-guard? p)
+  (and (pair? p)
+       (or (equal? (car p) ''fun) (equal? (car p) ''macro))
+       (= 3 (length p))))
+
+(define (fun? p)
+  (or (fun-with-guard? p) (fun-without-guard? p)))
 
 (define (macro? p)
   (and (fun? p) (eq? 'macro (car p))))
@@ -85,21 +99,32 @@
 (define (define-rule o)
   (assert (fun? o))
   (let* ((pat (cadr o))
-         (body (caddr o))
-         (rule (list (preprocess pat) (preprocess body))))
+         (guard (caddr o))
+         (body (cadddr o))
+         (rule (list (preprocess pat) (preprocess guard) (preprocess body))))
     (if (macro? o)
         (set! macros (snoc macros rule))
         (set! rewrite-rules (snoc rewrite-rules rule)))
     (if verbose-show-defined-rules
         (begin (display "* ") (shew o)))))
 
+(define (guard-eval env guard)
+  (let ((blah (apply-match-env env guard)))
+    (let ((nf (normal-form blah)))
+      (cond
+       ((equal? nf ''true) #t)
+       ((equal? nf ''false) #f)
+       (#t (err 'guard-eval 'guard-not-a-boolean blah '=> nf))))))
+
 (define (try-to-rewrite-funlikes funlikes e)
   (find-first-maybe
    (lambda (rewrite)
      (let ((pat (car rewrite))
-           (body (cadr rewrite)))
+           (guard (cadr rewrite))
+           (body (caddr rewrite)))
        ((maybe-compose
          (lambda () (match pat e))
+         (lambda (env) (if (guard-eval env (cadr guard)) (just env) fail))
          (lambda (env) (just (apply-match-env env body)))))))
    funlikes))
 
@@ -160,10 +185,14 @@
 (define (run-file-src forms)
   (map exec-top-level-form (map preprocess forms)))
 
-;(tracefun match apply-match-env)
 ;(tracefun orthogonalize orthogonalize-exp orthogonalize-pat orthogonalize-list orthogonalize-list-cdr)
 ;(tracefun is-quote? pat-ok?)
 ;(tracefun get-primitive try-to-rewrite-primitives)
 ;(tracefun maybe-compose maybe-try)
-;(tracefun normal-form normal-form-kids)
+;(tracefun try-to-rewrite-primitives try-to-rewrite try-to-rewrite-macros try-to-rewrite-funs)
+;(tracefun try-to-rewrite-funlikes)
+;(tracefun normal-form normal-form-kids guard-eval)
+;(tracefun match apply-match-env)
 ;(tracefun preprocess un-preprocess auto-quote-ctor un-auto-quote-ctor)
+;(tracefun add-missing-guard)
+;(tracefun guard? fun? fun-with-guard? fun-without-guard?)
