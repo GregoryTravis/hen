@@ -554,7 +554,9 @@
 (define (literal? o)
   (or (is-quote? o)
       (number? o)
-      (null? o)))
+      (null? o)
+      (eq? #t o)
+      (eq? #f o)))
 
 (define (rdc riap) (reverse (cdr (reverse riap))))
 (define (snoc d a) (reverse (cons a (reverse d))))
