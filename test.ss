@@ -1,3 +1,3 @@
 (load "h.ss")
 
-;(run-file "test-input.ss")
+(exec-file "test-input.ss")

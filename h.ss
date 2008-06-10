@@ -1,6 +1,6 @@
 (load "lib.ss")
 
-(define forms (read-objects "src.ss"))
+(define global-env '())
 
 (define (closure? c)
   (and (proper-list? c)
@@ -8,10 +8,19 @@
        (eq? 'closure (car c))
        (classic-lambda? (cadr c))))
 
-(define (env-lookup s env)
+(define (define? e)
+  (and (proper-list? e)
+       (= 3 (length e))
+       (eq? 'define (car e))
+       (symbol? (cadr e))))
+
+(define (lookup-local-or-global s env)
   (let ((a (assoc s env)))
     (if (eq? #f a)
-        (err 'env-lookup s env)
+        (let ((a (assoc s global-env)))
+          (if (eq? #f a)
+              (err 'lookup-local-or-global s env)
+              (cdr a)))
         (cdr a))))
 
 (define (evl-app e env)
@@ -31,7 +40,7 @@
    ((closure? e) (evl-closure e))
    ((classic-lambda? e) `(closure ,e ,env))
    ((app? e) (evl-app e env))
-   ((symbol? e) (env-lookup e env))
+   ((symbol? e) (lookup-local-or-global e env))
    (#t (err 'evl1 e env))))
 
 (define (evl e)
@@ -42,7 +51,23 @@
   (shew e)
   (shew (evl e)))
 
-;(tracefun evl evl1 evl-app env-lookup)
+(define (process-define e)
+  (assert (define? e))
+  (display "+ ")
+  (shew e)
+  (let ((name (cadr e))
+        (value (evl (caddr e))))
+    (set! global-env (cons (cons name value) global-env))
+    (shew name)))
+
+(define (process-top-level-form e)
+  (cond
+   ((define? e) (process-define e))
+   (#t (top-evl e))))
+
+;(tracefun evl evl1 evl-app lookup-local-or-global process-define process-top-level-form)
 ;(tracefun classic-lambda? lambda? app? symbol? is-quote?)
 
-(map top-evl forms)
+(define (exec-file filename)
+  (let ((forms (read-objects filename)))
+    (map process-top-level-form forms)))
