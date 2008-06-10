@@ -1,3 +1,7 @@
 (load "lib.ss")
 
-(display "fresh!\n")
+(define forms (read-objects "src.ss"))
+
+(define eval shew)
+
+(map eval forms)
