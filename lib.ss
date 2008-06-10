@@ -4,9 +4,13 @@
 (require (lib "process.ss"))
 (require (lib "compat.ss"))
 (require (lib "pretty.ss"))
+(require (lib "../errortrace/errortrace.ss"))
 (require-for-syntax (lib "list.ss"))
 
 (define concat string-append)
+
+(define (applyer f)
+  (lambda (args) (apply f args)))
 
 (define (call-with-output-string pf)
   (let ((p (open-output-string)))
@@ -173,16 +177,26 @@
 (define (has-duplicates? lyst)
   (not (eq? (length lyst) (length (unique lyst)))))
 
-(define (any f lyst)
+(define (any lyst)
   (if (null? lyst)
       #f
-      (or (f (car lyst))
-          (any f (cdr lyst)))))
+      (or (car lyst)
+          (any (cdr lyst)))))
 
 (define (all lyst)
   (if (null? lyst)
       #t
       (and (car lyst) (all (cdr lyst)))))
+
+(define (none lyst)
+  (not (any lyst)))
+
+(define (same lyst)
+  (if (or (null? lyst) (null? (cdr lyst)))
+      #t
+      (if (equal? (car lyst) (cadr lyst))
+          (same (cdr lyst))
+          #f)))
 
 (define-macro (assert exp . stuff)
   `(if ,exp
@@ -194,7 +208,8 @@
 (define (err . args)
   (display "Error!\n")
   (shew (map show-shorten args))
-  (exit))
+(car '()))
+;  (exit))
 
 (define show-shorten-length 5)
 (define (show-shorten-list lyst) (show-shorten-list1 lyst 0))
@@ -406,9 +421,17 @@
 ;;         #f
 ;;         (apply append r))))
 
+(define (invert-listy-matrix lists)
+  (let ((ns (map null? lists)))
+    (if (any ns)
+        (if (not (all ns))
+            (err 'invert-listy-matrix 'uneven lists)
+            '())
+        (cons (map car lists) (invert-listy-matrix (map cdr lists))))))
+
 (define (zip f . lysts)
   ;(shew 'um-zip lysts)
-  (if (any null? lysts)
+  (if (any (map null? lysts))
       (if (not (all (map null? lysts)))
           (err 'uneven-zip-params lysts (map null? lysts))
           '())
@@ -427,7 +450,7 @@
   (cadr o))
 
 (define (maybe-combine combiner args)
-  (if (any fail? args)
+  (if (any (map fail? args))
       fail
       (begin
         ;(shew 'combine combiner args (map just-value args) (apply combiner (map just-value args)))
@@ -465,6 +488,33 @@
                 (apply rest args)
                 (just-value r)))))))
 
+(define (maybe-apply f args)
+  (if (fail? args)
+      fail
+      (just (apply f (just-value args)))))
+
+(define (maybe-map f as)
+  (maybe-apply reverse (maybe-list (maybe-map-1 f as '()))))
+
+(define (maybe-map-1 f as accum)
+  (if (null? as)
+      (just accum)
+      (let ((v (f (car as))))
+        (if (fail? v)
+            fail
+            (maybe-map-1 f (cdr as) (cons (just-value v) accum))))))
+
+;; (define (cons-onto-each a dses)
+;;   (if (null? dses)
+;;       '()
+;;       (cons (cons a (car dses))
+;;             (cons-onto-each a (cdr dses)))))
+
+(define (maybe-zip f . args)
+  (if (not (same (map length args)))
+      fail
+      (maybe-map (applyer f) (invert-listy-matrix args))))
+
 (define (++ . stuff)
   (apply concat (map (lambda (o) (->string o)) stuff)))
 
@@ -501,6 +551,13 @@
 (define (quote-quoted o)
   (cadr o))
 
+(define (literal? o)
+  (or (is-quote? o)
+      (number? o)
+      (null? o)
+      (eq? #t o)
+      (eq? #f o)))
+
 (define (rdc riap) (reverse (cdr (reverse riap))))
 (define (snoc d a) (reverse (cons a (reverse d))))
 
@@ -533,3 +590,10 @@
   (if (null? lyst)
       e
       (f (car lyst) (foldr f e (cdr lyst)))))
+
+(define symbol-generator-generator
+  (let ((serial 0))
+    (lambda ()
+      (let ((s serial))
+        (set! serial (1+ serial))
+        (string->symbol (concat "g" (number->string s)))))))
