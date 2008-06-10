@@ -597,3 +597,25 @@
       (let ((s serial))
         (set! serial (1+ serial))
         (string->symbol (concat "g" (number->string s)))))))
+
+(define (lambda? e)
+  (and (proper-list? e)
+       (> (length e) 2)
+       (eq? '/. (car e))))
+
+(define (classic-lambda? e)
+  (and (lambda? e)
+       (= 3 (length e))
+       (symbol? (cadr e))))
+
+(define (app? e)
+  (and (proper-list? e)
+       (= 2 (length e))))
+
+(define (compose . funs)
+  (cond
+   ((null? funs) id)
+   ((null? (cdr funs)) (car funs))
+   (#t (let ((first (car funs))
+             (rest (apply compose (cdr funs))))
+         (lambda (x) (first (rest x)))))))
