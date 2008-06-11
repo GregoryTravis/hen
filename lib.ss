@@ -610,7 +610,7 @@
 
 (define (app? e)
   (and (proper-list? e)
-       (= 2 (length e))))
+       (>= (length e) 1)))
 
 (define (compose . funs)
   (cond

@@ -1,6 +1,9 @@
 (load "lib.ss")
+(load "primitives.ss")
 
 (define global-env '())
+
+(set! global-env (append (find-primitives) global-env))
 
 (define (closure? c)
   (and (proper-list? c)
@@ -23,8 +26,8 @@
               (cdr a)))
         (cdr a))))
 
-(define (evl-app e env)
-  (assert (app? e))
+(define (evl-app-closure e env)
+  (assert (closure? (car e)))
   (let* ((closure (evl1 (car e) env))
          (arg (evl1 (cadr e) env))
          (lamb (cadr closure))
@@ -34,10 +37,28 @@
          (new-env (cons (cons param-name arg) closure-env)))
     (evl1 body new-env)))
 
+(define (evl-app-primitive e env)
+  (assert (primitive? (car e)))
+  (let* ((prim (car e))
+         ;(args (map (lambda (x) (evl1 x env)) (cdr e)))
+         (args (cdr e))
+         (fun (cadr prim)))
+    (apply fun args)))
+
+(define (evl-app e env)
+;(shew e (app? e) (closure? (car e)) (primitive? (car e)))
+  (assert (app? e))
+  (let ((e (map (lambda (x) (evl1 x env)) e)))
+    (cond
+     ((closure? (car e)) (evl-app-closure e env))
+     ((primitive? (car e)) (evl-app-primitive e env))
+     (#t (err 'evl-app e env)))))
+
 (define (evl1 e env)
   (cond
-   ((or (literal? e) (is-quote? e)) e)
-   ((closure? e) (evl-closure e))
+   ((or (literal? e) (is-quote? e) (closure? e)) e)
+   ;((closure? e) (evl-app-closure e))
+   ((primitive? e) (evl-primitive e env))
    ((classic-lambda? e) `(closure ,e ,env))
    ((app? e) (evl-app e env))
    ((symbol? e) (lookup-local-or-global e env))
@@ -71,3 +92,6 @@
 (define (exec-file filename)
   (let ((forms (read-objects filename)))
     (map process-top-level-form forms)))
+
+(define (go)
+  (exec-file "src.ss"))
