@@ -605,8 +605,7 @@
 
 (define (classic-lambda? e)
   (and (lambda? e)
-       (= 3 (length e))
-       (symbol? (cadr e))))
+       (= 3 (length e))))
 
 (define (app? e)
   (and (proper-list? e)

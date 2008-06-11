@@ -29,24 +29,23 @@
 (define (evl-app-closure e env)
   (assert (closure? (car e)))
   (let* ((closure (evl1 (car e) env))
-         (arg (evl1 (cadr e) env))
+         (args (map (lambda (x) (evl1 x env)) (cdr e)))
          (lamb (cadr closure))
          (closure-env (caddr closure))
-         (param-name (cadr lamb))
+         (param-names (cadr lamb))
+         (dummy (assert (= (length param-names) (length args))))
          (body (caddr lamb))
-         (new-env (cons (cons param-name arg) closure-env)))
+         (new-env (append (zip cons param-names args) closure-env)))
     (evl1 body new-env)))
 
 (define (evl-app-primitive e env)
   (assert (primitive? (car e)))
   (let* ((prim (car e))
-         ;(args (map (lambda (x) (evl1 x env)) (cdr e)))
          (args (cdr e))
          (fun (cadr prim)))
     (apply fun args)))
 
 (define (evl-app e env)
-;(shew e (app? e) (closure? (car e)) (primitive? (car e)))
   (assert (app? e))
   (let ((e (map (lambda (x) (evl1 x env)) e)))
     (cond
@@ -57,7 +56,6 @@
 (define (evl1 e env)
   (cond
    ((or (literal? e) (is-quote? e) (closure? e)) e)
-   ;((closure? e) (evl-app-closure e))
    ((primitive? e) (evl-primitive e env))
    ((classic-lambda? e) `(closure ,e ,env))
    ((app? e) (evl-app e env))
@@ -86,8 +84,8 @@
    ((define? e) (process-define e))
    (#t (top-evl e))))
 
-;(tracefun evl evl1 evl-app lookup-local-or-global process-define process-top-level-form)
-;(tracefun classic-lambda? lambda? app? symbol? is-quote?)
+;(tracefun evl evl1 evl-app evl-app-closure evl-app-primitive lookup-local-or-global process-define process-top-level-form)
+;(tracefun classic-lambda? lambda? app? symbol? is-quote? closure? primitive? literal? zip)
 
 (define (exec-file filename)
   (let ((forms (read-objects filename)))
