@@ -591,7 +591,7 @@
       e
       (f (car lyst) (foldr f e (cdr lyst)))))
 
-(define symbol-generator-generator
+(define (symbol-generator-generator)
   (let ((serial 0))
     (lambda ()
       (let ((s serial))
