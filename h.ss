@@ -103,7 +103,7 @@
       (cond
        ((literal? pat)
         (let ((arg (sgen)))
-          `(lambda ,arg
+          `(/. ,arg
              (if (equal? ,arg ,(quote-literal-maybe pat))
                  ,(simplify-pattern-lambdas body)
                  fail))))
@@ -134,6 +134,8 @@
     (map process-top-level-form forms)))
 
 (define (go)
+;;   (map (lambda (x) (shew x) (shew (preprocess x)))
+;;        (read-objects "src.ss")))
   (exec-file "src.ss"))
 
 ;(tracefun evl evl1 evl-app lookup-local-or-global process-define process-top-level-form)
