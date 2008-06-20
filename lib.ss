@@ -601,7 +601,7 @@
 
 (define (lambda? e)
   (and (proper-list? e)
-       (> (length e) 2)
+       (= (length e) 3)
        (eq? '/. (car e))))
 
 (define (classic-lambda? e)

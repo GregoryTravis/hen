@@ -69,11 +69,6 @@
 (define (evl e)
   (evl1 e '()))
 
-(define (top-evl e)
-  (display "+ ")
-  (shew e)
-  (shew (evl e)))
-
 (define (process-define e)
   (assert (define? e))
   (display "+ ")
@@ -82,11 +77,6 @@
         (value (evl (caddr e))))
     (set! global-env (cons (cons name value) global-env))
     (shew name)))
-
-(define (process-top-level-form e)
-  (cond
-   ((define? e) (process-define e))
-   (#t (top-evl e))))
 
 (define (quote-literal-maybe x)
   (if (eq? x '())
@@ -121,7 +111,16 @@
        (#t (err 'simplify-pattern-lambdas 'bad-lambda-pat e)))))
    (#t (err 'simplify-pattern-lambdas e))))
 
+;; (define (cps1 e s f)
+;;   (cond
+;;    ((lambda? e) `(,s ,e))
+;;    (#t (err cps1' e s f))))
+
+;; (define (cps e)
+;;   (cps1 e '(/. x x) '(/. x (err))))
+
 (define (preprocess-exp e)
+;  (cps (simplify-pattern-lambdas e)))
   (simplify-pattern-lambdas e))
 
 (define (preprocess e)
@@ -129,8 +128,19 @@
    ((define? e) e)
    (#t (preprocess-exp e))))
 
+(define (process-top-level-form e)
+  (display "+ ")
+  (shew e)
+  (let ((e (preprocess e)))
+    (display "* ")
+    (shew e)
+    (shew
+     (cond
+      ((define? e) (process-define e))
+      (#t (evl e))))))
+
 (define (exec-file filename)
-  (let ((forms (map preprocess (read-objects filename))))
+  (let ((forms (read-objects filename)))
     (map process-top-level-form forms)))
 
 (define (go)
