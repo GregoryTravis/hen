@@ -620,3 +620,18 @@
    (#t (let ((first (car funs))
              (rest (apply compose (cdr funs))))
          (lambda (x) (first (rest x)))))))
+
+(define (conditional? e)
+  (and (pair? e)
+       (eq? 'if (car e))
+       (let ((l (length e)))
+         (or (eq? l 3) (eq? l 4)))))
+
+(define (boolean? x)
+  (or (eq? x 'true)
+      (eq? x 'false)))
+
+(define (pair?-exp? p)
+  (and (pair? p)
+       (eq? 'pair? (car p))
+       (eq? 2 (length p))))
