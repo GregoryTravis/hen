@@ -140,8 +140,8 @@
   (display "+ ")
   (shew e)
   (let ((e (preprocess e)))
-    ;(display "* ")
-    ;(shew e)
+    (display "* ")
+    (shew e)
     (cond
      ((define? e) (process-define e))
      (#t (shew (evl e))))))
@@ -213,16 +213,24 @@
    ((app? e) (cps-app e))
    (#t (err 'cps e))))
 
+(define (cps-top e)
+  `((,(cps e) (/. x x)) (/. x 'ERR)))
+
 (define (compile-lambda-rewrites e)
-  (let ((pat (cadr e))
-        (body (caddr e)))
-    (cps (build-pattern-descender pat (build-binding-receiver pat body)))))
+  (cond
+   ((or (atom? e) (literal? e)) e)
+   ((lambda? e)
+    (let ((pat (cadr e))
+          (body (caddr e)))
+      (cps-top (build-pattern-descender pat (build-binding-receiver pat body)))))
+   ((app? e) (map compile-lambda-rewrites e))
+   (#t (err 'compile-lambda-rewrites e))))
 
 (define (go)
-  (preprocess-file "src.ss"))
-;  (exec-file "src.ss"))
+;  (preprocess-file "src.ss"))
+  (exec-file "src.ss"))
 
-;(tracefun evl evl1 evl-app lookup-local-or-global process-define process-top-level-form)
+(tracefun evl evl1 evl-app lookup-local-or-global process-define process-top-level-form)
 ;(tracefun preprocess-exp simplify-pattern-lambdas)
 ;(tracefun classic-lambda? lambda? app? symbol? is-quote?)
-;(tracefun cps cps-app cps-app1 build-binding-receiver build-pattern-descender)
+;(tracefun compile-lambda-rewrites cps cps-app cps-app1 build-binding-receiver build-pattern-descender)

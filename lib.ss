@@ -611,6 +611,7 @@
 
 (define (app? e)
   (and (proper-list? e)
+       (not (lambda? e))
        (>= (length e) 1)))
 
 (define (compose . funs)
