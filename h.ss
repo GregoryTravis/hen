@@ -129,7 +129,7 @@
    (#t (err 'simplify-pattern-lambdas e))))
 
 (define (preprocess-exp e)
-  (simplify-pattern-lambdas e))
+  (compile-lambda-rewrites e))
 
 (define (preprocess e)
   (cond
@@ -152,12 +152,52 @@
 
 (define (preprocess-file filename)
   (let ((forms (read-objects filename)))
-    (map (lambda (x) (shew x) (shew (preprocess x)))
+    (map (lambda (x)
+           (shew x)
+           (display "* ")
+           (shew (preprocess x)))
          forms)))
 
+(define (build-binding-receiver pat body)
+  (cond
+   ((literal? pat) body)
+   ((symbol? pat) `(/. ,pat ,body))
+   ((pair? pat)
+    (build-binding-receiver
+     (car pat)
+     (build-binding-receiver (cdr pat) body)))
+   (#t (err 'build-binding-receiver pat body))))
+
+(define (build-pattern-descender pat binding-receiver)
+  (cond
+   ((literal? pat)
+    (let ((v (sgen)))
+      `(/. ,v (if (equal? ,v ,pat)
+                  ,binding-receiver
+                  fail))))
+   ((symbol? pat)
+    binding-receiver)
+   ((pair? pat)
+    (let ((v (sgen)))
+      `(/. ,v (if (pair? ,v)
+                  ((,(build-pattern-descender
+                      (cdr pat)
+                      (build-pattern-descender
+                       (car pat)
+                       binding-receiver))
+                    (car ,v))
+                   (cdr ,v))
+                 fail))))
+   (#t (err 'build-pattern-descender pat binding-receiver))))
+
+(define (compile-lambda-rewrites e)
+  (let ((pat (cadr e))
+        (body (caddr e)))
+    (build-pattern-descender pat (build-binding-receiver pat body))))
+
 (define (go)
-;  (preprocess-file "src.ss"))
-  (exec-file "src.ss"))
+  (preprocess-file "src.ss"))
+;  (exec-file "src.ss"))
 
 ;(tracefun evl evl1 evl-app lookup-local-or-global process-define process-top-level-form)
 ;(tracefun preprocess-exp simplify-pattern-lambdas)
