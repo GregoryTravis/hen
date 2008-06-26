@@ -56,9 +56,25 @@
      ((primitive? (car e)) (evl-app-primitive e env))
      (#t (err 'evl-app e env)))))
 
+;; (define (evl-conditional e env)
+;;   (assert (conditional? e))
+;;   (let ((if-part (cadr e))
+;;         (then-part (caddr e))
+;;         (else-part (if (null? (cdddr e))
+;;                        '()
+;;                        (cadddr e))))
+;;     (let ((v (evl1 if-part env)))
+;;       (if (not (boolean? v))
+;;           (err if-part-not-a-boolean e env)
+;;           (if (eq? v 'true)
+;;               (evl1 then-part env)
+;;               (evl1 else-part env))))))
+
 (define (evl1 e env)
   (cond
    ((or (literal? e) (is-quote? e) (closure? e)) e)
+;   ((conditional? e) (evl-conditional e env))
+;   ((pair?-exp? e) (if (pair? (cadr e)) 'true 'false))
    ;((closure? e) (evl-app-closure e))
    ((primitive? e) (evl-primitive e env))
    ((lambda? e) `(closure ,e ,env))
@@ -71,8 +87,8 @@
 
 (define (process-define e)
   (assert (define? e))
-  (display "+ ")
-  (shew e)
+;  (display "+ ")
+;  (shew e)
   (let ((name (cadr e))
         (value (evl (caddr e))))
     (set! global-env (cons (cons name value) global-env))
@@ -85,8 +101,8 @@
 
 (define (simplify-pattern-lambdas e)
   (cond
-   ((atom? e) e)
-   ((not (lambda? e)) (map simplify-pattern-lambdas e))
+   ((literal? e) e)
+   ((symbol? e) e)
    ((lambda? e)
     (let ((pat (cadr e))
           (body (caddr e)))
@@ -109,18 +125,10 @@
                    (,receiver (car ,pair-arg) (cdr ,pair-arg))
                    fail))))
        (#t (err 'simplify-pattern-lambdas 'bad-lambda-pat e)))))
+   ((and (pair? e) (not (lambda? e))) (map simplify-pattern-lambdas e))
    (#t (err 'simplify-pattern-lambdas e))))
 
-;; (define (cps1 e s f)
-;;   (cond
-;;    ((lambda? e) `(,s ,e))
-;;    (#t (err cps1' e s f))))
-
-;; (define (cps e)
-;;   (cps1 e '(/. x x) '(/. x (err))))
-
 (define (preprocess-exp e)
-;  (cps (simplify-pattern-lambdas e)))
   (simplify-pattern-lambdas e))
 
 (define (preprocess e)
@@ -132,12 +140,11 @@
   (display "+ ")
   (shew e)
   (let ((e (preprocess e)))
-    (display "* ")
-    (shew e)
-    (shew
-     (cond
-      ((define? e) (process-define e))
-      (#t (evl e))))))
+    ;(display "* ")
+    ;(shew e)
+    (cond
+     ((define? e) (process-define e))
+     (#t (shew (evl e))))))
 
 (define (exec-file filename)
   (let ((forms (read-objects filename)))
