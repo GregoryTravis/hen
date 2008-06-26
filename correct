@@ -1,85 +1,870 @@
 + (/. x x)
-(closure (/. x x) ())
+(closure (/. success (/. fail (/. x (success x)))) ())
 + (/. (x . y) x)
-(closure (/. g0 (if (pair? g0) (((/. x (/. y x)) (car g0)) (cdr g0)) fail)) ())
+(closure
+  (/.
+   success
+   (/.
+    fail
+    (/.
+     g0
+     ((/. success (success if))
+      (/.
+       g1
+       ((/.
+         success
+         ((/. success (success pair?))
+          (/. g3 ((/. success (success g0)) (/. g4 (g3 g4))))))
+        (/.
+         g2
+         ((/.
+           success
+           ((/.
+             success
+             ((/.
+               success
+               (/.
+                success
+                (/. fail (/. x (/. success (/. fail (/. y (success x))))))))
+              (/.
+               g7
+               ((/.
+                 success
+                 ((/. success (success car))
+                  (/. g9 ((/. success (success g0)) (/. g10 (g9 g10))))))
+                (/. g8 (g7 g8))))))
+            (/.
+             g6
+             ((/.
+               success
+               ((/. success (success cdr))
+                (/. g12 ((/. success (success g0)) (/. g13 (g12 g13))))))
+              (/. g11 (g6 g11))))))
+          (/. g5 ((/. success (success fail)) (/. g14 (g1 g2 g5 g14))))))))))))
+  ())
 + (/. (x y . z) y)
 (closure
   (/.
-   g1
-   (if (pair? g1)
-     (((/.
-        g2
-        (if (pair? g2) (((/. x (/. y (/. z y))) (car g2)) (cdr g2)) fail))
-       (car g1))
-      (cdr g1))
-     fail))
+   success
+   (/.
+    fail
+    (/.
+     g15
+     ((/. success (success if))
+      (/.
+       g17
+       ((/.
+         success
+         ((/. success (success pair?))
+          (/. g19 ((/. success (success g15)) (/. g20 (g19 g20))))))
+        (/.
+         g18
+         ((/.
+           success
+           ((/.
+             success
+             ((/.
+               success
+               (/.
+                success
+                (/.
+                 fail
+                 (/.
+                  g16
+                  ((/. success (success if))
+                   (/.
+                    g24
+                    ((/.
+                      success
+                      ((/. success (success pair?))
+                       (/.
+                        g26
+                        ((/. success (success g16)) (/. g27 (g26 g27))))))
+                     (/.
+                      g25
+                      ((/.
+                        success
+                        ((/.
+                          success
+                          ((/.
+                            success
+                            (/.
+                             success
+                             (/.
+                              fail
+                              (/.
+                               x
+                               (/.
+                                success
+                                (/.
+                                 fail
+                                 (/.
+                                  y
+                                  (/.
+                                   success
+                                   (/. fail (/. z (success y)))))))))))
+                           (/.
+                            g30
+                            ((/.
+                              success
+                              ((/. success (success car))
+                               (/.
+                                g32
+                                ((/. success (success g16))
+                                 (/. g33 (g32 g33))))))
+                             (/. g31 (g30 g31))))))
+                         (/.
+                          g29
+                          ((/.
+                            success
+                            ((/. success (success cdr))
+                             (/.
+                              g35
+                              ((/. success (success g16))
+                               (/. g36 (g35 g36))))))
+                           (/. g34 (g29 g34))))))
+                       (/.
+                        g28
+                        ((/. success (success fail))
+                         (/. g37 (g24 g25 g28 g37)))))))))))))
+              (/.
+               g23
+               ((/.
+                 success
+                 ((/. success (success car))
+                  (/. g39 ((/. success (success g15)) (/. g40 (g39 g40))))))
+                (/. g38 (g23 g38))))))
+            (/.
+             g22
+             ((/.
+               success
+               ((/. success (success cdr))
+                (/. g42 ((/. success (success g15)) (/. g43 (g42 g43))))))
+              (/. g41 (g22 g41))))))
+          (/.
+           g21
+           ((/. success (success fail)) (/. g44 (g17 g18 g21 g44))))))))))))
   ())
 + (/. () 1)
-(closure (/. g3 (if (equal? g3 ()) 1 fail)) ())
+(closure
+  (/.
+   success
+   (/.
+    fail
+    (/.
+     g45
+     ((/. success (success if))
+      (/.
+       g46
+       ((/.
+         success
+         ((/. success (success equal?))
+          (/.
+           g48
+           ((/. success (success g45))
+            (/. g49 ((/. success (success ())) (/. g50 (g48 g49 g50))))))))
+        (/.
+         g47
+         ((/. success (success 1))
+          (/.
+           g51
+           ((/. success (success fail)) (/. g52 (g46 g47 g51 g52))))))))))))
+  ())
 + (/. 'joe 2)
-(closure (/. g4 (if (equal? g4 'joe) 2 fail)) ())
+(closure
+  (/.
+   success
+   (/.
+    fail
+    (/.
+     g53
+     ((/. success (success if))
+      (/.
+       g54
+       ((/.
+         success
+         ((/. success (success equal?))
+          (/.
+           g56
+           ((/. success (success g53))
+            (/. g57 ((/. success (success 'joe)) (/. g58 (g56 g57 g58))))))))
+        (/.
+         g55
+         ((/. success (success 2))
+          (/.
+           g59
+           ((/. success (success fail)) (/. g60 (g54 g55 g59 g60))))))))))))
+  ())
 + (/. (y z) (cons y z))
 (closure
   (/.
-   g5
-   (if (pair? g5)
-     (((/.
-        g6
-        (if (pair? g6)
-          (((/. g7 (if (equal? g7 ()) (/. y (/. z (cons y z))) fail)) (car g6))
-           (cdr g6))
-          fail))
-       (car g5))
-      (cdr g5))
-     fail))
+   success
+   (/.
+    fail
+    (/.
+     g61
+     ((/. success (success if))
+      (/.
+       g64
+       ((/.
+         success
+         ((/. success (success pair?))
+          (/. g66 ((/. success (success g61)) (/. g67 (g66 g67))))))
+        (/.
+         g65
+         ((/.
+           success
+           ((/.
+             success
+             ((/.
+               success
+               (/.
+                success
+                (/.
+                 fail
+                 (/.
+                  g62
+                  ((/. success (success if))
+                   (/.
+                    g71
+                    ((/.
+                      success
+                      ((/. success (success pair?))
+                       (/.
+                        g73
+                        ((/. success (success g62)) (/. g74 (g73 g74))))))
+                     (/.
+                      g72
+                      ((/.
+                        success
+                        ((/.
+                          success
+                          ((/.
+                            success
+                            (/.
+                             success
+                             (/.
+                              fail
+                              (/.
+                               g63
+                               ((/. success (success if))
+                                (/.
+                                 g78
+                                 ((/.
+                                   success
+                                   ((/. success (success equal?))
+                                    (/.
+                                     g80
+                                     ((/. success (success g63))
+                                      (/.
+                                       g81
+                                       ((/. success (success ()))
+                                        (/. g82 (g80 g81 g82))))))))
+                                  (/.
+                                   g79
+                                   ((/.
+                                     success
+                                     (/.
+                                      success
+                                      (/.
+                                       fail
+                                       (/.
+                                        y
+                                        (/.
+                                         success
+                                         (/.
+                                          fail
+                                          (/.
+                                           z
+                                           ((/. success (success cons))
+                                            (/.
+                                             g84
+                                             ((/. success (success y))
+                                              (/.
+                                               g85
+                                               ((/. success (success z))
+                                                (/.
+                                                 g86
+                                                 (g84 g85 g86))))))))))))))
+                                    (/.
+                                     g83
+                                     ((/. success (success fail))
+                                      (/. g87 (g78 g79 g83 g87)))))))))))))
+                           (/.
+                            g77
+                            ((/.
+                              success
+                              ((/. success (success car))
+                               (/.
+                                g89
+                                ((/. success (success g62))
+                                 (/. g90 (g89 g90))))))
+                             (/. g88 (g77 g88))))))
+                         (/.
+                          g76
+                          ((/.
+                            success
+                            ((/. success (success cdr))
+                             (/.
+                              g92
+                              ((/. success (success g62))
+                               (/. g93 (g92 g93))))))
+                           (/. g91 (g76 g91))))))
+                       (/.
+                        g75
+                        ((/. success (success fail))
+                         (/. g94 (g71 g72 g75 g94)))))))))))))
+              (/.
+               g70
+               ((/.
+                 success
+                 ((/. success (success car))
+                  (/. g96 ((/. success (success g61)) (/. g97 (g96 g97))))))
+                (/. g95 (g70 g95))))))
+            (/.
+             g69
+             ((/.
+               success
+               ((/. success (success cdr))
+                (/. g99 ((/. success (success g61)) (/. g100 (g99 g100))))))
+              (/. g98 (g69 g98))))))
+          (/.
+           g68
+           ((/. success (success fail)) (/. g101 (g64 g65 g68 g101))))))))))))
   ())
 + (/. (y ('jerk 12) z) (list z y))
 (closure
   (/.
-   g8
-   (if (pair? g8)
-     (((/.
-        g9
-        (if (pair? g9)
-          (((/.
-             g15
-             (if (pair? g15)
-               (((/.
-                  g16
-                  (if (equal? g16 ())
-                    (/.
-                     g10
-                     (if (pair? g10)
-                       (((/.
-                          g12
-                          (if (pair? g12)
-                            (((/.
-                               g14
-                               (if (equal? g14 ())
-                                 (/.
-                                  g13
-                                  (if (equal? g13 12)
+   success
+   (/.
+    fail
+    (/.
+     g102
+     ((/. success (success if))
+      (/.
+       g111
+       ((/.
+         success
+         ((/. success (success pair?))
+          (/. g113 ((/. success (success g102)) (/. g114 (g113 g114))))))
+        (/.
+         g112
+         ((/.
+           success
+           ((/.
+             success
+             ((/.
+               success
+               (/.
+                success
+                (/.
+                 fail
+                 (/.
+                  g103
+                  ((/. success (success if))
+                   (/.
+                    g118
+                    ((/.
+                      success
+                      ((/. success (success pair?))
+                       (/.
+                        g120
+                        ((/. success (success g103)) (/. g121 (g120 g121))))))
+                     (/.
+                      g119
+                      ((/.
+                        success
+                        ((/.
+                          success
+                          ((/.
+                            success
+                            (/.
+                             success
+                             (/.
+                              fail
+                              (/.
+                               g109
+                               ((/. success (success if))
+                                (/.
+                                 g125
+                                 ((/.
+                                   success
+                                   ((/. success (success pair?))
                                     (/.
-                                     g11
-                                     (if (equal? g11 'jerk)
-                                       (/. y (/. z (list z y)))
-                                       fail))
-                                    fail))
-                                 fail))
-                              (car g12))
-                             (cdr g12))
-                            fail))
-                         (car g10))
-                        (cdr g10))
-                       fail))
-                    fail))
-                 (car g15))
-                (cdr g15))
-               fail))
-            (car g9))
-           (cdr g9))
-          fail))
-       (car g8))
-      (cdr g8))
-     fail))
+                                     g127
+                                     ((/. success (success g109))
+                                      (/. g128 (g127 g128))))))
+                                  (/.
+                                   g126
+                                   ((/.
+                                     success
+                                     ((/.
+                                       success
+                                       ((/.
+                                         success
+                                         (/.
+                                          success
+                                          (/.
+                                           fail
+                                           (/.
+                                            g110
+                                            ((/. success (success if))
+                                             (/.
+                                              g132
+                                              ((/.
+                                                success
+                                                ((/. success (success equal?))
+                                                 (/.
+                                                  g134
+                                                  ((/. success (success g110))
+                                                   (/.
+                                                    g135
+                                                    ((/. success (success ()))
+                                                     (/.
+                                                      g136
+                                                      (g134 g135 g136))))))))
+                                               (/.
+                                                g133
+                                                ((/.
+                                                  success
+                                                  (/.
+                                                   success
+                                                   (/.
+                                                    fail
+                                                    (/.
+                                                     g104
+                                                     ((/. success (success if))
+                                                      (/.
+                                                       g138
+                                                       ((/.
+                                                         success
+                                                         ((/.
+                                                           success
+                                                           (success pair?))
+                                                          (/.
+                                                           g140
+                                                           ((/.
+                                                             success
+                                                             (success g104))
+                                                            (/.
+                                                             g141
+                                                             (g140 g141))))))
+                                                        (/.
+                                                         g139
+                                                         ((/.
+                                                           success
+                                                           ((/.
+                                                             success
+                                                             ((/.
+                                                               success
+                                                               (/.
+                                                                success
+                                                                (/.
+                                                                 fail
+                                                                 (/.
+                                                                  g106
+                                                                  ((/.
+                                                                    success
+                                                                    (success
+                                                                      if))
+                                                                   (/.
+                                                                    g145
+                                                                    ((/.
+                                                                      success
+                                                                      ((/.
+                                                                        success
+                                                                        (success
+                                                                          pair?))
+                                                                       (/.
+                                                                        g147
+                                                                        ((/.
+                                                                          success
+                                                                          (success
+                                                                            g106))
+                                                                         (/.
+                                                                          g148
+                                                                          (g147
+                                                                           g148))))))
+                                                                     (/.
+                                                                      g146
+                                                                      ((/.
+                                                                        success
+                                                                        ((/.
+                                                                          success
+                                                                          ((/.
+                                                                            success
+                                                                            (/.
+                                                                             success
+                                                                             (/.
+                                                                              fail
+                                                                              (/.
+                                                                               g108
+                                                                               ((/.
+                                                                                 success
+                                                                                 (success
+                                                                                   if))
+                                                                                (/.
+                                                                                 g152
+                                                                                 ((/.
+                                                                                   success
+                                                                                   ((/.
+                                                                                     success
+                                                                                     (success
+                                                                                       equal?))
+                                                                                    (/.
+                                                                                     g154
+                                                                                     ((/.
+                                                                                       success
+                                                                                       (success
+                                                                                         g108))
+                                                                                      (/.
+                                                                                       g155
+                                                                                       ((/.
+                                                                                         success
+                                                                                         (success
+                                                                                           ()))
+                                                                                        (/.
+                                                                                         g156
+                                                                                         (g154
+                                                                                          g155
+                                                                                          g156))))))))
+                                                                                  (/.
+                                                                                   g153
+                                                                                   ((/.
+                                                                                     success
+                                                                                     (/.
+                                                                                      success
+                                                                                      (/.
+                                                                                       fail
+                                                                                       (/.
+                                                                                        g107
+                                                                                        ((/.
+                                                                                          success
+                                                                                          (success
+                                                                                            if))
+                                                                                         (/.
+                                                                                          g158
+                                                                                          ((/.
+                                                                                            success
+                                                                                            ((/.
+                                                                                              success
+                                                                                              (success
+                                                                                                equal?))
+                                                                                             (/.
+                                                                                              g160
+                                                                                              ((/.
+                                                                                                success
+                                                                                                (success
+                                                                                                  g107))
+                                                                                               (/.
+                                                                                                g161
+                                                                                                ((/.
+                                                                                                  success
+                                                                                                  (success
+                                                                                                    12))
+                                                                                                 (/.
+                                                                                                  g162
+                                                                                                  (g160
+                                                                                                   g161
+                                                                                                   g162))))))))
+                                                                                           (/.
+                                                                                            g159
+                                                                                            ((/.
+                                                                                              success
+                                                                                              (/.
+                                                                                               success
+                                                                                               (/.
+                                                                                                fail
+                                                                                                (/.
+                                                                                                 g105
+                                                                                                 ((/.
+                                                                                                   success
+                                                                                                   (success
+                                                                                                     if))
+                                                                                                  (/.
+                                                                                                   g164
+                                                                                                   ((/.
+                                                                                                     success
+                                                                                                     ((/.
+                                                                                                       success
+                                                                                                       (success
+                                                                                                         equal?))
+                                                                                                      (/.
+                                                                                                       g166
+                                                                                                       ((/.
+                                                                                                         success
+                                                                                                         (success
+                                                                                                           g105))
+                                                                                                        (/.
+                                                                                                         g167
+                                                                                                         ((/.
+                                                                                                           success
+                                                                                                           (success
+                                                                                                             'jerk))
+                                                                                                          (/.
+                                                                                                           g168
+                                                                                                           (g166
+                                                                                                            g167
+                                                                                                            g168))))))))
+                                                                                                    (/.
+                                                                                                     g165
+                                                                                                     ((/.
+                                                                                                       success
+                                                                                                       (/.
+                                                                                                        success
+                                                                                                        (/.
+                                                                                                         fail
+                                                                                                         (/.
+                                                                                                          y
+                                                                                                          (/.
+                                                                                                           success
+                                                                                                           (/.
+                                                                                                            fail
+                                                                                                            (/.
+                                                                                                             z
+                                                                                                             ((/.
+                                                                                                               success
+                                                                                                               (success
+                                                                                                                 list))
+                                                                                                              (/.
+                                                                                                               g170
+                                                                                                               ((/.
+                                                                                                                 success
+                                                                                                                 (success
+                                                                                                                   z))
+                                                                                                                (/.
+                                                                                                                 g171
+                                                                                                                 ((/.
+                                                                                                                   success
+                                                                                                                   (success
+                                                                                                                     y))
+                                                                                                                  (/.
+                                                                                                                   g172
+                                                                                                                   (g170
+                                                                                                                    g171
+                                                                                                                    g172))))))))))))))
+                                                                                                      (/.
+                                                                                                       g169
+                                                                                                       ((/.
+                                                                                                         success
+                                                                                                         (success
+                                                                                                           fail))
+                                                                                                        (/.
+                                                                                                         g173
+                                                                                                         (g164
+                                                                                                          g165
+                                                                                                          g169
+                                                                                                          g173)))))))))))))
+                                                                                             (/.
+                                                                                              g163
+                                                                                              ((/.
+                                                                                                success
+                                                                                                (success
+                                                                                                  fail))
+                                                                                               (/.
+                                                                                                g174
+                                                                                                (g158
+                                                                                                 g159
+                                                                                                 g163
+                                                                                                 g174)))))))))))))
+                                                                                    (/.
+                                                                                     g157
+                                                                                     ((/.
+                                                                                       success
+                                                                                       (success
+                                                                                         fail))
+                                                                                      (/.
+                                                                                       g175
+                                                                                       (g152
+                                                                                        g153
+                                                                                        g157
+                                                                                        g175)))))))))))))
+                                                                           (/.
+                                                                            g151
+                                                                            ((/.
+                                                                              success
+                                                                              ((/.
+                                                                                success
+                                                                                (success
+                                                                                  car))
+                                                                               (/.
+                                                                                g177
+                                                                                ((/.
+                                                                                  success
+                                                                                  (success
+                                                                                    g106))
+                                                                                 (/.
+                                                                                  g178
+                                                                                  (g177
+                                                                                   g178))))))
+                                                                             (/.
+                                                                              g176
+                                                                              (g151
+                                                                               g176))))))
+                                                                         (/.
+                                                                          g150
+                                                                          ((/.
+                                                                            success
+                                                                            ((/.
+                                                                              success
+                                                                              (success
+                                                                                cdr))
+                                                                             (/.
+                                                                              g180
+                                                                              ((/.
+                                                                                success
+                                                                                (success
+                                                                                  g106))
+                                                                               (/.
+                                                                                g181
+                                                                                (g180
+                                                                                 g181))))))
+                                                                           (/.
+                                                                            g179
+                                                                            (g150
+                                                                             g179))))))
+                                                                       (/.
+                                                                        g149
+                                                                        ((/.
+                                                                          success
+                                                                          (success
+                                                                            fail))
+                                                                         (/.
+                                                                          g182
+                                                                          (g145
+                                                                           g146
+                                                                           g149
+                                                                           g182)))))))))))))
+                                                              (/.
+                                                               g144
+                                                               ((/.
+                                                                 success
+                                                                 ((/.
+                                                                   success
+                                                                   (success
+                                                                     car))
+                                                                  (/.
+                                                                   g184
+                                                                   ((/.
+                                                                     success
+                                                                     (success
+                                                                       g104))
+                                                                    (/.
+                                                                     g185
+                                                                     (g184
+                                                                      g185))))))
+                                                                (/.
+                                                                 g183
+                                                                 (g144
+                                                                  g183))))))
+                                                            (/.
+                                                             g143
+                                                             ((/.
+                                                               success
+                                                               ((/.
+                                                                 success
+                                                                 (success cdr))
+                                                                (/.
+                                                                 g187
+                                                                 ((/.
+                                                                   success
+                                                                   (success
+                                                                     g104))
+                                                                  (/.
+                                                                   g188
+                                                                   (g187
+                                                                    g188))))))
+                                                              (/.
+                                                               g186
+                                                               (g143 g186))))))
+                                                          (/.
+                                                           g142
+                                                           ((/.
+                                                             success
+                                                             (success fail))
+                                                            (/.
+                                                             g189
+                                                             (g138
+                                                              g139
+                                                              g142
+                                                              g189)))))))))))))
+                                                 (/.
+                                                  g137
+                                                  ((/. success (success fail))
+                                                   (/.
+                                                    g190
+                                                    (g132
+                                                     g133
+                                                     g137
+                                                     g190)))))))))))))
+                                        (/.
+                                         g131
+                                         ((/.
+                                           success
+                                           ((/. success (success car))
+                                            (/.
+                                             g192
+                                             ((/. success (success g109))
+                                              (/. g193 (g192 g193))))))
+                                          (/. g191 (g131 g191))))))
+                                      (/.
+                                       g130
+                                       ((/.
+                                         success
+                                         ((/. success (success cdr))
+                                          (/.
+                                           g195
+                                           ((/. success (success g109))
+                                            (/. g196 (g195 g196))))))
+                                        (/. g194 (g130 g194))))))
+                                    (/.
+                                     g129
+                                     ((/. success (success fail))
+                                      (/.
+                                       g197
+                                       (g125 g126 g129 g197)))))))))))))
+                           (/.
+                            g124
+                            ((/.
+                              success
+                              ((/. success (success car))
+                               (/.
+                                g199
+                                ((/. success (success g103))
+                                 (/. g200 (g199 g200))))))
+                             (/. g198 (g124 g198))))))
+                         (/.
+                          g123
+                          ((/.
+                            success
+                            ((/. success (success cdr))
+                             (/.
+                              g202
+                              ((/. success (success g103))
+                               (/. g203 (g202 g203))))))
+                           (/. g201 (g123 g201))))))
+                       (/.
+                        g122
+                        ((/. success (success fail))
+                         (/. g204 (g118 g119 g122 g204)))))))))))))
+              (/.
+               g117
+               ((/.
+                 success
+                 ((/. success (success car))
+                  (/.
+                   g206
+                   ((/. success (success g102)) (/. g207 (g206 g207))))))
+                (/. g205 (g117 g205))))))
+            (/.
+             g116
+             ((/.
+               success
+               ((/. success (success cdr))
+                (/. g209 ((/. success (success g102)) (/. g210 (g209 g210))))))
+              (/. g208 (g116 g208))))))
+          (/.
+           g115
+           ((/. success (success fail))
+            (/. g211 (g111 g112 g115 g211))))))))))))
   ())

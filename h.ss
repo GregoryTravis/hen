@@ -154,8 +154,9 @@
   (let ((forms (read-objects filename)))
     (map (lambda (x)
            (shew x)
-           (display "* ")
-           (shew (preprocess x)))
+           (let ((pp (preprocess x)))
+             ;(display "* ")
+             (shew pp)))
          forms)))
 
 (define (build-binding-receiver pat body)
@@ -190,10 +191,32 @@
                  fail))))
    (#t (err 'build-pattern-descender pat binding-receiver))))
 
+(define (cps-app e) (cps-app1 e '()))
+
+(define (cps-app1 e rev-acc)
+  (if (null? e)
+      (reverse rev-acc)
+      (let ((first (car e))
+            (rest (cdr e))
+            (v (sgen)))
+        `((/. success ,(cps first))
+          (/. ,v ,(cps-app1 rest (cons v rev-acc)))))))
+
+(define (cps e)
+  (cond
+   ((or (literal? e) (symbol? e))
+    `(success ,e))
+   ((lambda? e)
+    (let ((pat (cadr e))
+          (body (caddr e)))
+      `(/. success (/. fail (/. ,pat ,(cps body))))))
+   ((app? e) (cps-app e))
+   (#t (err 'cps e))))
+
 (define (compile-lambda-rewrites e)
   (let ((pat (cadr e))
         (body (caddr e)))
-    (build-pattern-descender pat (build-binding-receiver pat body))))
+    (cps (build-pattern-descender pat (build-binding-receiver pat body)))))
 
 (define (go)
   (preprocess-file "src.ss"))
@@ -202,3 +225,4 @@
 ;(tracefun evl evl1 evl-app lookup-local-or-global process-define process-top-level-form)
 ;(tracefun preprocess-exp simplify-pattern-lambdas)
 ;(tracefun classic-lambda? lambda? app? symbol? is-quote?)
+;(tracefun cps cps-app cps-app1 build-binding-receiver build-pattern-descender)
