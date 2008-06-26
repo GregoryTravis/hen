@@ -150,9 +150,13 @@
   (let ((forms (read-objects filename)))
     (map process-top-level-form forms)))
 
+(define (preprocess-file filename)
+  (let ((forms (read-objects filename)))
+    (map (lambda (x) (shew x) (shew (preprocess x)))
+         forms)))
+
 (define (go)
-;;   (map (lambda (x) (shew x) (shew (preprocess x)))
-;;        (read-objects "src.ss")))
+;  (preprocess-file "src.ss"))
   (exec-file "src.ss"))
 
 ;(tracefun evl evl1 evl-app lookup-local-or-global process-define process-top-level-form)
