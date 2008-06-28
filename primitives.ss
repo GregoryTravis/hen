@@ -23,3 +23,8 @@
   (if (equal? a b)
       'true
       'false))
+(define (h-primitive-pair? a)
+  (if (pair? a) 'true 'false))
+
+(define (h-car a) (car a))
+(define (h-cdr a) (cdr a))
