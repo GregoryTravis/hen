@@ -1,7 +1,6 @@
-+ ((/. (x . y) x) '(3 . 4))
-- before preprocess
+src
 ((/. (x . y) x) '(3 . 4))
-- before simplified
+compile-lambda-rewrites
 ((/.
   g6
   (((/.
@@ -15,248 +14,236 @@
     g6)
    (/. x (/. y x))))
  '(3 . 4))
-- after simplified
+simplify-lambda
 ((/.
-  g6
-  (((/.
-     g0
-     (/.
-      g1
-      (if (not (pair? g0))
-        fail
-        (((/. g4 (/. g5 (g5 g4))) (cdr g0))
-         (((/. g2 (/. g3 (g3 g2))) (car g0)) g1)))))
-    g6)
-   (/. x (/. y x))))
- '(3 . 4))
-        + (cps ((/. g6 (((/. g0 (/. g1 (if (not (pair? g0)) fail (((/. g4 (/. g5 (g5 g4))) (cdr g0)) (((/. g2 (/. g3 (g3 g2))) (car g0)) g1))))) g6) (/. x (/. y x)))) '(3 . 4))) 
-        | + (cps-app ((/. g6 (((/. g0 (/. g1 (if (not (pair? g0)) fail (((/. g4 (/. g5 (g5 g4))) (cdr g0)) (((/. g2 (/. g3 (g3 g2))) (car g0)) g1))))) g6) (/. x (/. y x)))) '(3 . 4))) 
-        | | + (cps (/. g6 (((/. g0 (/. g1 (if (not (pair? g0)) fail (((/. g4 (/. g5 (g5 g4))) (cdr g0)) (((/. g2 (/. g3 (g3 g2))) (car g0)) g1))))) g6) (/. x (/. y x))))) 
-        | | | + (cps (((/. g0 (/. g1 (if (not (pair? g0)) fail (((/. g4 (/. g5 (g5 g4))) (cdr g0)) (((/. g2 (/. g3 (g3 g2))) (car g0)) g1))))) g6) (/. x (/. y x)))) 
-        | | | | + (cps-app (((/. g0 (/. g1 (if (not (pair? g0)) fail (((/. g4 (/. g5 (g5 g4))) (cdr g0)) (((/. g2 (/. g3 (g3 g2))) (car g0)) g1))))) g6) (/. x (/. y x)))) 
-        | | | | | + (cps ((/. g0 (/. g1 (if (not (pair? g0)) fail (((/. g4 (/. g5 (g5 g4))) (cdr g0)) (((/. g2 (/. g3 (g3 g2))) (car g0)) g1))))) g6)) 
-        | | | | | | + (cps-app ((/. g0 (/. g1 (if (not (pair? g0)) fail (((/. g4 (/. g5 (g5 g4))) (cdr g0)) (((/. g2 (/. g3 (g3 g2))) (car g0)) g1))))) g6)) 
-        | | | | | | | + (cps (/. g0 (/. g1 (if (not (pair? g0)) fail (((/. g4 (/. g5 (g5 g4))) (cdr g0)) (((/. g2 (/. g3 (g3 g2))) (car g0)) g1)))))) 
-        | | | | | | | | + (cps (/. g1 (if (not (pair? g0)) fail (((/. g4 (/. g5 (g5 g4))) (cdr g0)) (((/. g2 (/. g3 (g3 g2))) (car g0)) g1))))) 
-        | | | | | | | | | + (cps (if (not (pair? g0)) fail (((/. g4 (/. g5 (g5 g4))) (cdr g0)) (((/. g2 (/. g3 (g3 g2))) (car g0)) g1)))) 
-        | | | | | | | | | | + (cps (not (pair? g0))) 
-        | | | | | | | | | | | + (cps-app (not (pair? g0))) 
-        | | | | | | | | | | | | + (cps not) 
-        | | | | | | | | | | | | -> (success not) 
-        | | | | | | | | | | | | + (cps (pair? g0)) 
-        | | | | | | | | | | | | | + (cps-app (pair? g0)) 
-        | | | | | | | | | | | | | | + (cps pair?) 
-        | | | | | | | | | | | | | | -> (success pair?) 
-        | | | | | | | | | | | | | | + (cps g0) 
-        | | | | | | | | | | | | | | -> (success g0) 
-        | | | | | | | | | | | | | -> ((/. success (success pair?)) (/. g15 ((/. success (success g0)) (/. g16 (g15 g16))))) 
-        | | | | | | | | | | | | -> ((/. success (success pair?)) (/. g15 ((/. success (success g0)) (/. g16 (g15 g16))))) 
-        | | | | | | | | | | | -> ((/. success (success not)) (/. g13 ((/. success ((/. success (success pair?)) (/. g15 ((/. success (success g0)) (/. g16 (g15 g16)))))) (/. g14 (g13 g14))))) 
-        | | | | | | | | | | -> ((/. success (success not)) (/. g13 ((/. success ((/. success (success pair?)) (/. g15 ((/. success (success g0)) (/. g16 (g15 g16)))))) (/. g14 (g13 g14))))) 
-        | | | | | | | | | | + (cps (/. () fail)) 
-        | | | | | | | | | | | + (cps fail) 
-        | | | | | | | | | | | -> (success fail) 
-        | | | | | | | | | | -> (/. success (/. fail (/. () (success fail)))) 
-        | | | | | | | | | | + (cps (/. () (((/. g4 (/. g5 (g5 g4))) (cdr g0)) (((/. g2 (/. g3 (g3 g2))) (car g0)) g1)))) 
-        | | | | | | | | | | | + (cps (((/. g4 (/. g5 (g5 g4))) (cdr g0)) (((/. g2 (/. g3 (g3 g2))) (car g0)) g1))) 
-        | | | | | | | | | | | | + (cps-app (((/. g4 (/. g5 (g5 g4))) (cdr g0)) (((/. g2 (/. g3 (g3 g2))) (car g0)) g1))) 
-        | | | | | | | | | | | | | + (cps ((/. g4 (/. g5 (g5 g4))) (cdr g0))) 
-        | | | | | | | | | | | | | | + (cps-app ((/. g4 (/. g5 (g5 g4))) (cdr g0))) 
-        | | | | | | | | | | | | | | | + (cps (/. g4 (/. g5 (g5 g4)))) 
-        | | | | | | | | | | | | | | | | + (cps (/. g5 (g5 g4))) 
-        | | | | | | | | | | | | | | | | | + (cps (g5 g4)) 
-        | | | | | | | | | | | | | | | | | | + (cps-app (g5 g4)) 
-        | | | | | | | | | | | | | | | | | | | + (cps g5) 
-        | | | | | | | | | | | | | | | | | | | -> (success g5) 
-        | | | | | | | | | | | | | | | | | | | + (cps g4) 
-        | | | | | | | | | | | | | | | | | | | -> (success g4) 
-        | | | | | | | | | | | | | | | | | | -> ((/. success (success g5)) (/. g21 ((/. success (success g4)) (/. g22 (g21 g22))))) 
-        | | | | | | | | | | | | | | | | | -> ((/. success (success g5)) (/. g21 ((/. success (success g4)) (/. g22 (g21 g22))))) 
-        | | | | | | | | | | | | | | | | -> (/. success (/. fail (/. g5 ((/. success (success g5)) (/. g21 ((/. success (success g4)) (/. g22 (g21 g22)))))))) 
-        | | | | | | | | | | | | | | | -> (/. success (/. fail (/. g4 (/. success (/. fail (/. g5 ((/. success (success g5)) (/. g21 ((/. success (success g4)) (/. g22 (g21 g22))))))))))) 
-        | | | | | | | | | | | | | | | + (cps (cdr g0)) 
-        | | | | | | | | | | | | | | | | + (cps-app (cdr g0)) 
-        | | | | | | | | | | | | | | | | | + (cps cdr) 
-        | | | | | | | | | | | | | | | | | -> (success cdr) 
-        | | | | | | | | | | | | | | | | | + (cps g0) 
-        | | | | | | | | | | | | | | | | | -> (success g0) 
-        | | | | | | | | | | | | | | | | -> ((/. success (success cdr)) (/. g23 ((/. success (success g0)) (/. g24 (g23 g24))))) 
-        | | | | | | | | | | | | | | | -> ((/. success (success cdr)) (/. g23 ((/. success (success g0)) (/. g24 (g23 g24))))) 
-        | | | | | | | | | | | | | | -> ((/. success (/. success (/. fail (/. g4 (/. success (/. fail (/. g5 ((/. success (success g5)) (/. g21 ((/. success (success g4)) (/. g22 (g21 g22)))))))))))) (/. g19 ((/. success ((/. success (success cdr)) (/. g23 ((/. success (success g0)) (/. g24 (g23 g24)))))) (/. g20 (g19 g20))))) 
-        | | | | | | | | | | | | | -> ((/. success (/. success (/. fail (/. g4 (/. success (/. fail (/. g5 ((/. success (success g5)) (/. g21 ((/. success (success g4)) (/. g22 (g21 g22)))))))))))) (/. g19 ((/. success ((/. success (success cdr)) (/. g23 ((/. success (success g0)) (/. g24 (g23 g24)))))) (/. g20 (g19 g20))))) 
-        | | | | | | | | | | | | | + (cps (((/. g2 (/. g3 (g3 g2))) (car g0)) g1)) 
-        | | | | | | | | | | | | | | + (cps-app (((/. g2 (/. g3 (g3 g2))) (car g0)) g1)) 
-        | | | | | | | | | | | | | | | + (cps ((/. g2 (/. g3 (g3 g2))) (car g0))) 
-        | | | | | | | | | | | | | | | | + (cps-app ((/. g2 (/. g3 (g3 g2))) (car g0))) 
-        | | | | | | | | | | | | | | | | | + (cps (/. g2 (/. g3 (g3 g2)))) 
-        | | | | | | | | | | | | | | | | | | + (cps (/. g3 (g3 g2))) 
-        | | | | | | | | | | | | | | | | | | | + (cps (g3 g2)) 
-        | | | | | | | | | | | | | | | | | | | | + (cps-app (g3 g2)) 
-        | | | | | | | | | | | | | | | | | | | | | + (cps g3) 
-        | | | | | | | | | | | | | | | | | | | | | -> (success g3) 
-        | | | | | | | | | | | | | | | | | | | | | + (cps g2) 
-        | | | | | | | | | | | | | | | | | | | | | -> (success g2) 
-        | | | | | | | | | | | | | | | | | | | | -> ((/. success (success g3)) (/. g29 ((/. success (success g2)) (/. g30 (g29 g30))))) 
-        | | | | | | | | | | | | | | | | | | | -> ((/. success (success g3)) (/. g29 ((/. success (success g2)) (/. g30 (g29 g30))))) 
-        | | | | | | | | | | | | | | | | | | -> (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g29 ((/. success (success g2)) (/. g30 (g29 g30)))))))) 
-        | | | | | | | | | | | | | | | | | -> (/. success (/. fail (/. g2 (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g29 ((/. success (success g2)) (/. g30 (g29 g30))))))))))) 
-        | | | | | | | | | | | | | | | | | + (cps (car g0)) 
-        | | | | | | | | | | | | | | | | | | + (cps-app (car g0)) 
-        | | | | | | | | | | | | | | | | | | | + (cps car) 
-        | | | | | | | | | | | | | | | | | | | -> (success car) 
-        | | | | | | | | | | | | | | | | | | | + (cps g0) 
-        | | | | | | | | | | | | | | | | | | | -> (success g0) 
-        | | | | | | | | | | | | | | | | | | -> ((/. success (success car)) (/. g31 ((/. success (success g0)) (/. g32 (g31 g32))))) 
-        | | | | | | | | | | | | | | | | | -> ((/. success (success car)) (/. g31 ((/. success (success g0)) (/. g32 (g31 g32))))) 
-        | | | | | | | | | | | | | | | | -> ((/. success (/. success (/. fail (/. g2 (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g29 ((/. success (success g2)) (/. g30 (g29 g30)))))))))))) (/. g27 ((/. success ((/. success (success car)) (/. g31 ((/. success (success g0)) (/. g32 (g31 g32)))))) (/. g28 (g27 g28))))) 
-        | | | | | | | | | | | | | | | -> ((/. success (/. success (/. fail (/. g2 (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g29 ((/. success (success g2)) (/. g30 (g29 g30)))))))))))) (/. g27 ((/. success ((/. success (success car)) (/. g31 ((/. success (success g0)) (/. g32 (g31 g32)))))) (/. g28 (g27 g28))))) 
-        | | | | | | | | | | | | | | | + (cps g1) 
-        | | | | | | | | | | | | | | | -> (success g1) 
-        | | | | | | | | | | | | | | -> ((/. success ((/. success (/. success (/. fail (/. g2 (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g29 ((/. success (success g2)) (/. g30 (g29 g30)))))))))))) (/. g27 ((/. success ((/. success (success car)) (/. g31 ((/. success (success g0)) (/. g32 (g31 g32)))))) (/. g28 (g27 g28)))))) (/. g25 ((/. success (success g1)) (/. g26 (g25 g26))))) 
-        | | | | | | | | | | | | | -> ((/. success ((/. success (/. success (/. fail (/. g2 (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g29 ((/. success (success g2)) (/. g30 (g29 g30)))))))))))) (/. g27 ((/. success ((/. success (success car)) (/. g31 ((/. success (success g0)) (/. g32 (g31 g32)))))) (/. g28 (g27 g28)))))) (/. g25 ((/. success (success g1)) (/. g26 (g25 g26))))) 
-        | | | | | | | | | | | | -> ((/. success ((/. success (/. success (/. fail (/. g4 (/. success (/. fail (/. g5 ((/. success (success g5)) (/. g21 ((/. success (success g4)) (/. g22 (g21 g22)))))))))))) (/. g19 ((/. success ((/. success (success cdr)) (/. g23 ((/. success (success g0)) (/. g24 (g23 g24)))))) (/. g20 (g19 g20)))))) (/. g17 ((/. success ((/. success ((/. success (/. success (/. fail (/. g2 (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g29 ((/. success (success g2)) (/. g30 (g29 g30)))))))))))) (/. g27 ((/. success ((/. success (success car)) (/. g31 ((/. success (success g0)) (/. g32 (g31 g32)))))) (/. g28 (g27 g28)))))) (/. g25 ((/. success (success g1)) (/. g26 (g25 g26)))))) (/. g18 (g17 g18))))) 
-        | | | | | | | | | | | -> ((/. success ((/. success (/. success (/. fail (/. g4 (/. success (/. fail (/. g5 ((/. success (success g5)) (/. g21 ((/. success (success g4)) (/. g22 (g21 g22)))))))))))) (/. g19 ((/. success ((/. success (success cdr)) (/. g23 ((/. success (success g0)) (/. g24 (g23 g24)))))) (/. g20 (g19 g20)))))) (/. g17 ((/. success ((/. success ((/. success (/. success (/. fail (/. g2 (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g29 ((/. success (success g2)) (/. g30 (g29 g30)))))))))))) (/. g27 ((/. success ((/. success (success car)) (/. g31 ((/. success (success g0)) (/. g32 (g31 g32)))))) (/. g28 (g27 g28)))))) (/. g25 ((/. success (success g1)) (/. g26 (g25 g26)))))) (/. g18 (g17 g18))))) 
-        | | | | | | | | | | -> (/. success (/. fail (/. () ((/. success ((/. success (/. success (/. fail (/. g4 (/. success (/. fail (/. g5 ((/. success (success g5)) (/. g21 ((/. success (success g4)) (/. g22 (g21 g22)))))))))))) (/. g19 ((/. success ((/. success (success cdr)) (/. g23 ((/. success (success g0)) (/. g24 (g23 g24)))))) (/. g20 (g19 g20)))))) (/. g17 ((/. success ((/. success ((/. success (/. success (/. fail (/. g2 (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g29 ((/. success (success g2)) (/. g30 (g29 g30)))))))))))) (/. g27 ((/. success ((/. success (success car)) (/. g31 ((/. success (success g0)) (/. g32 (g31 g32)))))) (/. g28 (g27 g28)))))) (/. g25 ((/. success (success g1)) (/. g26 (g25 g26)))))) (/. g18 (g17 g18)))))))) 
-        | | | | | | | | | -> (if ((/. success (success not)) (/. g13 ((/. success ((/. success (success pair?)) (/. g15 ((/. success (success g0)) (/. g16 (g15 g16)))))) (/. g14 (g13 g14))))) (/. success (/. fail (/. () (success fail)))) (/. success (/. fail (/. () ((/. success ((/. success (/. success (/. fail (/. g4 (/. success (/. fail (/. g5 ((/. success (success g5)) (/. g21 ((/. success (success g4)) (/. g22 (g21 g22)))))))))))) (/. g19 ((/. success ((/. success (success cdr)) (/. g23 ((/. success (success g0)) (/. g24 (g23 g24)))))) (/. g20 (g19 g20)))))) (/. g17 ((/. success ((/. success ((/. success (/. success (/. fail (/. g2 (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g29 ((/. success (success g2)) (/. g30 (g29 g30)))))))))))) (/. g27 ((/. success ((/. success (success car)) (/. g31 ((/. success (success g0)) (/. g32 (g31 g32)))))) (/. g28 (g27 g28)))))) (/. g25 ((/. success (success g1)) (/. g26 (g25 g26)))))) (/. g18 (g17 g18))))))))) 
-        | | | | | | | | -> (/. success (/. fail (/. g1 (if ((/. success (success not)) (/. g13 ((/. success ((/. success (success pair?)) (/. g15 ((/. success (success g0)) (/. g16 (g15 g16)))))) (/. g14 (g13 g14))))) (/. success (/. fail (/. () (success fail)))) (/. success (/. fail (/. () ((/. success ((/. success (/. success (/. fail (/. g4 (/. success (/. fail (/. g5 ((/. success (success g5)) (/. g21 ((/. success (success g4)) (/. g22 (g21 g22)))))))))))) (/. g19 ((/. success ((/. success (success cdr)) (/. g23 ((/. success (success g0)) (/. g24 (g23 g24)))))) (/. g20 (g19 g20)))))) (/. g17 ((/. success ((/. success ((/. success (/. success (/. fail (/. g2 (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g29 ((/. success (success g2)) (/. g30 (g29 g30)))))))))))) (/. g27 ((/. success ((/. success (success car)) (/. g31 ((/. success (success g0)) (/. g32 (g31 g32)))))) (/. g28 (g27 g28)))))) (/. g25 ((/. success (success g1)) (/. g26 (g25 g26)))))) (/. g18 (g17 g18)))))))))))) 
-        | | | | | | | -> (/. success (/. fail (/. g0 (/. success (/. fail (/. g1 (if ((/. success (success not)) (/. g13 ((/. success ((/. success (success pair?)) (/. g15 ((/. success (success g0)) (/. g16 (g15 g16)))))) (/. g14 (g13 g14))))) (/. success (/. fail (/. () (success fail)))) (/. success (/. fail (/. () ((/. success ((/. success (/. success (/. fail (/. g4 (/. success (/. fail (/. g5 ((/. success (success g5)) (/. g21 ((/. success (success g4)) (/. g22 (g21 g22)))))))))))) (/. g19 ((/. success ((/. success (success cdr)) (/. g23 ((/. success (success g0)) (/. g24 (g23 g24)))))) (/. g20 (g19 g20)))))) (/. g17 ((/. success ((/. success ((/. success (/. success (/. fail (/. g2 (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g29 ((/. success (success g2)) (/. g30 (g29 g30)))))))))))) (/. g27 ((/. success ((/. success (success car)) (/. g31 ((/. success (success g0)) (/. g32 (g31 g32)))))) (/. g28 (g27 g28)))))) (/. g25 ((/. success (success g1)) (/. g26 (g25 g26)))))) (/. g18 (g17 g18))))))))))))))) 
-        | | | | | | | + (cps g6) 
-        | | | | | | | -> (success g6) 
-        | | | | | | -> ((/. success (/. success (/. fail (/. g0 (/. success (/. fail (/. g1 (if ((/. success (success not)) (/. g13 ((/. success ((/. success (success pair?)) (/. g15 ((/. success (success g0)) (/. g16 (g15 g16)))))) (/. g14 (g13 g14))))) (/. success (/. fail (/. () (success fail)))) (/. success (/. fail (/. () ((/. success ((/. success (/. success (/. fail (/. g4 (/. success (/. fail (/. g5 ((/. success (success g5)) (/. g21 ((/. success (success g4)) (/. g22 (g21 g22)))))))))))) (/. g19 ((/. success ((/. success (success cdr)) (/. g23 ((/. success (success g0)) (/. g24 (g23 g24)))))) (/. g20 (g19 g20)))))) (/. g17 ((/. success ((/. success ((/. success (/. success (/. fail (/. g2 (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g29 ((/. success (success g2)) (/. g30 (g29 g30)))))))))))) (/. g27 ((/. success ((/. success (success car)) (/. g31 ((/. success (success g0)) (/. g32 (g31 g32)))))) (/. g28 (g27 g28)))))) (/. g25 ((/. success (success g1)) (/. g26 (g25 g26)))))) (/. g18 (g17 g18)))))))))))))))) (/. g11 ((/. success (success g6)) (/. g12 (g11 g12))))) 
-        | | | | | -> ((/. success (/. success (/. fail (/. g0 (/. success (/. fail (/. g1 (if ((/. success (success not)) (/. g13 ((/. success ((/. success (success pair?)) (/. g15 ((/. success (success g0)) (/. g16 (g15 g16)))))) (/. g14 (g13 g14))))) (/. success (/. fail (/. () (success fail)))) (/. success (/. fail (/. () ((/. success ((/. success (/. success (/. fail (/. g4 (/. success (/. fail (/. g5 ((/. success (success g5)) (/. g21 ((/. success (success g4)) (/. g22 (g21 g22)))))))))))) (/. g19 ((/. success ((/. success (success cdr)) (/. g23 ((/. success (success g0)) (/. g24 (g23 g24)))))) (/. g20 (g19 g20)))))) (/. g17 ((/. success ((/. success ((/. success (/. success (/. fail (/. g2 (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g29 ((/. success (success g2)) (/. g30 (g29 g30)))))))))))) (/. g27 ((/. success ((/. success (success car)) (/. g31 ((/. success (success g0)) (/. g32 (g31 g32)))))) (/. g28 (g27 g28)))))) (/. g25 ((/. success (success g1)) (/. g26 (g25 g26)))))) (/. g18 (g17 g18)))))))))))))))) (/. g11 ((/. success (success g6)) (/. g12 (g11 g12))))) 
-        | | | | | + (cps (/. x (/. y x))) 
-        | | | | | | + (cps (/. y x)) 
-        | | | | | | | + (cps x) 
-        | | | | | | | -> (success x) 
-        | | | | | | -> (/. success (/. fail (/. y (success x)))) 
-        | | | | | -> (/. success (/. fail (/. x (/. success (/. fail (/. y (success x))))))) 
-        | | | | -> ((/. success ((/. success (/. success (/. fail (/. g0 (/. success (/. fail (/. g1 (if ((/. success (success not)) (/. g13 ((/. success ((/. success (success pair?)) (/. g15 ((/. success (success g0)) (/. g16 (g15 g16)))))) (/. g14 (g13 g14))))) (/. success (/. fail (/. () (success fail)))) (/. success (/. fail (/. () ((/. success ((/. success (/. success (/. fail (/. g4 (/. success (/. fail (/. g5 ((/. success (success g5)) (/. g21 ((/. success (success g4)) (/. g22 (g21 g22)))))))))))) (/. g19 ((/. success ((/. success (success cdr)) (/. g23 ((/. success (success g0)) (/. g24 (g23 g24)))))) (/. g20 (g19 g20)))))) (/. g17 ((/. success ((/. success ((/. success (/. success (/. fail (/. g2 (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g29 ((/. success (success g2)) (/. g30 (g29 g30)))))))))))) (/. g27 ((/. success ((/. success (success car)) (/. g31 ((/. success (success g0)) (/. g32 (g31 g32)))))) (/. g28 (g27 g28)))))) (/. g25 ((/. success (success g1)) (/. g26 (g25 g26)))))) (/. g18 (g17 g18)))))))))))))))) (/. g11 ((/. success (success g6)) (/. g12 (g11 g12)))))) (/. g9 ((/. success (/. success (/. fail (/. x (/. success (/. fail (/. y (success x)))))))) (/. g10 (g9 g10))))) 
-        | | | -> ((/. success ((/. success (/. success (/. fail (/. g0 (/. success (/. fail (/. g1 (if ((/. success (success not)) (/. g13 ((/. success ((/. success (success pair?)) (/. g15 ((/. success (success g0)) (/. g16 (g15 g16)))))) (/. g14 (g13 g14))))) (/. success (/. fail (/. () (success fail)))) (/. success (/. fail (/. () ((/. success ((/. success (/. success (/. fail (/. g4 (/. success (/. fail (/. g5 ((/. success (success g5)) (/. g21 ((/. success (success g4)) (/. g22 (g21 g22)))))))))))) (/. g19 ((/. success ((/. success (success cdr)) (/. g23 ((/. success (success g0)) (/. g24 (g23 g24)))))) (/. g20 (g19 g20)))))) (/. g17 ((/. success ((/. success ((/. success (/. success (/. fail (/. g2 (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g29 ((/. success (success g2)) (/. g30 (g29 g30)))))))))))) (/. g27 ((/. success ((/. success (success car)) (/. g31 ((/. success (success g0)) (/. g32 (g31 g32)))))) (/. g28 (g27 g28)))))) (/. g25 ((/. success (success g1)) (/. g26 (g25 g26)))))) (/. g18 (g17 g18)))))))))))))))) (/. g11 ((/. success (success g6)) (/. g12 (g11 g12)))))) (/. g9 ((/. success (/. success (/. fail (/. x (/. success (/. fail (/. y (success x)))))))) (/. g10 (g9 g10))))) 
-        | | -> (/. success (/. fail (/. g6 ((/. success ((/. success (/. success (/. fail (/. g0 (/. success (/. fail (/. g1 (if ((/. success (success not)) (/. g13 ((/. success ((/. success (success pair?)) (/. g15 ((/. success (success g0)) (/. g16 (g15 g16)))))) (/. g14 (g13 g14))))) (/. success (/. fail (/. () (success fail)))) (/. success (/. fail (/. () ((/. success ((/. success (/. success (/. fail (/. g4 (/. success (/. fail (/. g5 ((/. success (success g5)) (/. g21 ((/. success (success g4)) (/. g22 (g21 g22)))))))))))) (/. g19 ((/. success ((/. success (success cdr)) (/. g23 ((/. success (success g0)) (/. g24 (g23 g24)))))) (/. g20 (g19 g20)))))) (/. g17 ((/. success ((/. success ((/. success (/. success (/. fail (/. g2 (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g29 ((/. success (success g2)) (/. g30 (g29 g30)))))))))))) (/. g27 ((/. success ((/. success (success car)) (/. g31 ((/. success (success g0)) (/. g32 (g31 g32)))))) (/. g28 (g27 g28)))))) (/. g25 ((/. success (success g1)) (/. g26 (g25 g26)))))) (/. g18 (g17 g18)))))))))))))))) (/. g11 ((/. success (success g6)) (/. g12 (g11 g12)))))) (/. g9 ((/. success (/. success (/. fail (/. x (/. success (/. fail (/. y (success x)))))))) (/. g10 (g9 g10)))))))) 
-        | | + (cps '(3 . 4)) 
-        | | -> (success '(3 . 4)) 
-        | -> ((/. success (/. success (/. fail (/. g6 ((/. success ((/. success (/. success (/. fail (/. g0 (/. success (/. fail (/. g1 (if ((/. success (success not)) (/. g13 ((/. success ((/. success (success pair?)) (/. g15 ((/. success (success g0)) (/. g16 (g15 g16)))))) (/. g14 (g13 g14))))) (/. success (/. fail (/. () (success fail)))) (/. success (/. fail (/. () ((/. success ((/. success (/. success (/. fail (/. g4 (/. success (/. fail (/. g5 ((/. success (success g5)) (/. g21 ((/. success (success g4)) (/. g22 (g21 g22)))))))))))) (/. g19 ((/. success ((/. success (success cdr)) (/. g23 ((/. success (success g0)) (/. g24 (g23 g24)))))) (/. g20 (g19 g20)))))) (/. g17 ((/. success ((/. success ((/. success (/. success (/. fail (/. g2 (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g29 ((/. success (success g2)) (/. g30 (g29 g30)))))))))))) (/. g27 ((/. success ((/. success (success car)) (/. g31 ((/. success (success g0)) (/. g32 (g31 g32)))))) (/. g28 (g27 g28)))))) (/. g25 ((/. success (success g1)) (/. g26 (g25 g26)))))) (/. g18 (g17 g18)))))))))))))))) (/. g11 ((/. success (success g6)) (/. g12 (g11 g12)))))) (/. g9 ((/. success (/. success (/. fail (/. x (/. success (/. fail (/. y (success x)))))))) (/. g10 (g9 g10))))))))) (/. g7 ((/. success (success '(3 . 4))) (/. g8 (g7 g8))))) 
-        -> ((/. success (/. success (/. fail (/. g6 ((/. success ((/. success (/. success (/. fail (/. g0 (/. success (/. fail (/. g1 (if ((/. success (success not)) (/. g13 ((/. success ((/. success (success pair?)) (/. g15 ((/. success (success g0)) (/. g16 (g15 g16)))))) (/. g14 (g13 g14))))) (/. success (/. fail (/. () (success fail)))) (/. success (/. fail (/. () ((/. success ((/. success (/. success (/. fail (/. g4 (/. success (/. fail (/. g5 ((/. success (success g5)) (/. g21 ((/. success (success g4)) (/. g22 (g21 g22)))))))))))) (/. g19 ((/. success ((/. success (success cdr)) (/. g23 ((/. success (success g0)) (/. g24 (g23 g24)))))) (/. g20 (g19 g20)))))) (/. g17 ((/. success ((/. success ((/. success (/. success (/. fail (/. g2 (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g29 ((/. success (success g2)) (/. g30 (g29 g30)))))))))))) (/. g27 ((/. success ((/. success (success car)) (/. g31 ((/. success (success g0)) (/. g32 (g31 g32)))))) (/. g28 (g27 g28)))))) (/. g25 ((/. success (success g1)) (/. g26 (g25 g26)))))) (/. g18 (g17 g18)))))))))))))))) (/. g11 ((/. success (success g6)) (/. g12 (g11 g12)))))) (/. g9 ((/. success (/. success (/. fail (/. x (/. success (/. fail (/. y (success x)))))))) (/. g10 (g9 g10))))))))) (/. g7 ((/. success (success '(3 . 4))) (/. g8 (g7 g8))))) 
-- cpsed
+  g1
+  (if (not (pair? '(3 . 4)))
+    fail
+    ((/. g5 (g5 (cdr '(3 . 4)))) ((/. g3 (g3 (car '(3 . 4)))) g1))))
+ (/. x (/. y x)))
+        + (cps ((/. g1 (if (not (pair? '(3 . 4))) fail ((/. g5 (g5 (cdr '(3 . 4)))) ((/. g3 (g3 (car '(3 . 4)))) g1)))) (/. x (/. y x)))) 
+        | + (cps-app ((/. g1 (if (not (pair? '(3 . 4))) fail ((/. g5 (g5 (cdr '(3 . 4)))) ((/. g3 (g3 (car '(3 . 4)))) g1)))) (/. x (/. y x)))) 
+        | | + (cps (/. g1 (if (not (pair? '(3 . 4))) fail ((/. g5 (g5 (cdr '(3 . 4)))) ((/. g3 (g3 (car '(3 . 4)))) g1))))) 
+        | | | + (cps (if (not (pair? '(3 . 4))) fail ((/. g5 (g5 (cdr '(3 . 4)))) ((/. g3 (g3 (car '(3 . 4)))) g1)))) 
+        | | | | + (cps (not (pair? '(3 . 4)))) 
+        | | | | | + (cps-app (not (pair? '(3 . 4)))) 
+        | | | | | | + (cps not) 
+        | | | | | | -> (success not) 
+        | | | | | | + (cps (pair? '(3 . 4))) 
+        | | | | | | | + (cps-app (pair? '(3 . 4))) 
+        | | | | | | | | + (cps pair?) 
+        | | | | | | | | -> (success pair?) 
+        | | | | | | | | + (cps '(3 . 4)) 
+        | | | | | | | | -> (success '(3 . 4)) 
+        | | | | | | | -> ((/. success (success pair?)) (/. g11 ((/. success (success '(3 . 4))) (/. g12 (g11 g12))))) 
+        | | | | | | -> ((/. success (success pair?)) (/. g11 ((/. success (success '(3 . 4))) (/. g12 (g11 g12))))) 
+        | | | | | -> ((/. success (success not)) (/. g9 ((/. success ((/. success (success pair?)) (/. g11 ((/. success (success '(3 . 4))) (/. g12 (g11 g12)))))) (/. g10 (g9 g10))))) 
+        | | | | -> ((/. success (success not)) (/. g9 ((/. success ((/. success (success pair?)) (/. g11 ((/. success (success '(3 . 4))) (/. g12 (g11 g12)))))) (/. g10 (g9 g10))))) 
+        | | | | + (cps (/. () fail)) 
+        | | | | | + (cps fail) 
+        | | | | | -> (success fail) 
+        | | | | -> (/. success (/. fail (/. () (success fail)))) 
+        | | | | + (cps (/. () ((/. g5 (g5 (cdr '(3 . 4)))) ((/. g3 (g3 (car '(3 . 4)))) g1)))) 
+        | | | | | + (cps ((/. g5 (g5 (cdr '(3 . 4)))) ((/. g3 (g3 (car '(3 . 4)))) g1))) 
+        | | | | | | + (cps-app ((/. g5 (g5 (cdr '(3 . 4)))) ((/. g3 (g3 (car '(3 . 4)))) g1))) 
+        | | | | | | | + (cps (/. g5 (g5 (cdr '(3 . 4))))) 
+        | | | | | | | | + (cps (g5 (cdr '(3 . 4)))) 
+        | | | | | | | | | + (cps-app (g5 (cdr '(3 . 4)))) 
+        | | | | | | | | | | + (cps g5) 
+        | | | | | | | | | | -> (success g5) 
+        | | | | | | | | | | + (cps (cdr '(3 . 4))) 
+        | | | | | | | | | | | + (cps-app (cdr '(3 . 4))) 
+        | | | | | | | | | | | | + (cps cdr) 
+        | | | | | | | | | | | | -> (success cdr) 
+        | | | | | | | | | | | | + (cps '(3 . 4)) 
+        | | | | | | | | | | | | -> (success '(3 . 4)) 
+        | | | | | | | | | | | -> ((/. success (success cdr)) (/. g17 ((/. success (success '(3 . 4))) (/. g18 (g17 g18))))) 
+        | | | | | | | | | | -> ((/. success (success cdr)) (/. g17 ((/. success (success '(3 . 4))) (/. g18 (g17 g18))))) 
+        | | | | | | | | | -> ((/. success (success g5)) (/. g15 ((/. success ((/. success (success cdr)) (/. g17 ((/. success (success '(3 . 4))) (/. g18 (g17 g18)))))) (/. g16 (g15 g16))))) 
+        | | | | | | | | -> ((/. success (success g5)) (/. g15 ((/. success ((/. success (success cdr)) (/. g17 ((/. success (success '(3 . 4))) (/. g18 (g17 g18)))))) (/. g16 (g15 g16))))) 
+        | | | | | | | -> (/. success (/. fail (/. g5 ((/. success (success g5)) (/. g15 ((/. success ((/. success (success cdr)) (/. g17 ((/. success (success '(3 . 4))) (/. g18 (g17 g18)))))) (/. g16 (g15 g16)))))))) 
+        | | | | | | | + (cps ((/. g3 (g3 (car '(3 . 4)))) g1)) 
+        | | | | | | | | + (cps-app ((/. g3 (g3 (car '(3 . 4)))) g1)) 
+        | | | | | | | | | + (cps (/. g3 (g3 (car '(3 . 4))))) 
+        | | | | | | | | | | + (cps (g3 (car '(3 . 4)))) 
+        | | | | | | | | | | | + (cps-app (g3 (car '(3 . 4)))) 
+        | | | | | | | | | | | | + (cps g3) 
+        | | | | | | | | | | | | -> (success g3) 
+        | | | | | | | | | | | | + (cps (car '(3 . 4))) 
+        | | | | | | | | | | | | | + (cps-app (car '(3 . 4))) 
+        | | | | | | | | | | | | | | + (cps car) 
+        | | | | | | | | | | | | | | -> (success car) 
+        | | | | | | | | | | | | | | + (cps '(3 . 4)) 
+        | | | | | | | | | | | | | | -> (success '(3 . 4)) 
+        | | | | | | | | | | | | | -> ((/. success (success car)) (/. g23 ((/. success (success '(3 . 4))) (/. g24 (g23 g24))))) 
+        | | | | | | | | | | | | -> ((/. success (success car)) (/. g23 ((/. success (success '(3 . 4))) (/. g24 (g23 g24))))) 
+        | | | | | | | | | | | -> ((/. success (success g3)) (/. g21 ((/. success ((/. success (success car)) (/. g23 ((/. success (success '(3 . 4))) (/. g24 (g23 g24)))))) (/. g22 (g21 g22))))) 
+        | | | | | | | | | | -> ((/. success (success g3)) (/. g21 ((/. success ((/. success (success car)) (/. g23 ((/. success (success '(3 . 4))) (/. g24 (g23 g24)))))) (/. g22 (g21 g22))))) 
+        | | | | | | | | | -> (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g21 ((/. success ((/. success (success car)) (/. g23 ((/. success (success '(3 . 4))) (/. g24 (g23 g24)))))) (/. g22 (g21 g22)))))))) 
+        | | | | | | | | | + (cps g1) 
+        | | | | | | | | | -> (success g1) 
+        | | | | | | | | -> ((/. success (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g21 ((/. success ((/. success (success car)) (/. g23 ((/. success (success '(3 . 4))) (/. g24 (g23 g24)))))) (/. g22 (g21 g22))))))))) (/. g19 ((/. success (success g1)) (/. g20 (g19 g20))))) 
+        | | | | | | | -> ((/. success (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g21 ((/. success ((/. success (success car)) (/. g23 ((/. success (success '(3 . 4))) (/. g24 (g23 g24)))))) (/. g22 (g21 g22))))))))) (/. g19 ((/. success (success g1)) (/. g20 (g19 g20))))) 
+        | | | | | | -> ((/. success (/. success (/. fail (/. g5 ((/. success (success g5)) (/. g15 ((/. success ((/. success (success cdr)) (/. g17 ((/. success (success '(3 . 4))) (/. g18 (g17 g18)))))) (/. g16 (g15 g16))))))))) (/. g13 ((/. success ((/. success (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g21 ((/. success ((/. success (success car)) (/. g23 ((/. success (success '(3 . 4))) (/. g24 (g23 g24)))))) (/. g22 (g21 g22))))))))) (/. g19 ((/. success (success g1)) (/. g20 (g19 g20)))))) (/. g14 (g13 g14))))) 
+        | | | | | -> ((/. success (/. success (/. fail (/. g5 ((/. success (success g5)) (/. g15 ((/. success ((/. success (success cdr)) (/. g17 ((/. success (success '(3 . 4))) (/. g18 (g17 g18)))))) (/. g16 (g15 g16))))))))) (/. g13 ((/. success ((/. success (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g21 ((/. success ((/. success (success car)) (/. g23 ((/. success (success '(3 . 4))) (/. g24 (g23 g24)))))) (/. g22 (g21 g22))))))))) (/. g19 ((/. success (success g1)) (/. g20 (g19 g20)))))) (/. g14 (g13 g14))))) 
+        | | | | -> (/. success (/. fail (/. () ((/. success (/. success (/. fail (/. g5 ((/. success (success g5)) (/. g15 ((/. success ((/. success (success cdr)) (/. g17 ((/. success (success '(3 . 4))) (/. g18 (g17 g18)))))) (/. g16 (g15 g16))))))))) (/. g13 ((/. success ((/. success (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g21 ((/. success ((/. success (success car)) (/. g23 ((/. success (success '(3 . 4))) (/. g24 (g23 g24)))))) (/. g22 (g21 g22))))))))) (/. g19 ((/. success (success g1)) (/. g20 (g19 g20)))))) (/. g14 (g13 g14)))))))) 
+        | | | -> (if ((/. success (success not)) (/. g9 ((/. success ((/. success (success pair?)) (/. g11 ((/. success (success '(3 . 4))) (/. g12 (g11 g12)))))) (/. g10 (g9 g10))))) (/. success (/. fail (/. () (success fail)))) (/. success (/. fail (/. () ((/. success (/. success (/. fail (/. g5 ((/. success (success g5)) (/. g15 ((/. success ((/. success (success cdr)) (/. g17 ((/. success (success '(3 . 4))) (/. g18 (g17 g18)))))) (/. g16 (g15 g16))))))))) (/. g13 ((/. success ((/. success (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g21 ((/. success ((/. success (success car)) (/. g23 ((/. success (success '(3 . 4))) (/. g24 (g23 g24)))))) (/. g22 (g21 g22))))))))) (/. g19 ((/. success (success g1)) (/. g20 (g19 g20)))))) (/. g14 (g13 g14))))))))) 
+        | | -> (/. success (/. fail (/. g1 (if ((/. success (success not)) (/. g9 ((/. success ((/. success (success pair?)) (/. g11 ((/. success (success '(3 . 4))) (/. g12 (g11 g12)))))) (/. g10 (g9 g10))))) (/. success (/. fail (/. () (success fail)))) (/. success (/. fail (/. () ((/. success (/. success (/. fail (/. g5 ((/. success (success g5)) (/. g15 ((/. success ((/. success (success cdr)) (/. g17 ((/. success (success '(3 . 4))) (/. g18 (g17 g18)))))) (/. g16 (g15 g16))))))))) (/. g13 ((/. success ((/. success (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g21 ((/. success ((/. success (success car)) (/. g23 ((/. success (success '(3 . 4))) (/. g24 (g23 g24)))))) (/. g22 (g21 g22))))))))) (/. g19 ((/. success (success g1)) (/. g20 (g19 g20)))))) (/. g14 (g13 g14)))))))))))) 
+        | | + (cps (/. x (/. y x))) 
+        | | | + (cps (/. y x)) 
+        | | | | + (cps x) 
+        | | | | -> (success x) 
+        | | | -> (/. success (/. fail (/. y (success x)))) 
+        | | -> (/. success (/. fail (/. x (/. success (/. fail (/. y (success x))))))) 
+        | -> ((/. success (/. success (/. fail (/. g1 (if ((/. success (success not)) (/. g9 ((/. success ((/. success (success pair?)) (/. g11 ((/. success (success '(3 . 4))) (/. g12 (g11 g12)))))) (/. g10 (g9 g10))))) (/. success (/. fail (/. () (success fail)))) (/. success (/. fail (/. () ((/. success (/. success (/. fail (/. g5 ((/. success (success g5)) (/. g15 ((/. success ((/. success (success cdr)) (/. g17 ((/. success (success '(3 . 4))) (/. g18 (g17 g18)))))) (/. g16 (g15 g16))))))))) (/. g13 ((/. success ((/. success (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g21 ((/. success ((/. success (success car)) (/. g23 ((/. success (success '(3 . 4))) (/. g24 (g23 g24)))))) (/. g22 (g21 g22))))))))) (/. g19 ((/. success (success g1)) (/. g20 (g19 g20)))))) (/. g14 (g13 g14))))))))))))) (/. g7 ((/. success (/. success (/. fail (/. x (/. success (/. fail (/. y (success x)))))))) (/. g8 (g7 g8))))) 
+        -> ((/. success (/. success (/. fail (/. g1 (if ((/. success (success not)) (/. g9 ((/. success ((/. success (success pair?)) (/. g11 ((/. success (success '(3 . 4))) (/. g12 (g11 g12)))))) (/. g10 (g9 g10))))) (/. success (/. fail (/. () (success fail)))) (/. success (/. fail (/. () ((/. success (/. success (/. fail (/. g5 ((/. success (success g5)) (/. g15 ((/. success ((/. success (success cdr)) (/. g17 ((/. success (success '(3 . 4))) (/. g18 (g17 g18)))))) (/. g16 (g15 g16))))))))) (/. g13 ((/. success ((/. success (/. success (/. fail (/. g3 ((/. success (success g3)) (/. g21 ((/. success ((/. success (success car)) (/. g23 ((/. success (success '(3 . 4))) (/. g24 (g23 g24)))))) (/. g22 (g21 g22))))))))) (/. g19 ((/. success (success g1)) (/. g20 (g19 g20)))))) (/. g14 (g13 g14))))))))))))) (/. g7 ((/. success (/. success (/. fail (/. x (/. success (/. fail (/. y (success x)))))))) (/. g8 (g7 g8))))) 
+cps
+((/.
+  success
+  (/.
+   success
+   (/.
+    fail
+    (/.
+     g1
+     (if ((/. success (success not))
+          (/.
+           g9
+           ((/.
+             success
+             ((/. success (success pair?))
+              (/. g11 ((/. success (success '(3 . 4))) (/. g12 (g11 g12))))))
+            (/. g10 (g9 g10)))))
+       (/. success (/. fail (/. () (success fail))))
+       (/.
+        success
+        (/.
+         fail
+         (/.
+          ()
+          ((/.
+            success
+            (/.
+             success
+             (/.
+              fail
+              (/.
+               g5
+               ((/. success (success g5))
+                (/.
+                 g15
+                 ((/.
+                   success
+                   ((/. success (success cdr))
+                    (/.
+                     g17
+                     ((/. success (success '(3 . 4))) (/. g18 (g17 g18))))))
+                  (/. g16 (g15 g16)))))))))
+           (/.
+            g13
+            ((/.
+              success
+              ((/.
+                success
+                (/.
+                 success
+                 (/.
+                  fail
+                  (/.
+                   g3
+                   ((/. success (success g3))
+                    (/.
+                     g21
+                     ((/.
+                       success
+                       ((/. success (success car))
+                        (/.
+                         g23
+                         ((/. success (success '(3 . 4)))
+                          (/. g24 (g23 g24))))))
+                      (/. g22 (g21 g22)))))))))
+               (/. g19 ((/. success (success g1)) (/. g20 (g19 g20))))))
+             (/. g14 (g13 g14)))))))))))))
+ (/.
+  g7
+  ((/.
+    success
+    (/. success (/. fail (/. x (/. success (/. fail (/. y (success x))))))))
+   (/. g8 (g7 g8)))))
+evl
 (closure
   (/.
    success
    (/.
     fail
     (/.
-     g6
-     ((/.
-       success
-       ((/.
-         success
-         (/.
-          success
+     g1
+     (if ((/. success (success not))
           (/.
-           fail
-           (/.
-            g0
+           g9
+           ((/.
+             success
+             ((/. success (success pair?))
+              (/. g11 ((/. success (success '(3 . 4))) (/. g12 (g11 g12))))))
+            (/. g10 (g9 g10)))))
+       (/. success (/. fail (/. () (success fail))))
+       (/.
+        success
+        (/.
+         fail
+         (/.
+          ()
+          ((/.
+            success
             (/.
              success
              (/.
               fail
               (/.
-               g1
-               (if ((/. success (success not))
+               g5
+               ((/. success (success g5))
+                (/.
+                 g15
+                 ((/.
+                   success
+                   ((/. success (success cdr))
                     (/.
-                     g13
+                     g17
+                     ((/. success (success '(3 . 4))) (/. g18 (g17 g18))))))
+                  (/. g16 (g15 g16)))))))))
+           (/.
+            g13
+            ((/.
+              success
+              ((/.
+                success
+                (/.
+                 success
+                 (/.
+                  fail
+                  (/.
+                   g3
+                   ((/. success (success g3))
+                    (/.
+                     g21
                      ((/.
                        success
-                       ((/. success (success pair?))
+                       ((/. success (success car))
                         (/.
-                         g15
-                         ((/. success (success g0)) (/. g16 (g15 g16))))))
-                      (/. g14 (g13 g14)))))
-                 (/. success (/. fail (/. () (success fail))))
-                 (/.
-                  success
-                  (/.
-                   fail
-                   (/.
-                    ()
-                    ((/.
-                      success
-                      ((/.
-                        success
-                        (/.
-                         success
-                         (/.
-                          fail
-                          (/.
-                           g4
-                           (/.
-                            success
-                            (/.
-                             fail
-                             (/.
-                              g5
-                              ((/. success (success g5))
-                               (/.
-                                g21
-                                ((/. success (success g4))
-                                 (/. g22 (g21 g22))))))))))))
-                       (/.
-                        g19
-                        ((/.
-                          success
-                          ((/. success (success cdr))
-                           (/.
-                            g23
-                            ((/. success (success g0)) (/. g24 (g23 g24))))))
-                         (/. g20 (g19 g20))))))
-                     (/.
-                      g17
-                      ((/.
-                        success
-                        ((/.
-                          success
-                          ((/.
-                            success
-                            (/.
-                             success
-                             (/.
-                              fail
-                              (/.
-                               g2
-                               (/.
-                                success
-                                (/.
-                                 fail
-                                 (/.
-                                  g3
-                                  ((/. success (success g3))
-                                   (/.
-                                    g29
-                                    ((/. success (success g2))
-                                     (/. g30 (g29 g30))))))))))))
-                           (/.
-                            g27
-                            ((/.
-                              success
-                              ((/. success (success car))
-                               (/.
-                                g31
-                                ((/. success (success g0))
-                                 (/. g32 (g31 g32))))))
-                             (/. g28 (g27 g28))))))
-                         (/.
-                          g25
-                          ((/. success (success g1)) (/. g26 (g25 g26))))))
-                       (/. g18 (g17 g18))))))))))))))))
-        (/. g11 ((/. success (success g6)) (/. g12 (g11 g12))))))
-      (/.
-       g9
-       ((/.
-         success
-         (/.
-          success
-          (/. fail (/. x (/. success (/. fail (/. y (success x))))))))
-        (/. g10 (g9 g10))))))))
+                         g23
+                         ((/. success (success '(3 . 4)))
+                          (/. g24 (g23 g24))))))
+                      (/. g22 (g21 g22)))))))))
+               (/. g19 ((/. success (success g1)) (/. g20 (g19 g20))))))
+             (/. g14 (g13 g14))))))))))))
   ((success
      closure
-     (/. g7 ((/. success (success '(3 . 4))) (/. g8 (g7 g8))))
+     (/.
+      g7
+      ((/.
+        success
+        (/.
+         success
+         (/. fail (/. x (/. success (/. fail (/. y (success x))))))))
+       (/. g8 (g7 g8))))
      ())))
