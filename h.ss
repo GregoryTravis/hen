@@ -130,50 +130,6 @@
 ;;    ((and (pair? e) (not (lambda? e))) (map simplify-pattern-lambdas e))
 ;;    (#t (err 'simplify-pattern-lambdas e))))
 
-(define (preprocess-exp e)
-  (display "- before preprocess\n")
-  (shew e)
-  (let* ((before-simplified (compile-lambda-rewrites e)))
-    (display "- before simplified\n")
-    (shew before-simplified)
-    ;(let ((after-simplified (simplify-lambda before-simplified)))
-    (let ((after-simplified before-simplified))
-      (display "- after simplified\n")
-      (shew after-simplified)
-      (let ((cpsed (cps after-simplified)))
-        (display "- cpsed\n")
-        cpsed))))
-;;         (let ((cps-simplified (simplify-lambda cpsed)))
-;;           (display "- cps-simplified\n")
-;;           (shew cps-simplified)
-;;           cps-simplified)))))
-
-(define (preprocess e)
-  (cond
-   ((define? e) e)
-   (#t (preprocess-exp e))))
-
-(define (process-top-level-form e)
-  (display "+ ")
-  (shew e)
-  (let ((e (preprocess e)))
-    (cond
-     ((define? e) (process-define e))
-     (#t (shew (evl e))))))
-
-(define (exec-file filename)
-  (let ((forms (read-objects filename)))
-    (map process-top-level-form forms)))
-
-(define (preprocess-file filename)
-  (let ((forms (read-objects filename)))
-    (map (lambda (x)
-           (shew x)
-           (let ((pp (preprocess x)))
-             ;(display "* ")
-             (shew pp)))
-         forms)))
-
 (define (build-binding-receiver pat body)
   (cond
    ((literal? pat) body)
@@ -362,13 +318,43 @@
 
 ;(define simplify-lambda (normalizerify simplify-lambda))
 
+(define (preprocess-exp e)
+  (display "- before preprocess\n")
+  (shew e)
+  (let* ((before-simplified (compile-lambda-rewrites e)))
+    (display "- before simplified\n")
+    (shew before-simplified)
+    ;(let ((after-simplified (simplify-lambda before-simplified)))
+    (let ((after-simplified before-simplified))
+      (display "- after simplified\n")
+      (shew after-simplified)
+      (let ((cpsed (cps after-simplified)))
+        (display "- cpsed\n")
+        cpsed))))
+;;         (let ((cps-simplified (simplify-lambda cpsed)))
+;;           (display "- cps-simplified\n")
+;;           (shew cps-simplified)
+;;           cps-simplified)))))
+
+(define (preprocess e)
+  (cond
+   ((define? e) e)
+   (#t (preprocess-exp e))))
+
+(define (process-top-level-form e)
+  (display "+ ")
+  (shew e)
+  (let ((e (preprocess e)))
+    (cond
+     ((define? e) (process-define e))
+     (#t (shew (evl e))))))1
+
+(define (exec-file filename)
+  (let ((forms (read-objects filename)))
+    (map process-top-level-form forms)))
+
 (define (go)
-;  (preprocess-file "src.ss"))
   (exec-file "src.ss"))
-;  (shew (preprocess '((/. (x . y) x) '(3 . 4)))))
-;;   (let ((a (evl (preprocess '((/. (x . y) x) '(3 . 4))))))
-;;     (shew a)
-;;     (shew (simplify-lambda a))))
 
 ;(tracefun evl evl1 evl-app evl-app-closure evl-app-primitive evl-conditional lookup-local-or-global process-define process-top-level-form)
 ;(tracefun preprocess-exp simplify-pattern-lambdas)
