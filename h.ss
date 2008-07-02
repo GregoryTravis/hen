@@ -278,5 +278,5 @@
 ;(tracefun evl evl1 evl-app evl-app-closure evl-app-primitive evl-conditional lookup-local-or-global process-define process-top-level-form)
 ;(tracefun classic-lambda? lambda? app? is-quote?)
 ;(tracefun compile-lambda-rewrites build-binding-receiver build-pattern-descender)
-;(tracefun cps)
+;(tracefun cps cps1)
 ;(tracefun simplify-lambda simplify-lambda-app lambda-substitute exp-substitute)
