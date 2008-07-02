@@ -193,60 +193,60 @@
         (v (sgen)))
     `(/. ,v ((,descender ,v) ,receiver))))
 
-(define (cps e)
-  (cond
-   ((conditional? e)
-    (let* ((p (cadr e))
-           (t (caddr e))
-           (e (cadddr e))
-           (thunk-t `(/. () ,t))
-           (thunk-e `(/. () ,e))
-           (pv (sgen))
-           (tv (sgen))
-           (ev (sgen)))
-      `((/. success (success ,(cps p)))
-        (/. ,pv
-            ((/. success (success ,(cps thunk-t)))
-             (/. ,tv
-                 ((/. success (success ,(cps thunk-e)))
-                  (/. ,ev
-                      (success (if ,pv (,tv) (,ev)))))))))))
-   ((lambda? e)
-    (let ((arg (cadr e))
-          (body (caddr e)))
-      `(/. ,arg ,(cps body))))
-   ((or (literal? e) (symbol? e))
-    `(success ,e))
+;; (define (cps e)
+;;   (cond
+;;    ((conditional? e)
+;;     (let* ((p (cadr e))
+;;            (t (caddr e))
+;;            (e (cadddr e))
+;;            (thunk-t `(/. () ,t))
+;;            (thunk-e `(/. () ,e))
+;;            (pv (sgen))
+;;            (tv (sgen))
+;;            (ev (sgen)))
+;;       `((/. success (success ,(cps p)))
+;;         (/. ,pv
+;;             ((/. success (success ,(cps thunk-t)))
+;;              (/. ,tv
+;;                  ((/. success (success ,(cps thunk-e)))
+;;                   (/. ,ev
+;;                       (success (if ,pv (,tv) (,ev)))))))))))
+;;    ((lambda? e)
+;;     (let ((arg (cadr e))
+;;           (body (caddr e)))
+;;       `(/. ,arg ,(cps body))))
+;;    ((or (literal? e) (symbol? e))
+;;     `(success ,e))
+;; ;;    ((1-arg-app? e)
+;; ;;     (let ((f (car e))
+;; ;;           (a (cadr e))
+;; ;;           (fv (sgen))
+;; ;;           (av (sgen)))
+;; ;;       `((/. success (success ,(cps f)))
+;; ;;         (/. ,fv ((/. success (success ,(cps a)))
+;; ;;                  (/. ,av (,fv ,av)))))))
 ;;    ((1-arg-app? e)
 ;;     (let ((f (car e))
-;;           (a (cadr e))
-;;           (fv (sgen))
-;;           (av (sgen)))
-;;       `((/. success (success ,(cps f)))
-;;         (/. ,fv ((/. success (success ,(cps a)))
-;;                  (/. ,av (,fv ,av)))))))
-   ((1-arg-app? e)
-    (let ((f (car e))
-          (a (cadr e)))
-      (cond
-       ((and (cps-primitive? f) (cps-primitive? a)) e)
-       ((not (cps-primitive? a))
-        (cps
-         (let ((av (sgen)))
-           `((/. success (success ,(cps a)))
-             (/. ,av (,f ,av))))))
-       ((not (cps-primitive? f))
-        (cps (let ((fv (sgen)))
-               `((/. success (success ,(cps f)))
-                 (/. ,fv (,fv ,a))))))
-       (#t (err 'cps '1-arg-app? e)))))
-  (#t (err 'cps e))))
+;;           (a (cadr e)))
+;;       (cond
+;;        ((and (cps-primitive? f) (cps-primitive? a)) e)
+;;        ((not (cps-primitive? a))
+;;         (cps
+;;          (let ((av (sgen)))
+;;            `((/. success (success ,(cps a)))
+;;              (/. ,av (,f ,av))))))
+;;        ((not (cps-primitive? f))
+;;         (cps (let ((fv (sgen)))
+;;                `((/. success (success ,(cps f)))
+;;                  (/. ,fv (,fv ,a))))))
+;;        (#t (err 'cps '1-arg-app? e)))))
+;;   (#t (err 'cps e))))
 
-(define (cps-primitive? e)
-  (or (symbol? e) (is-quote? e)))
+;; (define (cps-primitive? e)
+;;   (or (symbol? e) (is-quote? e)))
 
-(define (cps-top e)
-  `((,(cps e) (/. x x)) (/. x 'ERR)))
+;; (define (cps-top e)
+;;   `((,(cps e) (/. x x)) (/. x 'ERR)))
 
 (define (compile-lambda-rewrites e)
   (cond
@@ -341,6 +341,39 @@
 
 ;(define simplify-lambda (normalizerify simplify-lambda))
 
+;; (define (cps e)
+;;   (cond
+;;    ((or (symbol? e) (literal? e)) `(success ,e))
+;;    ((classic-lambda? e)
+;;     (let ((arg (cadr e))
+;;           (body (caddr e)))
+;;       `(/. ,arg ,(cps body))))
+;;    ((1-arg-app? e)
+;;     (let ((f (car e))
+;;           (a (cadr e))
+;;           (fv (sgen))
+;;           (av (sgen)))
+;;       `((/. success (success ,(cps f)))
+;;         (/. ,fv ((/. success (success ,(cps a)))
+;;                  (/. ,av (,fv ,av)))))))
+;;    (#t (err 'cps e))))
+
+(define (cps e) (cps1 e '(/. x x)))
+
+(define (cps1 e k)
+  (cond
+   ((or (symbol? e) (literal? e) (classic-lambda? e))
+    `(,k ,e))
+   ((1-arg-app? e)
+    (let ((f (car e))
+          (a (cadr e))
+          (fv (sgen))
+          (av (sgen)))
+      (cps1 f
+           `(/. ,fv ,(cps1 a
+                          `(/. ,av (,k (,fv ,av))))))))
+   (#t (err 'cps1 e k))))
+
 (define (process-top-level-form e)
   (assert (not (define? e)))
   (display "+ ")
@@ -351,8 +384,10 @@
 
   (set! e (simplify-lambda e))
 ;  (shew 'simplify-lambda e)
-;  (set! e (cps e))
+
+  (set! e (cps e))
 ;  (shew 'cps e)
+
 ;  (set! e (simplify-lambda e))
 ;  (shew 'simplify-lambda e)
 
@@ -373,4 +408,5 @@
 ;(tracefun classic-lambda? lambda? app? symbol? is-quote?)
 ;(tracefun compile-lambda-rewrites build-binding-receiver build-pattern-descender)
 ;(tracefun cps-top cps)
+;(tracefun cps)
 ;(tracefun simplify-lambda simplify-lambda-app lambda-substitute exp-substitute)
