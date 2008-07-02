@@ -276,9 +276,7 @@
   (exec-file "src.ss"))
 
 ;(tracefun evl evl1 evl-app evl-app-closure evl-app-primitive evl-conditional lookup-local-or-global process-define process-top-level-form)
-;(tracefun preprocess-exp simplify-pattern-lambdas)
-;(tracefun classic-lambda? lambda? app? symbol? is-quote?)
+;(tracefun classic-lambda? lambda? app? is-quote?)
 ;(tracefun compile-lambda-rewrites build-binding-receiver build-pattern-descender)
-;(tracefun cps-top cps)
 ;(tracefun cps)
 ;(tracefun simplify-lambda simplify-lambda-app lambda-substitute exp-substitute)
