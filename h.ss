@@ -275,7 +275,7 @@
 
 (define (exp-substitute var value e)
   (cond
-   ((is-quote? e) e)
+   ((literal? e) e)
    ((symbol? e)
     (if (eq? var e)
         value
@@ -299,15 +299,32 @@
   (lambda-substitute (simplify-lambda (car e))
                      (simplify-lambda (cadr e))))
 
+(define (free-in v e)
+  (assert (symbol? v))
+  (cond
+   ((equal? v e) #t)
+   ((symbol? e) #f)
+   ((literal? e) #f)
+   ((lambda? e)
+    (let ((arg (cadr e))
+          (body (caddr e)))
+      (if (equal? arg v)
+          #f
+          (free-in v body))))
+   ((1-arg-app? e) (or (free-in (car e))
+                       (free-in (cadr e))))
+   (#t (err 'free-in v e))))
+
 (define (simplify-lambda e)
   (cond
    ;; (/. x (y x)) -> y
    ((and (lambda? e)
          (let ((arg (cadr e))
                (body (caddr e)))
-           (and (proper-list? body)
+           (and (1-arg-app? body)
                 (= 2 (length body))
-                (equal? arg (cadr body)))))
+                (equal? arg (cadr body))
+                (not (free-in arg (car body))))))
     (simplify-lambda (car (caddr e))))
    ((closure? e)
     (let ((lam (cadr e))
@@ -332,7 +349,7 @@
   (set! e (compile-lambda-rewrites e))
 ;  (shew 'compile-lambda-rewrites e)
 
-;  (set! e (simplify-lambda e))
+  (set! e (simplify-lambda e))
 ;  (shew 'simplify-lambda e)
 ;  (set! e (cps e))
 ;  (shew 'cps e)

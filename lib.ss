@@ -601,12 +601,11 @@
 
 (define (lambda? e)
   (and (proper-list? e)
-       (= (length e) 3)
+       (= 3 (length e))
        (eq? '/. (car e))))
 
 (define (classic-lambda? e)
   (and (lambda? e)
-       (= 3 (length e))
        (symbol? (cadr e))))
 
 (define (app? e)
