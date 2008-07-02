@@ -73,10 +73,11 @@
 
 (define (evl1 e env)
   (cond
-   ((or (literal? e) (is-quote? e) (closure? e) (primitive? e)) e)
+   ((is-quote? e) (quote-quoted e))
+   ((or (literal? e) (closure? e) (primitive? e)) e)
    ;((if-pair?-exp? e) 
    ((conditional? e) (evl-conditional e env))
-   ((pair?-exp? e) (if (pair? (cadr e)) 'true 'false))
+   ;((pair?-exp? e) (if (pair? (cadr e)) 'true 'false))
    ;((closure? e) (evl-app-closure e))
    ;((primitive? e) (evl-app-primitive e env))
    ((lambda? e) `(closure ,e ,env))
@@ -173,7 +174,7 @@
           (r (sgen)))
       `(/. ,v (/. ,r (if (equal? ,v ,pat)
                          ,r
-                         fail)))))
+                         'fail)))))
    ((pair? pat)
     (let ((v (sgen))
           (r (sgen))
@@ -181,7 +182,7 @@
           (cdr-descender (build-pattern-descender (cdr pat))))
       `(/. ,v (/. ,r
                   (if (not (pair? ,v))
-                      fail
+                      'fail
                       ((,cdr-descender (cdr ,v))
                        ((,car-descender (car ,v)) ,r)))))))
    (#t (err 'build-pattern-descender pat binding-receiver))))
@@ -328,12 +329,12 @@
   (shew 'src e)
   (set! e (compile-lambda-rewrites e))
   (shew 'compile-lambda-rewrites e)
-  (set! e (simplify-lambda e))
-  (shew 'simplify-lambda e)
-  (set! e (cps e))
-  (shew 'cps e)
-  (set! e (simplify-lambda e))
-  (shew 'simplify-lambda e)
+;  (set! e (simplify-lambda e))
+;  (shew 'simplify-lambda e)
+;  (set! e (cps e))
+;  (shew 'cps e)
+;  (set! e (simplify-lambda e))
+;  (shew 'simplify-lambda e)
   (set! e (evl e))
   (shew 'evl e)
   e)
@@ -349,5 +350,5 @@
 ;(tracefun preprocess-exp simplify-pattern-lambdas)
 ;(tracefun classic-lambda? lambda? app? symbol? is-quote?)
 ;(tracefun compile-lambda-rewrites build-binding-receiver build-pattern-descender)
-(tracefun cps-top cps) ;cps-app); cps-app1)
+;(tracefun cps-top cps)
 ;(tracefun simplify-lambda simplify-lambda-app lambda-substitute exp-substitute)
