@@ -75,11 +75,7 @@
   (cond
    ((is-quote? e) (quote-quoted e))
    ((or (literal? e) (closure? e) (primitive? e)) e)
-   ;((if-pair?-exp? e) 
    ((conditional? e) (evl-conditional e env))
-   ;((pair?-exp? e) (if (pair? (cadr e)) 'true 'false))
-   ;((closure? e) (evl-app-closure e))
-   ;((primitive? e) (evl-app-primitive e env))
    ((lambda? e) `(closure ,e ,env))
    ((app? e) (evl-app e env))
    ((symbol? e) (lookup-local-or-global e env))
@@ -102,35 +98,6 @@
       ''()
       x))
 
-;; (define (simplify-pattern-lambdas e)
-;;   (cond
-;;    ((literal? e) e)
-;;    ((symbol? e) e)
-;;    ((lambda? e)
-;;     (let ((pat (cadr e))
-;;           (body (caddr e)))
-;;       (cond
-;;        ((literal? pat)
-;;         (let ((arg (sgen)))
-;;           `(/. ,arg
-;;              (if (equal? ,arg ,(quote-literal-maybe pat))
-;;                  ,(simplify-pattern-lambdas body)
-;;                  fail))))
-;;        ((symbol? pat)
-;;         `(/. ,pat ,(simplify-pattern-lambdas body)))
-;;        ((pair? pat)
-;;         (let* ((pair-arg (sgen))
-;;                (receiver
-;;                 (simplify-pattern-lambdas
-;;                  `(/. ,(car pat) (/. ,(cdr pat) ,body)))))
-;;           `(/. ,pair-arg
-;;                (if (pair? ,pair-arg)
-;;                    (,receiver (car ,pair-arg) (cdr ,pair-arg))
-;;                    fail))))
-;;        (#t (err 'simplify-pattern-lambdas 'bad-lambda-pat e)))))
-;;    ((and (pair? e) (not (lambda? e))) (map simplify-pattern-lambdas e))
-;;    (#t (err 'simplify-pattern-lambdas e))))
-
 (define (build-binding-receiver pat body)
   (cond
    ((literal? pat) body)
@@ -140,28 +107,6 @@
      (car pat)
      (build-binding-receiver (cdr pat) body)))
    (#t (err 'build-binding-receiver pat body))))
-
-;; (define (build-pattern-descender pat binding-receiver)
-;;   (cond
-;;    ((literal? pat)
-;;     (let ((v (sgen)))
-;;       `(/. ,v (if (equal? ,v ,pat)
-;;                   ,binding-receiver
-;;                   fail))))
-;;    ((symbol? pat)
-;;     binding-receiver)
-;;    ((pair? pat)
-;;     (let ((v (sgen)))
-;;       `(/. ,v (if (pair? ,v)
-;;                   ((,(build-pattern-descender
-;;                       (cdr pat)
-;;                       (build-pattern-descender
-;;                        (car pat)
-;;                        binding-receiver))
-;;                     (car ,v))
-;;                    (cdr ,v))
-;;                   fail))))
-;;    (#t (err 'build-pattern-descender pat binding-receiver))))
 
 (define (build-pattern-descender pat)
   (cond
@@ -192,61 +137,6 @@
         (receiver (build-binding-receiver pat body))
         (v (sgen)))
     `(/. ,v ((,descender ,v) ,receiver))))
-
-;; (define (cps e)
-;;   (cond
-;;    ((conditional? e)
-;;     (let* ((p (cadr e))
-;;            (t (caddr e))
-;;            (e (cadddr e))
-;;            (thunk-t `(/. () ,t))
-;;            (thunk-e `(/. () ,e))
-;;            (pv (sgen))
-;;            (tv (sgen))
-;;            (ev (sgen)))
-;;       `((/. success (success ,(cps p)))
-;;         (/. ,pv
-;;             ((/. success (success ,(cps thunk-t)))
-;;              (/. ,tv
-;;                  ((/. success (success ,(cps thunk-e)))
-;;                   (/. ,ev
-;;                       (success (if ,pv (,tv) (,ev)))))))))))
-;;    ((lambda? e)
-;;     (let ((arg (cadr e))
-;;           (body (caddr e)))
-;;       `(/. ,arg ,(cps body))))
-;;    ((or (literal? e) (symbol? e))
-;;     `(success ,e))
-;; ;;    ((1-arg-app? e)
-;; ;;     (let ((f (car e))
-;; ;;           (a (cadr e))
-;; ;;           (fv (sgen))
-;; ;;           (av (sgen)))
-;; ;;       `((/. success (success ,(cps f)))
-;; ;;         (/. ,fv ((/. success (success ,(cps a)))
-;; ;;                  (/. ,av (,fv ,av)))))))
-;;    ((1-arg-app? e)
-;;     (let ((f (car e))
-;;           (a (cadr e)))
-;;       (cond
-;;        ((and (cps-primitive? f) (cps-primitive? a)) e)
-;;        ((not (cps-primitive? a))
-;;         (cps
-;;          (let ((av (sgen)))
-;;            `((/. success (success ,(cps a)))
-;;              (/. ,av (,f ,av))))))
-;;        ((not (cps-primitive? f))
-;;         (cps (let ((fv (sgen)))
-;;                `((/. success (success ,(cps f)))
-;;                  (/. ,fv (,fv ,a))))))
-;;        (#t (err 'cps '1-arg-app? e)))))
-;;   (#t (err 'cps e))))
-
-;; (define (cps-primitive? e)
-;;   (or (symbol? e) (is-quote? e)))
-
-;; (define (cps-top e)
-;;   `((,(cps e) (/. x x)) (/. x 'ERR)))
 
 (define (compile-lambda-rewrites e)
   (cond
@@ -341,23 +231,6 @@
 
 ;(define simplify-lambda (normalizerify simplify-lambda))
 
-;; (define (cps e)
-;;   (cond
-;;    ((or (symbol? e) (literal? e)) `(success ,e))
-;;    ((classic-lambda? e)
-;;     (let ((arg (cadr e))
-;;           (body (caddr e)))
-;;       `(/. ,arg ,(cps body))))
-;;    ((1-arg-app? e)
-;;     (let ((f (car e))
-;;           (a (cadr e))
-;;           (fv (sgen))
-;;           (av (sgen)))
-;;       `((/. success (success ,(cps f)))
-;;         (/. ,fv ((/. success (success ,(cps a)))
-;;                  (/. ,av (,fv ,av)))))))
-;;    (#t (err 'cps e))))
-
 (define (cps e) (cps1 e '(/. x x)))
 
 (define (cps1 e k)
@@ -377,8 +250,8 @@
 (define (process-top-level-form e)
   (assert (not (define? e)))
   (display "+ ")
-;  (shew 'src)
   (shew e)
+
   (set! e (compile-lambda-rewrites e))
 ;  (shew 'compile-lambda-rewrites e)
 
@@ -392,7 +265,6 @@
 ;  (shew 'simplify-lambda e)
 
   (set! e (evl e))
-;  (shew 'evl)
   (shew e)
   e)
 
