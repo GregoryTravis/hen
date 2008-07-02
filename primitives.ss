@@ -26,5 +26,11 @@
 (define (h-primitive-pair? a)
   (if (pair? a) 'true 'false))
 
-(define (h-car a) (car a))
-(define (h-cdr a) (cdr a))
+(define (h-primitive-car a) (car a))
+(define (h-primitive-cdr a) (cdr a))
+(define (h-primitive-not a)
+  (if (eq? a 'true)
+      'false
+      (if (eq? a 'false)
+          'true
+          (err 'not a))))

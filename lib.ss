@@ -614,6 +614,9 @@
        (not (lambda? e))
        (>= (length e) 1)))
 
+(define (1-arg-app? e)
+  (and (app? e) (= 2 (length e))))
+
 (define (compose . funs)
   (cond
    ((null? funs) id)
