@@ -592,12 +592,16 @@
       e
       (f (car lyst) (foldr f e (cdr lyst)))))
 
-(define (symbol-generator-generator)
+(define (tagged-symbol-generator-generator)
   (let ((serial 0))
-    (lambda ()
+    (lambda (tag)
       (let ((s serial))
         (set! serial (1+ serial))
-        (string->symbol (concat "g" (number->string s)))))))
+        (string->symbol (concat tag (number->string s)))))))
+
+(define (symbol-generator-generator)
+  (let ((tsg (tagged-symbol-generator-generator)))
+    (lambda () (tsg "a"))))
 
 (define (lambda? e)
   (and (proper-list? e)

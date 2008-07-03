@@ -3,7 +3,7 @@
 
 (define global-env '())
 
-(define sgen (symbol-generator-generator))
+(define sgen (tagged-symbol-generator-generator))
 
 (set! global-env (append (find-primitives) global-env))
 
@@ -111,18 +111,18 @@
 (define (build-pattern-descender pat)
   (cond
    ((symbol? pat)
-    (let ((v (sgen))
-          (r (sgen)))
+    (let ((v (sgen "sv"))
+          (r (sgen "sr")))
       `(/. ,v (/. ,r (,r ,v)))))
    ((literal? pat)
-    (let ((v (sgen))
-          (r (sgen)))
+    (let ((v (sgen "lv"))
+          (r (sgen "lr")))
       `(/. ,v (/. ,r (if (equal? ,v ,pat)
                          ,r
                          'fail)))))
    ((pair? pat)
-    (let ((v (sgen))
-          (r (sgen))
+    (let ((v (sgen "a"))
+          (r (sgen "a"))
           (car-descender (build-pattern-descender (car pat)))
           (cdr-descender (build-pattern-descender (cdr pat))))
       `(/. ,v (/. ,r
@@ -135,7 +135,7 @@
 (define (build-rewriter pat body)
   (let ((descender (build-pattern-descender pat))
         (receiver (build-binding-receiver pat body))
-        (v (sgen)))
+        (v (sgen "a")))
     `(/. ,v ((,descender ,v) ,receiver))))
 
 (define (compile-lambda-rewrites e)
@@ -240,8 +240,8 @@
    ((1-arg-app? e)
     (let ((f (car e))
           (a (cadr e))
-          (fv (sgen))
-          (av (sgen)))
+          (fv (sgen "a"))
+          (av (sgen "a")))
       (cps1 f
            `(/. ,fv ,(cps1 a
                           `(/. ,av (,k (,fv ,av))))))))
@@ -258,13 +258,13 @@
 ;  (set! e (simplify-lambda e))
 ;  (shew 'simplify-lambda e)
 
-  (set! e (cps e))
+;  (set! e (cps e))
 ;  (shew 'cps e)
 
-  (set! e (simplify-lambda e))
+;  (set! e (simplify-lambda e))
 ;  (shew 'simplify-lambda e)
 
-  (set! e (evl e))
+;  (set! e (evl e))
   (shew e)
   e)
 
