@@ -43,9 +43,10 @@
 
 (define (evl-app-primitive e env)
   (assert (primitive? (car e)))
+  (assert (= 2 (length e)))
   (let* ((prim (car e))
          ;(args (map (lambda (x) (evl1 x env)) (cdr e)))
-         (args (cdr e))
+         (args (cadr e))
          (fun (cadr prim)))
     (apply fun args)))
 
@@ -73,6 +74,7 @@
 
 (define (evl1 e env)
   (cond
+   ((kons? e) (cons (evl1 (cadr e) env) (evl1 (caddr e) env)))
    ((is-quote? e) (quote-quoted e))
    ((or (literal? e) (closure? e) (primitive? e)) e)
    ((conditional? e) (evl-conditional e env))
@@ -117,7 +119,7 @@
    ((literal? pat)
     (let ((v (sgen))
           (r (sgen)))
-      `(/. ,v (/. ,r (if (equal? ,v ,pat)
+      `(/. ,v (/. ,r (if (equal? (kons ,v (kons ,pat '())))
                          ,r
                          'fail)))))
    ((pair? pat)
@@ -126,7 +128,7 @@
           (car-descender (build-pattern-descender (car pat)))
           (cdr-descender (build-pattern-descender (cdr pat))))
       `(/. ,v (/. ,r
-                  (if (not (pair? ,v))
+                  (if (not (kons (pair? (kons ,v '())) '()))
                       'fail
                       ((,cdr-descender (cdr ,v))
                        ((,car-descender (car ,v)) ,r)))))))
@@ -235,6 +237,15 @@
 
 (define (cps1 e k)
   (cond
+   ((kons? e)
+    (let ((kar (cadr e))
+          (kdr (caddr e))
+          (karv (sgen))
+          (kdrv (sgen)))
+      (cps1 kar
+            `(/. ,karv ,(cps1 kdr
+                              `(/. ,kdrv
+                                   (,k (kons ,karv ,kdrv))))))))
    ((or (symbol? e) (literal? e) (classic-lambda? e))
     `(,k ,e))
    ((1-arg-app? e)
@@ -247,21 +258,41 @@
                           `(/. ,av (,k (,fv ,av))))))))
    (#t (err 'cps1 e k))))
 
+(define (konsy-list l)
+  (if (null? l)
+      '()
+      (list 'kons (car l) (konsy-list (cdr l)))))
+
+(define (variadicness-deal e)
+  (cond
+   ((literal? e) e)
+   ((lambda? e)
+    (let ((a (cadr e))
+          (b (caddr e)))
+      `(/. ,a ,(variadicness-deal b))))
+   ;((dotted-app? e) (list (car e) (cons 'list (cdr e))))
+   ;((app? e) (list (car e) (cdr e)))
+   ((app? e) (list (car e) (konsy-list (cdr e))))
+   (#t (err 'variadicness-deal e))))
+
 (define (process-top-level-form e)
   (assert (not (define? e)))
   (display "+ ")
   (shew e)
 
+  (set! e (variadicness-deal e))
+  (shew 'variadicness-deal e)
+
   (set! e (compile-lambda-rewrites e))
-;  (shew 'compile-lambda-rewrites e)
+  (shew 'compile-lambda-rewrites e)
 
 ;  (set! e (simplify-lambda e))
 ;  (shew 'simplify-lambda e)
 
   (set! e (cps e))
-;  (shew 'cps e)
+  (shew 'cps e)
 
-  (set! e (simplify-lambda e))
+;  (set! e (simplify-lambda e))
 ;  (shew 'simplify-lambda e)
 
   (set! e (evl e))
@@ -275,8 +306,9 @@
 (define (go)
   (exec-file "src.ss"))
 
-;(tracefun evl evl1 evl-app evl-app-closure evl-app-primitive evl-conditional lookup-local-or-global process-define process-top-level-form)
+(tracefun evl evl1 evl-app evl-app-closure evl-app-primitive evl-conditional lookup-local-or-global process-define process-top-level-form)
 ;(tracefun classic-lambda? lambda? app? is-quote?)
 ;(tracefun compile-lambda-rewrites build-binding-receiver build-pattern-descender)
 ;(tracefun cps cps1)
 ;(tracefun simplify-lambda simplify-lambda-app lambda-substitute exp-substitute)
+;(tracefun variadicness-deal)

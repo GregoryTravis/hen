@@ -29,7 +29,8 @@
 (define (h-primitive-car a) (car a))
 (define (h-primitive-cdr a) (cdr a))
 (define (h-primitive-cons a b) (cons a b))
-(define (h-primitive-list . args) (apply list args))
+;(define (h-primitive-list . args) (apply list args))
+(define (h-primitive-list . args) args)
 
 (define (h-primitive-not a)
   (if (eq? a 'true)

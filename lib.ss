@@ -642,3 +642,12 @@
 (define (if-pair?-exp? p)
   (and (eq? 3 (length p))
        (eq? 'if-pair? (car p))))
+
+(define (dotted-app? e)
+  (and (pair? e)
+       (not (null? (cdr e)))))
+
+(define (kons? e)
+  (and (proper-list? e)
+       (= 3 (length e))
+       (eq? 'kons (car e))))
