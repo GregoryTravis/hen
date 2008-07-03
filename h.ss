@@ -255,13 +255,13 @@
   (set! e (compile-lambda-rewrites e))
 ;  (shew 'compile-lambda-rewrites e)
 
-  (set! e (simplify-lambda e))
+;  (set! e (simplify-lambda e))
 ;  (shew 'simplify-lambda e)
 
-  (set! e (cps e))
+;  (set! e (cps e))
 ;  (shew 'cps e)
 
-  (set! e (simplify-lambda e))
+;  (set! e (simplify-lambda e))
 ;  (shew 'simplify-lambda e)
 
   (set! e (evl e))
