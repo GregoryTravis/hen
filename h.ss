@@ -23,7 +23,7 @@
 (define (go)
   (let* ((forms (read-objects "src.ss"))
          (forms (all-over-preprocess forms)))
-    (shew (compile-program (forms->program forms)))))
+    (shew (program->scheme (compile-program (forms->program forms))))))
 
 (define (compile-program program)
   (assert (multi-lambda? program))
@@ -79,5 +79,34 @@
 ;(tracefun lambda?)
 ;(tracefun compile-program compile-pattern-lambda compile-rule)
 ;(tracefun build-binding-receiver build-pattern-descender)
+
+(define (exp->scheme e)
+  (cond
+   ((atom? e) e)
+   ((lambda? e)
+    (let ((arg (cadr e))
+          (body (exp->scheme (caddr e))))
+      `(lambda (,arg) ,(exp->scheme body))))
+   ((and (pair? e) (eq? 'ifpair? (car e)))
+    (let ((target (cadr e))
+          (then-part (exp->scheme (caddr e)))
+          (else-part (exp->scheme (cadddr e))))
+      `(if (pair? ,target)
+           ,then-part
+           ,else-part)))
+   ((and (pair? e) (eq? 'ifequal? (car e)))
+    (let ((a (cadr e))
+          (b (caddr e))
+          (then-part (exp->scheme (cadddr e)))
+          (else-part (exp->scheme (car (cddddr e)))))
+      `(if (equals? ,a ,b)
+           ,then-part
+           ,else-part)))
+   ((literal? e) e)
+   ((app? e) (map exp->scheme e))
+   (#t (err 'exp->scheme e))))
+
+(define (program->scheme p)
+  (map exp->scheme p))
 
 (go)
