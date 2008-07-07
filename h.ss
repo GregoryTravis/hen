@@ -2,6 +2,6 @@
 
 (define forms (read-objects "src.ss"))
 
-(define eval shew)
+(define evl shew)
 
-(map eval forms)
+(map evl forms)
