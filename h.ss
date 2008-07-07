@@ -11,11 +11,11 @@
     `(/./. ,rules)))
 
 (define (quote-ctors e)
-  (atom-traverse
-   (lambda (e) (if (ctor? e)
-                   `(quote ,e)
-                   e))
-   e))
+  (cond
+   ((and (pair? e) (symbol? (car e)) (not (eq? 'fun (car e))))
+    `((quote ,(car e)) . ,(map quote-ctors (cdr e))))
+   ((pair? e) (map quote-ctors e))
+   (#t e)))
 
 (define (all-over-preprocess e)
   (quote-ctors e))
