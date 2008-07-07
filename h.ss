@@ -23,7 +23,7 @@
 (define (go)
   (let* ((forms (read-objects "src.ss"))
          (forms (all-over-preprocess forms)))
-    (shew (program->scheme (compile-program (forms->program forms))))))
+    (run-program (program->scheme (compile-program (forms->program forms))))))
 
 (define (compile-program program)
   (assert (multi-lambda? program))
@@ -76,17 +76,14 @@
                                   'fail)))))
    (#t (err 'build-pattern-descender pat))))
 
-;(tracefun lambda?)
-;(tracefun compile-program compile-pattern-lambda compile-rule)
-;(tracefun build-binding-receiver build-pattern-descender)
-
 (define (exp->scheme e)
   (cond
+   ((null? e) ''())
    ((atom? e) e)
    ((lambda? e)
     (let ((arg (cadr e))
           (body (exp->scheme (caddr e))))
-      `(lambda (,arg) ,(exp->scheme body))))
+      `(lambda (,arg) ,body)))
    ((and (pair? e) (eq? 'ifpair? (car e)))
     (let ((target (cadr e))
           (then-part (exp->scheme (caddr e)))
@@ -99,7 +96,7 @@
           (b (caddr e))
           (then-part (exp->scheme (cadddr e)))
           (else-part (exp->scheme (car (cddddr e)))))
-      `(if (equals? ,a ,b)
+      `(if (equals? ,a ,(exp->scheme b))
            ,then-part
            ,else-part)))
    ((literal? e) e)
@@ -108,5 +105,20 @@
 
 (define (program->scheme p)
   (map exp->scheme p))
+
+(define (run-program program)
+  (apply-program program '(main)))
+
+(define (apply-program program t)
+  (map (lambda (r) (apply-rule r t)) program))
+
+(define (apply-rule rule t)
+  ((eval rule) t))
+
+;(tracefun lambda?)
+;(tracefun compile-program compile-pattern-lambda compile-rule)
+;(tracefun build-binding-receiver build-pattern-descender)
+(tracefun program->scheme exp->scheme)
+(tracefun apply-program run-program apply-rule)
 
 (go)
