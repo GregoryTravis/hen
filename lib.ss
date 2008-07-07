@@ -650,3 +650,8 @@
 (define (fun? e)
   (and (eq? 'fun (car e))
        (= 3 (length e))))
+
+(define (multi-lambda? e)
+  (and (proper-list? e)
+       (eq? '/./. (car e))
+       (all (map proper-list? (cdr e)))))
