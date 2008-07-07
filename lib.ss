@@ -537,6 +537,7 @@
 
 (define (atom? o)
   (or
+   (null? o)
    (symbol? o)
    (number? o)
    (eq? o #t)
@@ -597,7 +598,7 @@
     (lambda (tag)
       (let ((s serial))
         (set! serial (1+ serial))
-        (string->symbol (concat tag (number->string s)))))))
+        (->symbol (concat (->string tag) (number->string s)))))))
 
 (define (symbol-generator-generator)
   (let ((tsg (tagged-symbol-generator-generator)))
@@ -655,3 +656,15 @@
   (and (proper-list? e)
        (eq? '/./. (car e))
        (all (map proper-list? (cdr e)))))
+
+(define (tree-traverse t atom-f pair-f)
+  (cond
+   ((pair? t)
+    (let ((np (pair-f t)))
+      (cons (tree-traverse (car np) atom-f pair-f)
+            (tree-traverse (cdr np) atom-f pair-f))))
+   ((atom? t) (atom-f t))
+   (#t (err 'tree-traverse t))))
+
+(define (atom-traverse f t)
+  (tree-traverse t f id))

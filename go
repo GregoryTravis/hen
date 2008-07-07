@@ -1,1 +1,1 @@
-mzscheme -r h.ss
+mzscheme -j -r h.ss
