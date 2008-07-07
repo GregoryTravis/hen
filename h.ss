@@ -1,7 +1,18 @@
 (load "lib.ss")
 
-(define forms (read-objects "src.ss"))
+(define program '())
 
-(define evl shew)
+(define (process-forms forms)
+  (let* ((funs (grep fun? forms))
+         (exps (grep (fnot fun?) forms))
+         (main-fun
+          `(fun (main) (begin ,@exps)))
+         (rules (map cdr (snoc funs main-fun))))
+    (set! program `(/./. ,rules))))
 
-(map evl forms)
+(define (go)
+  (let ((forms (read-objects "src.ss")))
+    (process-forms forms)
+    (shew program)))
+
+(go)

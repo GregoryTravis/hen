@@ -646,3 +646,7 @@
 (define (if-pair?-exp? p)
   (and (eq? 3 (length p))
        (eq? 'if-pair? (car p))))
+
+(define (fun? e)
+  (and (eq? 'fun (car e))
+       (= 3 (length e))))
