@@ -36,7 +36,9 @@
   (assert (lambda? lam))
   (let ((pat (cadr lam))
         (body (caddr lam)))
-    (build-binding-receiver pat body)))
+    (list
+     (build-binding-receiver pat body)
+     (build-pattern-descender pat))))
 
 (define (build-binding-receiver pat body)
   (cond
@@ -48,7 +50,34 @@
     `(/. ,pat ,body))
    (#t (err build-binding-receiver pat body))))
 
+(define (build-pattern-descender pat)
+;(shew pat (symbol? pat) (literal? pat) (pair? pat))
+  (cond
+   ((symbol? pat)
+    (let ((dt (sgen 'dt))
+          (db (sgen 'db)))
+      `(/. ,dt (/. ,db (,db ,dt)))))
+   ((literal? pat)
+    (let ((dt (sgen 'dt))
+          (db (sgen 'db)))
+      `(/. ,dt (/. ,db (ifequal? ,dt
+                                 ,pat
+                                 ,db
+                                 'fail)))))
+   ((pair? pat)
+    (let ((dpt (sgen 'dpt))
+          (dpb (sgen 'dpb)))
+      `(/. ,dpt (/. ,dpb (ifpair? ,dpt
+                                  ((,(build-pattern-descender (cdr pat))
+                                    (cdr ,dpt))
+                                   ((,(build-pattern-descender (car pat))
+                                     (car ,dpt))
+                                    ,dpb))
+                                  'fail)))))
+   (#t (err 'build-pattern-descender pat))))
+
 ;(tracefun lambda?)
 ;(tracefun compile-program compile-pattern-lambda compile-rule)
+(tracefun build-binding-receiver build-pattern-descender)
 
 (go)
