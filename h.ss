@@ -35,10 +35,10 @@
 (define (compile-pattern-lambda lam)
   (assert (lambda? lam))
   (let ((pat (cadr lam))
-        (body (caddr lam)))
-    (list
-     (build-binding-receiver pat body)
-     (build-pattern-descender pat))))
+        (body (caddr lam))
+        (tt (sgen 'tt)))
+     `(/. ,tt
+          (,(build-pattern-descender pat) ,(build-binding-receiver pat body)))))
 
 (define (build-binding-receiver pat body)
   (cond
@@ -78,6 +78,6 @@
 
 ;(tracefun lambda?)
 ;(tracefun compile-program compile-pattern-lambda compile-rule)
-(tracefun build-binding-receiver build-pattern-descender)
+;(tracefun build-binding-receiver build-pattern-descender)
 
 (go)
