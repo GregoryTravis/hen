@@ -4,8 +4,8 @@
 (require (lib "process.ss"))
 (require (lib "compat.ss"))
 (require (lib "pretty.ss"))
-(require (lib "../errortrace/errortrace.ss"))
-(require-for-syntax (lib "list.ss"))
+;(require (lib "../errortrace/errortrace.ss"))
+;(require-for-syntax (lib "list.ss"))
 
 (define concat string-append)
 
@@ -133,7 +133,8 @@
              (null? (cddr args)))
         (let ((key (cadr args)))
           (if (not (dict 'exists key))
-              (dict 'put key (f key)))
+              (dict 'put key (f key))
+              '())
           (dict 'get key)))
        (#t (apply dict args))))))
 
@@ -162,11 +163,11 @@
 ;; the whole list.
 (define (generator-dict-map lyst generator)
   (let ((dict (make-autoadd-dict generator)))
-    (map (dict 'get _) lyst)))
+    (map (lambda (x) (dict 'get x)) lyst)))
 
 (define (fun-dict-map lyst f)
   (let ((dict (make-autoadd-fun-dict f)))
-    (map (dict 'get _) lyst)))
+    (map (lambda (x) (dict 'get x)) lyst)))
 
 (define (unique lyst)
   (cond
@@ -177,11 +178,11 @@
 (define (has-duplicates? lyst)
   (not (eq? (length lyst) (length (unique lyst)))))
 
-(define (any lyst)
+(define (anyy lyst)
   (if (null? lyst)
       #f
       (or (car lyst)
-          (any (cdr lyst)))))
+          (anyy (cdr lyst)))))
 
 (define (all lyst)
   (if (null? lyst)
@@ -189,7 +190,7 @@
       (and (car lyst) (all (cdr lyst)))))
 
 (define (none lyst)
-  (not (any lyst)))
+  (not (anyy lyst)))
 
 (define (same lyst)
   (if (or (null? lyst) (null? (cdr lyst)))
@@ -423,7 +424,7 @@
 
 (define (invert-listy-matrix lists)
   (let ((ns (map null? lists)))
-    (if (any ns)
+    (if (anyy ns)
         (if (not (all ns))
             (err 'invert-listy-matrix 'uneven lists)
             '())
@@ -431,7 +432,7 @@
 
 (define (zip f . lysts)
   ;(shew 'um-zip lysts)
-  (if (any (map null? lysts))
+  (if (anyy (map null? lysts))
       (if (not (all (map null? lysts)))
           (err 'uneven-zip-params lysts (map null? lysts))
           '())
@@ -450,7 +451,7 @@
   (cadr o))
 
 (define (maybe-combine combiner args)
-  (if (any (map fail? args))
+  (if (anyy (map fail? args))
       fail
       (begin
         ;(shew 'combine combiner args (map just-value args) (apply combiner (map just-value args)))
@@ -591,25 +592,33 @@
       e
       (f (car lyst) (foldr f e (cdr lyst)))))
 
-(define symbol-generator-generator
+(define (tagged-symbol-generator-generator)
   (let ((serial 0))
-    (lambda ()
+    (lambda (tag)
       (let ((s serial))
         (set! serial (1+ serial))
-        (string->symbol (concat "g" (number->string s)))))))
+        (string->symbol (concat tag (number->string s)))))))
+
+(define (symbol-generator-generator)
+  (let ((tsg (tagged-symbol-generator-generator)))
+    (lambda () (tsg "a"))))
 
 (define (lambda? e)
   (and (proper-list? e)
-       (> (length e) 2)
+       (= 3 (length e))
        (eq? '/. (car e))))
 
 (define (classic-lambda? e)
   (and (lambda? e)
-       (= 3 (length e))))
+       (symbol? (cadr e))))
 
 (define (app? e)
   (and (proper-list? e)
+       (not (lambda? e))
        (>= (length e) 1)))
+
+(define (1-arg-app? e)
+  (and (app? e) (= 2 (length e))))
 
 (define (compose . funs)
   (cond
@@ -618,3 +627,22 @@
    (#t (let ((first (car funs))
              (rest (apply compose (cdr funs))))
          (lambda (x) (first (rest x)))))))
+
+(define (conditional? e)
+  (and (pair? e)
+       (eq? 'if (car e))
+       (let ((l (length e)))
+         (or (eq? l 3) (eq? l 4)))))
+
+(define (boolean? x)
+  (or (eq? x 'true)
+      (eq? x 'false)))
+
+(define (pair?-exp? p)
+  (and (pair? p)
+       (eq? 'pair? (car p))
+       (eq? 2 (length p))))
+
+(define (if-pair?-exp? p)
+  (and (eq? 3 (length p))
+       (eq? 'if-pair? (car p))))
