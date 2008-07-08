@@ -32,9 +32,9 @@
   (assert (lambda? lam))
   (let ((pat (cadr lam))
         (body (caddr lam))
-        (tt (sgen 'tt)))
+        (tt (sgen 'top-target)))
      `(/. ,tt
-          (,(build-pattern-descender pat) ,(build-binding-receiver pat body)))))
+          ((,(build-pattern-descender pat) ,tt) ,(build-binding-receiver pat body)))))
 
 (define (build-binding-receiver pat body)
   (cond
@@ -50,19 +50,22 @@
 ;(shew pat (symbol? pat) (literal? pat) (pair? pat))
   (cond
    ((symbol? pat)
-    (let ((dt (sgen 'dt))
-          (db (sgen 'db)))
+    (let ((dt (sgen 'patdesc-symbol-target))
+          (db (sgen 'patdesc-symbol-binder)))
+      ;(shew 'patdesc-symbol dt db pat)
       `(/. ,dt (/. ,db (,db ,dt)))))
    ((literal? pat)
-    (let ((dt (sgen 'dt))
-          (db (sgen 'db)))
+    (let ((dt (sgen 'patdesc-literal-target))
+          (db (sgen 'patdesc-literal-binder)))
+      ;(shew 'patdesc-literal dt db pat)
       `(/. ,dt (/. ,db (ifequal? ,dt
                                  ,pat
                                  ,db
                                  'fail)))))
    ((pair? pat)
-    (let ((dpt (sgen 'dpt))
-          (dpb (sgen 'dpb)))
+    (let ((dpt (sgen 'patdesc-pair-target))
+          (dpb (sgen 'patdesc-pair-binder)))
+      ;(shew 'patdesc-pair dpt dpb pat)
       `(/. ,dpt (/. ,dpb (ifpair? ,dpt
                                   ((,(build-pattern-descender (cdr pat))
                                     (cdr ,dpt))
@@ -154,7 +157,9 @@
         (err 'no-such-variable v env)
         (cdr p))))
 
-(define (top-evl e) (evl e '()))
+(define (top-evl e)
+;  (shew e)
+  (evl e '()))
 
 (define (evl e env)
   (cond
