@@ -5,8 +5,9 @@
 (define (forms->program forms)
   (let* ((funs (grep fun? forms))
          (exps (grep (fnot fun?) forms))
+         ;(main-fun-name (sgen 'main))
          (main-fun
-          `(fun (main) (begin ,@exps)))
+          `(fun ('main) (begin ,@exps)))
          (rules (map cdr (snoc funs main-fun))))
     `(/./. ,rules)))
 
@@ -19,11 +20,6 @@
 
 (define (all-over-preprocess e)
   (quote-ctors e))
-
-(define (go)
-  (let* ((forms (read-objects "src.ss"))
-         (forms (all-over-preprocess forms)))
-    (run-program (program->scheme (compile-program (forms->program forms))))))
 
 (define (compile-program program)
   (assert (multi-lambda? program))
@@ -104,7 +100,33 @@
    (#t (err 'exp->scheme e))))
 
 (define (program->scheme p)
-  (map exp->scheme p))
+  (flatten-program (map exp->scheme p)))
+
+(define (flatten-program p)
+  (apply append (map extract-funs p)))
+
+(define (replace-lambdas e)
+  (cond
+   ((or (literal? e) (symbol? e)) e)
+   ((scheme-lambda? e)
+    (let* ((arg (caadr e))
+           (body (caddr e))
+           (fun-name (->symbol (concat "haha-" (->string arg)))))
+      fun-name))
+   ((app? e) (map replace-lambdas e))
+   (#t (err 'replace-lambdas e))))
+
+(define (extract-funs e)
+  (cond
+   ((or (literal? e) (symbol? e)) '())
+   ((scheme-lambda? e)
+    (let* ((arg (caadr e))
+           (body (caddr e))
+           (fun-name (->symbol (concat "haha-" (->string arg)))))
+      (cons `(define ,fun-name (lambda (,arg) ,(replace-lambdas body)))
+            (extract-funs body))))
+   ((app? e) (apply append (map extract-funs e)))
+   (#t (err 'extract-funs e))))
 
 (define (run-program program)
   (apply-program program '(main)))
@@ -112,13 +134,32 @@
 (define (apply-program program t)
   (map (lambda (r) (apply-rule r t)) program))
 
+(define (run-program e)
+  (shew e)
+  (map eval e)
+  (haha-main))
+
 (define (apply-rule rule t)
   ((eval rule) t))
+
+(define (run-interpreted src)
+  (compile-program (forms->program src)))
+
+(define (run-scheme-compiled src)
+  (run-program (program->scheme (compile-program (forms->program src)))))
+
+(define (go)
+  (let* ((src (read-objects "src.ss"))
+         (src (all-over-preprocess src)))
+    (shew (run-interpreted src))))
+;    (shew (run-scheme-compiled src)))
 
 ;(tracefun lambda?)
 ;(tracefun compile-program compile-pattern-lambda compile-rule)
 ;(tracefun build-binding-receiver build-pattern-descender)
-(tracefun program->scheme exp->scheme)
-(tracefun apply-program run-program apply-rule)
+;(tracefun program->scheme exp->scheme)
+;(tracefun apply-program run-program apply-rule)
+;(tracefun run-program)
+;(tracefun flatten-program extract-funs replace-lambdas)
 
 (go)

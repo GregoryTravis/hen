@@ -609,6 +609,11 @@
        (= 3 (length e))
        (eq? '/. (car e))))
 
+(define (scheme-lambda? e)
+  (and (proper-list? e)
+       (= 3 (length e))
+       (eq? 'lambda (car e))))
+
 (define (classic-lambda? e)
   (and (lambda? e)
        (symbol? (cadr e))))
