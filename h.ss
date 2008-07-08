@@ -148,10 +148,17 @@
 (define (run-scheme-compiled src)
   (run-program (program->scheme (compile-program (forms->program src)))))
 
+(define (env-lookup v env)
+  (let ((p (assoc v env)))
+    (if (eq? #f p)
+        (err 'no-such-variable v env)
+        (cdr p))))
+
 (define (top-evl e) (evl e '()))
 
 (define (evl e env)
   (cond
+   ((symbol? e) (env-lookup e env))
    ((lambda? e)
     `(closure ,e ,env))
    ((literal? e) e)
@@ -169,6 +176,7 @@
    (#t (err 'evl e env))))
 
 (define (go)
+;  (shew (top-evl '((/. x x) 10))))
   (let* ((src (read-objects "src.ss"))
          (src (all-over-preprocess src)))
     (shew (run-interpreted src))))
