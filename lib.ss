@@ -618,6 +618,12 @@
   (and (lambda? e)
        (symbol? (cadr e))))
 
+(define (closure? e)
+  (and (proper-list? e)
+       (= 3 (length e))
+       (eq? 'closure (car e))
+       (lambda? (cadr e))))
+
 (define (app? e)
   (and (proper-list? e)
        (not (lambda? e))

@@ -143,10 +143,30 @@
   ((eval rule) t))
 
 (define (run-interpreted src)
-  (compile-program (forms->program src)))
+  (top-evl (compile-program (forms->program src))))
 
 (define (run-scheme-compiled src)
   (run-program (program->scheme (compile-program (forms->program src)))))
+
+(define (top-evl e) (evl e '()))
+
+(define (evl e env)
+  (cond
+   ((lambda? e)
+    `(closure ,e ,env))
+   ((literal? e) e)
+   ((1-arg-app? e)
+    (let ((ee (map (lambda (e) (evl e env)) e)))
+      (let ((closure (car ee))
+            (arg (cadr ee)))
+        (assert (closure? closure))
+        (let* ((lam (cadr closure))
+               (closure-env (caddr closure))
+               (param (cadr lam))
+               (body (caddr lam))
+               (new-env (cons (cons param arg) closure-env)))
+          (evl body new-env)))))
+   (#t (err 'evl e env))))
 
 (define (go)
   (let* ((src (read-objects "src.ss"))
@@ -161,5 +181,6 @@
 ;(tracefun apply-program run-program apply-rule)
 ;(tracefun run-program)
 ;(tracefun flatten-program extract-funs replace-lambdas)
+(tracefun evl)
 
 (go)
