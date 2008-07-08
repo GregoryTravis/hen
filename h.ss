@@ -50,22 +50,22 @@
 ;(shew pat (symbol? pat) (literal? pat) (pair? pat))
   (cond
    ((symbol? pat)
-    (let ((dt (sgen 'patdesc-symbol-target))
-          (db (sgen 'patdesc-symbol-binder)))
-      ;(shew 'patdesc-symbol dt db pat)
+    (let ((dt (sgen 'symbol-target))
+          (db (sgen 'symbol-binder)))
+      ;(shew 'symbol dt db pat)
       `(/. ,dt (/. ,db (,db ,dt)))))
    ((literal? pat)
-    (let ((dt (sgen 'patdesc-literal-target))
-          (db (sgen 'patdesc-literal-binder)))
-      ;(shew 'patdesc-literal dt db pat)
+    (let ((dt (sgen 'literal-target))
+          (db (sgen 'literal-binder)))
+      ;(shew 'literal dt db pat)
       `(/. ,dt (/. ,db (ifequal? ,dt
                                  ,pat
                                  ,db
                                  'fail)))))
    ((pair? pat)
-    (let ((dpt (sgen 'patdesc-pair-target))
-          (dpb (sgen 'patdesc-pair-binder)))
-      ;(shew 'patdesc-pair dpt dpb pat)
+    (let ((dpt (sgen 'pair-target))
+          (dpb (sgen 'pair-binder)))
+      ;(shew 'pair dpt dpb pat)
       `(/. ,dpt (/. ,dpb (ifpair? ,dpt
                                   ((,(build-pattern-descender (cdr pat))
                                     (cdr ,dpt))
