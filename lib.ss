@@ -679,3 +679,13 @@
 
 (define (atom-traverse f t)
   (tree-traverse t f id))
+
+(define (term? e)
+  (and (proper-list? e)
+       (= 2 (length e))
+       (eq? 'term (car e))))
+
+(define (begin? e)
+  (and (proper-list? e)
+       (not (null? e))
+       (eq? 'begin (car e))))

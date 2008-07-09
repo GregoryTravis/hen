@@ -5,3 +5,4 @@
 
 (fun (boo) 10)
 (boo)
+(boo)

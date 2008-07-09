@@ -34,7 +34,7 @@
         (body (caddr lam))
         (tt (sgen 'top-target)))
      `(/. ,tt
-          ((,(build-pattern-descender pat) ,tt) ,(build-binding-receiver pat body)))))
+          ((,(build-pattern-descender pat) ,tt) ,(build-binding-receiver pat `(term ,body))))))
 
 (define (build-binding-receiver pat body)
   (cond
@@ -131,22 +131,24 @@
    ((app? e) (apply append (map extract-funs e)))
    (#t (err 'extract-funs e))))
 
-(define (run-program program)
-  (apply-program program '(main)))
+;(define (run-program program)
+;  (apply-program program '(main)))
 
 (define (apply-program program t)
   (map (lambda (r) (apply-rule r t)) program))
 
-(define (run-program e)
-  (shew e)
-  (map eval e)
-  (haha-main))
+;; (define (run-program e)
+;;   (shew e)
+;;   (map eval e)
+;;   (haha-main))
 
-(define (apply-rule rule t)
-  ((eval rule) t))
+;; (define (apply-rule rule t)
+;;   ((eval rule) t))
 
 (define (run-interpreted src)
-  (top-evl (compile-program (forms->program src))))
+  (map (lambda (rule)
+         (top-evl `(,rule (term ('main)))))
+       (compile-program (forms->program src))))
 
 (define (run-scheme-compiled src)
   (run-program (program->scheme (compile-program (forms->program src)))))
@@ -157,26 +159,40 @@
         (err 'no-such-variable v env)
         (cdr p))))
 
+(define (evl-primitive-term? e)
+  (not (or (lambda? e)
+           (closure? e)
+           (multi-lambda? e)
+           (fun? e)
+           (and (pair? e)
+                (or (eq? 'ifpair? (car e))
+                    (eq? 'ifequal? (car e)))))))
+
 (define (top-evl e)
 ;  (shew e)
   (evl e '()))
 
 (define (evl e env)
   (cond
+   ((term? e) (cadr e))
    ((and (pair? e) (eq? 'car (car e)))
     (let ((target (cadr e)))
+      ;(assert (not (evl-primitive-term? e)) e)
       (car (evl target env))))
    ((and (pair? e) (eq? 'cdr (car e)))
     (let ((target (cadr e)))
+      ;(assert (not (evl-primitive-term? e)) e)
       (cdr (evl target env))))
    ((and (pair? e) (eq? 'ifpair? (car e)))
-    (let ((target (cadr e))
-          (then-clause (caddr e))
-          (else-clause (cadddr e)))
-          (evl (if (pair? (evl target env))
-                   then-clause
-                   else-clause)
-               env)))
+    (begin
+      ;(assert (not (evl-primitive-term? e)) e)
+      (let ((target (cadr e))
+            (then-clause (caddr e))
+            (else-clause (cadddr e)))
+        (evl (if (pair? (evl target env))
+                 then-clause
+                 else-clause)
+             env))))
    ((and (pair? e) (eq? 'ifequal? (car e)))
     (let ((a (cadr e))
           (b (caddr e))
@@ -187,6 +203,12 @@
                else-clause)
            env)))
    ((symbol? e) (env-lookup e env))
+   ((begin? e)
+    (begin
+      (assert (not (null? (cdr e))))
+      (last
+       (map (lambda (e) (evl e env))
+            (cdr e)))))
    ((lambda? e)
     `(closure ,e ,env))
    ((literal? e) e)
@@ -200,6 +222,7 @@
                (param (cadr lam))
                (body (caddr lam))
                (new-env (cons (cons param arg) closure-env)))
+          ;(shew (list 'bind param arg))
           (evl body new-env)))))
    (#t (err 'evl e env))))
 
@@ -210,13 +233,14 @@
     (shew (run-interpreted src))))
 ;    (shew (run-scheme-compiled src)))
 
-;(tracefun lambda?)
+;(tracefun term? lambda?)
 ;(tracefun compile-program compile-pattern-lambda compile-rule)
 ;(tracefun build-binding-receiver build-pattern-descender)
 ;(tracefun program->scheme exp->scheme)
 ;(tracefun apply-program run-program apply-rule)
 ;(tracefun run-program)
 ;(tracefun flatten-program extract-funs replace-lambdas)
+;(tracefun forms->program)
 (tracefun evl)
 
 (go)
