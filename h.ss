@@ -6,9 +6,11 @@
   (let* ((funs (grep fun? forms))
          (exps (grep (fnot fun?) forms))
          ;(main-fun-name (sgen 'main))
-         (main-fun
-          `(fun ('main) (begin ,@exps)))
-         (rules (map cdr (snoc funs main-fun))))
+;;          (main-fun
+;;           `(fun ('main) (begin ,@exps)))
+;;          (rules (map cdr (snoc funs main-fun))))
+         (rules (map cdr funs)))
+    (assert (null? exps) 'using-explicit-main-for-now)
     `(/./. ,rules)))
 
 (define (quote-ctors e)

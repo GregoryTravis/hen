@@ -5,5 +5,7 @@
 
 (fun (boo) 10)
 (fun (boo q) 11)
-(boo)
-(boo)
+;(boo)
+;(boo)
+
+(fun (main) (boo))
