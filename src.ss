@@ -4,5 +4,6 @@
 ;; (boo 10)
 
 (fun (boo) 10)
+(fun (boo q) 11)
 (boo)
 (boo)

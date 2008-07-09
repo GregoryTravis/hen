@@ -146,9 +146,17 @@
 ;;   ((eval rule) t))
 
 (define (run-interpreted src)
-  (map (lambda (rule)
-         (top-evl `(,rule (term ('main)))))
-       (compile-program (forms->program src))))
+  (let ((start-term '(term ('main))))
+    (find-matching-rule start-term (compile-program (forms->program src)))))
+
+(define (find-matching-rule t rules)
+  (if (null? rules)
+      'fail
+      (let* ((rule (car rules))
+             (result (top-evl `(,rule ,t))))
+        (if (equal? ''fail result)
+            (find-matching-rule t (cdr rules))
+            result))))
 
 (define (run-scheme-compiled src)
   (run-program (program->scheme (compile-program (forms->program src)))))
@@ -241,6 +249,6 @@
 ;(tracefun run-program)
 ;(tracefun flatten-program extract-funs replace-lambdas)
 ;(tracefun forms->program)
-(tracefun evl)
+(tracefun find-matching-rule evl)
 
 (go)
