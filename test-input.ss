@@ -12,3 +12,7 @@
 (fun (map f ()) ())
 (fun (map f (cons a d)) (cons (f a) (map f d)))
 (map yep (cons 1 (cons 2 ())))
+
+(fun (append () a) a)
+(fun (append (cons a d) b) (cons a (append d b)))
+(append (cons 1 (cons 2 ())) (cons 3 (cons 4 ())))

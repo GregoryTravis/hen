@@ -6,14 +6,14 @@
 (define (subst var x body-template body)
   (cond
    ((eq? 'fail body) 'fail)
-   ((literal? body) body)
+   ((literal? body-template) body)
    ((and (symbol? body-template)
          (eq? var body-template))
     x)
    ((pair? body-template)
     (cons (subst var x (car body-template) (car body))
           (subst var x (cdr body-template) (cdr body))))
-   ((symbol? body) body)
+   ((symbol? body-template) body)
    (#t (err 'subst var x body-template body))))
 
 (define (rw pat t body-template body)
