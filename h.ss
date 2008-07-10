@@ -31,18 +31,39 @@
    (#t (err 'rw pat t body-template body))))
 
 (define (try-rws e rws)
-  (try-rws-1 e e rws))
-
-(define (try-rws-1 orig e rws)
   (if (null? rws)
-      orig
+      'fail
       (let* ((rule (car rws))
              (pat (cadr rule))
              (body (caddr rule))
              (result (top-rw pat e body)))
         (if (eq? 'fail result)
-            (try-rws-1 orig e (cdr rws))
+            (try-rws e (cdr rws))
             result))))
+
+;; (define (normalize-node e rws)
+;;   (let ((ee (try-rws e rws)))
+;;     (if (eq? 'fail ee)
+;;         e
+;;         ee)))
+
+;; (define (normalize-children e rws)
+;;   (map (lambda (e) (normalize e rws)) e))
+
+;; (define (normalize e rws)
+;;   (cond
+;;    ((app? e) (normalize-node (normalize-children e rws) rws))
+;;    (#t (normalize-node e rws))))
+
+(define (normalize e rws)
+  (let* ((ee (if (app? e)
+                 (map (lambda (e) (normalize e rws)) e)
+                 e))
+         (r (try-rws ee rws)))
+    (cond
+     ((eq? 'fail r) ee)
+     ((equal? r ee) ee)
+     (#t (normalize r rws)))))
 
 (define (gather-rws src) (grep fun? src))
 (define (gather-exps src) (grep (fnot fun?) src))
@@ -50,11 +71,12 @@
 (define (run-src src)
   (let ((rws (gather-rws src))
         (exps (gather-exps src)))
-    (map (lambda (e) (shew (try-rws e rws)))
+    (map (lambda (e) (shew (normalize e rws)))
          exps)))
 
 ;(tracefun try-rws)
-(tracefun subst rw top-rw)
+;(tracefun subst rw top-rw)
+(tracefun normalize)
 
 (define (go)
   (run-src (read-objects "src.ss")))
