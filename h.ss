@@ -134,7 +134,8 @@
 ;(tracefun quote-firsts gather-binders quote-symbols quote-symbols-except-these)
 ;(tracefun quote-non-variables)
 
-(define (go)
-  (run-src (read-objects "src.ss")))
+(define (run-file filename)
+  (run-src (read-objects filename)))
 
-(go)
+(define (go)
+  (run-file "src.ss"))
