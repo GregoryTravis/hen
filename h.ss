@@ -149,15 +149,21 @@
 
 (define (run-interpreted src)
   (let ((start-term '(term ('main))))
-    (find-matching-rule start-term (compile-program (forms->program src)))))
+    (normalize start-term (compile-program (forms->program src)))))
 
-(define (find-matching-rule t rules)
+(define (normalize t rules)
+  (let ((v (try-rules t rules)))
+    (if (equal? ''fail v)
+        t
+        (normalize v rules))))
+
+(define (try-rules t rules)
   (if (null? rules)
       'fail
       (let* ((rule (car rules))
              (result (top-evl `(,rule ,t))))
         (if (equal? ''fail result)
-            (find-matching-rule t (cdr rules))
+            (try-rules t (cdr rules))
             result))))
 
 (define (run-scheme-compiled src)
@@ -251,6 +257,6 @@
 ;(tracefun run-program)
 ;(tracefun flatten-program extract-funs replace-lambdas)
 ;(tracefun forms->program)
-(tracefun find-matching-rule evl)
+(tracefun try-rules normalize evl)
 
 (go)
