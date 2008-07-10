@@ -31,14 +31,17 @@
    (#t (err 'rw pat t body-template body))))
 
 (define (try-rws e rws)
+  (try-rws-1 e e rws))
+
+(define (try-rws-1 orig e rws)
   (if (null? rws)
-      'fail
+      orig
       (let* ((rule (car rws))
              (pat (cadr rule))
              (body (caddr rule))
              (result (top-rw pat e body)))
         (if (eq? 'fail result)
-            (try-rws e (cdr rws))
+            (try-rws-1 orig e (cdr rws))
             result))))
 
 (define (gather-rws src) (grep fun? src))
@@ -47,7 +50,7 @@
 (define (run-src src)
   (let ((rws (gather-rws src))
         (exps (gather-exps src)))
-    (map (lambda (e) (try-rws e rws))
+    (map (lambda (e) (shew (try-rws e rws)))
          exps)))
 
 ;(tracefun try-rws)
