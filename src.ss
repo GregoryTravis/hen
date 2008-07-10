@@ -4,14 +4,6 @@
 ('foo 20 10)
 ('bar 20 10)
 
-(fun ('boo) ('fark))
-(fun ('boo a . d) ('boo . d))
-('boo 1 2 3)
-
-(fun ('gig ()) ())
-(fun ('gig (a . d)) (('gorp a a) ('gig d)))
-('gig (1 2 3 4))
-
 (fun ('tak ()) ())
 (fun ('tak ('cons a d)) ('cons ('harf a a) ('tak d)))
 ('tak ('cons 1 ('cons 2 ())))

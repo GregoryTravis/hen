@@ -22,8 +22,8 @@
     (if (equal? pat t)
         body
         'fail))
-   ((and (pair? pat))
-    (if (pair? t)
+   ((and (app? pat))
+    (if (app? t)
         (rw (cdr pat) (cdr t) body-template (rw (car pat) (car t) body-template body))
         'fail))
    ((and (symbol? pat))
@@ -70,6 +70,7 @@
 ;(tracefun try-rws)
 ;(tracefun subst rw top-rw)
 ;(tracefun normalize)
+;(tracefun literal? app?)
 
 (define (go)
   (run-src (read-objects "src.ss")))

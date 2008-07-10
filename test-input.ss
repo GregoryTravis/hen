@@ -4,18 +4,6 @@
 ('foo 20 10)
 ('bar 20 10)
 
-(fun ('boo) ('fark))
-(fun ('boo a . d) ('boo . d))
-('boo 1 2 3)
-
-(fun ('gig ()) ())
-(fun ('gig (a . d)) (('gorp a a) ('gig d)))
-;('gig ('cons 10 ('cons 20 ())))
-('gig (1 2 3 4))
-
-; I want to do this, but it don't work -- but that's only cuz pairs and lists are the same here.
-; (fun ('gig (a . d)) (('gorp a a) . ('gig d)))
-
 (fun ('tak ()) ())
 (fun ('tak ('cons a d)) ('cons ('harf a a) ('tak d)))
 ('tak ('cons 1 ('cons 2 ())))
