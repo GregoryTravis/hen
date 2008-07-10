@@ -1,1 +1,5 @@
-'hi
+(fun ('foo a b) ('bar b b))
+('foo 10 20)
+('bar 10 20)
+('foo 20 10)
+('bar 20 10)
