@@ -16,3 +16,11 @@
 (fun (append () a) a)
 (fun (append (cons a d) b) (cons a (append d b)))
 (append (cons 1 (cons 2 ())) (cons 3 (cons 4 ())))
+
+(fun (reverse ()) ())
+(fun (reverse (cons a d))
+     (append (reverse d) (cons a ())))
+(reverse (cons 1 (cons 2 ())))
+(reverse (cons 1 (cons 2 (cons 3 (cons 4 ())))))
+
+(reverse (append (cons 1 (cons 2 ())) (cons 3 (cons 4 ()))))

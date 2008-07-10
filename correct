@@ -19,3 +19,12 @@
 + ('append ('cons 1 ('cons 2 ())) ('cons 3 ('cons 4 ())))
 ('cons 1 ('cons 2 ('cons 3 ('cons 4 ()))))
 
++ ('reverse ('cons 1 ('cons 2 ())))
+('cons 2 ('cons 1 ()))
+
++ ('reverse ('cons 1 ('cons 2 ('cons 3 ('cons 4 ())))))
+('cons 4 ('cons 3 ('cons 2 ('cons 1 ()))))
+
++ ('reverse ('append ('cons 1 ('cons 2 ())) ('cons 3 ('cons 4 ()))))
+('cons 4 ('cons 3 ('cons 2 ('cons 1 ()))))
+
