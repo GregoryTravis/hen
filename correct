@@ -1,1 +1,24 @@
-fresh!
++ ('foo 10 20)
+('bar 20 20)
+
++ ('bar 10 20)
+('bar 10 20)
+
++ ('foo 20 10)
+('bar 10 10)
+
++ ('bar 20 10)
+('bar 20 10)
+
++ ('boo 1 2 3)
+('fark)
+
++ ('gig (1 2 3 4))
+(('gorp 1 1) (('gorp 2 2) (('gorp 3 3) (('gorp 4 4) ()))))
+
++ ('tak ('cons 1 ('cons 2 ())))
+('cons ('harf 1 1) ('cons ('harf 2 2) ()))
+
++ ('map 'yep ('cons 1 ('cons 2 ())))
+('cons ('double 1 1) ('cons ('double 2 2) ()))
+
