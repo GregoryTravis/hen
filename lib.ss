@@ -626,7 +626,9 @@
 
 (define (app? e)
   (and (proper-list? e)
-       (not (lambda? e))
+       (not (or (lambda? e)
+                (literal? e)
+                (closure? e)))
        (>= (length e) 1)))
 
 (define (1-arg-app? e)
