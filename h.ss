@@ -41,20 +41,6 @@
             (try-rws e (cdr rws))
             result))))
 
-;; (define (normalize-node e rws)
-;;   (let ((ee (try-rws e rws)))
-;;     (if (eq? 'fail ee)
-;;         e
-;;         ee)))
-
-;; (define (normalize-children e rws)
-;;   (map (lambda (e) (normalize e rws)) e))
-
-;; (define (normalize e rws)
-;;   (cond
-;;    ((app? e) (normalize-node (normalize-children e rws) rws))
-;;    (#t (normalize-node e rws))))
-
 (define (normalize e rws)
   (let* ((ee (if (app? e)
                  (map (lambda (e) (normalize e rws)) e)
