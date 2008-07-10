@@ -1,5 +1,22 @@
 (load "lib.ss")
 
+(define show-counts-p #f)
+(define counts-rws 0)
+
+(define (show-counts)
+  (if show-counts-p
+      (begin
+        (display "[")
+        (display counts-rws)
+        (display " reductions]\n"))
+      '()))
+
+(define (reset-counts)
+  (set! counts-rws 0))
+
+(define (tick-rw)
+  (set! counts-rws (+ counts-rws 1)))
+
 (define (top-rw pat t body)
   (rw pat t body body))
 
@@ -39,7 +56,9 @@
              (result (top-rw pat e body)))
         (if (eq? 'fail result)
             (try-rws e (cdr rws))
-            result))))
+            (begin
+              (tick-rw)
+              result)))))
 
 (define (try-rws-top e rws)
   (try-rws e rws))
@@ -120,10 +139,12 @@
       (map (lambda (e) (top-evl e rws)) exps))))
 
 (define (top-evl e rws)
+  (reset-counts)
   (display "+ ")
   (shew e)
   (let ((r (normalize e rws)))
     (shew r)
+    (show-counts)
     (display "\n")
     r))
 
