@@ -10,11 +10,7 @@
 
 (fun ('gig ()) ())
 (fun ('gig (a . d)) (('gorp a a) ('gig d)))
-;('gig ('cons 10 ('cons 20 ())))
 ('gig (1 2 3 4))
-
-; I want to do this, but it don't work -- but that's only cuz pairs and lists are the same here.
-; (fun ('gig (a . d)) (('gorp a a) . ('gig d)))
 
 (fun ('tak ()) ())
 (fun ('tak ('cons a d)) ('cons ('harf a a) ('tak d)))
