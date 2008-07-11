@@ -1,3 +1,3 @@
 (load "h.ss")
 
-(run-file "tst-input.ss")
+(run-sb-processed-file "tst-input.ss")

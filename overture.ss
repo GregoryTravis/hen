@@ -7,3 +7,6 @@
 (fun (reverse ()) ())
 (fun (reverse (cons a d))
      (append (reverse d) (cons a ())))
+
+(fun (+ (integer a) (integer b))
+     (primitive-call [+ a b]))

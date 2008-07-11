@@ -1,4 +1,5 @@
 (load "lib.ss")
+(load "primitives.ss")
 
 (define show-counts-p #f)
 (define counts-rws 0)
@@ -68,15 +69,20 @@
 (define (normalize-children e rws)
   (map (lambda (e) (normalize e rws)) e))
 
+(define (primitive-call? e)
+  (is-this-labeled-doublet? ''primitive-call e))
+
 (define (normalize e rws)
-  (let* ((ee (if (app? e)
-                 (normalize-children e rws)
-                 e))
-         (r (try-rws ee rws)))
-    (cond
-     ((eq? 'fail r) ee)
-     ((equal? r ee) ee)
-     (#t (normalize r rws)))))
+  (if (primitive-call? e)
+      (do-primitive-call (cadr e))
+      (let* ((ee (if (app? e)
+                     (normalize-children e rws)
+                     e))
+             (r (try-rws ee rws)))
+        (cond
+         ((eq? 'fail r) ee)
+         ((equal? r ee) ee)
+         (#t (normalize r rws))))))
 
 (define (quote-symbols e)
   (quote-symbols-except-these e '()))
@@ -206,15 +212,6 @@
       (display "\n")
       r)))
 
-;(tracefun try-rws)
-;(tracefun subst rw top-rw try-rws-top)
-;(tracefun normalize normalize-children)
-;(tracefun literal? app?)
-;(tracefun quote-firsts unquote-firsts gather-binders quote-symbols quote-symbols-except-these quote-non-variables unquote-non-variables)
-;(tracefun preprocess unpreprocess primitivize unprimitivize)
-;(tracefun consy-lists-to-quoted-lists consy-list-to-quoted-lists consy-list-to-quoted-lists-1 quoted-lists-to-consy-lists)
-;(tracefun is-some-primitive? is-this-labeled-doublet? is-this-primitive? primitive?)
-
 (define already-including '())
 
 (define (process-includes forms)
@@ -241,6 +238,17 @@
 
 (define (run-sb-processed-file filename)
   (run-file (string-append "sb_tmp/tmp_" filename)))
+
+;(tracefun try-rws)
+;(tracefun subst rw top-rw try-rws-top)
+;(tracefun normalize normalize-children)
+;(tracefun literal? app?)
+;(tracefun quote-firsts unquote-firsts gather-binders quote-symbols quote-symbols-except-these quote-non-variables unquote-non-variables)
+;(tracefun preprocess unpreprocess primitivize unprimitivize)
+;(tracefun consy-lists-to-quoted-lists consy-list-to-quoted-lists consy-list-to-quoted-lists-1 quoted-lists-to-consy-lists)
+;(tracefun is-some-primitive? is-this-labeled-doublet? is-this-primitive? primitive?)
+;(tracefun do-primitive-call)
+;(tracefun extract-primitive-maybe)
 
 (define (go)
   (run-sb-processed-file "src.ss"))

@@ -700,6 +700,14 @@
 (define (primitive? e)
   (is-this-labeled-doublet? 'primitive e))
 
+(define (primitive2? e)
+  (is-this-labeled-doublet? ''primitive e))
+
+(define (extract-primitive-maybe e)
+  (if (primitive2? e)
+      (cadr e)
+      e))
+
 (define (is-this-primitive? s e)
   (and (is-this-labeled-doublet? s e)
        (primitive? (cadr e))))
