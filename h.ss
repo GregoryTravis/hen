@@ -215,8 +215,29 @@
 ;(tracefun consy-lists-to-quoted-lists consy-list-to-quoted-lists consy-list-to-quoted-lists-1 quoted-lists-to-consy-lists)
 ;(tracefun is-some-primitive? is-this-labeled-doublet? is-this-primitive? primitive?)
 
+(define already-including '())
+
+(define (process-includes forms)
+  (cond
+   ((null? forms) '())
+   ((and (pair? forms)
+         (eq? 'include (caar forms)))
+    (let ((includee (cadar forms)))
+      (if (not (member includee already-including))
+          (begin
+            ;(shew 'including includee)
+            (set! already-including (cons includee already-including))
+            (append (process-includes (read-objects includee))
+                    (process-includes (cdr forms))))
+          (begin
+            ;(shew 'not-including includee)
+            (process-includes (cdr forms))))))
+   ((pair? forms)
+    (cons (car forms) (process-includes (cdr forms))))
+   (#t (err))))
+
 (define (run-file filename)
-  (run-src (read-objects filename)))
+  (run-src (process-includes (read-objects filename))))
 
 (define (run-sb-processed-file filename)
   (run-file (string-append "sb_tmp/tmp_" filename)))
