@@ -1,0 +1,33 @@
+#!/usr/bin/env perl
+
+$|=1;
+
+$token = "4-qq-4-qq-4";
+
+$way = shift @ARGV;
+$forwards = $way eq "forwards";
+
+if ($forwards) {
+  @files = @ARGV;
+  foreach $file (@files) {
+    $tmp_file = "sb_tmp/tmp_$file";
+    open( IN, $file ) || die $!;
+    open( OUT, ">$tmp_file" ) || $die;
+
+    while (<IN>) {
+      s/\[/($token /g;
+      s/\]/ $token)/g;
+      s/\(load \"/\(load \"sb_tmp\/tmp_/g;
+      print OUT;
+    }
+  }
+
+  close( OUT );
+  close( IN );
+} else {
+  while (<>) {
+    s/\($token\s*/[/g;
+    s/\s*$token\)/]/g;
+    print;
+  }
+}

@@ -3,6 +3,8 @@
 (define show-counts-p #f)
 (define counts-rws 0)
 
+(define sb-barf-bletch '4-qq-4-qq-4)
+
 (define (show-counts)
   (if show-counts-p
       (begin
@@ -125,30 +127,36 @@
    ((app? e) (map quote-firsts e))
    (#t (err 'quote-firsts e))))
 
-(define (quoted-lists-to-consy-lists e)
+(define (undo-square-brackety e)
   (cond
-   ((and (is-quote? e) (list? (cadr e)))
-    (foldr (lambda (a d) `(cons ,a ,d)) '() (cadr e)))
-   ((app? e) (map quoted-lists-to-consy-lists e))
+   ((and (pair? e) (eq? sb-barf-bletch (car e)))
+    (begin
+      (assert (eq? sb-barf-bletch (last e)))
+      (map undo-square-brackety
+           (foldr (lambda (a d) `(cons ,a ,d))
+                  '()
+                  (rdc (cdr e))))))
+   ((pair? e) (map undo-square-brackety e))
    ((atom? e) e)
-   (#t (err 'quoted-lists-to-consy-lists e))))
+   (#t (err 'undo-square-brackety e))))
 
-(define (consy-list-to-quoted-lists e)
-  `(quote ,(consy-list-to-quoted-lists-1 e)))
+(define (consy-list-to-square-bracket-list e)
+  `(,sb-barf-bletch ,@(consy-list-to-square-bracket-list-1 e) ,sb-barf-bletch))
 
-(define (consy-list-to-quoted-lists-1 e)
+(define (consy-list-to-square-bracket-list-1 e)
   (assert (or (null? e) (is-cons? e)))
   (if (null? e)
       '()
-      (cons (consy-lists-to-quoted-lists (cadr e))
-            (consy-list-to-quoted-lists-1 (caddr e)))))
+      (cons (do-square-brackety (cadr e))
+            (consy-list-to-square-bracket-list-1 (caddr e)))))
 
-(define (consy-lists-to-quoted-lists e)
+(define (do-square-brackety e)
   (cond
-   ((is-cons? e) (consy-list-to-quoted-lists e))
-   ((pair? e) (map consy-lists-to-quoted-lists e))
+   ((is-cons? e) (consy-list-to-square-bracket-list e))
+   ((pair? e) (map do-square-brackety e))
    ((atom? e) e)
-   (#t (err 'consy-lists-to-quoted-lists))))
+   (#t (err 'do-square-brackety))))
+
 
 (define (primitivize e)
   (atom-traverse
@@ -167,7 +175,7 @@
    (#t e)))
 
 (define (preprocess src)
-  (set! src (quoted-lists-to-consy-lists src))
+  (set! src (undo-square-brackety src))
   (set! src (primitivize src))
   (set! src (map quote-non-variables src))
   src)
@@ -175,7 +183,7 @@
 (define (unpreprocess src)
   (set! src (unquote-non-variables src))
   (set! src (unprimitivize src))
-  (set! src (consy-lists-to-quoted-lists src))
+  (set! src (do-square-brackety src))
   src)
 
 (define (gather-rws src) (grep fun? src))
@@ -210,5 +218,8 @@
 (define (run-file filename)
   (run-src (read-objects filename)))
 
+(define (run-sb-processed-file filename)
+  (run-file (string-append "sb_tmp/tmp_" filename)))
+
 (define (go)
-  (run-file "src.ss"))
+  (run-sb-processed-file "src.ss"))
