@@ -10,21 +10,21 @@
 + ('bar 20 10)
 ('bar 20 10)
 
-+ ('tak ('cons 1 ('cons 2 ())))
-('cons ('harf 1 1) ('cons ('harf 2 2) ()))
++ ('tak '(1 2))
+'(('harf 1 1) ('harf 2 2))
 
-+ ('map 'yep ('cons 1 ('cons 2 ())))
-('cons ('double 1 1) ('cons ('double 2 2) ()))
++ ('map 'yep '(1 2))
+'(('double 1 1) ('double 2 2))
 
-+ ('append ('cons 1 ('cons 2 ())) ('cons 3 ('cons 4 ())))
-('cons 1 ('cons 2 ('cons 3 ('cons 4 ()))))
++ ('append '(1 2) '(3 4))
+'(1 2 3 4)
 
-+ ('reverse ('cons 1 ('cons 2 ())))
-('cons 2 ('cons 1 ()))
++ ('reverse '(1 2))
+'(2 1)
 
-+ ('reverse ('cons 1 ('cons 2 ('cons 3 ('cons 4 ())))))
-('cons 4 ('cons 3 ('cons 2 ('cons 1 ()))))
++ ('reverse '(1 2 3 4))
+'(4 3 2 1)
 
-+ ('reverse ('append ('cons 1 ('cons 2 ())) ('cons 3 ('cons 4 ()))))
-('cons 4 ('cons 3 ('cons 2 ('cons 1 ()))))
++ ('reverse ('append '(1 2) '(3 4)))
+'(4 3 2 1)
 

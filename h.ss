@@ -117,9 +117,26 @@
   (cond
    ((and (is-quote? e) (list? (cadr e)))
     (foldr (lambda (a d) `(cons ,a ,d)) '() (cadr e)))
-   ((list? e) (map quoted-lists-to-consy-lists e))
+   ((app? e) (map quoted-lists-to-consy-lists e))
    ((atom? e) e)
    (#t (err 'quoted-lists-to-consy-lists e))))
+
+(define (consy-list-to-quoted-lists e)
+  `(quote ,(consy-list-to-quoted-lists-1 e)))
+
+(define (consy-list-to-quoted-lists-1 e)
+  (assert (or (null? e) (is-cons? e)))
+  (if (null? e)
+      '()
+      (cons (consy-lists-to-quoted-lists (cadr e))
+            (consy-list-to-quoted-lists-1 (caddr e)))))
+
+(define (consy-lists-to-quoted-lists e)
+  (cond
+   ((is-cons? e) (consy-list-to-quoted-lists e))
+   ((pair? e) (map consy-lists-to-quoted-lists e))
+   ((atom? e) e)
+   (#t (err 'consy-lists-to-quoted-lists))))
 
 (define (primitivize e)
   (atom-traverse
@@ -144,7 +161,7 @@
   src)
 
 (define (unpreprocess src)
-;  (set! src (consy-lists-to-quoted-lists src))
+  (set! src (consy-lists-to-quoted-lists src))
   (set! src (unprimitivize src))
   src)
 
@@ -159,21 +176,23 @@
 
 (define (top-evl e rws)
   (reset-counts)
-  (display "+ ")
-  (shew (unpreprocess e))
-  (let ((r (normalize e rws)))
-    (shew (unpreprocess r))
-    (show-counts)
-    (display "\n")
-    r))
+  (let ((ue (unpreprocess e)))
+    (display "+ ")
+    (shew ue)
+    (let ((r (normalize e rws)))
+      (shew (unpreprocess r))
+      (show-counts)
+      (display "\n")
+      r)))
 
 ;(tracefun try-rws)
 ;(tracefun subst rw top-rw try-rws-top)
-;(tracefun normalize)
+;(tracefun normalize normalize-children)
 ;(tracefun literal? app?)
 ;(tracefun quote-firsts gather-binders quote-symbols quote-symbols-except-these)
 ;(tracefun quote-non-variables)
 ;(tracefun primitivize unprimitivize)
+;(tracefun consy-lists-to-quoted-lists consy-list-to-quoted-lists consy-list-to-quoted-lists-1 quoted-lists-to-consy-lists)
 ;(tracefun is-some-primitive? is-this-labeled-doublet? is-this-primitive? primitive?)
 
 (define (run-file filename)

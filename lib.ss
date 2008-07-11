@@ -71,8 +71,8 @@
 (define (proper-list? l)
   (or (eq? l '()) (and (pair? l) (proper-list? (cdr l)))))
 
-(define (proper-cons? c)
-  (and (pair? c) (or (pair? (cdr c)) (null? (cdr c)))))
+;(define (proper-cons? c)
+;  (and (pair? c) (or (pair? (cdr c)) (null? (cdr c)))))
 
 (define (proper-tree? t)
   (if (pair? t)
@@ -708,3 +708,8 @@
   (and (list? e)
        (= 2 (length e))
        (primitive? (cadr e))))
+
+(define (is-cons? c)
+  (and (list? c)
+       (= 3 (length c))
+       (equal? ''cons (car c))))
