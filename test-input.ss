@@ -6,21 +6,21 @@
 
 (fun (tak ()) ())
 (fun (tak (cons a d)) (cons (harf a a) (tak d)))
-(tak (cons 1 (cons 2 ())))
+(tak '(1 2))
 
 (fun (yep a) (double a a))
 (fun (map f ()) ())
 (fun (map f (cons a d)) (cons (f a) (map f d)))
-(map yep (cons 1 (cons 2 ())))
+(map yep '(1 2))
 
 (fun (append () a) a)
 (fun (append (cons a d) b) (cons a (append d b)))
-(append (cons 1 (cons 2 ())) (cons 3 (cons 4 ())))
+(append '(1 2) '(3 4))
 
 (fun (reverse ()) ())
 (fun (reverse (cons a d))
      (append (reverse d) (cons a ())))
-(reverse (cons 1 (cons 2 ())))
-(reverse (cons 1 (cons 2 (cons 3 (cons 4 ())))))
+(reverse '(1 2))
+(reverse '(1 2 3 4))
 
-(reverse (append (cons 1 (cons 2 ())) (cons 3 (cons 4 ()))))
+(reverse (append '(1 2) '(3 4)))

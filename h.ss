@@ -113,8 +113,20 @@
    ((app? e) (map quote-firsts e))
    (#t (err 'quote-firsts e))))
 
+(define (quoted-lists-to-consy-lists e)
+  (cond
+   ((and (is-quote? e) (list? (cadr e)))
+    (foldr (lambda (a d) `(cons ,a ,d)) '() (cadr e)))
+   ((list? e) (map quoted-lists-to-consy-lists e))
+   ((atom? e) e)
+   (#t (err 'quoted-lists-to-consy-lists e))))
+
 (define (preprocess src)
-  (map quote-non-variables src))
+  ;(shew src)
+  (set! src (quoted-lists-to-consy-lists src))
+  ;(shew src)
+  (set! src (map quote-non-variables src))
+  src)
 
 (define (gather-rws src) (grep fun? src))
 (define (gather-exps src) (grep (fnot fun?) src))
