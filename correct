@@ -1,30 +1,30 @@
-+ ('foo 10 20)
-('bar 20 20)
++ (foo 10 20)
+(bar 20 20)
 
-+ ('bar 10 20)
-('bar 10 20)
++ (bar 10 20)
+(bar 10 20)
 
-+ ('foo 20 10)
-('bar 10 10)
++ (foo 20 10)
+(bar 10 10)
 
-+ ('bar 20 10)
-('bar 20 10)
++ (bar 20 10)
+(bar 20 10)
 
-+ ('tak '(1 2))
-'(('harf 1 1) ('harf 2 2))
++ (tak '(1 2))
+'((harf 1 1) (harf 2 2))
 
-+ ('map 'yep '(1 2))
-'(('double 1 1) ('double 2 2))
++ (map 'yep '(1 2))
+'((double 1 1) (double 2 2))
 
-+ ('append '(1 2) '(3 4))
++ (append '(1 2) '(3 4))
 '(1 2 3 4)
 
-+ ('reverse '(1 2))
++ (reverse '(1 2))
 '(2 1)
 
-+ ('reverse '(1 2 3 4))
++ (reverse '(1 2 3 4))
 '(4 3 2 1)
 
-+ ('reverse ('append '(1 2) '(3 4)))
++ (reverse (append '(1 2) '(3 4)))
 '(4 3 2 1)
 

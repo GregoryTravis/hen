@@ -104,6 +104,18 @@
               ,(quote-symbols-except-these body (gather-binders qpat))))
       (quote-symbols e)))
 
+(define (unquote-non-variables e)
+  (unquote-firsts e))
+
+(define (unquote-firsts e)
+  (cond
+   ((literal? e) e)
+   ((and (list? e) (is-quote? (car e)))
+    `(,(quote-quoted (car e)) ,@(map unquote-firsts (cdr e))))
+   ((list? e) (map unquote-firsts e))
+   ((atom? e) e)
+   (#t (err 'unquote-firsts e))))
+
 (define (quote-firsts e)
   (cond
    ((literal? e) e)
@@ -161,6 +173,7 @@
   src)
 
 (define (unpreprocess src)
+  (set! src (unquote-non-variables src))
   (set! src (consy-lists-to-quoted-lists src))
   (set! src (unprimitivize src))
   src)
@@ -189,9 +202,8 @@
 ;(tracefun subst rw top-rw try-rws-top)
 ;(tracefun normalize normalize-children)
 ;(tracefun literal? app?)
-;(tracefun quote-firsts gather-binders quote-symbols quote-symbols-except-these)
-;(tracefun quote-non-variables)
-;(tracefun primitivize unprimitivize)
+;(tracefun quote-firsts unquote-firsts gather-binders quote-symbols quote-symbols-except-these quote-non-variables unquote-non-variables)
+;(tracefun preprocess unpreprocess primitivize unprimitivize)
 ;(tracefun consy-lists-to-quoted-lists consy-list-to-quoted-lists consy-list-to-quoted-lists-1 quoted-lists-to-consy-lists)
 ;(tracefun is-some-primitive? is-this-labeled-doublet? is-this-primitive? primitive?)
 
