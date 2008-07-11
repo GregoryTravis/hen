@@ -691,3 +691,20 @@
   (and (proper-list? e)
        (not (null? e))
        (eq? 'begin (car e))))
+
+(define (is-this-labeled-doublet? s e)
+  (and (list? e)
+       (= 2 (length e))
+       (equal? s (car e))))
+
+(define (primitive? e)
+  (is-this-labeled-doublet? ''primitive e))
+
+(define (is-this-primitive? s e)
+  (and (is-this-labeled-doublet? s e)
+       (primitive? (cadr e))))
+
+(define (is-some-primitive? e)
+  (and (list? e)
+       (= 2 (length e))
+       (primitive? (cadr e))))

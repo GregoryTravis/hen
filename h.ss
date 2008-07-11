@@ -121,10 +121,24 @@
    ((atom? e) e)
    (#t (err 'quoted-lists-to-consy-lists e))))
 
+(define (unprettify e)
+  (atom-traverse
+   (lambda (e)
+     (cond
+      ((integer? e) `(integer (primitive ,e)))
+      ((string? e) `(string (primitive ,e)))
+      (#t e)))
+   e))
+
+(define (prettify e)
+  (cond
+   ((is-quote? e) `(quote ,(prettify (cadr e))))
+   ((is-some-primitive? e) (cadadr e))
+   ((list? e) (map prettify e))
+   (#t e)))
+
 (define (preprocess src)
-  ;(shew src)
   (set! src (quoted-lists-to-consy-lists src))
-  ;(shew src)
   (set! src (map quote-non-variables src))
   src)
 
@@ -132,17 +146,17 @@
 (define (gather-exps src) (grep (fnot fun?) src))
 
 (define (run-src src)
-  (let ((src (preprocess src)))
-    (let ((rws (gather-rws src))
-          (exps (gather-exps src)))
-      (map (lambda (e) (top-evl e rws)) exps))))
+  (let* ((src (preprocess (unprettify src)))
+         (rws (gather-rws src))
+         (exps (gather-exps src)))
+    (map (lambda (e) (top-evl e rws)) exps)))
 
 (define (top-evl e rws)
   (reset-counts)
   (display "+ ")
-  (shew e)
+  (shew (prettify e))
   (let ((r (normalize e rws)))
-    (shew r)
+    (shew (prettify r))
     (show-counts)
     (display "\n")
     r))
@@ -153,6 +167,8 @@
 ;(tracefun literal? app?)
 ;(tracefun quote-firsts gather-binders quote-symbols quote-symbols-except-these)
 ;(tracefun quote-non-variables)
+;(tracefun unprettify prettify)
+;(tracefun is-some-primitive? is-this-labeled-doublet? is-this-primitive? primitive?)
 
 (define (run-file filename)
   (run-src (read-objects filename)))
