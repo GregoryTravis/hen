@@ -167,15 +167,15 @@
    (#t e)))
 
 (define (preprocess src)
-  (set! src (primitivize src))
   (set! src (quoted-lists-to-consy-lists src))
+  (set! src (primitivize src))
   (set! src (map quote-non-variables src))
   src)
 
 (define (unpreprocess src)
   (set! src (unquote-non-variables src))
-  (set! src (consy-lists-to-quoted-lists src))
   (set! src (unprimitivize src))
+  (set! src (consy-lists-to-quoted-lists src))
   src)
 
 (define (gather-rws src) (grep fun? src))
