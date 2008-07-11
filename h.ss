@@ -76,19 +76,6 @@
      ((equal? r ee) ee)
      (#t (normalize r rws)))))
 
-;; (define (quote-firsts e)
-;;   (cond
-;;    ((literal? e) e)
-;;    ((fun? e)
-;;     `(fun ,(quote-firsts (cadr e))
-;;           ,(quote-firsts (caddr e))))
-;;    ((and (app? e) (symbol? (car e)))
-;;     `((quote ,(car e)) ,@(cdr e)))
-;;    (#t e)))
-
-;; (define (preprocess src)
-;;   (map quote-firsts src))
-
 (define (quote-symbols e)
   (quote-symbols-except-these e '()))
 
