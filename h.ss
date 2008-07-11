@@ -121,7 +121,7 @@
    ((atom? e) e)
    (#t (err 'quoted-lists-to-consy-lists e))))
 
-(define (unprettify e)
+(define (primitivize e)
   (atom-traverse
    (lambda (e)
      (cond
@@ -130,22 +130,22 @@
       (#t e)))
    e))
 
-(define (prettify e)
+(define (unprimitivize e)
   (cond
-   ((is-quote? e) `(quote ,(prettify (cadr e))))
+   ((is-quote? e) `(quote ,(unprimitivize (cadr e))))
    ((is-some-primitive? e) (cadadr e))
-   ((list? e) (map prettify e))
+   ((list? e) (map unprimitivize e))
    (#t e)))
 
 (define (preprocess src)
-  (set! src (unprettify src))
+  (set! src (primitivize src))
   (set! src (quoted-lists-to-consy-lists src))
   (set! src (map quote-non-variables src))
   src)
 
 (define (unpreprocess src)
 ;  (set! src (consy-lists-to-quoted-lists src))
-  (set! src (prettify src))
+  (set! src (unprimitivize src))
   src)
 
 (define (gather-rws src) (grep fun? src))
@@ -173,7 +173,7 @@
 ;(tracefun literal? app?)
 ;(tracefun quote-firsts gather-binders quote-symbols quote-symbols-except-these)
 ;(tracefun quote-non-variables)
-;(tracefun unprettify prettify)
+;(tracefun primitivize unprimitivize)
 ;(tracefun is-some-primitive? is-this-labeled-doublet? is-this-primitive? primitive?)
 
 (define (run-file filename)
