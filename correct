@@ -178,3 +178,9 @@
 + (xor 'false 'false)
 'false
 
++ (fact 10)
+3628800
+
++ (fact2 10)
+3628800
+
