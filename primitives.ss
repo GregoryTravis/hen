@@ -20,14 +20,17 @@
       (cadr e)
       e))
 
-(define (pea-primitive-+ a b)
-  (+ (unprim a) (unprim b)))
-(define (pea-primitive-- a b)
-  (- (unprim a) (unprim b)))
-(define (pea-primitive-* a b)
-  (* (unprim a) (unprim b)))
-(define (pea-primitive-/ a b)
-  (/ (unprim a) (unprim b)))
+(define (prim e)
+  (list ''primitive e))
+
+(define (pea-primitive-integer-+ a b)
+  (prim (+ (unprim a) (unprim b))))
+(define (pea-primitive-integer-- a b)
+  (prim (- (unprim a) (unprim b))))
+(define (pea-primitive-integer-* a b)
+  (prim (* (unprim a) (unprim b))))
+(define (pea-primitive-integer-/ a b)
+  (prim (/ (unprim a) (unprim b))))
 
 (define (true-false-ify x)
   (cond

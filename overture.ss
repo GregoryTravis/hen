@@ -27,13 +27,13 @@
 (fun (xor 'false 'false) 'false)
 
 (fun (+ (integer a) (integer b))
-      (primitive-call (+ a b)))
+     (integer (primitive-call (integer-+ a b))))
 (fun (- (integer a) (integer b))
-     (primitive-call (- a b)))
+     (integer (primitive-call (integer-- a b))))
 (fun (* (integer a) (integer b))
-     (primitive-call (* a b)))
+     (integer (primitive-call (integer-* a b))))
 (fun (/ (integer a) (integer b))
-     (primitive-call (/ a b)))
+     (integer (primitive-call (integer-/ a b))))
 
 (fun (= (integer a) (integer b))
      (primitive-call (= a b)))

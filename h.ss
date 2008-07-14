@@ -73,16 +73,26 @@
   (is-this-labeled-doublet? ''primitive-call e))
 
 (define (normalize e rws)
-  (if (primitive-call? e)
-      (do-primitive-call (cadr e))
-      (let* ((ee (if (app? e)
-                     (normalize-children e rws)
-                     e))
-             (r (try-rws ee rws)))
+  (cond
+   ((primitive-call? e)
+    (do-primitive-call (cadr e)))
+   ((conditional? e)
+    (let ((pred (cadr e))
+          (then (caddr e))
+          (else (cadddr e)))
+      (let ((b (normalize pred rws)))
         (cond
-         ((eq? 'fail r) ee)
-         ((equal? r ee) ee)
-         (#t (normalize r rws))))))
+         ((equal? ''true b) (normalize then rws))
+         ((equal? ''false b) (normalize else rws))
+         (#t (err 'conditional 'pred pred 'gives b))))))
+   (#t (let* ((ee (if (app? e)
+                      (normalize-children e rws)
+                      e))
+              (r (try-rws ee rws)))
+         (cond
+          ((eq? 'fail r) ee)
+          ((equal? r ee) ee)
+          (#t (normalize r rws)))))))
 
 (define (quote-symbols e)
   (quote-symbols-except-these e '()))
@@ -249,6 +259,7 @@
 ;(tracefun is-some-primitive? is-this-labeled-doublet? is-this-primitive? primitive?)
 ;(tracefun do-primitive-call)
 ;(tracefun extract-primitive-maybe)
+;(tracefun conditional?)
 
 (define (go)
   (run-sb-processed-file "src.ss"))

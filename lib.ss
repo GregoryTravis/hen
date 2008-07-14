@@ -721,3 +721,8 @@
   (and (list? c)
        (= 3 (length c))
        (equal? 'cons (car c))))
+
+(define (conditional? e)
+  (and (list? e)
+       (= 4 (length e))
+       (equal? ''if (car e))))
