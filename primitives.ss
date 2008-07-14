@@ -1,4 +1,50 @@
 (define (do-primitive-call e)
-  (let ((e (cons (eval (quote-quoted (car e)))
-                 (map extract-primitive-maybe (cdr e)))))
-    (apply (car e) (cdr e))))
+  (let* ((f (car e))
+         (f (if (is-quote? f)
+                (quote-quoted f)
+                f)))
+    (let ((real-f (eval (->symbol (++ "pea-primitive-" f)))))
+      (apply real-f (cdr e)))))
+;;   (let ((e
+;;          (map eval (map (lambda (e)
+;;                           (if (primitive2? e)
+;;                               (cadr e)
+;;                               e))
+;;                         e))))
+;;     (apply (eval (car e)) (cdr e))))
+
+;; (tracefun do-primitive-call)
+
+(define (unprim e)
+  (if (primitive2? e)
+      (cadr e)
+      e))
+
+(define (pea-primitive-+ a b)
+  (+ (unprim a) (unprim b)))
+(define (pea-primitive-- a b)
+  (- (unprim a) (unprim b)))
+(define (pea-primitive-* a b)
+  (* (unprim a) (unprim b)))
+(define (pea-primitive-/ a b)
+  (/ (unprim a) (unprim b)))
+
+(define (true-false-ify x)
+  (cond
+   ((eq? #f x) ''false)
+   ((eq? #t x) ''true)
+   (#t (err 'true-false-ify x))))
+
+(define (pea-primitive-= a b)
+  (let ((a (unprim a))
+        (b (unprim b)))
+    (cond
+     ((string? a) (true-false-ify (string= a b)))
+     ((symbol? a) (true-false-ify (eq? a b)))
+     ((number? a) (true-false-ify (= a b)))
+     (#t (err 'pea-primitive-= a b)))))
+
+(define (pea-primitive-> a b)
+  (let ((a (unprim a))
+        (b (unprim b)))
+    (true-false-ify (and (number? a) (number? b) (> a b)))))
