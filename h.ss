@@ -246,35 +246,6 @@
 
 (define (run-file filename)
   (run-src (process-includes (pea-read-src filename))))
-;  (run-src (process-includes (read-objects filename))))
-
-;; (define (run-sb-processed-file filename)
-;;   (run-file (string-append "sb_tmp/tmp_" filename)))
-
-;(tracefun try-rws)
-;(tracefun subst rw top-rw try-rws-top)
-;(tracefun normalize normalize-children)
-;(tracefun literal? app?)
-;(tracefun quote-firsts unquote-firsts gather-binders quote-symbols quote-symbols-except-these quote-non-variables unquote-non-variables)
-;(tracefun preprocess unpreprocess primitivize unprimitivize)
-;(tracefun consy-lists-to-quoted-lists consy-list-to-quoted-lists consy-list-to-quoted-lists-1 quoted-lists-to-consy-lists)
-;(tracefun is-some-primitive? is-this-labeled-doublet? is-this-primitive? primitive?)
-;(tracefun do-primitive-call)
-;(tracefun extract-primitive-maybe)
-;(tracefun conditional?)
-;(tracefun process-includes)
-
-;; (define (read-chars-from-file filename)
-;;   (call-with-input-file filename (lambda (p) (read-chars-from-port p))))
-
-;; (define (read-chars-from-port p)
-;;   (let ((c (read-char p)))
-;;     (if (eof-object? c)
-;;         '()
-;;         (cons c (read-chars-from-port p)))))
-
-;; (define (make-charlist-input-port cs)
-;;   (open-string-input-port (char-set->string (list->char-set cs))))
 
 (define (read-file-string filename)
   (call-with-input-file filename (lambda (p) (get-string-all p))))
@@ -292,6 +263,19 @@
   (set! s (pregexp-replace* "\\[" s "(blah-4-qq-4-qq-4 "))
   (set! s (pregexp-replace* "\\]" s " blah-4-qq-4-qq-4)"))
   s)
+
+;(tracefun try-rws)
+;(tracefun subst rw top-rw try-rws-top)
+;(tracefun normalize normalize-children)
+;(tracefun literal? app?)
+;(tracefun quote-firsts unquote-firsts gather-binders quote-symbols quote-symbols-except-these quote-non-variables unquote-non-variables)
+;(tracefun preprocess unpreprocess primitivize unprimitivize)
+;(tracefun consy-lists-to-quoted-lists consy-list-to-quoted-lists consy-list-to-quoted-lists-1 quoted-lists-to-consy-lists)
+;(tracefun is-some-primitive? is-this-labeled-doublet? is-this-primitive? primitive?)
+;(tracefun do-primitive-call)
+;(tracefun extract-primitive-maybe)
+;(tracefun conditional?)
+;(tracefun process-includes)
 
 (define (go)
   (run-file "src.ss"))
