@@ -174,7 +174,6 @@
    ((atom? e) e)
    (#t (err 'do-square-brackety))))
 
-
 (define (primitivize e)
   (atom-traverse
    (lambda (e)

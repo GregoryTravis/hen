@@ -48,3 +48,6 @@
 (fun (<= a b) (not (> a b)))
 
 (fun (!= a b) (not (= a b)))
+
+(fun (read-file (string filename))
+     (primitive-call (read-file filename)))

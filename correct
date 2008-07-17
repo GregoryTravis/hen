@@ -192,3 +192,6 @@
 + "a"
 "a"
 
++ (read-file "tst-readee.ss")
+[[1 2 3]]
+

@@ -92,3 +92,5 @@
 (fact2 10)
 
 "a"
+
+(read-file "tst-readee.ss")

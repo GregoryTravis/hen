@@ -51,3 +51,6 @@
   (let ((a (unprim a))
         (b (unprim b)))
     (true-false-ify (and (number? a) (number? b) (> a b)))))
+
+(define (pea-primitive-read-file filename)
+  (list->consy (pea-read-src (unprim filename))))
