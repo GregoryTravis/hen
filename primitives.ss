@@ -54,3 +54,7 @@
 
 (define (pea-primitive-read-file filename)
   (list->consy (pea-read-src (unprim filename))))
+
+(define (pea-primitive-shew e)
+  (shew (unpreprocess e))
+  '())

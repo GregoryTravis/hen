@@ -94,3 +94,5 @@
 "a"
 
 (read-file "tst-readee.ss")
+
+(shew [4 5])

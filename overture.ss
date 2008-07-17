@@ -51,3 +51,6 @@
 
 (fun (read-file (string filename))
      (primitive-call (read-file filename)))
+
+(fun (shew e)
+     (primitive-call (shew e)))
