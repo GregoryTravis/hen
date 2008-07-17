@@ -1,5 +1,3 @@
- (include "overture.ss")
-
 (fun (foo a b) (bar b b))
 (foo 10 20)
 (bar 10 20)

@@ -245,7 +245,8 @@
    (#t (err))))
 
 (define (run-file filename)
-  (run-src (process-includes (pea-read-src filename))))
+  (run-src (process-includes (cons '(include "overture.ss")
+                                   (pea-read-src filename)))))
 
 (define (read-file-string filename)
   (call-with-input-file filename (lambda (p) (get-string-all p))))
