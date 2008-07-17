@@ -149,9 +149,7 @@
     (begin
       (assert (eq? sb-barf-bletch (last e)))
       (map undo-square-brackety
-           (foldr (lambda (a d) `(cons ,a ,d))
-                  '()
-                  (rdc (cdr e))))))
+           (list->consy (rdc (cdr e))))))
    ((pair? e) (map undo-square-brackety e))
    ((atom? e) e)
    (#t (err 'undo-square-brackety e))))
@@ -165,6 +163,9 @@
       '()
       (cons (do-square-brackety (cadr e))
             (consy-list-to-square-bracket-list-1 (caddr e)))))
+
+(define (list->consy l)
+  (foldr (lambda (a d) `(cons ,a ,d)) '() l))
 
 (define (do-square-brackety e)
   (cond
