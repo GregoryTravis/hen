@@ -1,4 +1,4 @@
-mzscheme -j -r main.ss
+mzscheme -j -r main.ss | square-brackets backwards
 exit
 
 #cat src.ss | square-brackets forwards | tee sf

@@ -1,4 +1,4 @@
-mzscheme -j -r tst.ss
+mzscheme -j -r tst.ss | square-brackets backwards
 exit
 
 mkdir -p sb_tmp

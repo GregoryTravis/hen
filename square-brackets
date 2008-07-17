@@ -2,7 +2,7 @@
 
 $|=1;
 
-$token = "4-qq-4-qq-4";
+$token = "blah-4-qq-4-qq-4";
 
 $way = shift @ARGV;
 $forwards = $way eq "forwards";
