@@ -228,6 +228,7 @@
   (cond
    ((null? forms) '())
    ((and (pair? forms)
+         (pair? (car forms))
          (eq? 'include (caar forms)))
     (let ((includee (cadar forms)))
       (if (not (member includee already-including))
@@ -261,6 +262,7 @@
 ;(tracefun do-primitive-call)
 ;(tracefun extract-primitive-maybe)
 ;(tracefun conditional?)
+;(tracefun process-includes)
 
 ;; (define (read-chars-from-file filename)
 ;;   (call-with-input-file filename (lambda (p) (read-chars-from-port p))))
