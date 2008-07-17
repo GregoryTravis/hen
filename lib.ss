@@ -1,6 +1,10 @@
+(require (lib "ports-6.ss" "rnrs/io"))
+;(require (lib "simple-6.ss" "rnrs/io")) ; bad one
 (require (lib "32.ss" "srfi"))
 (require (lib "13.ss" "srfi"))
+(require (lib "35.ss" "srfi"))
 (require (lib "defmacro.ss"))
+(require (lib "pregexp.ss"))
 (require (lib "process.ss"))
 (require (lib "compat.ss"))
 (require (lib "pretty.ss"))

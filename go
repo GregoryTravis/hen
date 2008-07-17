@@ -1,5 +1,5 @@
-#mzscheme -j -r main.ss
-#exit
+mzscheme -j -r main.ss
+exit
 
 #cat src.ss | square-brackets forwards | tee sf
 #echo "===="

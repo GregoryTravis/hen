@@ -4,7 +4,7 @@
 (define show-counts-p #f)
 (define counts-rws 0)
 
-(define sb-barf-bletch '4-qq-4-qq-4)
+(define sb-barf-bletch 'blah-4-qq-4-qq-4)
 
 (define (show-counts)
   (if show-counts-p
@@ -191,7 +191,7 @@
    (#t e)))
 
 (define (preprocess src)
-  (set! src (undo-square-brackety src))
+  ;(set! src (undo-square-brackety src))
   (set! src (primitivize src))
   (set! src (map quote-non-variables src))
   src)
@@ -244,10 +244,11 @@
    (#t (err))))
 
 (define (run-file filename)
-  (run-src (process-includes (read-objects filename))))
+  (run-src (process-includes (pea-read-src filename))))
+;  (run-src (process-includes (read-objects filename))))
 
-(define (run-sb-processed-file filename)
-  (run-file (string-append "sb_tmp/tmp_" filename)))
+;; (define (run-sb-processed-file filename)
+;;   (run-file (string-append "sb_tmp/tmp_" filename)))
 
 ;(tracefun try-rws)
 ;(tracefun subst rw top-rw try-rws-top)
@@ -261,5 +262,34 @@
 ;(tracefun extract-primitive-maybe)
 ;(tracefun conditional?)
 
+;; (define (read-chars-from-file filename)
+;;   (call-with-input-file filename (lambda (p) (read-chars-from-port p))))
+
+;; (define (read-chars-from-port p)
+;;   (let ((c (read-char p)))
+;;     (if (eof-object? c)
+;;         '()
+;;         (cons c (read-chars-from-port p)))))
+
+;; (define (make-charlist-input-port cs)
+;;   (open-string-input-port (char-set->string (list->char-set cs))))
+
+(define (read-file-string filename)
+  (call-with-input-file filename (lambda (p) (get-string-all p))))
+
+(define (pea-parsing-port port)
+  (open-string-input-port (preprocess-square-brackety (get-string-all (transcoded-port port (native-transcoder))))))
+
+(define (pea-read-src-port port)
+  (undo-square-brackety (read-objects-port (pea-parsing-port port))))
+
+(define (pea-read-src filename)
+  (call-with-input-file filename pea-read-src-port))
+
+(define (preprocess-square-brackety s)
+  (set! s (pregexp-replace* "\\[" s "(blah-4-qq-4-qq-4 "))
+  (set! s (pregexp-replace* "\\]" s " blah-4-qq-4-qq-4)"))
+  s)
+
 (define (go)
-  (run-sb-processed-file "src.ss"))
+  (run-file "src.ss"))
