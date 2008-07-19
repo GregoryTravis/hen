@@ -100,7 +100,7 @@
 (define (quote-symbols-except-these e except)
   (cond
    ((literal? e) e)
-   ((and (symbol? e) (member-improper? e except)) e)
+   ((and (symbol? e) (member? e except)) e)
    ((symbol? e) `',e)
    ((app? e) (map (lambda (e) (quote-symbols-except-these e except))
                   e))
@@ -149,10 +149,10 @@
    ((and (pair? e) (eq? sb-barf-bletch (car e)))
     (begin
       (assert (eq? sb-barf-bletch (last e)))
-      (map-improper undo-square-brackety
+      (map undo-square-brackety
            (list->consy (rdc (cdr e))))))
-   ;((pair? e) (map undo-square-brackety e))
-   ((pair? e) (map-improper undo-square-brackety e))
+   ((pair? e) (cons (undo-square-brackety (car e))
+                    (undo-square-brackety (cdr e))))
    ((atom? e) e)
    (#t (err 'undo-square-brackety e))))
 
