@@ -95,7 +95,7 @@
 
 (read-file "tst-readee.ss")
 
-(shew [4 5])
+(shew 5 5 6)
 (map 'shew [5 5 6])
 (map shew (form->list (5 5 6)))
-
+(shew [4 5])
