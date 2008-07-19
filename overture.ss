@@ -54,7 +54,7 @@
 
 (fun (shew e)
      (primitive-call (shew e)))
-(fun (shew . es) (map shew es))
+(fun (shew . es) (map shew (form->list es)))
 
 (fun (form->list f)
      (primitive-call (form->list f)))
