@@ -279,7 +279,6 @@
 ;(tracefun extract-primitive-maybe)
 ;(tracefun conditional?)
 ;(tracefun process-includes)
-;(tracefun top-rw normalize)
 
 (define (go)
   (run-file "src.ss"))
