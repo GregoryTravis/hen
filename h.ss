@@ -63,9 +63,6 @@
               (tick-rw)
               result)))))
 
-(define (try-rws-top e rws)
-  (try-rws e rws))
-
 (define (normalize-children e rws)
   (map (lambda (e) (normalize e rws)) e))
 
@@ -169,6 +166,9 @@
 (define (list->consy l)
   (foldr (lambda (a d) `(cons ,a ,d)) '() l))
 
+(define (list->quoted-consy l)
+  (foldr (lambda (a d) `('cons ,a ,d)) '() l))
+
 (define (do-square-brackety e)
   (cond
    ((is-cons? e) (consy-list-to-square-bracket-list e))
@@ -268,7 +268,7 @@
   s)
 
 ;(tracefun try-rws)
-;(tracefun subst rw top-rw try-rws-top)
+;(tracefun subst rw top-rw)
 ;(tracefun normalize normalize-children)
 ;(tracefun literal? app?)
 ;(tracefun quote-firsts unquote-firsts gather-binders quote-symbols quote-symbols-except-these quote-non-variables unquote-non-variables)
@@ -279,6 +279,7 @@
 ;(tracefun extract-primitive-maybe)
 ;(tracefun conditional?)
 ;(tracefun process-includes)
+;(tracefun top-rw normalize)
 
 (define (go)
   (run-file "src.ss"))

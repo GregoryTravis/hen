@@ -58,3 +58,6 @@
 (define (pea-primitive-shew e)
   (shew (unpreprocess e))
   '())
+
+(define (pea-primitive-form->list f)
+  (list->quoted-consy f))
