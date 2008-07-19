@@ -232,7 +232,7 @@
 (define (map-improper f s)
   (if (pair? s)
       (cons (f (car s))
-            (map-em f (cdr s)))
+            (map-improper f (cdr s)))
       (f s)))
 (define map-em map-improper)
 
@@ -357,6 +357,9 @@
 
 (define (map-append f . lysts)
   (apply append (apply map (cons f lysts))))
+
+(define (map-improper-append f . lysts)
+  (apply append (apply map-improper (cons f lysts))))
 
 (define (grep pred lyst)
   (map-append
@@ -731,3 +734,10 @@
   (and (list? e)
        (= 4 (length e))
        (equal? ''if (car e))))
+
+(define (member-improper? a lyst)
+  (or
+   (and (pair? lyst)
+        (or (eq? a (car lyst))
+            (eq? a (cdr lyst))
+            (member-improper? a (cdr lyst))))))
