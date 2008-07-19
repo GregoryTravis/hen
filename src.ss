@@ -1,2 +1,2 @@
-(read-file "2.ss")
-(shew [4 5])
+(fun (sh . args) args)
+(sh 1 2 3)

@@ -42,8 +42,8 @@
     (if (equal? pat t)
         body
         'fail))
-   ((and (app? pat))
-    (if (app? t)
+   ((and (pair? pat))
+    (if (pair? t)
         (rw (cdr pat) (cdr t) body-template (rw (car pat) (car t) body-template body))
         'fail))
    ((and (symbol? pat))
@@ -100,7 +100,7 @@
 (define (quote-symbols-except-these e except)
   (cond
    ((literal? e) e)
-   ((and (symbol? e) (member e except)) e)
+   ((and (symbol? e) (member-improper? e except)) e)
    ((symbol? e) `',e)
    ((app? e) (map (lambda (e) (quote-symbols-except-these e except))
                   e))
@@ -110,7 +110,8 @@
   (cond
    ((symbol? pat) (list pat))
    ((literal? pat) '())
-   ((app? pat) (map-append gather-binders pat))
+   ((pair? pat) (append (gather-binders (car pat))
+                       (gather-binders (cdr pat))))
    (#t (err 'gather-binders))))
 
 (define (quote-non-variables e)
@@ -138,9 +139,9 @@
   (cond
    ((literal? e) e)
    ((symbol? e) e)
-   ((and (app? e) (symbol? (car e)))
-    `(',(car e) ,@(map quote-firsts (cdr e))))
-   ((app? e) (map quote-firsts e))
+   ((and (pair? e) (symbol? (car e)))
+    `(',(car e) ,@(map-improper quote-firsts (cdr e))))
+   ((pair? e) (map-improper quote-firsts e))
    (#t (err 'quote-firsts e))))
 
 (define (undo-square-brackety e)
@@ -148,9 +149,10 @@
    ((and (pair? e) (eq? sb-barf-bletch (car e)))
     (begin
       (assert (eq? sb-barf-bletch (last e)))
-      (map undo-square-brackety
+      (map-improper undo-square-brackety
            (list->consy (rdc (cdr e))))))
-   ((pair? e) (map undo-square-brackety e))
+   ;((pair? e) (map undo-square-brackety e))
+   ((pair? e) (map-improper undo-square-brackety e))
    ((atom? e) e)
    (#t (err 'undo-square-brackety e))))
 

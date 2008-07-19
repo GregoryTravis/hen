@@ -96,3 +96,6 @@
 (read-file "tst-readee.ss")
 
 (shew [4 5])
+
+(fun (mc . args) args)
+(mc 1 2 3)
