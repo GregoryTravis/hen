@@ -4,7 +4,7 @@
 (foo 20 10)
 (bar 20 10)
 
-(fun (tak ()) ())
+(fun (tak []) [])
 (fun (tak (cons a d)) (cons (harf a a) (tak d)))
 (tak [1 2])
 
