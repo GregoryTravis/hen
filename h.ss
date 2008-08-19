@@ -1,6 +1,8 @@
 (load "lib.ss")
 (load "primitives.ss")
 
+(define show-reductions #f)
+(define show-normalizations #f)
 (define show-counts-p #f)
 (define counts-rws 0)
 
@@ -60,6 +62,20 @@
         (if (eq? 'fail result)
             (try-rws e (cdr rws))
             (begin
+              (if show-reductions
+                  (let ((ue (unpreprocess e))
+                        (ur (unpreprocess result))
+                        (uru (unpreprocess rule)))
+                    (display "<== ")
+                    (lshew ue)
+                    (display "\n")
+                    (display "==> ")
+                    (lshew ur)
+                    (display "\n")
+                    (display ".......... ")
+                    (lshew uru)
+                    (display "\n"))
+                  '())
               (tick-rw)
               result)))))
 
@@ -87,8 +103,20 @@
                       e))
               (r (try-rws ee rws)))
          (cond
-          ((eq? 'fail r) ee)
-          ((equal? r ee) ee)
+          ((eq? 'fail r)
+           (begin
+             (if show-normalizations
+                 (begin
+                   (lshew e)
+                   (display "\n  -->\n")
+                   (lshew ee)
+                   (display "\n....................................\n"))
+                 '())
+             ee))
+          ((equal? r ee)
+           (begin
+             ;(shew "<-- " ee)
+             ee))
           (#t (normalize r rws)))))))
 
 (define (quote-symbols e)
@@ -157,7 +185,7 @@
   `(,sb-barf-bletch ,@(consy-list-to-square-bracket-list-1 e) ,sb-barf-bletch))
 
 (define (consy-list-to-square-bracket-list-1 e)
-  (assert (or (null? e) (is-cons? e)))
+  (assert (or (null? e) (is-cons? e)) e)
   (if (null? e)
       '()
       (cons (do-square-brackety (cadr e))
@@ -171,7 +199,7 @@
 
 (define (do-square-brackety e)
   (cond
-   ((is-cons? e) (consy-list-to-square-bracket-list e))
+   ((is-consy-list? e) (consy-list-to-square-bracket-list e))
    ((pair? e) (map do-square-brackety e))
    ((atom? e) e)
    (#t (err 'do-square-brackety))))
@@ -216,12 +244,18 @@
 (define (top-evl e rws)
   (reset-counts)
   (let ((ue (unpreprocess e)))
-    (display "+ ")
-    (shew ue)
+    (if (not show-reductions)
+        (begin
+          (display "+ ")
+          (shew ue))
+        '())
     (let ((r (normalize e rws)))
-      (shew (unpreprocess r))
-      (show-counts)
-      (display "\n")
+      (if (not show-reductions)
+          (begin
+            (shew (unpreprocess r))
+            (show-counts)
+            (display "\n"))
+          (display "===========\n"))
       r)))
 
 (define already-including '())
@@ -272,7 +306,9 @@
 ;(tracefun normalize normalize-children)
 ;(tracefun literal? app?)
 ;(tracefun quote-firsts unquote-firsts gather-binders quote-symbols quote-symbols-except-these quote-non-variables unquote-non-variables)
+;(tracefun unquote-firsts)
 ;(tracefun preprocess unpreprocess primitivize unprimitivize)
+;(tracefun do-square-brackety undo-square-brackety consy-list-to-square-bracket-list consy-list-to-square-bracket-list-1)
 ;(tracefun consy-lists-to-quoted-lists consy-list-to-quoted-lists consy-list-to-quoted-lists-1 quoted-lists-to-consy-lists)
 ;(tracefun is-some-primitive? is-this-labeled-doublet? is-this-primitive? primitive?)
 ;(tracefun do-primitive-call)

@@ -1,6 +1,12 @@
 (fun (map f ()) ())
 (fun (map f (cons a d)) (cons (f a) (map f d)))
 
+(fun (grep p ()) [])
+(fun (grep p (cons a d))
+     (if (p a)
+         (cons a (grep p d))
+         (grep p d)))
+
 (fun (append () a) a)
 (fun (append (cons a d) b) (cons a (append d b)))
 
