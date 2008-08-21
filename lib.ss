@@ -730,6 +730,11 @@
        (= 3 (length c))
        (equal? 'cons (car c))))
 
+(define (is-quoted-cons? c)
+  (and (list? c)
+       (= 3 (length c))
+       (equal? ''cons (car c))))
+
 (define (is-consy-list? c)
   (or (and (is-cons? c) (is-consy-list? (caddr c)))
       (eq? c '())))

@@ -7,6 +7,8 @@
 (define counts-rws 0)
 
 (define sb-barf-bletch 'blah-4-qq-4-qq-4)
+(define sb-gak-nil 'zink-4-qq-4-qq-4)
+(define sb-hwarf-dot 'goop-5-t-6-7)
 
 (define (show-counts)
   (if show-counts-p
@@ -316,5 +318,115 @@
 ;(tracefun conditional?)
 ;(tracefun process-includes)
 
-(define (go)
-  (run-file "src.ss"))
+;; (define (go)
+;;   (run-file "src.ss"))
+
+(define (go) 1)
+
+(define (read-all-lines port)
+  (let ((line (read-line port)))
+    (if (eof-object? line)
+        '()
+        (cons line (read-all-lines port)))))
+
+;(define (cs-filtered-reader cf sf)
+;  (lambda (port)
+;    (let ((text (apply ++ (read-all-lines port))))
+
+(define (cs-displayer cf sf port)
+  (lambda (s)
+(shew 'welp s (sf s))
+    (display (cf (call-with-string-output-port
+                  (lambda (port)
+                    (display (sf s) port)))))))
+
+(define (cs-filtered-read-all cf sf port)
+;  (let ((s (get-string-all port)))
+;  (shew 'hey (read-all-lines port))
+  (let ((s (apply ++ (read-all-lines port))))
+;(shew 'ulp s)
+;(shew (cf s))
+;(shew (open-string-input-port (cf s)))
+(let* ((ro (read-objects-port (open-string-input-port (cf s))))
+       (barf (sf ro)))
+  ;(shew 'ro ro 'barf barf)
+  barf)))
+
+(define (cs-reader cf sf port)
+  (let ((stack '()))
+    (lambda ()
+      (if (null? stack)
+          (set! stack (cs-filtered-read-all cf sf port))
+          '())
+      (if (null? stack)
+          eof
+          (let ((top (car stack)))
+            (set! stack (cdr stack))
+            top)))))
+
+;(define (cs-read cf sf port)
+;  (let ((s (apply ++ (read-all-lines port))))
+
+;; ((cs-displayer
+;;  (lambda (s) (regexp-replace "\\(" (regexp-replace "\\)" s "]") "["))
+;;  (lambda (s) (cons 12 s))
+;;  (current-output-port))
+;;  '(1 2 3))
+
+(define (sq-unconsyize s)
+  (assert (is-quoted-cons? s))
+  (cond
+   ((null? (caddr s)) (list (sq-out-cvt (cadr s))))
+   ((is-quoted-cons? (caddr s)) (cons (sq-out-cvt (cadr s)) (sq-unconsyize (caddr s))))
+   (#t (list (sq-out-cvt (cadr s)) sb-hwarf-dot (sq-out-cvt (caddr s))))))
+
+(define (sq-out-cvt s)
+  (cond
+   ;((null? s) sb-gak-nil)
+;   ((and (is-quoted-cons? s) (null? (caddr s))) (
+   ((is-quoted-cons? s) (cons sb-barf-bletch (snoc (sq-unconsyize s) sb-barf-bletch)))
+   ((pair? s) (map-improper sq-out-cvt s))
+   ((atom? s) s)
+   (#t (err 'sq-out-cvt))))
+
+(define (yok s)
+  ((cs-displayer
+    ;(lambda (s) (regexp-replace "\\(" (regexp-replace "\\)" s "]") "["))
+    (lambda (s)
+      (set! s (regexp-replace (++ "\\(" sb-barf-bletch " ") s "["))
+      (set! s (regexp-replace (++ " " sb-barf-bletch "\\)") s "]"))
+      (set! s (regexp-replace (->string sb-hwarf-dot) s "."))
+      (set! s (regexp-replace (->string sb-gak-nil) s "[]"))
+      s)
+    sq-out-cvt
+    (current-output-port))
+   s))
+
+(define (sq-consyize l)
+  (if (pair? l)
+      (list ''cons (sq-in-cvt (car l)) (sq-consyize (cdr l)))
+      (sq-in-cvt l)))
+
+(define (sq-in-cvt s)
+  (cond
+   ((and (pair? s) (eq? sb-barf-bletch (car s)))
+    (begin
+      (assert (eq? sb-barf-bletch (caddr s)))
+      (assert (= 3 (length s)))
+      (sq-consyize (cadr s))))
+   ((pair? s) (map-improper sq-in-cvt s))
+   ((atom? s) s)
+   (#t (err 'sq-in-cvt))))
+
+;(tracefun sq-in-cvt sq-consyize)
+;(tracefun sq-out-cvt sq-unconsyize)
+
+(define v
+  (call-with-input-file "joe"
+    (lambda (port)
+      ((cs-reader
+        (lambda (s) (regexp-replace "\\[" (regexp-replace "\\]" s (++ ") " sb-barf-bletch ")")) (++ "(" sb-barf-bletch " (")))
+        sq-in-cvt
+        port)))))
+(shew 'v v)
+(yok v)
