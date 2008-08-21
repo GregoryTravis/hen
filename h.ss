@@ -325,4 +325,5 @@
 (define (go) 1)
 
 (define vs (sb-read-file "joe"))
+(shew 'vs vs)
 (map sb-display vs)

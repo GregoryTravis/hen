@@ -1,8 +1,12 @@
 (define (make-cs-displayer cf sf port)
   (lambda (s)
-    (display (cf (call-with-string-output-port
-                  (lambda (port)
-                    (display (sf s) port)))))))
+    (let* ((ss (sf s))
+           (rendered (call-with-string-output-port
+                      (lambda (port)
+                        (display ss port))))
+           (cc (cf rendered)))
+      (shew 'orig s 'sf ss 'cf cc)
+      (display cc))))
 
 (define (cs-filtered-read-all cf sf port)
   (let ((s (apply ++ (read-all-lines port))))
