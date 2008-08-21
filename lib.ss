@@ -750,3 +750,9 @@
         (or (eq? a (car lyst))
             (eq? a (cdr lyst))
             (member-improper? a (cdr lyst))))))
+
+(define (read-all-lines port)
+  (let ((line (read-line port)))
+    (if (eof-object? line)
+        '()
+        (cons line (read-all-lines port)))))

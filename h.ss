@@ -323,12 +323,6 @@
 
 (define (go) 1)
 
-(define (read-all-lines port)
-  (let ((line (read-line port)))
-    (if (eof-object? line)
-        '()
-        (cons line (read-all-lines port)))))
-
 (define (make-cs-displayer cf sf port)
   (lambda (s)
     (display (cf (call-with-string-output-port
