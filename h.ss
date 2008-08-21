@@ -333,9 +333,8 @@
 ;  (lambda (port)
 ;    (let ((text (apply ++ (read-all-lines port))))
 
-(define (cs-displayer cf sf port)
+(define (make-cs-displayer cf sf port)
   (lambda (s)
-;(shew 'welp s (sf s))
     (display (cf (call-with-string-output-port
                   (lambda (port)
                     (display (sf s) port)))))))
@@ -349,7 +348,7 @@
 
 ;(tracefun cs-filtered-read-all)
 
-(define (cs-reader cf sf port)
+(define (make-cs-reader cf sf port)
   (let ((stack '()))
     (lambda ()
       (if (null? stack)
@@ -364,7 +363,7 @@
 ;(define (cs-read cf sf port)
 ;  (let ((s (apply ++ (read-all-lines port))))
 
-;; ((cs-displayer
+;; ((make-cs-displayer
 ;;  (lambda (s) (regexp-replace "\\(" (regexp-replace "\\)" s "]") "["))
 ;;  (lambda (s) (cons 12 s))
 ;;  (current-output-port))
@@ -386,18 +385,22 @@
    ((atom? s) s)
    (#t (err 'sq-out-cvt))))
 
-(define (yok s)
-  ((cs-displayer
-    ;(lambda (s) (regexp-replace "\\(" (regexp-replace "\\)" s "]") "["))
-    (lambda (s)
-      (set! s (regexp-replace* (++ "\\(" sb-barf-bletch " ") s "["))
-      (set! s (regexp-replace* (++ " " sb-barf-bletch "\\)") s "]"))
-      (set! s (regexp-replace* (->string sb-hwarf-dot) s "."))
-      (set! s (regexp-replace* (->string sb-gak-nil) s "[]"))
-      s)
-    sq-out-cvt
-    (current-output-port))
-   s))
+(define (make-sb-writer port)
+  (make-cs-displayer
+   (lambda (s)
+     (set! s (regexp-replace* (++ "\\(" sb-barf-bletch " ") s "["))
+     (set! s (regexp-replace* (++ " " sb-barf-bletch "\\)") s "]"))
+     (set! s (regexp-replace* (->string sb-hwarf-dot) s "."))
+     (set! s (regexp-replace* (->string sb-gak-nil) s "[]"))
+     s)
+   sq-out-cvt
+   port))
+
+(define (sb-write s)
+  ((make-sb-writer (current-output-port)) s))
+
+;; (define (yok s)
+;;   (make-cs-writer (current-output-port)))
 
 (define (sq-consyize l)
   (if (pair? l)
@@ -419,7 +422,7 @@
 ;(tracefun sq-out-cvt sq-unconsyize)
 
 (define (make-sb-reader port)
-  (cs-reader
+  (make-cs-reader
    (lambda (s) (regexp-replace* "\\[" (regexp-replace* "\\]" s (++ ") " sb-barf-bletch ")")) (++ "(" sb-barf-bletch " (")))
    sq-in-cvt
    port))
@@ -437,16 +440,6 @@
   (call-with-input-file filename
     (lambda (port) (sb-read-objects (make-sb-reader port)))))
 
-;; (define v
-;;   (call-with-input-file "joe"
-;;     (lambda (port)
-;;       ((cs-reader
-;;         (lambda (s) (regexp-replace "\\[" (regexp-replace "\\]" s (++ ") " sb-barf-bletch ")")) (++ "(" sb-barf-bletch " (")))
-;;         sq-in-cvt
-;;         port)))))
-;; (shew 'v v)
-;; (yok v)
-
 (define vs (sb-read-file "joe"))
-(shew vs)
-(map yok vs)
+;(shew vs)
+(map sb-write vs)
