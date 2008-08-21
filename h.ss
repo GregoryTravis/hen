@@ -368,7 +368,7 @@
    ((atom? s) s)
    (#t (err 'sq-out-cvt))))
 
-(define (make-sb-displayr port)
+(define (make-sb-displayer port)
   (make-cs-displayer
    (lambda (s)
      (set! s (regexp-replace* (++ "\\(" sb-barf-bletch " ") s "["))
@@ -380,7 +380,7 @@
    port))
 
 (define (sb-display s)
-  ((make-sb-displayr (current-output-port)) s))
+  ((make-sb-displayer (current-output-port)) s))
 
 (define (sq-consyize l)
   (if (pair? l)
