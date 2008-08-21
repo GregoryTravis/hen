@@ -368,7 +368,7 @@
    ((atom? s) s)
    (#t (err 'sq-out-cvt))))
 
-(define (make-sb-writer port)
+(define (make-sb-displayr port)
   (make-cs-displayer
    (lambda (s)
      (set! s (regexp-replace* (++ "\\(" sb-barf-bletch " ") s "["))
@@ -379,8 +379,8 @@
    sq-out-cvt
    port))
 
-(define (sb-write s)
-  ((make-sb-writer (current-output-port)) s))
+(define (sb-display s)
+  ((make-sb-displayr (current-output-port)) s))
 
 (define (sq-consyize l)
   (if (pair? l)
@@ -397,9 +397,6 @@
    ((pair? s) (map-improper sq-in-cvt s))
    ((atom? s) s)
    (#t (err 'sq-in-cvt))))
-
-;(tracefun sq-in-cvt sq-consyize)
-;(tracefun sq-out-cvt sq-unconsyize)
 
 (define (make-sb-reader port)
   (make-cs-reader
@@ -421,5 +418,4 @@
     (lambda (port) (sb-read-objects (make-sb-reader port)))))
 
 (define vs (sb-read-file "joe"))
-;(shew vs)
-(map sb-write vs)
+(map sb-display vs)
