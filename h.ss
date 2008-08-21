@@ -7,10 +7,6 @@
 (define show-counts-p #f)
 (define counts-rws 0)
 
-(define sb-barf-bletch 'blah-4-qq-4-qq-4)
-(define sb-gak-nil 'zink-4-qq-4-qq-4)
-(define sb-hwarf-dot 'goop-5-t-6-7)
-
 (define (show-counts)
   (if show-counts-p
       (begin

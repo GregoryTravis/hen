@@ -1,5 +1,9 @@
 (define sb-debug #t)
 
+(define sb-barf-bletch 'blah-4-qq-4-qq-4)
+(define sb-gak-nil 'zink-4-qq-4-qq-4)
+(define sb-hwarf-dot 'goop-5-t-6-7)
+
 (define (make-cs-displayer cf sf port)
   (lambda (s)
     (let* ((ss (sf s))
