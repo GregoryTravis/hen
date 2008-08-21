@@ -1,4 +1,4 @@
-(define sb-debug #f)
+(define sb-debug #t)
 
 (define (make-cs-displayer cf sf port)
   (lambda (s)
@@ -39,6 +39,7 @@
 
 (define (sq-out-cvt s)
   (cond
+   ((null? s) (list 'blah-4-qq-4-qq-4 'blah-4-qq-4-qq-4))
    ((is-quoted-cons? s) (cons sb-barf-bletch (snoc (sq-unconsyize s) sb-barf-bletch)))
    ((pair? s) (map-improper sq-out-cvt s))
    ((atom? s) s)
@@ -47,6 +48,7 @@
 (define (make-sb-displayer port)
   (make-cs-displayer
    (lambda (s)
+     (set! s (regexp-replace* (++ "\\(" sb-barf-bletch " " sb-barf-bletch "\\)") s "[]"))
      (set! s (regexp-replace* (++ "\\(" sb-barf-bletch " ") s "["))
      (set! s (regexp-replace* (++ " " sb-barf-bletch "\\)") s "]"))
      (set! s (regexp-replace* (->string sb-hwarf-dot) s "."))
