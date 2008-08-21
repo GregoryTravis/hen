@@ -329,10 +329,6 @@
         '()
         (cons line (read-all-lines port)))))
 
-;(define (cs-filtered-reader cf sf)
-;  (lambda (port)
-;    (let ((text (apply ++ (read-all-lines port))))
-
 (define (make-cs-displayer cf sf port)
   (lambda (s)
     (display (cf (call-with-string-output-port
@@ -346,8 +342,6 @@
                                         ;(shew 'ro ro 'barf barf)
       barf)))
 
-;(tracefun cs-filtered-read-all)
-
 (define (make-cs-reader cf sf port)
   (let ((stack '()))
     (lambda ()
@@ -360,15 +354,6 @@
             (set! stack (cdr stack))
             top)))))
 
-;(define (cs-read cf sf port)
-;  (let ((s (apply ++ (read-all-lines port))))
-
-;; ((make-cs-displayer
-;;  (lambda (s) (regexp-replace "\\(" (regexp-replace "\\)" s "]") "["))
-;;  (lambda (s) (cons 12 s))
-;;  (current-output-port))
-;;  '(1 2 3))
-
 (define (sq-unconsyize s)
   (assert (is-quoted-cons? s))
   (cond
@@ -378,8 +363,6 @@
 
 (define (sq-out-cvt s)
   (cond
-   ;((null? s) sb-gak-nil)
-;   ((and (is-quoted-cons? s) (null? (caddr s))) (
    ((is-quoted-cons? s) (cons sb-barf-bletch (snoc (sq-unconsyize s) sb-barf-bletch)))
    ((pair? s) (map-improper sq-out-cvt s))
    ((atom? s) s)
@@ -398,9 +381,6 @@
 
 (define (sb-write s)
   ((make-sb-writer (current-output-port)) s))
-
-;; (define (yok s)
-;;   (make-cs-writer (current-output-port)))
 
 (define (sq-consyize l)
   (if (pair? l)
