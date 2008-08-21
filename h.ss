@@ -335,22 +335,19 @@
 
 (define (cs-displayer cf sf port)
   (lambda (s)
-(shew 'welp s (sf s))
+;(shew 'welp s (sf s))
     (display (cf (call-with-string-output-port
                   (lambda (port)
                     (display (sf s) port)))))))
 
 (define (cs-filtered-read-all cf sf port)
-;  (let ((s (get-string-all port)))
-;  (shew 'hey (read-all-lines port))
   (let ((s (apply ++ (read-all-lines port))))
-;(shew 'ulp s)
-;(shew (cf s))
-;(shew (open-string-input-port (cf s)))
-(let* ((ro (read-objects-port (open-string-input-port (cf s))))
-       (barf (sf ro)))
-  ;(shew 'ro ro 'barf barf)
-  barf)))
+    (let* ((ro (read-objects-port (open-string-input-port (cf s))))
+           (barf (sf ro)))
+                                        ;(shew 'ro ro 'barf barf)
+      barf)))
+
+;(tracefun cs-filtered-read-all)
 
 (define (cs-reader cf sf port)
   (let ((stack '()))
@@ -393,10 +390,10 @@
   ((cs-displayer
     ;(lambda (s) (regexp-replace "\\(" (regexp-replace "\\)" s "]") "["))
     (lambda (s)
-      (set! s (regexp-replace (++ "\\(" sb-barf-bletch " ") s "["))
-      (set! s (regexp-replace (++ " " sb-barf-bletch "\\)") s "]"))
-      (set! s (regexp-replace (->string sb-hwarf-dot) s "."))
-      (set! s (regexp-replace (->string sb-gak-nil) s "[]"))
+      (set! s (regexp-replace* (++ "\\(" sb-barf-bletch " ") s "["))
+      (set! s (regexp-replace* (++ " " sb-barf-bletch "\\)") s "]"))
+      (set! s (regexp-replace* (->string sb-hwarf-dot) s "."))
+      (set! s (regexp-replace* (->string sb-gak-nil) s "[]"))
       s)
     sq-out-cvt
     (current-output-port))
@@ -421,12 +418,35 @@
 ;(tracefun sq-in-cvt sq-consyize)
 ;(tracefun sq-out-cvt sq-unconsyize)
 
-(define v
-  (call-with-input-file "joe"
-    (lambda (port)
-      ((cs-reader
-        (lambda (s) (regexp-replace "\\[" (regexp-replace "\\]" s (++ ") " sb-barf-bletch ")")) (++ "(" sb-barf-bletch " (")))
-        sq-in-cvt
-        port)))))
-(shew 'v v)
-(yok v)
+(define (make-sb-reader port)
+  (cs-reader
+   (lambda (s) (regexp-replace* "\\[" (regexp-replace* "\\]" s (++ ") " sb-barf-bletch ")")) (++ "(" sb-barf-bletch " (")))
+   sq-in-cvt
+   port))
+
+(define (sb-read sb-reader)
+  (sb-reader))
+
+(define (sb-read-objects sb-reader)
+  (let ((v (sb-read sb-reader)))
+    (if (eof-object? v)
+        '()
+        (cons v (sb-read-objects sb-reader)))))
+
+(define (sb-read-file filename)
+  (call-with-input-file filename
+    (lambda (port) (sb-read-objects (make-sb-reader port)))))
+
+;; (define v
+;;   (call-with-input-file "joe"
+;;     (lambda (port)
+;;       ((cs-reader
+;;         (lambda (s) (regexp-replace "\\[" (regexp-replace "\\]" s (++ ") " sb-barf-bletch ")")) (++ "(" sb-barf-bletch " (")))
+;;         sq-in-cvt
+;;         port)))))
+;; (shew 'v v)
+;; (yok v)
+
+(define vs (sb-read-file "joe"))
+(shew vs)
+(map yok vs)
