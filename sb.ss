@@ -1,3 +1,5 @@
+(define sb-debug #f)
+
 (define (make-cs-displayer cf sf port)
   (lambda (s)
     (let* ((ss (sf s))
@@ -5,15 +7,16 @@
                       (lambda (port)
                         (display ss port))))
            (cc (cf rendered)))
-      (shew 'orig s 'sf ss 'cf cc)
+      (if sb-debug (shew 'write 'orig s 'sf ss 'cf cc) '())
       (display cc))))
 
 (define (cs-filtered-read-all cf sf port)
-  (let ((s (apply ++ (read-all-lines port))))
-    (let* ((ro (read-objects-port (open-string-input-port (cf s))))
-           (barf (sf ro)))
-                                        ;(shew 'ro ro 'barf barf)
-      barf)))
+  (let* ((c (apply ++ (read-all-lines port)))
+         (cc (cf c))
+         (scanneds (read-objects-port (open-string-input-port cc)))
+         (sses (sf scanneds)))
+    (if sb-debug (shew 'read 'orig c 'cf cc 'sf sses) '())
+    sses))
 
 (define (make-cs-reader cf sf port)
   (let ((stack '()))
