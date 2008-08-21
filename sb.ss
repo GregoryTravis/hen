@@ -1,4 +1,4 @@
-(define sb-debug #t)
+(define sb-debug #f)
 
 (define sb-barf-bletch 'blah-4-qq-4-qq-4)
 (define sb-gak-nil 'zink-4-qq-4-qq-4)
