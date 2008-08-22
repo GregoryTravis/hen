@@ -62,9 +62,6 @@
             (try-rws e (cdr rws))
             (begin
               (if show-reductions
-;;                   (let ((ue (unpreprocess e))
-;;                         (ur (unpreprocess result))
-;;                         (uru (unpreprocess rule)))
                   (begin
                     (display "<== ")
                     (sb e)
@@ -169,40 +166,8 @@
    ((pair? e) (map-improper quote-firsts e))
    (#t (err 'quote-firsts e))))
 
-;; (define (undo-square-brackety e)
-;;   (cond
-;;    ((and (pair? e) (eq? sb-barf-bletch (car e)))
-;;     (begin
-;;       (assert (eq? sb-barf-bletch (last e)))
-;;       (map undo-square-brackety
-;;            (list->consy (rdc (cdr e))))))
-;;    ((pair? e) (cons (undo-square-brackety (car e))
-;;                     (undo-square-brackety (cdr e))))
-;;    ((atom? e) e)
-;;    (#t (err 'undo-square-brackety e))))
-
-;; (define (consy-list-to-square-bracket-list e)
-;;   `(,sb-barf-bletch ,@(consy-list-to-square-bracket-list-1 e) ,sb-barf-bletch))
-
-;; (define (consy-list-to-square-bracket-list-1 e)
-;;   (assert (or (null? e) (is-cons? e)) e)
-;;   (if (null? e)
-;;       '()
-;;       (cons (do-square-brackety (cadr e))
-;;             (consy-list-to-square-bracket-list-1 (caddr e)))))
-
-;; (define (list->consy l)
-;;   (foldr (lambda (a d) `(cons ,a ,d)) '() l))
-
 (define (list->quoted-consy l)
   (foldr (lambda (a d) `('cons ,a ,d)) '() l))
-
-;; (define (do-square-brackety e)
-;;   (cond
-;;    ((is-consy-list? e) (consy-list-to-square-bracket-list e))
-;;    ((pair? e) (map do-square-brackety e))
-;;    ((atom? e) e)
-;;    (#t (err 'do-square-brackety))))
 
 (define (primitivize e)
   (atom-traverse
@@ -243,7 +208,6 @@
 
 (define (top-evl e rws)
   (reset-counts)
-;  (let ((ue (unpreprocess e)))
   (begin
     (if (not show-reductions)
         (begin
