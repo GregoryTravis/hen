@@ -35,17 +35,18 @@
             top)))))
 
 (define (sq-unconsyize s)
-  (assert (is-quoted-cons? s))
+  (assert (is-cons? s))
   (cond
    ((null? (caddr s)) (list (sq-out-cvt (cadr s))))
-   ((is-quoted-cons? (caddr s)) (cons (sq-out-cvt (cadr s)) (sq-unconsyize (caddr s))))
+   ((is-cons? (caddr s)) (cons (sq-out-cvt (cadr s)) (sq-unconsyize (caddr s))))
    (#t (list (sq-out-cvt (cadr s)) sb-hwarf-dot (sq-out-cvt (caddr s))))))
 
 (define (sq-out-cvt s)
   (cond
+   ((is-quote? s) (list 'quote (sq-out-cvt (cadr s))))
    ((null? s) (list 'blah-4-qq-4-qq-4 'blah-4-qq-4-qq-4))
-   ((is-quoted-cons? s) (cons sb-barf-bletch (snoc (sq-unconsyize s) sb-barf-bletch)))
-   ((pair? s) (map-improper sq-out-cvt s))
+   ((is-cons? s) (cons sb-barf-bletch (snoc (sq-unconsyize s) sb-barf-bletch)))
+   ((pair? s) (map sq-out-cvt s))
    ((atom? s) s)
    (#t (err 'sq-out-cvt))))
 
@@ -58,11 +59,25 @@
      (set! s (regexp-replace* (->string sb-hwarf-dot) s "."))
      (set! s (regexp-replace* (->string sb-gak-nil) s "[]"))
      s)
-   sq-out-cvt
+   (lambda (s) (sq-out-cvt (unpreprocess s)))
    port))
 
-(define (sb-display s)
-  ((make-sb-displayer (current-output-port)) s))
+(define (sb-display-to-port s port)
+  ((make-sb-displayer port) s))
+
+(define (sb-display s) (sb-display-to-port s (current-output-port)))
+
+(define (lsb . args)
+  (display (apply lssb args)))
+
+(define (lssb . args)
+  (string-collapse-spaces
+   (string-one-line
+    (call-with-output-string
+     (lambda (port)
+       (map (lambda (j) (sb-display-to-port j port)) args))))))
+
+(define (sb s) (sb-display s) (display "\n"))
 
 (define (sq-consyize l)
   (if (pair? l)

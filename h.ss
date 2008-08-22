@@ -62,17 +62,18 @@
             (try-rws e (cdr rws))
             (begin
               (if show-reductions
-                  (let ((ue (unpreprocess e))
-                        (ur (unpreprocess result))
-                        (uru (unpreprocess rule)))
+;;                   (let ((ue (unpreprocess e))
+;;                         (ur (unpreprocess result))
+;;                         (uru (unpreprocess rule)))
+                  (begin
                     (display "<== ")
-                    (lshew ue)
+                    (sb e)
                     (display "\n")
                     (display "==> ")
-                    (lshew ur)
+                    (sb r)
                     (display "\n")
                     (display ".......... ")
-                    (lshew uru)
+                    (sb rule)
                     (display "\n"))
                   '())
               (tick-rw)
@@ -168,40 +169,40 @@
    ((pair? e) (map-improper quote-firsts e))
    (#t (err 'quote-firsts e))))
 
-(define (undo-square-brackety e)
-  (cond
-   ((and (pair? e) (eq? sb-barf-bletch (car e)))
-    (begin
-      (assert (eq? sb-barf-bletch (last e)))
-      (map undo-square-brackety
-           (list->consy (rdc (cdr e))))))
-   ((pair? e) (cons (undo-square-brackety (car e))
-                    (undo-square-brackety (cdr e))))
-   ((atom? e) e)
-   (#t (err 'undo-square-brackety e))))
+;; (define (undo-square-brackety e)
+;;   (cond
+;;    ((and (pair? e) (eq? sb-barf-bletch (car e)))
+;;     (begin
+;;       (assert (eq? sb-barf-bletch (last e)))
+;;       (map undo-square-brackety
+;;            (list->consy (rdc (cdr e))))))
+;;    ((pair? e) (cons (undo-square-brackety (car e))
+;;                     (undo-square-brackety (cdr e))))
+;;    ((atom? e) e)
+;;    (#t (err 'undo-square-brackety e))))
 
-(define (consy-list-to-square-bracket-list e)
-  `(,sb-barf-bletch ,@(consy-list-to-square-bracket-list-1 e) ,sb-barf-bletch))
+;; (define (consy-list-to-square-bracket-list e)
+;;   `(,sb-barf-bletch ,@(consy-list-to-square-bracket-list-1 e) ,sb-barf-bletch))
 
-(define (consy-list-to-square-bracket-list-1 e)
-  (assert (or (null? e) (is-cons? e)) e)
-  (if (null? e)
-      '()
-      (cons (do-square-brackety (cadr e))
-            (consy-list-to-square-bracket-list-1 (caddr e)))))
+;; (define (consy-list-to-square-bracket-list-1 e)
+;;   (assert (or (null? e) (is-cons? e)) e)
+;;   (if (null? e)
+;;       '()
+;;       (cons (do-square-brackety (cadr e))
+;;             (consy-list-to-square-bracket-list-1 (caddr e)))))
 
-(define (list->consy l)
-  (foldr (lambda (a d) `(cons ,a ,d)) '() l))
+;; (define (list->consy l)
+;;   (foldr (lambda (a d) `(cons ,a ,d)) '() l))
 
-(define (list->quoted-consy l)
-  (foldr (lambda (a d) `('cons ,a ,d)) '() l))
+;; (define (list->quoted-consy l)
+;;   (foldr (lambda (a d) `('cons ,a ,d)) '() l))
 
-(define (do-square-brackety e)
-  (cond
-   ((is-consy-list? e) (consy-list-to-square-bracket-list e))
-   ((pair? e) (map do-square-brackety e))
-   ((atom? e) e)
-   (#t (err 'do-square-brackety))))
+;; (define (do-square-brackety e)
+;;   (cond
+;;    ((is-consy-list? e) (consy-list-to-square-bracket-list e))
+;;    ((pair? e) (map do-square-brackety e))
+;;    ((atom? e) e)
+;;    (#t (err 'do-square-brackety))))
 
 (define (primitivize e)
   (atom-traverse
@@ -228,7 +229,7 @@
 (define (unpreprocess src)
   (set! src (unquote-non-variables src))
   (set! src (unprimitivize src))
-  (set! src (do-square-brackety src))
+  ;(set! src (do-square-brackety src))
   src)
 
 (define (gather-rws src) (grep fun? src))
@@ -242,16 +243,17 @@
 
 (define (top-evl e rws)
   (reset-counts)
-  (let ((ue (unpreprocess e)))
+;  (let ((ue (unpreprocess e)))
+  (begin
     (if (not show-reductions)
         (begin
           (display "+ ")
-          (shew ue))
+          (sb e))
         '())
     (let ((r (normalize e rws)))
       (if (not show-reductions)
           (begin
-            (shew (unpreprocess r))
+            (sb r)
             (show-counts)
             (display "\n"))
           (display "===========\n"))
@@ -281,24 +283,7 @@
 
 (define (run-file filename)
   (run-src (process-includes (cons '(include "overture.ss")
-                                   (pea-read-src filename)))))
-
-(define (read-file-string filename)
-  (call-with-input-file filename (lambda (p) (get-string-all p))))
-
-(define (pea-parsing-port port)
-  (open-string-input-port (preprocess-square-brackety (get-string-all (transcoded-port port (native-transcoder))))))
-
-(define (pea-read-src-port port)
-  (undo-square-brackety (read-objects-port (pea-parsing-port port))))
-
-(define (pea-read-src filename)
-  (call-with-input-file filename pea-read-src-port))
-
-(define (preprocess-square-brackety s)
-  (set! s (pregexp-replace* "\\[" s "(blah-4-qq-4-qq-4 "))
-  (set! s (pregexp-replace* "\\]" s " blah-4-qq-4-qq-4)"))
-  s)
+                                   (sb-read-file filename)))))
 
 ;(tracefun try-rws)
 ;(tracefun subst rw top-rw)
@@ -315,11 +300,5 @@
 ;(tracefun conditional?)
 ;(tracefun process-includes)
 
-;; (define (go)
-;;   (run-file "src.ss"))
-
-(define (go) 1)
-
-(define vs (sb-read-file "joe"))
-;(shew 'vs vs)
-(map sb-display vs)
+(define (go)
+  (run-file "src.ss"))
