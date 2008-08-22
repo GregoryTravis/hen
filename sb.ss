@@ -9,7 +9,7 @@
     (let* ((ss (sf s))
            (rendered (call-with-string-output-port
                       (lambda (port)
-                        (display ss port))))
+                        (pretty-print ss port))))
            (cc (cf rendered)))
       (if sb-debug (shew 'write 'orig s 'sf ss 'cf cc) '())
       (display cc))))
@@ -77,7 +77,7 @@
      (lambda (port)
        (map (lambda (j) (sb-display-to-port j port)) args))))))
 
-(define (sb s) (sb-display s) (display "\n"))
+(define (sb s) (sb-display s))
 
 (define (sq-consyize l)
   (if (pair? l)
