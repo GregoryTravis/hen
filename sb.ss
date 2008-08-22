@@ -34,21 +34,21 @@
             (set! stack (cdr stack))
             top)))))
 
-(define (sq-unconsyize s)
+(define (sb-unconsyize s)
   (assert (is-cons? s))
   (cond
-   ((null? (caddr s)) (list (sq-out-cvt (cadr s))))
-   ((is-cons? (caddr s)) (cons (sq-out-cvt (cadr s)) (sq-unconsyize (caddr s))))
-   (#t (list (sq-out-cvt (cadr s)) sb-hwarf-dot (sq-out-cvt (caddr s))))))
+   ((null? (caddr s)) (list (sb-out-cvt (cadr s))))
+   ((is-cons? (caddr s)) (cons (sb-out-cvt (cadr s)) (sb-unconsyize (caddr s))))
+   (#t (list (sb-out-cvt (cadr s)) sb-hwarf-dot (sb-out-cvt (caddr s))))))
 
-(define (sq-out-cvt s)
+(define (sb-out-cvt s)
   (cond
-   ((is-quote? s) (list 'quote (sq-out-cvt (cadr s))))
+   ((is-quote? s) (list 'quote (sb-out-cvt (cadr s))))
    ((null? s) (list 'blah-4-qq-4-qq-4 'blah-4-qq-4-qq-4))
-   ((is-cons? s) (cons sb-barf-bletch (snoc (sq-unconsyize s) sb-barf-bletch)))
-   ((pair? s) (map sq-out-cvt s))
+   ((is-cons? s) (cons sb-barf-bletch (snoc (sb-unconsyize s) sb-barf-bletch)))
+   ((pair? s) (map sb-out-cvt s))
    ((atom? s) s)
-   (#t (err 'sq-out-cvt))))
+   (#t (err 'sb-out-cvt))))
 
 (define (make-sb-displayer port)
   (make-cs-displayer
@@ -60,7 +60,7 @@
      (set! s (regexp-replace* (->string sb-hwarf-dot) s "."))
      (set! s (regexp-replace* (->string sb-gak-nil) s "[]"))
      s)
-   (lambda (s) (sq-out-cvt (unpreprocess s)))
+   (lambda (s) (sb-out-cvt (unpreprocess s)))
    port))
 
 (define (sb-display-to-port s port)
@@ -80,27 +80,27 @@
 
 (define (sb s) (sb-display s))
 
-(define (sq-consyize l)
+(define (sb-consyize l)
   (cond
    ((null? l) '())
-   ((pair? l) (list ''cons (sq-in-cvt (car l)) (sq-consyize (cdr l))))
+   ((pair? l) (list ''cons (sb-in-cvt (car l)) (sb-consyize (cdr l))))
    (#t (err))))
 
-(define (sq-in-cvt s)
+(define (sb-in-cvt s)
   (cond
    ((and (pair? s) (eq? sb-barf-bletch (car s)))
     (begin
       (assert (eq? sb-barf-bletch (caddr s)))
       (assert (= 3 (length s)))
-      (map sq-in-cvt (sq-consyize (cadr s)))))
-   ((pair? s) (map-improper sq-in-cvt s))
+      (map sb-in-cvt (sb-consyize (cadr s)))))
+   ((pair? s) (map-improper sb-in-cvt s))
    ((atom? s) s)
-   (#t (err 'sq-in-cvt))))
+   (#t (err 'sb-in-cvt))))
 
 (define (make-sb-reader port)
   (make-cs-reader
    (lambda (s) (regexp-replace* "\\[" (regexp-replace* "\\]" s (++ ") " sb-barf-bletch ")")) (++ "(" sb-barf-bletch " (")))
-   sq-in-cvt
+   sb-in-cvt
    port))
 
 (define (sb-read sb-reader)

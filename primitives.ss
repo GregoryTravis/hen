@@ -53,7 +53,7 @@
     (true-false-ify (and (number? a) (number? b) (> a b)))))
 
 (define (pea-primitive-read-file filename)
-  (sq-consyize (sb-read-file (unprim filename))))
+  (sb-consyize (sb-read-file (unprim filename))))
 
 (define (pea-primitive-shew e)
   (sb (unpreprocess e))
