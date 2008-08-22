@@ -80,9 +80,10 @@
 (define (sb s) (sb-display s))
 
 (define (sq-consyize l)
-  (if (pair? l)
-      (list ''cons (sq-in-cvt (car l)) (sq-consyize (cdr l)))
-      (sq-in-cvt l)))
+  (cond
+   ((null? l) '())
+   ((pair? l) (list ''cons (sq-in-cvt (car l)) (sq-consyize (cdr l))))
+   (#t (err))))
 
 (define (sq-in-cvt s)
   (cond
@@ -90,7 +91,7 @@
     (begin
       (assert (eq? sb-barf-bletch (caddr s)))
       (assert (= 3 (length s)))
-      (sq-consyize (cadr s))))
+      (map sq-in-cvt (sq-consyize (cadr s)))))
    ((pair? s) (map-improper sq-in-cvt s))
    ((atom? s) s)
    (#t (err 'sq-in-cvt))))

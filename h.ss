@@ -194,8 +194,8 @@
 ;; (define (list->consy l)
 ;;   (foldr (lambda (a d) `(cons ,a ,d)) '() l))
 
-;; (define (list->quoted-consy l)
-;;   (foldr (lambda (a d) `('cons ,a ,d)) '() l))
+(define (list->quoted-consy l)
+  (foldr (lambda (a d) `('cons ,a ,d)) '() l))
 
 ;; (define (do-square-brackety e)
 ;;   (cond
