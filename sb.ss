@@ -55,6 +55,7 @@
    (lambda (s)
      (set! s (regexp-replace* (++ "\\(" sb-barf-bletch " " sb-barf-bletch "\\)") s "[]"))
      (set! s (regexp-replace* (++ "\\(" sb-barf-bletch " ") s "["))
+     (set! s (regexp-replace* (++ "\\(" sb-barf-bletch) s "["))
      (set! s (regexp-replace* (++ " " sb-barf-bletch "\\)") s "]"))
      (set! s (regexp-replace* (->string sb-hwarf-dot) s "."))
      (set! s (regexp-replace* (->string sb-gak-nil) s "[]"))
