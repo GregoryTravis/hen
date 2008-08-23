@@ -755,4 +755,4 @@
   (let ((line (read-line port)))
     (if (eof-object? line)
         '()
-        (cons line (read-all-lines port)))))
+        (cons (++ line "\n") (read-all-lines port)))))
