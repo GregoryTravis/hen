@@ -41,19 +41,19 @@
 (fun (/ (integer a) (integer b))
      (integer (primitive-call (integer-/ a b))))
 
-(fun (= (integer a) (integer b))
-     (primitive-call (= a b)))
+(fun (== (integer a) (integer b))
+     (primitive-call (== a b)))
 
 (fun (> (integer a) (integer b))
      (primitive-call (> a b)))
 
 (fun (< a b)
-     (not (or (> a b) (= a b))))
+     (not (or (> a b) (== a b))))
 
 (fun (>= a b) (not (< a b)))
 (fun (<= a b) (not (> a b)))
 
-(fun (!= a b) (not (= a b)))
+(fun (!= a b) (not (== a b)))
 
 (fun (read-file (string filename))
      (primitive-call (read-file filename)))

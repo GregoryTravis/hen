@@ -38,7 +38,7 @@
    ((eq? #t x) ''true)
    (#t (err 'true-false-ify x))))
 
-(define (pea-primitive-= a b)
+(define (pea-primitive-== a b)
   (let ((a (unprim a))
         (b (unprim b)))
     (cond
