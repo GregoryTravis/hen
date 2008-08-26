@@ -61,20 +61,21 @@
         (if (eq? 'fail result)
             (try-rws e (cdr rws))
             (begin
-              (if show-reductions
-                  (begin
-                    (display "<== ")
-                    (sb e)
-                    (display "\n")
-                    (display "==> ")
-                    (sb r)
-                    (display "\n")
-                    (display ".......... ")
-                    (sb rule)
-                    (display "\n"))
-                  '())
               (tick-rw)
               result)))))
+
+(define (try-rws-dumper e rws result)
+  (if (not (eq? 'fail result))
+      (let* ((rule (car rws)))
+        (display "  * ")
+        (sb rule)
+        (display "<== ")
+        (sb e)
+        (display "==> ")
+        (sb result))
+      '()))
+
+(if show-reductions (hook-with (args-and-result-hook try-rws-dumper) try-rws) '())
 
 (define (normalize-children e rws)
   (map (lambda (e) (normalize e rws)) e))
@@ -249,3 +250,5 @@
 
 (define (go)
   (run-file "src.ss"))
+
+;(tracefun top-evl)
