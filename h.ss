@@ -186,7 +186,6 @@
    (#t e)))
 
 (define (preprocess src)
-  ;(set! src (undo-square-brackety src))
   (set! src (primitivize src))
   (set! src (map quote-non-variables src))
   src)
@@ -194,7 +193,6 @@
 (define (unpreprocess src)
   (set! src (unquote-non-variables src))
   (set! src (unprimitivize src))
-  ;(set! src (do-square-brackety src))
   src)
 
 (define (gather-rws src) (grep fun? src))
@@ -248,21 +246,6 @@
 (define (run-file filename)
   (run-src (process-includes (cons '(include "overture.ss")
                                    (sb-read-file filename)))))
-
-;(tracefun try-rws)
-;(tracefun subst rw top-rw)
-;(tracefun normalize normalize-children)
-;(tracefun literal? app?)
-;(tracefun quote-firsts unquote-firsts gather-binders quote-symbols quote-symbols-except-these quote-non-variables unquote-non-variables)
-;(tracefun unquote-firsts)
-;(tracefun preprocess unpreprocess primitivize unprimitivize)
-;(tracefun do-square-brackety undo-square-brackety consy-list-to-square-bracket-list consy-list-to-square-bracket-list-1)
-;(tracefun consy-lists-to-quoted-lists consy-list-to-quoted-lists consy-list-to-quoted-lists-1 quoted-lists-to-consy-lists)
-;(tracefun is-some-primitive? is-this-labeled-doublet? is-this-primitive? primitive?)
-;(tracefun do-primitive-call)
-;(tracefun extract-primitive-maybe)
-;(tracefun conditional?)
-;(tracefun process-includes)
 
 (define (go)
   (run-file "src.ss"))
