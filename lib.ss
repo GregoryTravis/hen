@@ -33,11 +33,21 @@
       (flush-output)
       result)))
 
-(define-macro (tracefun . funs)
+(define-macro (hook-with hookist . funs)
   (cons 'begin
         (map (lambda (f)
-               `(set! ,f (tracefun-hookist ',f ,f)))
+               `(set! ,f (,hookist ',f ,f)))
              funs)))
+
+(define-macro (tracefun . funs)
+  `(hook-with tracefun-hookist ,@funs))
+
+(define (args-and-result-hook cb)
+  (lambda (name f)
+    (lambda args
+      (let ((result (apply f args)))
+        (apply cb (append args (list result)))
+        result))))
 
 (define concat string-append)
 
