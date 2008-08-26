@@ -11,6 +11,34 @@
 ;(require (lib "../errortrace/errortrace.ss"))
 ;(require-for-syntax (lib "list.ss"))
 
+(define impl-tracefun-indentation 0)
+
+(define (tracefun-hookist name f)
+  (lambda args
+    (display "        ")
+    (display (make-string-string impl-tracefun-indentation "| "))
+    (display "+ ")
+    (lshew (cons name args))
+    (display "\n")
+    (flush-output)
+    (set! impl-tracefun-indentation (+ impl-tracefun-indentation 1))
+    (let ((result (apply f args)))
+      (flush-output)
+      (set! impl-tracefun-indentation (- impl-tracefun-indentation 1))
+      (display "        ")
+      (display (make-string-string impl-tracefun-indentation "| "))
+      (display "-> ")
+      (lshew result)
+      (display "\n")
+      (flush-output)
+      result)))
+
+(define-macro (tracefun . funs)
+  (cons 'begin
+        (map (lambda (f)
+               `(set! ,f (tracefun-hookist ',f ,f)))
+             funs)))
+
 (define concat string-append)
 
 (define (applyer f)
@@ -268,34 +296,6 @@
           (cons a rest)))
     '()
     (string->list s))))
-
-(define impl-tracefun-indentation 0)
-
-(define (tracefun-hookist name f)
-  (lambda args
-    (display "        ")
-    (display (make-string-string impl-tracefun-indentation "| "))
-    (display "+ ")
-    (lshew (cons name args))
-    (display "\n")
-    (flush-output)
-    (set! impl-tracefun-indentation (+ impl-tracefun-indentation 1))
-    (let ((result (apply f args)))
-      (flush-output)
-      (set! impl-tracefun-indentation (- impl-tracefun-indentation 1))
-      (display "        ")
-      (display (make-string-string impl-tracefun-indentation "| "))
-      (display "-> ")
-      (lshew result)
-      (display "\n")
-      (flush-output)
-      result)))
-
-(define-macro (tracefun . funs)
-  (cons 'begin
-        (map (lambda (f)
-               `(set! ,f (tracefun-hookist ',f ,f)))
-             funs)))
 
 (define (find-first pred lyst)
   (cond
