@@ -66,20 +66,6 @@
               (tick-rw)
               result)))))
 
-(define (top-rw-dumper rule e result)
-  (if (not (eq? 'fail result))
-      (begin
-        ;(display "<== ")
-        (lsb e)
-        (display "\n==> ")
-        (lsb result)
-        (display "\n                       ** ")
-        (lsb rule)
-        (display "\n"))
-  '()))
-
-(if show-reductions (hook-with (args-and-result-hook top-rw-dumper) top-rw) '())
-
 (define (normalize-children e rws)
   (map (lambda (e) (normalize e rws)) e))
 
@@ -109,15 +95,6 @@
          (cond
           ((or (eq? 'fail r) (equal? r ee)) ee)
           (#t (normalize r rws)))))))
-
-(define (normalize-dumper e rws result)
-  (begin
-    (lsb e)
-    (display "\n==> ")
-    (lsb result)
-    (display "\n")))
-
-(if show-normalizations (hook-with (args-and-result-hook normalize-dumper) normalize) '())
 
 (define (quote-symbols e)
   (quote-symbols-except-these e '()))
@@ -211,6 +188,25 @@
   (reset-counts)
   (normalize e rws))
 
+(define (top-rw-dumper rule e result)
+  (if (not (eq? 'fail result))
+      (begin
+        ;(display "<== ")
+        (lsb e)
+        (display "\n==> ")
+        (lsb result)
+        (display "\n                       ** ")
+        (lsb rule)
+        (display "\n"))
+  '()))
+
+(define (normalize-dumper e rws result)
+  (begin
+    (lsb e)
+    (display "\n==> ")
+    (lsb result)
+    (display "\n")))
+
 (define (top-evl-dumper e rws result)
   (display "+ ")
   (sb e)
@@ -218,6 +214,8 @@
   (show-counts)
   (display "\n"))
 
+(if show-reductions (hook-with (args-and-result-hook top-rw-dumper) top-rw) '())
+(if show-normalizations (hook-with (args-and-result-hook normalize-dumper) normalize) '())
 (if (not show-normalizations) (hook-with (args-and-result-hook top-evl-dumper) top-evl) '())
 
 (define already-including '())
