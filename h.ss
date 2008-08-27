@@ -85,39 +85,37 @@
 (define (primitive-call? e)
   (is-this-labeled-doublet? ''primitive-call e))
 
+(define (do-conditional e rws)
+  (let ((pred (cadr e))
+        (then (caddr e))
+        (else (cadddr e)))
+    (let ((b (normalize pred rws)))
+      (cond
+       ((equal? ''true b) (normalize then rws))
+       ((equal? ''false b) (normalize else rws))
+       (#t (err 'conditional 'pred pred 'gives b))))))
+
 (define (normalize e rws)
   (cond
    ((primitive-call? e)
     (do-primitive-call (cadr e)))
    ((conditional? e)
-    (let ((pred (cadr e))
-          (then (caddr e))
-          (else (cadddr e)))
-      (let ((b (normalize pred rws)))
-        (cond
-         ((equal? ''true b) (normalize then rws))
-         ((equal? ''false b) (normalize else rws))
-         (#t (err 'conditional 'pred pred 'gives b))))))
+    (do-conditional e rws))
    (#t (let* ((ee (if (app? e)
                       (normalize-children e rws)
                       e))
               (r (try-rws ee rws)))
          (cond
-          ((eq? 'fail r)
-           (begin
-             (if show-normalizations
-                 (begin
-                   (lshew e)
-                   (display "\n  -->\n")
-                   (lshew ee)
-                   (display "\n....................................\n"))
-                 '())
-             ee))
-          ((equal? r ee)
-           (begin
-             ;(shew "<-- " ee)
-             ee))
+          ((or (eq? 'fail r) (equal? r ee)) ee)
           (#t (normalize r rws)))))))
+
+(define (normalize-dumper e rws result)
+  (begin
+    (lsb e)
+    (display "==> ")
+    (lsb result)))
+
+(if show-normalizations (hook-with (args-and-result-hook normalize-dumper) normalize) '())
 
 (define (quote-symbols e)
   (quote-symbols-except-these e '()))
