@@ -21,8 +21,10 @@
 (define (tick-rw)
   (set! counts-rws (+ counts-rws 1)))
 
-(define (top-rw pat t body)
-  (rw pat t body body))
+(define (top-rw rule t)
+  (let ((pat (cadr rule))
+        (body (caddr rule)))
+    (rw pat t body body)))
 
 (define (subst var x body-template body)
   (cond
@@ -57,25 +59,25 @@
       (let* ((rule (car rws))
              (pat (cadr rule))
              (body (caddr rule))
-             (result (top-rw pat e body)))
+             (result (top-rw rule e)))
         (if (eq? 'fail result)
             (try-rws e (cdr rws))
             (begin
               (tick-rw)
               result)))))
 
-(define (try-rws-dumper e rws result)
+(define (top-rw-dumper rule e result)
   (if (not (eq? 'fail result))
-      (let* ((rule (car rws)))
-        (display "  * ")
-        (sb rule)
-        (display "<== ")
-        (sb e)
+      (begin
+        ;(display "<== ")
+        (lsb e)
         (display "==> ")
-        (sb result))
-      '()))
+        (lsb result)
+        (display "                       ** ")
+        (lsb rule))
+  '()))
 
-(if show-reductions (hook-with (args-and-result-hook try-rws-dumper) try-rws) '())
+(if show-reductions (hook-with (args-and-result-hook top-rw-dumper) top-rw) '())
 
 (define (normalize-children e rws)
   (map (lambda (e) (normalize e rws)) e))
@@ -219,7 +221,7 @@
             (sb r)
             (show-counts)
             (display "\n"))
-          (display "===========\n"))
+          '())
       r)))
 
 (define already-including '())
@@ -250,5 +252,3 @@
 
 (define (go)
   (run-file "src.ss"))
-
-;(tracefun top-evl)
