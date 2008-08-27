@@ -57,8 +57,6 @@
   (if (null? rws)
       'fail
       (let* ((rule (car rws))
-             (pat (cadr rule))
-             (body (caddr rule))
              (result (top-rw rule e)))
         (if (eq? 'fail result)
             (try-rws e (cdr rws))
