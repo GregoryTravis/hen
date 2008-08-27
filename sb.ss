@@ -69,7 +69,7 @@
 (define (sb-display s) (sb-display-to-port s (current-output-port)))
 
 (define (lsb . args)
-  (display (++ (apply lssb args) "\n")))
+  (display (apply lssb args) "\n"))
 
 (define (lssb . args)
   (string-collapse-spaces

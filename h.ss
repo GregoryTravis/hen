@@ -71,10 +71,11 @@
       (begin
         ;(display "<== ")
         (lsb e)
-        (display "==> ")
+        (display "\n==> ")
         (lsb result)
-        (display "                       ** ")
-        (lsb rule))
+        (display "\n                       ** ")
+        (lsb rule)
+        (display "\n"))
   '()))
 
 (if show-reductions (hook-with (args-and-result-hook top-rw-dumper) top-rw) '())
@@ -112,8 +113,9 @@
 (define (normalize-dumper e rws result)
   (begin
     (lsb e)
-    (display "==> ")
-    (lsb result)))
+    (display "\n==> ")
+    (lsb result)
+    (display "\n")))
 
 (if show-normalizations (hook-with (args-and-result-hook normalize-dumper) normalize) '())
 
