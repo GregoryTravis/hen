@@ -209,20 +209,16 @@
 
 (define (top-evl e rws)
   (reset-counts)
-  (begin
-    (if (not show-reductions)
-        (begin
-          (display "+ ")
-          (sb e))
-        '())
-    (let ((r (normalize e rws)))
-      (if (not show-reductions)
-          (begin
-            (sb r)
-            (show-counts)
-            (display "\n"))
-          '())
-      r)))
+  (normalize e rws))
+
+(define (top-evl-dumper e rws result)
+  (display "+ ")
+  (sb e)
+  (sb result)
+  (show-counts)
+  (display "\n"))
+
+(if (not show-normalizations) (hook-with (args-and-result-hook top-evl-dumper) top-evl) '())
 
 (define already-including '())
 
