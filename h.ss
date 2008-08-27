@@ -60,9 +60,15 @@
              (result (top-rw rule e)))
         (if (eq? 'fail result)
             (try-rws e (cdr rws))
-            (begin
-              (tick-rw)
-              result)))))
+            result))))
+
+(define (top-rw-ticker rule t result)
+  (if (not (eq? 'fail result))
+      (tick-rw)
+      '())
+  result)
+
+(if show-counts (hook-with (args-and-result-hook top-rw-ticker) top-rw) '())
 
 (define (normalize-children e rws)
   (map (lambda (e) (normalize e rws)) e))
@@ -212,7 +218,7 @@
   (show-counts)
   (display "\n"))
 
-(if show-reductions (hook-with (args-and-result-hook top-rw-dumper) top-rw) '())
+;(if show-reductions (hook-with (args-and-result-hook top-rw-dumper) top-rw) '())
 (if show-normalizations (hook-with (args-and-result-hook normalize-dumper) normalize) '())
 (if (not show-normalizations) (hook-with (args-and-result-hook top-evl-dumper) top-evl) '())
 
