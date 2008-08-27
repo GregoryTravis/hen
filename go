@@ -1,7 +1,10 @@
 #scheme-dead h.ss main.ss overture.ss primitives.ss sb.ss tst.ss
 #exit
 
-mzscheme -j -r main.ss
+mzscheme -j -r main.ss 2>&1 | tee /tmp/main.out
+diff -q /tmp/main.out /tmp/correct.main.out
+cp /tmp/main.out /tmp/correct.main.out
+
 #mzscheme -j -r main.ss | square-brackets backwards
 exit
 
