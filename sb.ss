@@ -12,7 +12,7 @@
                         (pretty-print ss port))))
            (cc (cf rendered)))
       (if sb-debug (shew 'write 'orig s 'sf ss 'cf cc) '())
-      (display cc))))
+      (display cc port))))
 
 (define (cs-filtered-read-all cf sf port)
   (let* ((c (apply ++ (read-all-lines port)))
@@ -69,7 +69,7 @@
 (define (sb-display s) (sb-display-to-port s (current-output-port)))
 
 (define (lsb . args)
-  (display (apply lssb args)))
+  (display (++ (apply lssb args) "\n")))
 
 (define (lssb . args)
   (string-collapse-spaces
