@@ -49,6 +49,14 @@
         (apply cb (append args (list result)))
         result))))
 
+(define (before-and-after-hook b a)
+  (lambda (name f)
+    (lambda args
+      (apply b args)
+      (let ((result (apply f args)))
+        (apply a (append args (list result)))
+        result))))
+
 (define concat string-append)
 
 (define (applyer f)
