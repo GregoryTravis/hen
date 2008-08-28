@@ -1,3 +1,22 @@
+(define (primitive-call? e)
+  (is-this-labeled-doublet? ''primitive-call e))
+
+(define (primitivize e)
+  (atom-traverse
+   (lambda (e)
+     (cond
+      ((integer? e) `(integer (primitive ,e)))
+      ((string? e) `(string (primitive ,e)))
+      (#t e)))
+   e))
+
+(define (unprimitivize e)
+  (cond
+   ((is-quote? e) `(quote ,(unprimitivize (cadr e))))
+   ((is-some-primitive? e) (cadadr e))
+   ((list? e) (map unprimitivize e))
+   (#t e)))
+
 (define (do-primitive-call e)
   (let* ((f (car e))
          (f (if (is-quote? f)
