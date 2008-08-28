@@ -280,7 +280,6 @@
       (cons (f (car s))
             (map-improper f (cdr s)))
       (f s)))
-(define map-em map-improper)
 
 (define (sr . es)
   (apply shew es)
