@@ -33,7 +33,7 @@
     (lsb result)
     (display "\n")))
 
-(define (top-evl-dumper e rws result)
+(define (evl-dumper e rws result)
   (display "+ ")
   (sb e)
   (sb result)
@@ -45,11 +45,11 @@
       '())
   result)
 
-(define (top-evl-dumper-before e rws)
+(define (evl-dumper-before e rws)
   (reset-counts)
   (display "+ ")
   (sb e))
-(define (top-evl-dumper-after e rws result)
+(define (evl-dumper-after e rws result)
   (sb result)
   (show-counts)
   (display "\n"))
@@ -57,10 +57,10 @@
 (if show-reductions (hook-with (args-and-result-hook top-rw-dumper) top-rw) '())
 (if show-normalizations
     (hook-with (args-and-result-hook normalize-dumper) normalize)
-    (hook-with (args-and-result-hook top-evl-dumper) top-evl))
+    (hook-with (args-and-result-hook evl-dumper) evl))
 (if show-counts-p
     (begin
       (hook-with (args-and-result-hook top-rw-ticker) top-rw)
-      (hook-with (before-and-after-hook top-evl-dumper-before top-evl-dumper-after) top-evl))
+      (hook-with (before-and-after-hook evl-dumper-before evl-dumper-after) evl))
     '())
 
