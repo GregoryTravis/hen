@@ -22,7 +22,7 @@
 
 (define (rw pat t body-template body)
   (cond
-   ((and (literal? pat))
+   ((literal? pat)
     (if (equal? pat t)
         body
         'fail))
