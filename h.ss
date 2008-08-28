@@ -8,12 +8,9 @@
 (define counts-rws 0)
 
 (define (show-counts)
-  (if show-counts-p
-      (begin
-        (display "[")
-        (display counts-rws)
-        (display " reductions]\n"))
-      '()))
+  (display "[")
+  (display counts-rws)
+  (display " reductions]\n"))
 
 (define (reset-counts)
   (set! counts-rws 0))
@@ -207,7 +204,6 @@
   (display "+ ")
   (sb e)
   (sb result)
-  (show-counts)
   (display "\n"))
 
 (define (top-rw-ticker rule t result)
@@ -216,10 +212,24 @@
       '())
   result)
 
+(define (top-evl-dumper-before e rws)
+  (reset-counts)
+  (display "+ ")
+  (sb e))
+(define (top-evl-dumper-after e rws result)
+  (sb result)
+  (show-counts)
+  (display "\n"))
+
 (if show-reductions (hook-with (args-and-result-hook top-rw-dumper) top-rw) '())
-(if show-normalizations (hook-with (args-and-result-hook normalize-dumper) normalize) '())
-(if (not show-normalizations) (hook-with (args-and-result-hook top-evl-dumper) top-evl) '())
-(if show-counts (hook-with (args-and-result-hook top-rw-ticker) top-rw) '())
+(if show-normalizations
+    (hook-with (args-and-result-hook normalize-dumper) normalize)
+    (hook-with (args-and-result-hook top-evl-dumper) top-evl))
+(if show-counts-p
+    (begin
+      (hook-with (args-and-result-hook top-rw-ticker) top-rw)
+      (hook-with (before-and-after-hook top-evl-dumper-before top-evl-dumper-after) top-evl))
+    '())
 
 (define already-including '())
 
