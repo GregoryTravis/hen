@@ -86,6 +86,10 @@
           ((or (eq? 'fail r) (equal? r ee)) ee)
           (#t (normalize r rws)))))))
 
+(define (top-evl e rws)
+  (reset-counts)
+  (normalize e rws))
+
 (define (quote-symbols e)
   (quote-symbols-except-these e '()))
 
@@ -157,10 +161,6 @@
          (rws (gather-rws src))
          (exps (gather-exps src)))
     (map (lambda (e) (top-evl e rws)) exps)))
-
-(define (top-evl e rws)
-  (reset-counts)
-  (normalize e rws))
 
 (define (top-rw-dumper rule e result)
   (if (not (eq? 'fail result))
