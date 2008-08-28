@@ -71,7 +71,6 @@
           (#t (normalize r rws)))))))
 
 (define (top-evl e rws)
-  (reset-counts)
   (normalize e rws))
 
 (define (quote-symbols e)
