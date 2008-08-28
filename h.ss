@@ -216,7 +216,7 @@
       '())
   result)
 
-;(if show-reductions (hook-with (args-and-result-hook top-rw-dumper) top-rw) '())
+(if show-reductions (hook-with (args-and-result-hook top-rw-dumper) top-rw) '())
 (if show-normalizations (hook-with (args-and-result-hook normalize-dumper) normalize) '())
 (if (not show-normalizations) (hook-with (args-and-result-hook top-evl-dumper) top-evl) '())
 (if show-counts (hook-with (args-and-result-hook top-rw-ticker) top-rw) '())
