@@ -58,9 +58,12 @@
 (fun (read-file (string filename))
      (primitive-call (read-file filename)))
 
-(fun (shew e)
-     (primitive-call (shew e)))
-(fun (shew . es) (map shew (form->list es)))
+(fun (begin a) a)
+(fun (begin a b) b)
+(fun (begin a b c) c)
+(fun (begin a b c d) d)
 
-(fun (form->list f)
-     (primitive-call (form->list f)))
+(fun (shew a) (primitive-call (shew a)))
+(fun (shew a b) (begin (shew a) (shew b)))
+(fun (shew a b c) (begin (shew a) (shew b c)))
+(fun (shew a b c d) (begin (shew a) (shew b c d)))

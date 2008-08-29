@@ -77,6 +77,3 @@
 (define (pea-primitive-shew e)
   (sb (unpreprocess e))
   '())
-
-(define (pea-primitive-form->list f)
-  (list->quoted-consy f))
