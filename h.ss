@@ -123,9 +123,6 @@
    ((pair? e) (map-improper quote-firsts e))
    (#t (err 'quote-firsts e))))
 
-(define (list->quoted-consy l)
-  (foldr (lambda (a d) `('cons ,a ,d)) '() l))
-
 (define (preprocess src)
   (set! src (primitivize src))
   (set! src (map quote-non-variables src))
