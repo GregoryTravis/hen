@@ -167,9 +167,15 @@
     (cons (car forms) (process-includes (cdr forms))))
    (#t (err))))
 
+(define (syntax-check p) #t)
+
+(define (prepare-program p)
+  (set! p (process-includes (cons '(include "overture.ss") p)))
+  (assert (syntax-check p))
+  p)
+
 (define (run-file filename)
-  (run-src (process-includes (cons '(include "overture.ss")
-                                   (sb-read-file filename)))))
+  (run-src (prepare-program (sb-read-file filename))))
 
 (define (go)
   (run-file "src.ss"))
