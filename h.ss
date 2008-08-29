@@ -167,7 +167,8 @@
     (cons (car forms) (process-includes (cdr forms))))
    (#t (err))))
 
-(define (syntax-check p) #t)
+(define (syntax-check p)
+  (proper-tree? p))
 
 (define (prepare-program p)
   (set! p (process-includes (cons '(include "overture.ss") p)))
