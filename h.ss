@@ -9,7 +9,6 @@
 
 (define (subst var x body-template body)
   (cond
-   ((eq? 'fail body) 'fail)
    ((literal? body-template) body)
    ((and (symbol? body-template)
          (eq? var body-template))
@@ -19,6 +18,8 @@
           (subst var x (cdr body-template) (cdr body))))
    ((symbol? body-template) body)
    (#t (err 'subst var x body-template body))))
+
+(define subst (mabify subst))
 
 (define (rw pat t body-template body)
   (cond
@@ -35,13 +36,9 @@
    (#t (err 'rw pat t body-template body))))
 
 (define (try-rws e rws)
-  (if (null? rws)
-      'fail
-      (let* ((rule (car rws))
-             (result (top-rw rule e)))
-        (if (eq? 'fail result)
-            (try-rws e (cdr rws))
-            result))))
+  (map-until-not-fail
+   (lambda (rule) (top-rw rule e))
+   rws))
 
 (define (normalize-children e rws)
   (map (lambda (e) (normalize e rws)) e))

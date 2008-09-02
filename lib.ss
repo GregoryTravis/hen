@@ -540,6 +540,20 @@
       fail
       (maybe-map (applyer f) (invert-listy-matrix args))))
 
+(define (mabify f)
+  (lambda args
+    (if (anyy (map (lambda (p) (eq? 'fail p)) args))
+        'fail
+        (apply f args))))
+
+(define (map-until-not-fail f lyst)
+  (if (null? lyst)
+      'fail
+      (let ((v (f (car lyst))))
+        (if (eq? v 'fail)
+            (map-until-not-fail f (cdr lyst))
+            v))))
+
 (define (++ . stuff)
   (apply concat (map (lambda (o) (->string o)) stuff)))
 
