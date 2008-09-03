@@ -554,6 +554,12 @@
             (map-until-not-fail f (cdr lyst))
             v))))
 
+;; (define (apply-until f pred o)
+;;   (let ((r (f o)))
+;;     (if (pred r)
+;;         r
+;;         (apply-until f pred r))))
+
 (define (++ . stuff)
   (apply concat (map (lambda (o) (->string o)) stuff)))
 
