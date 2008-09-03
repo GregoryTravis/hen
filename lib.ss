@@ -371,6 +371,7 @@
   (map (lambda (e) (apply-through-lens lens f e)) l))
 
 (define (fnot f) (lambda (x) (not (f x))))
+(define (for a b) (lambda (x) (or (a x) (b x))))
 
 (define (map-append f . lysts)
   (apply append (apply map (cons f lysts))))
@@ -594,6 +595,9 @@
        (pair? (cdr o))
        (null? (cddr o))))
 
+(define (quoted-symbol? e)
+  (and (is-quote? e) (symbol? (cadr e))))
+
 (define (quote-quoted o)
   (cadr o))
 
@@ -707,8 +711,18 @@
        (eq? 'if-pair? (car p))))
 
 (define (fun? e)
-  (and (eq? 'fun (car e))
+  (and (pair? e)
+       (eq? 'fun (car e))
        (= 3 (length e))))
+
+(define (var? e)
+  (and (pair? e)
+       (eq? 'var (car e))
+       (= 3 (length e))))
+
+(define (var->binding e)
+  (assert (var? e))
+  (cons (cadr e) (caddr e)))
 
 (define (multi-lambda? e)
   (and (proper-list? e)

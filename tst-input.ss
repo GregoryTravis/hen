@@ -116,3 +116,8 @@
 (shew 5 6)
 (shew 5 6 7)
 (shew 5 6 7 8)
+
+(var a-global 10)
+(shew a-global)
+(+ a-global a-global)
+a-global

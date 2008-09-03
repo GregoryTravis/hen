@@ -2,6 +2,17 @@
 (load "sb.ss")
 (load "primitives.ss")
 
+(define global-env '())
+(define (create-global-env globals)
+  (set! global-env (var-declarations->env globals)))
+(define (var-declarations->env globals)
+  (map var->binding globals))
+(define (env-exists? env e)
+  (not (eq? #f (assoc e env))))
+(define (env-lookup env e)
+  (assert (env-exists? env e))
+  (cdr (assoc e env)))
+
 (define (top-rw rule t)
   (let ((pat (cadr rule))
         (body (caddr rule)))
@@ -59,6 +70,9 @@
     (do-primitive-call (cadr e)))
    ((conditional? e)
     (do-conditional e rws))
+   ((and (quoted-symbol? e) (env-exists? global-env (quote-quoted e)))
+    (let ((var (quote-quoted e)))
+      (env-lookup global-env var)))
    (#t (let* ((ee (if (app? e)
                       (normalize-children e rws)
                       e))
@@ -91,13 +105,16 @@
    (#t (err 'gather-binders))))
 
 (define (quote-non-variables e)
-  (if (fun? e)
-      (let* ((pat (cadr e))
-             (body (caddr e))
-             (qpat (quote-firsts pat)))
-        `(fun ,qpat
-              ,(quote-symbols-except-these body (gather-binders qpat))))
-      (quote-symbols e)))
+  (cond
+   ((fun? e)
+    (let* ((pat (cadr e))
+           (body (caddr e))
+           (qpat (quote-firsts pat)))
+      `(fun ,qpat
+            ,(quote-symbols-except-these body (gather-binders qpat)))))
+   ((var? e)
+    `(var ,(cadr e) ,(quote-non-variables (caddr e))))
+   (#t (quote-symbols e))))
 
 (define (unquote-non-variables e)
   (unquote-firsts e))
@@ -131,12 +148,15 @@
   src)
 
 (define (gather-rws src) (grep fun? src))
-(define (gather-exps src) (grep (fnot fun?) src))
+(define (gather-vars src) (grep var? src))
+(define (gather-exps src) (grep (fnot (for fun? var?)) src))
 
 (define (run-src src)
   (let* ((src (preprocess src))
          (rws (gather-rws src))
+         (globals (gather-vars src))
          (exps (gather-exps src)))
+    (create-global-env globals)
     (map (lambda (e) (evl e rws)) exps)))
 
 (define already-including '())

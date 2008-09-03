@@ -261,3 +261,13 @@
 + (shew 5 6 7 8)
 []
 
+10
++ (shew 'a-global)
+[]
+
++ (+ 'a-global 'a-global)
+20
+
++ 'a-global
+10
+
