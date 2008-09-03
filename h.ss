@@ -117,7 +117,7 @@
    (#t (quote-symbols e))))
 
 (define (unquote-non-variables e)
-  (unquote-firsts e))
+  (unquote-globals (unquote-firsts e)))
 
 (define (unquote-firsts e)
   (cond
@@ -127,6 +127,21 @@
    ((list? e) (map unquote-firsts e))
    ((atom? e) e)
    (#t (err 'unquote-firsts e))))
+
+(define (unquote-globals e)
+  (cond
+   ((and (is-quote? e)
+         (symbol? (quote-quoted e))
+         (env-exists? global-env (quote-quoted e)))
+    (quote-quoted e))
+   ((literal? e) e)
+   ((and (list? e) (is-quote? (car e)))
+    `(,(quote-quoted (car e)) ,@(map unquote-globals (cdr e))))
+   ((list? e) (map unquote-globals e))
+   ((atom? e) e)
+   (#t (err 'unquote-globals e))))
+
+;(tracefun unquote-globals)
 
 (define (quote-firsts e)
   (cond
