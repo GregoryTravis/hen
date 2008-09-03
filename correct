@@ -262,12 +262,12 @@
 []
 
 10
-+ (shew 'a-global)
++ (shew a-global)
 []
 
-+ (+ 'a-global 'a-global)
++ (+ a-global a-global)
 20
 
-+ 'a-global
++ a-global
 10
 
