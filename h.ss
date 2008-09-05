@@ -1,6 +1,7 @@
 (load "lib.ss")
 (load "sb.ss")
 (load "primitives.ss")
+(load "assemble.ss")
 
 (define global-env '())
 (define (create-global-env globals)
@@ -166,7 +167,7 @@
 (define (gather-vars src) (grep var? src))
 (define (gather-exps src) (grep (fnot (for fun? var?)) src))
 
-(define (run-src src)
+(define (run src)
   (let* ((src (preprocess src))
          (rws (gather-rws src))
          (globals (gather-vars src))
@@ -174,39 +175,6 @@
     (create-global-env globals)
     (map (lambda (e) (evl e rws)) exps)))
 
-(define already-including '())
-
-(define (process-includes forms)
-  (cond
-   ((null? forms) '())
-   ((and (pair? forms)
-         (pair? (car forms))
-         (eq? 'include (caar forms)))
-    (let ((includee (cadar forms)))
-      (if (not (member includee already-including))
-          (begin
-            ;(shew 'including includee)
-            (set! already-including (cons includee already-including))
-            (append (process-includes (read-objects includee))
-                    (process-includes (cdr forms))))
-          (begin
-            ;(shew 'not-including includee)
-            (process-includes (cdr forms))))))
-   ((pair? forms)
-    (cons (car forms) (process-includes (cdr forms))))
-   (#t (err))))
-
-(define (syntax-check p)
-  (proper-tree? p))
-
-(define (prepare-program p)
-  (set! p (process-includes (cons '(include "overture.ss") p)))
-  (assert (syntax-check p))
-  p)
-
-(define (run-file filename)
-  (run-src (prepare-program (sb-read-file filename))))
-
 (define (go)
-  (run-file "src.ss"))
+  (run (load-files (list "src.ss"))))
 (load "tracing.ss")
