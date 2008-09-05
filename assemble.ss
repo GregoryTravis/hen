@@ -28,6 +28,6 @@
   p)
 
 (define (load-files filenames)
-  (let ((srcs (apply append (map (lambda (filename) (prepare-program (sb-read-file filename)))
+  (let ((srcs (apply append (map (lambda (filename) (prepare-program (read-objects filename)))
                                  filenames))))
     (prepare-program srcs)))

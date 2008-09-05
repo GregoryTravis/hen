@@ -14,152 +14,13 @@
   (assert (env-exists? env e))
   (cdr (assoc e env)))
 
-(define (top-rw rule t)
-  (let ((pat (cadr rule))
-        (body (caddr rule)))
-    (rw pat t body body)))
-
-(define (subst var x body-template body)
-  (cond
-   ((literal? body-template) body)
-   ((and (symbol? body-template)
-         (eq? var body-template))
-    x)
-   ((pair? body-template)
-    (cons (subst var x (car body-template) (car body))
-          (subst var x (cdr body-template) (cdr body))))
-   ((symbol? body-template) body)
-   (#t (err 'subst var x body-template body))))
-
-(define subst (mabify subst))
-
-(define (rw pat t body-template body)
-  (cond
-   ((literal? pat)
-    (if (equal? pat t)
-        body
-        'fail))
-   ((and (pair? pat))
-    (if (pair? t)
-        (rw (cdr pat) (cdr t) body-template (rw (car pat) (car t) body-template body))
-        'fail))
-   ((and (symbol? pat))
-    (subst pat t body-template body))
-   (#t (err 'rw pat t body-template body))))
-
-(define (try-rws e rws)
-  (map-until-not-fail
-   (lambda (rule) (top-rw rule e))
-   rws))
-
-(define (normalize-children e rws)
-  (map (lambda (e) (normalize e rws)) e))
-
-(define (do-conditional e rws)
-  (let ((pred (cadr e))
-        (then (caddr e))
-        (else (cadddr e)))
-    (let ((b (normalize pred rws)))
-      (cond
-       ((equal? ''true b) (normalize then rws))
-       ((equal? ''false b) (normalize else rws))
-       (#t (err 'conditional 'pred pred 'gives b))))))
-
-(define (normalize e rws)
-  (cond
-   ((primitive-call? e)
-    (do-primitive-call (cadr e)))
-   ((conditional? e)
-    (do-conditional e rws))
-   ((and (quoted-symbol? e) (env-exists? global-env (quote-quoted e)))
-    (let ((var (quote-quoted e)))
-      (env-lookup global-env var)))
-   (#t (let* ((ee (if (app? e)
-                      (normalize-children e rws)
-                      e))
-              (r (try-rws ee rws)))
-         (cond
-          ((or (eq? 'fail r) (equal? r ee)) ee)
-          (#t (normalize r rws)))))))
-
-(define (evl e rws)
-  (normalize e rws))
-
-(define (quote-symbols e)
-  (quote-symbols-except-these e '()))
-
-(define (quote-symbols-except-these e except)
-  (cond
-   ((literal? e) e)
-   ((and (symbol? e) (member? e except)) e)
-   ((symbol? e) `',e)
-   ((app? e) (map (lambda (e) (quote-symbols-except-these e except))
-                  e))
-   (#t (err 'quote-symbols-except-these e))))
-
-(define (gather-binders pat)
-  (cond
-   ((symbol? pat) (list pat))
-   ((literal? pat) '())
-   ((pair? pat) (append (gather-binders (car pat))
-                       (gather-binders (cdr pat))))
-   (#t (err 'gather-binders))))
-
-(define (quote-non-variables e)
-  (cond
-   ((fun? e)
-    (let* ((pat (cadr e))
-           (body (caddr e))
-           (qpat (quote-firsts pat)))
-      `(fun ,qpat
-            ,(quote-symbols-except-these body (gather-binders qpat)))))
-   ((var? e)
-    `(var ,(cadr e) ,(quote-non-variables (caddr e))))
-   (#t (quote-symbols e))))
-
-(define (unquote-non-variables e)
-  (unquote-globals (unquote-firsts e)))
-
-(define (unquote-firsts e)
-  (cond
-   ((literal? e) e)
-   ((and (list? e) (is-quote? (car e)))
-    `(,(quote-quoted (car e)) ,@(map unquote-firsts (cdr e))))
-   ((list? e) (map unquote-firsts e))
-   ((atom? e) e)
-   (#t (err 'unquote-firsts e))))
-
-(define (unquote-globals e)
-  (cond
-   ((and (is-quote? e)
-         (symbol? (quote-quoted e))
-         (env-exists? global-env (quote-quoted e)))
-    (quote-quoted e))
-   ((literal? e) e)
-   ((and (list? e) (is-quote? (car e)))
-    `(,(quote-quoted (car e)) ,@(map unquote-globals (cdr e))))
-   ((list? e) (map unquote-globals e))
-   ((atom? e) e)
-   (#t (err 'unquote-globals e))))
-
-;(tracefun unquote-globals)
-
-(define (quote-firsts e)
-  (cond
-   ((literal? e) e)
-   ((symbol? e) e)
-   ((and (pair? e) (symbol? (car e)))
-    `(',(car e) ,@(map-improper quote-firsts (cdr e))))
-   ((pair? e) (map-improper quote-firsts e))
-   (#t (err 'quote-firsts e))))
+(define (evl e rws) (shew e))
 
 (define (preprocess src)
   (set! src (primitivize src))
-  (set! src (map quote-non-variables src))
   src)
 
 (define (unpreprocess src)
-  (set! src (unquote-non-variables src))
   (set! src (unprimitivize src))
   src)
 
@@ -177,4 +38,4 @@
 
 (define (go)
   (run (load-files (list "src.ss"))))
-(load "tracing.ss")
+;(load "tracing.ss")
