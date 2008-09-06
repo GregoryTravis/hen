@@ -35,7 +35,8 @@
    ((app? body) (map (lambda (e) (rewrite e bindings))
                      body))
    ((atom? body) body)
-   (#t (err 'rewrite))))
+   ((is-quote? body) body)
+   (#t (err 'rewrite body))))
 
 (define (try-rw e rw)
   (assert (fun? rw))
@@ -68,8 +69,9 @@
 
 (define (evl e rws)
   (display "+ ")
-  (shew e)
-  (shew (normalize e rws)))
+  (shew (unpreprocess e))
+  (shew (unpreprocess (normalize e rws)))
+  (display "\n"))
 
 ;(tracefun evl normalize normalize-step try-rws try-rw)
 ;(tracefun try-rw mitch rewrite)
@@ -118,7 +120,7 @@
    ((var? pat) (err 'var pat))
    ((list? pat) (map (lambda (pat) (mark-these-vars pat these-vars))
                      pat))
-   ((symbol? pat) pat)
+   ((atom? pat) pat)
    (#t (err 'otherwise pat))))
 
 (define (preprocess-rule rw)
