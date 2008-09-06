@@ -14,7 +14,16 @@
   (assert (env-exists? env e))
   (cdr (assoc e env)))
 
-(define (try-rws e rws) e)
+(define (try-rw e rw)
+  'fail)
+
+(define (try-rws e rws)
+  (if (null? rws)
+      'fail
+      (let ((poo (try-rw e (car rws))))
+        (if (eq? 'fail poo)
+            (try-rws e (cdr rws))
+            poo))))
 
 (define (normalize-step e rws)
   (let ((e (if (app? e)
@@ -29,9 +38,11 @@
         (normalize ee rws))))
 
 (define (evl e rws)
-  (normalize e rws))
+  (display "+ ")
+  (shew e)
+  (shew (normalize e rws)))
 
-(tracefun evl normalize normalize-step)
+;(tracefun evl normalize normalize-step try-rws try-rw)
 
 (define (preprocess src)
   (set! src (primitivize src))
