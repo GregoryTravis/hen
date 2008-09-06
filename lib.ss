@@ -127,7 +127,7 @@
 (define (proper-tree? t)
   (if (pair? t)
       (and (proper-list? t)
-           (all (map proper-tree? t)))
+           (all? (map proper-tree? t)))
       #t))
 
 (define (make-dict . args)
@@ -228,19 +228,19 @@
 (define (has-duplicates? lyst)
   (not (eq? (length lyst) (length (unique lyst)))))
 
-(define (anyy lyst)
+(define (any? lyst)
   (if (null? lyst)
       #f
       (or (car lyst)
-          (anyy (cdr lyst)))))
+          (any? (cdr lyst)))))
 
-(define (all lyst)
+(define (all? lyst)
   (if (null? lyst)
       #t
-      (and (car lyst) (all (cdr lyst)))))
+      (and (car lyst) (all? (cdr lyst)))))
 
 (define (none lyst)
-  (not (anyy lyst)))
+  (not (any? lyst)))
 
 (define (same lyst)
   (if (or (null? lyst) (null? (cdr lyst)))
@@ -449,16 +449,16 @@
 
 (define (invert-listy-matrix lists)
   (let ((ns (map null? lists)))
-    (if (anyy ns)
-        (if (not (all ns))
+    (if (any? ns)
+        (if (not (all? ns))
             (err 'invert-listy-matrix 'uneven lists)
             '())
         (cons (map car lists) (invert-listy-matrix (map cdr lists))))))
 
 (define (zip f . lysts)
   ;(shew 'um-zip lysts)
-  (if (anyy (map null? lysts))
-      (if (not (all (map null? lysts)))
+  (if (any? (map null? lysts))
+      (if (not (all? (map null? lysts)))
           (err 'uneven-zip-params lysts (map null? lysts))
           '())
       (cons (apply f (map car lysts))
@@ -476,7 +476,7 @@
   (cadr o))
 
 (define (maybe-combine combiner args)
-  (if (anyy (map fail? args))
+  (if (any? (map fail? args))
       fail
       (begin
         ;(shew 'combine combiner args (map just-value args) (apply combiner (map just-value args)))
@@ -543,7 +543,7 @@
 
 (define (mabify f)
   (lambda args
-    (if (anyy (map (lambda (p) (eq? 'fail p)) args))
+    (if (any? (map (lambda (p) (eq? 'fail p)) args))
         'fail
         (apply f args))))
 
@@ -740,7 +740,7 @@
 (define (multi-lambda? e)
   (and (proper-list? e)
        (eq? '/./. (car e))
-       (all (map proper-list? (cdr e)))))
+       (all? (map proper-list? (cdr e)))))
 
 (define (tree-traverse t atom-f pair-f)
   (cond
