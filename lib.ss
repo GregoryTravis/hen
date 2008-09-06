@@ -578,7 +578,8 @@
    ((char? o) (make-string 1 o))
    (#t (sdisplay o))))
 
-(define member? member)
+(define (member? a as)
+  (not (not (member a as))))
 
 (define (atom? o)
   (or
@@ -717,11 +718,25 @@
 
 (define (var? e)
   (and (pair? e)
+       (eq? 'unquote (car e))
+       (pair? (cdr e))
+       (symbol? (cadr e))
+       (null? (cddr e))))
+
+(define (var-name e)
+  (assert (var? e))
+  (cadr e))
+
+(define (make-var name)
+  (list 'unquote name))
+
+(define (global-var? e)
+  (and (pair? e)
        (eq? 'var (car e))
        (= 3 (length e))))
 
-(define (var->binding e)
-  (assert (var? e))
+(define (global-var->binding e)
+  (assert (global-var? e))
   (cons (cadr e) (caddr e)))
 
 (define (multi-lambda? e)
