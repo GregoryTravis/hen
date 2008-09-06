@@ -8,14 +8,43 @@
   (set! global-env (var-declarations->env globals)))
 (define (var-declarations->env globals)
   (map global-var->binding globals))
-(define (env-exists? env e)
+(define (env-exists? e env)
   (not (eq? #f (assoc e env))))
-(define (env-lookup env e)
-  (assert (env-exists? env e))
+(define (env-lookup e env)
+  (assert (env-exists? e env) e env)
   (cdr (assoc e env)))
 
+(define (mitch pat e)
+  (cond
+   ((var? pat) (list (cons (var-name pat) e)))
+   ((app? pat)
+    (if (and (app? e) (= (length pat) (length e)))
+        (let ((submatches (zip mitch pat e)))
+          (if (any? (map (lambda (f) (eq? 'fail f)) submatches))
+              'fail
+              (apply append submatches)))
+        'fail))
+   ((atom? pat) (if (equal? pat e)
+                    '()
+                    'fail))
+   (#t (err))))
+
+(define (rewrite body bindings)
+  (cond
+   ((var? body) (env-lookup (var-name body) bindings))
+   ((app? body) (map (lambda (e) (rewrite e bindings))
+                     body))
+   ((atom? body) body)
+   (#t (err 'rewrite))))
+
 (define (try-rw e rw)
-  'fail)
+  (assert (fun? rw))
+  (let* ((pat (cadr rw))
+         (body (caddr rw))
+         (bindings (mitch pat e)))
+    (if (eq? 'fail bindings)
+        'fail
+        (rewrite body bindings))))
 
 (define (try-rws e rws)
   (if (null? rws)
@@ -43,6 +72,7 @@
   (shew (normalize e rws)))
 
 ;(tracefun evl normalize normalize-step try-rws try-rw)
+;(tracefun try-rw mitch rewrite)
 
 (define (preprocess src)
   (set! src (primitivize src))
