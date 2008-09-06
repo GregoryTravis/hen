@@ -675,11 +675,9 @@
        (lambda? (cadr e))))
 
 (define (app? e)
-  (and (proper-list? e)
-       (not (or (lambda? e)
-                (literal? e)
-                (closure? e)))
-       (>= (length e) 1)))
+  (and (pair? e)
+       (not (or (is-quote? e)
+                (var? e)))))
 
 (define (1-arg-app? e)
   (and (app? e) (= 2 (length e))))

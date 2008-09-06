@@ -14,7 +14,24 @@
   (assert (env-exists? env e))
   (cdr (assoc e env)))
 
-(define (evl e rws) (shew e))
+(define (try-rws e rws) e)
+
+(define (normalize-step e rws)
+  (let ((e (if (app? e)
+               (map (lambda (e) (normalize e rws)) e)
+               e)))
+    (try-rws e rws)))
+
+(define (normalize e rws)
+  (let ((ee (normalize-step e rws)))
+    (if (or (equal? e ee) (eq? 'fail ee))
+        e
+        (normalize ee rws))))
+
+(define (evl e rws)
+  (normalize e rws))
+
+(tracefun evl normalize normalize-step)
 
 (define (preprocess src)
   (set! src (primitivize src))
@@ -85,8 +102,7 @@
          (globals (gather-global-vars src))
          (exps (gather-exps src)))
     (create-global-env globals)
-(shew rws)))
-;    (map (lambda (e) (evl e rws)) exps)))
+    (map (lambda (e) (evl e rws)) exps)))
 
 (define (go)
   (run (load-files (list "src.ss"))))

@@ -1,2 +1,2 @@
-(var a 10)
-(shew a)
+(fun (goop a) (bok a a))
+(goop 10)
