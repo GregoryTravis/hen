@@ -69,8 +69,8 @@
 
 (define (evl e rws)
   (display "+ ")
-  (shew (unpreprocess e))
-  (shew (unpreprocess (normalize e rws)))
+  (sb e)
+  (sb (normalize e rws))
   (display "\n"))
 
 ;(tracefun evl normalize normalize-step try-rws try-rw)
