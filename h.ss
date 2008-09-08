@@ -68,7 +68,7 @@
         (normalize ee rws))))
 
 (define (evl e rws)
-  (display "+ ")
+  (display "> ")
   (sb e)
   (sb (normalize e rws))
   (display "\n"))
