@@ -49,7 +49,8 @@
    ((is-cons? s) (cons sb-barf-bletch (snoc (sb-unconsyize s) sb-barf-bletch)))
    ((pair? s) (map sb-out-cvt s))
    ((atom? s) s)
-   (#t (err 'sb-out-cvt))))
+   (#t s)))
+   ;(#t (err 'sb-out-cvt s))))
 
 (define (make-sb-displayer port)
   (make-cs-displayer
