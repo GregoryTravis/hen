@@ -12,6 +12,8 @@
 ;(require-for-syntax (lib "list.ss"))
 
 (define impl-tracefun-indentation 0)
+(define (trace-indent) (set! impl-tracefun-indentation (+ 1 impl-tracefun-indentation)))
+(define (trace-unindent) (set! impl-tracefun-indentation (+ -1 impl-tracefun-indentation)))
 
 (define (tracefun-hookist name f)
   (lambda args
@@ -33,14 +35,42 @@
       (flush-output)
       result)))
 
+(define (plain-ol-tracer app runner)
+  (display (make-string-string impl-tracefun-indentation "| "))
+  (display "+  ")
+  (lsb app)
+  (display "\n")
+  (trace-indent)
+  (let ((r (runner)))
+    (trace-unindent)
+    (display (make-string-string impl-tracefun-indentation "| "))
+    (display "-> ")
+    (lsb r)
+    (display "\n")
+    r))
+
+(define (trace-wrap tracer name f)
+  (lambda args
+    (tracer (cons name args)
+            (lambda () (apply f args)))))
+
+(define-macro (tracefun . funs)
+  (cons 'begin
+        (map (lambda (f)
+               `(set! ,f (trace-wrap plain-ol-tracer ',f ,f)))
+             funs)))
+
 (define-macro (hook-with hookist . funs)
   (cons 'begin
         (map (lambda (f)
                `(set! ,f (,hookist ',f ,f)))
              funs)))
 
-(define-macro (tracefun . funs)
-  `(hook-with tracefun-hookist ,@funs))
+(define-macro (hook-with hookist . funs)
+  (cons 'begin
+        (map (lambda (f)
+               `(set! ,f (,hookist ',f ,f)))
+             funs)))
 
 (define (args-and-result-hook cb)
   (lambda (name f)
