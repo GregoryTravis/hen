@@ -1,4 +1,5 @@
 (define sb-debug #f)
+(define sb-display-raw #f)
 
 (define sb-barf-bletch 'blah-4-qq-4-qq-4)
 (define sb-gak-nil 'zink-4-qq-4-qq-4)
@@ -64,7 +65,9 @@
    port))
 
 (define (sb-display-to-port s port)
-  ((make-sb-displayer port) s))
+  (if sb-display-raw
+      (display s port)
+      ((make-sb-displayer port) s)))
 
 (define (sb-display s) (sb-display-to-port s (current-output-port)))
 
