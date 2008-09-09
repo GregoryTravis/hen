@@ -822,7 +822,7 @@
 (define (is-cons? c)
   (and (list? c)
        (= 3 (length c))
-       (equal? ''cons (car c))))
+       (equal? 'cons (car c))))
 
 (define (is-quoted-cons? c)
   (and (list? c)

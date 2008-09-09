@@ -12,7 +12,15 @@
                       (lambda (port)
                         (pretty-print ss port))))
            (cc (cf rendered)))
-      (if sb-debug (shew 'write 'orig s 'sf ss 'cf cc) '())
+      (if sb-debug
+          (begin
+            (display "==== sb write before ====\n")
+            (display s)
+            (display "\n")
+            (display "==== sb write after =====\n")
+            (display cc)
+            (display "=========================\n"))
+          '())
       (display cc port))))
 
 (define (cs-filtered-read-all cf sf port)
@@ -20,7 +28,15 @@
          (cc (cf c))
          (scanneds (read-objects-port (open-string-input-port cc)))
          (sses (sf scanneds)))
-    (if sb-debug (shew 'read 'orig c 'cf cc 'sf sses) '())
+    (if sb-debug
+        (begin
+          (display "==== sb read before =====\n")
+          (display c)
+          (display "==== sb write after =====\n")
+          (display sses)
+          (display "\n")
+          (display "=========================\n"))
+        '())
     sses))
 
 (define (make-cs-reader cf sf port)
@@ -87,7 +103,7 @@
 (define (sb-consyize l)
   (cond
    ((null? l) '())
-   ((pair? l) (list ''cons (sb-in-cvt (car l)) (sb-consyize (cdr l))))
+   ((pair? l) (list 'cons (sb-in-cvt (car l)) (sb-consyize (cdr l))))
    (#t (err))))
 
 (define (sb-in-cvt s)
@@ -103,7 +119,8 @@
 
 (define (make-sb-reader port)
   (make-cs-reader
-   (lambda (s) (regexp-replace* "\\[" (regexp-replace* "\\]" s (++ ") " sb-barf-bletch ")")) (++ "(" sb-barf-bletch " (")))
+   (lambda (s)
+     (regexp-replace* "\\[" (regexp-replace* "\\]" s (++ ") " sb-barf-bletch ")")) (++ "(" sb-barf-bletch " (")))
    sb-in-cvt
    port))
 
