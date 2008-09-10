@@ -98,7 +98,8 @@
      (lambda (port)
        (map (lambda (j) (sb-display-to-port j port)) args))))))
 
-(define (sb s) (sb-display s))
+(define (sb . args)
+  (map sb-display args))
 
 (define (sb-consyize l)
   (cond
