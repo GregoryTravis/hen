@@ -13,6 +13,8 @@
 (define (env-lookup e env)
   (assert (env-exists? e env) e env)
   (cdr (assoc e env)))
+(define (global-exists? e) (env-exists? e global-env))
+(define (global-lookup e) (env-lookup e global-env))
 
 (define (mitch pat e)
   (cond
@@ -72,6 +74,7 @@
 
 (define (normalize-step e rws)
   (cond
+   ((and (symbol? e) (global-exists? e)) (global-lookup e))
    ((conditional? e) (normalize-conditional e rws))
    ((primitive-call? e) (normalize-primitive (cadr e) rws))
    (#t (let ((e (if (app? e)

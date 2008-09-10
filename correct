@@ -214,12 +214,12 @@ false
 []
 
 + (shew a-global)
-a-global
+10
 []
 
 + (+ a-global a-global)
-(+ a-global a-global)
+20
 
 + a-global
-a-global
+10
 
