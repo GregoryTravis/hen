@@ -798,6 +798,33 @@
 (define (atom-traverse f t)
   (tree-traverse t f id))
 
+(define (treewalk-pairs f t)
+  (if (pair? t)
+      (let ((nt (f 'pair t)))
+        (assert (pair? nt))
+        (cons (treewalk f (car nt)) (treewalk-pairs f (cdr nt))))
+      t))
+
+(define (treewalk f t)
+  (cond
+   ((pair? t)
+    (let ((nt (f 'list t)))
+      (assert (pair? nt))
+      (treewalk-pairs f nt)))
+   ((atom? t) (f 'atom t))
+   (#t (err treewalk f t))))
+
+(define (list-treewalker f)
+  (lambda (how t)
+    (if (eq? 'list how)
+        (f t)
+        t)))
+
+(define (se-treewalker f)
+  (lambda (how t)
+    (f how t)
+    t))
+
 (define (term? e)
   (and (proper-list? e)
        (= 2 (length e))
