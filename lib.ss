@@ -647,7 +647,7 @@
   (cadr o))
 
 (define (literal? o)
-  (or (is-quote? o)
+  (or ;(is-quote? o)
       (string? o)
       (number? o)
       (null? o)
