@@ -49,15 +49,29 @@
     (display "\n")
     r))
 
+;; untested
+;; (define (tracer-filter f tracer)
+;;   (lambda (app runner)
+;;     (if (f app)
+;;         (tracer app runner)
+;;         (runner))))
+
 (define (trace-wrap tracer name f)
   (lambda args
-    (tracer (cons name args)
-            (lambda () (apply f args)))))
+    (let ((r '()))
+      (tracer (cons name args)
+              (lambda ()
+                (set! r (apply f args))
+                r))
+      r)))
 
 (define-macro (tracefun . funs)
+  `(tracefun-with plain-ol-tracer ,@funs))
+
+(define-macro (tracefun-with tracer . funs)
   (cons 'begin
         (map (lambda (f)
-               `(set! ,f (trace-wrap plain-ol-tracer ',f ,f)))
+               `(set! ,f (trace-wrap ,tracer ',f ,f)))
              funs)))
 
 (define-macro (hook-with hookist . funs)
@@ -836,7 +850,7 @@
 (define (conditional? e)
   (and (list? e)
        (= 4 (length e))
-       (equal? ''if (car e))))
+       (equal? 'if (car e))))
 
 (define (member-improper? a lyst)
   (or

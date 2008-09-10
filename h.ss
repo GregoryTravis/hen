@@ -55,11 +55,32 @@
             (try-rws e (cdr rws))
             poo))))
 
+(define (normalize-conditional c rws)
+  (assert (conditional? c))
+  (let ((if-part (cadr c))
+        (then-part (caddr c))
+        (else-part (cadddr c)))
+    (let ((b (normalize if-part rws)))
+      (cond
+       ((eq? 'true b) (normalize then-part rws))
+       ((eq? 'false b) (normalize else-part rws))
+       (#t (err 'conditional-exp-not-boolean c b))))))
+
+(define (normalize-primitive e rws)
+  (do-primitive-call (cons (car e)
+                           (map (lambda (e) (normalize e rws)) (cdr e)))))
+
 (define (normalize-step e rws)
-  (let ((e (if (app? e)
-               (map (lambda (e) (normalize e rws)) e)
-               e)))
-    (try-rws e rws)))
+  (cond
+   ((conditional? e) (normalize-conditional e rws))
+   ((primitive-call? e) (normalize-primitive (cadr e) rws))
+   (#t (let ((e (if (app? e)
+                    (map (lambda (e) (normalize e rws)) e)
+                    e)))
+         (let ((s (try-rws e rws)))
+           (if (eq? 'fail s)
+               e
+               s))))))
 
 (define (normalize e rws)
   (let ((ee (normalize-step e rws)))
@@ -73,8 +94,23 @@
   (sb (normalize e rws))
   (display "\n"))
 
+(define (normalization-tracer app runner)
+  (let ((e (cadr app))
+        (ee (runner)))
+    (if (not (equal? e ee))
+        (begin
+          (display "** ")
+          (lsb e)
+          (display " ==> ")
+          (lsb ee)
+          (display "\n"))
+        '())))
+
 ;(tracefun evl normalize normalize-step try-rws try-rw)
 ;(tracefun try-rw mitch rewrite)
+;(tracefun normalize normalize-conditional)
+;(tracefun normalize)
+;(tracefun-with normalization-tracer normalize-step)
 
 (define (preprocess src)
   (set! src (primitivize src))

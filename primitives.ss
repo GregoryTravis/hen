@@ -1,5 +1,5 @@
 (define (primitive-call? e)
-  (is-this-labeled-doublet? ''primitive-call e))
+  (is-this-labeled-doublet? 'primitive-call e))
 
 (define (primitivize e)
   (atom-traverse
@@ -35,12 +35,12 @@
 ;; (tracefun do-primitive-call)
 
 (define (unprim e)
-  (if (primitive2? e)
+  (if (primitive? e)
       (cadr e)
       e))
 
 (define (prim e)
-  (list ''primitive e))
+  (list 'primitive e))
 
 (define (pea-primitive-integer-+ a b)
   (prim (+ (unprim a) (unprim b))))
@@ -53,8 +53,8 @@
 
 (define (true-false-ify x)
   (cond
-   ((eq? #f x) ''false)
-   ((eq? #t x) ''true)
+   ((eq? #f x) 'false)
+   ((eq? #t x) 'true)
    (#t (err 'true-false-ify x))))
 
 (define (pea-primitive-== a b)
@@ -64,7 +64,7 @@
      ((string? a) (true-false-ify (string= a b)))
      ((symbol? a) (true-false-ify (eq? a b)))
      ((number? a) (true-false-ify (= a b)))
-     (#t (err 'pea-primitive-= a b)))))
+     (#t (err 'pea-primitive-== a b)))))
 
 (define (pea-primitive-> a b)
   (let ((a (unprim a))
