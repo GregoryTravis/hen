@@ -89,7 +89,7 @@
         (normalize ee rws))))
 
 (define (evl e rws)
-  (display "> ")
+  (display "+ ")
   (sb e)
   (sb (normalize e rws))
   (display "\n"))
@@ -138,7 +138,8 @@
      ((list? (car pat))
       (map mark-vars pat))
      (#t (err))))
-   (#t (err))))
+   ((literal? pat) pat)
+   (#t (err 'mark-vars pat))))
 
 (define (gather-vars pat)
   (cond
@@ -146,7 +147,8 @@
    ((symbol? pat) '())
    ((var? pat) (list (var-name pat)))
    ((list? pat) (map-append gather-vars pat))
-   (#t (err))))
+   ((literal? pat) '())
+   (#t (err 'gather-vars pat))))
 
 (define (mark-these-vars pat these-vars)
   (cond
