@@ -13,7 +13,7 @@
 + (tak [1 2])
 [(harf 1 1) (harf 2 2)]
 
-+ (map 'yep [1 2])
++ (map yep [1 2])
 [(double 1 1) (double 2 2)]
 
 + (append
@@ -46,142 +46,100 @@
 3/4
 
 + (== 3 4)
-'false
+false
 
 + (!= 3 4)
-'true
+true
 
 + (< 3 4)
-'true
+true
 
 + (> 3 4)
-'false
+false
 
 + (<= 3 4)
-'true
+true
 
 + (>= 3 4)
-'false
+false
 
 + (== 4 3)
-'false
+false
 
 + (!= 4 3)
-'true
+true
 
 + (< 4 3)
-'false
+false
 
 + (> 4 3)
-'true
+true
 
 + (<= 4 3)
-'false
+false
 
 + (>= 4 3)
-'true
+true
 
 + (== 4 4)
-'true
+true
 
 + (!= 4 4)
-'false
+false
 
 + (< 4 4)
-'false
+false
 
 + (> 4 4)
-'false
+false
 
 + (<= 4 4)
-'true
+true
 
 + (>= 4 4)
-'true
+true
 
-+ (not 'false)
-'true
++ (not false)
+true
 
-+ (not 'true)
-'false
++ (not true)
+false
 
-+ (and 'true 'true)
-'true
++ (and true true)
+true
 
-+ (and 'false 'true)
-'false
++ (and false true)
+false
 
-+ (and 'true 'false)
-'false
++ (and true false)
+false
 
-+ (and 'false 'false)
-'false
++ (and false false)
+false
 
-+ (or 'true 'true)
-'true
++ (or true true)
+true
 
-+ (or 'false 'true)
-'true
++ (or false true)
+true
 
-+ (or 'true 'false)
-'true
++ (or true false)
+true
 
-+ (or 'false 'false)
-'false
++ (or false false)
+false
 
-+ (xor 'true 'false)
-'true
++ (xor true false)
+true
 
-+ (xor 'false 'true)
-'true
++ (xor false true)
+true
 
-+ (xor 'true 'true)
-'false
++ (xor true true)
+false
 
-+ (xor 'false 'false)
-'false
-
-+ (not 'false)
-'true
-
-+ (not 'true)
-'false
-
-+ (and 'true 'true)
-'true
-
-+ (and 'false 'true)
-'false
-
-+ (and 'true 'false)
-'false
-
-+ (and 'false 'false)
-'false
-
-+ (or 'true 'true)
-'true
-
-+ (or 'false 'true)
-'true
-
-+ (or 'true 'false)
-'true
-
-+ (or 'false 'false)
-'false
-
-+ (xor 'true 'false)
-'true
-
-+ (xor 'false 'true)
-'true
-
-+ (xor 'true 'true)
-'false
-
-+ (xor 'false 'false)
-'false
++ (xor false false)
+false
 
 + (fact 10)
 3628800
@@ -195,36 +153,30 @@
 + (read-file "tst-readee.ss")
 [[1 2 3]]
 
++ (shew 5 5 6)
 5
 5
 6
-+ (shew 5 5 6)
 []
 
++ (map shew [5 5 6])
 5
 5
 6
-+ (map 'shew [5 5 6])
 [
   []
   []
   []
  ]
 
-[4 5]
 + (shew [4 5])
+[4 5]
 []
 
-+ (grep 'blah [1 2 30 40 5])
++ (grep blah [1 2 30 40 5])
 [30 40]
 
-+ (grep 'bluh [1 2 30 40 5])
-[1 2 5]
-
-+ (grep 'blah [1 2 30 40 5])
-[30 40]
-
-+ (grep 'bluh [1 2 30 40 5])
++ (grep bluh [1 2 30 40 5])
 [1 2 5]
 
 + (begin 5)
@@ -239,35 +191,35 @@
 + (begin 5 6 7 8)
 8
 
-5
 + (shew 5)
+5
 []
 
++ (shew 5 6)
 5
 6
-+ (shew 5 6)
 []
 
++ (shew 5 6 7)
 5
 6
 7
-+ (shew 5 6 7)
 []
 
++ (shew 5 6 7 8)
 5
 6
 7
 8
-+ (shew 5 6 7 8)
 []
 
-10
 + (shew a-global)
+a-global
 []
 
 + (+ a-global a-global)
-20
+(+ a-global a-global)
 
 + a-global
-10
+a-global
 

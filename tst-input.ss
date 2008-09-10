@@ -44,24 +44,6 @@
 (<= 4 4)
 (>= 4 4)
 
-(not 'false)
-(not 'true)
-
-(and 'true 'true)
-(and 'false 'true)
-(and 'true 'false)
-(and 'false 'false)
-
-(or 'true 'true)
-(or 'false 'true)
-(or 'true 'false)
-(or 'false 'false)
-
-(xor 'true 'false)
-(xor 'false 'true)
-(xor 'true 'true)
-(xor 'false 'false)
-
 (not false)
 (not true)
 
@@ -96,14 +78,12 @@
 (read-file "tst-readee.ss")
 
 (shew 5 5 6)
-(map 'shew [5 5 6])
+(map shew [5 5 6])
 (shew [4 5])
 
 (fun (blah x) (> x 10))
 (fun (bluh x) (< x 10))
 
-(grep 'blah [1 2 30 40 5])
-(grep 'bluh [1 2 30 40 5])
 (grep blah [1 2 30 40 5])
 (grep bluh [1 2 30 40 5])
 
