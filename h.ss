@@ -97,23 +97,10 @@
   (sb (normalize e rws))
   (display "\n"))
 
-(define (normalization-tracer app runner)
-  (let ((e (cadr app))
-        (ee (runner)))
-    (if (not (equal? e ee))
-        (begin
-          (display "** ")
-          (lsb e)
-          (display " ==> ")
-          (lsb ee)
-          (display "\n"))
-        '())))
-
 ;(tracefun evl normalize normalize-step try-rws try-rw)
 ;(tracefun try-rw mitch rewrite)
 ;(tracefun normalize normalize-conditional)
 ;(tracefun normalize)
-;(tracefun-with normalization-tracer normalize-step)
 
 (define (preprocess src)
   (set! src (primitivize src))

@@ -1,6 +1,8 @@
 (define show-reductions #f)
 (define show-normalizations #f)
 (define show-counts-p #f)
+(define trace-normalization-p #f)
+
 (define counts-rws 0)
 
 (define (show-counts)
@@ -54,6 +56,18 @@
   (show-counts)
   (display "\n"))
 
+(define (normalization-tracer app runner)
+  (let ((e (cadr app))
+        (ee (runner)))
+    (if (not (equal? e ee))
+        (begin
+          (display "** ")
+          (lsb e)
+          (display " ==> ")
+          (lsb ee)
+          (display "\n"))
+        '())))
+
 (if show-reductions (hook-with (args-and-result-hook top-rw-dumper) top-rw) '())
 (if show-normalizations
     (hook-with (args-and-result-hook normalize-dumper) normalize)
@@ -63,4 +77,6 @@
       (hook-with (args-and-result-hook top-rw-ticker) top-rw)
       (hook-with (before-and-after-hook evl-dumper-before evl-dumper-after) evl))
     '())
-
+(if trace-normalization-p
+    (tracefun-with normalization-tracer normalize-step)
+    '())
