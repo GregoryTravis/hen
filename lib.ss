@@ -753,10 +753,15 @@
   (and (eq? 3 (length p))
        (eq? 'if-pair? (car p))))
 
-(define (fun? e)
+(define (fun-no-guard? e)
   (and (pair? e)
        (eq? 'fun (car e))
        (= 3 (length e))))
+
+(define (fun? e)
+  (and (pair? e)
+       (eq? 'fun (car e))
+       (= 4 (length e))))
 
 (define (var? e)
   (and (pair? e)

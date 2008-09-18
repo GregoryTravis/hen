@@ -40,19 +40,22 @@
    ((is-quote? body) body)
    (#t (err 'rewrite body))))
 
-(define (try-rw e rw)
-  (assert (fun? rw))
+(define (try-rw e rw rws)
+  (assert (fun? rw) rw)
   (let* ((pat (cadr rw))
-         (body (caddr rw))
+         (guard (caddr rw))
+         (body (cadddr rw))
          (bindings (mitch pat e)))
     (if (eq? 'fail bindings)
         'fail
-        (rewrite body bindings))))
+        (if (equal? (normalize guard rws) 'true)
+            (rewrite body bindings)
+            'fail))))
 
 (define (try-rws e rws)
   (if (null? rws)
       'fail
-      (let ((poo (try-rw e (car rws))))
+      (let ((poo (try-rw e (car rws) rws)))
         (if (eq? 'fail poo)
             (try-rws e (cdr rws))
             poo))))
@@ -102,7 +105,13 @@
 ;(tracefun normalize normalize-conditional)
 ;(tracefun normalize)
 
+(define (add-pattern-guards e)
+  (if (fun-no-guard? e)
+      `(fun ,(cadr e) true ,(caddr e))
+      e))
+
 (define (preprocess src)
+  (set! src (map add-pattern-guards src))
   (set! src (primitivize src))
   src)
 
@@ -154,11 +163,13 @@
 (define (preprocess-rule rw)
   (assert (fun? rw))
   (let* ((pat (cadr rw))
-         (body (caddr rw))
+         (guard (caddr rw))
+         (body (cadddr rw))
          (ppat (mark-vars pat))
          (vars (gather-vars ppat))
+         (pguard (mark-these-vars guard vars))
          (pbody (mark-these-vars body vars)))
-    `(fun ,ppat ,pbody)))
+    `(fun ,ppat ,pguard ,pbody)))
 
 ;(tracefun preprocess-rule mark-these-vars mark-vars gather-vars)
 ;(tracefun mark-these-vars)
@@ -178,3 +189,4 @@
 (define (go)
   (run (load-files (list "src.ss"))))
 ;(load "tracing.ss")
+;(tracefun normalize)
