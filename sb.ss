@@ -83,7 +83,9 @@
 
 (define (sb-display-to-port s port)
   (if sb-display-raw
-      (display s port)
+      (begin
+        (display s port)
+        (display "\n"))
       ((make-sb-displayer port) s)))
 
 (define (sb-display s) (sb-display-to-port s (current-output-port)))
