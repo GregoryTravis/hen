@@ -5,8 +5,8 @@
   (atom-traverse
    (lambda (e)
      (cond
-      ((integer? e) `(integer (primitive ,e)))
-      ((string? e) `(string (primitive ,e)))
+      ((integer? e) `(Integer (Primitive ,e)))
+      ((string? e) `(String (Primitive ,e)))
       (#t e)))
    e))
 
@@ -40,7 +40,7 @@
       e))
 
 (define (prim e)
-  (list 'primitive e))
+  (list 'Primitive e))
 
 (define (pea-primitive-integer-+ a b)
   (prim (+ (unprim a) (unprim b))))

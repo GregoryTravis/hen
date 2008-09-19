@@ -846,10 +846,10 @@
        (equal? s (car e))))
 
 (define (primitive? e)
-  (is-this-labeled-doublet? 'primitive e))
+  (is-this-labeled-doublet? 'Primitive e))
 
 (define (primitive2? e)
-  (is-this-labeled-doublet? ''primitive e))
+  (is-this-labeled-doublet? ''Primitive e))
 
 (define (extract-primitive-maybe e)
   (if (primitive2? e)
@@ -868,12 +868,12 @@
 (define (is-cons? c)
   (and (list? c)
        (= 3 (length c))
-       (equal? 'cons (car c))))
+       (equal? 'Cons (car c))))
 
 (define (is-quoted-cons? c)
   (and (list? c)
        (= 3 (length c))
-       (equal? ''cons (car c))))
+       (equal? ''Cons (car c))))
 
 (define (is-consy-list? c)
   (or (and (is-cons? c) (is-consy-list? (caddr c)))

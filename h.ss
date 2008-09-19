@@ -91,8 +91,18 @@
 (define (normalize e rws)
   (let ((ee (normalize-step e rws)))
     (if (or (equal? e ee) (eq? 'fail ee))
-        e
+        (normalized-done e)
         (normalize ee rws))))
+
+(define (normalized? e)
+  (or (literal? e)
+      (symbol? e)
+      (cton? e)))
+
+(define (normalized-done e)
+  (if (not (normalized? e))
+      (err 'bleargh e)
+      e))
 
 (define (evl e rws)
   (display "+ ")

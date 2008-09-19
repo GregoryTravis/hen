@@ -1,18 +1,18 @@
 (fun (map f ()) ())
-(fun (map f (cons a d)) (cons (f a) (map f d)))
+(fun (map f (Cons a d)) (Cons (f a) (map f d)))
 
 (fun (grep p ()) [])
-(fun (grep p (cons a d))
+(fun (grep p (Cons a d))
      (if (p a)
-         (cons a (grep p d))
+         (Cons a (grep p d))
          (grep p d)))
 
 (fun (append () a) a)
-(fun (append (cons a d) b) (cons a (append d b)))
+(fun (append (Cons a d) b) (Cons a (append d b)))
 
 (fun (reverse ()) ())
-(fun (reverse (cons a d))
-     (append (reverse d) (cons a ())))
+(fun (reverse (Cons a d))
+     (append (reverse d) (Cons a ())))
 
 (fun (not 'true) false)
 (fun (not 'false) true)
@@ -32,22 +32,22 @@
 (fun (xor 'true 'true) false)
 (fun (xor 'false 'false) false)
 
-(fun (+ (integer a) (integer b))
-     (integer (primitive-call (integer-+ a b))))
-(fun (- (integer a) (integer b))
-     (integer (primitive-call (integer-- a b))))
-(fun (* (integer a) (integer b))
-     (integer (primitive-call (integer-* a b))))
-(fun (/ (integer a) (integer b))
-     (integer (primitive-call (integer-/ a b))))
+(fun (+ (Integer a) (Integer b))
+     (Integer (primitive-call (integer-+ a b))))
+(fun (- (Integer a) (Integer b))
+     (Integer (primitive-call (integer-- a b))))
+(fun (* (Integer a) (Integer b))
+     (Integer (primitive-call (integer-* a b))))
+(fun (/ (Integer a) (Integer b))
+     (Integer (primitive-call (integer-/ a b))))
 
-(fun (== (integer a) (integer b))
+(fun (== (Integer a) (Integer b))
      (primitive-call (== a b)))
 
-(fun (== (cons a b) (cons c d))
+(fun (== (Cons a b) (Cons c d))
      (and (== a c) (== b d)))
 
-(fun (> (integer a) (integer b))
+(fun (> (Integer a) (Integer b))
      (primitive-call (> a b)))
 
 (fun (< a b)
@@ -58,7 +58,7 @@
 
 (fun (!= a b) (not (== a b)))
 
-(fun (read-file (string filename))
+(fun (read-file (String filename))
      (primitive-call (read-file filename)))
 
 (fun (begin a) a)
