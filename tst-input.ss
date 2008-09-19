@@ -101,3 +101,20 @@
 (shew a-global)
 (+ a-global a-global)
 a-global
+
+(fun (guardo-a a b)
+     true
+     (bar a a))
+
+(fun (guardo-b a b)
+     false
+     (bar a a))
+
+(fun (guardo-c a b)
+     (== a b)
+     (bar a a))
+
+(guardo-a 10 10)
+(guardo-b 10 10)
+(guardo-c 10 10)
+(guardo-c 10 20)

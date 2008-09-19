@@ -1,2 +1,2 @@
-;; (fun (match [a . d])
-;; (match [loo a b] [loo 1 2])
+(fun (yep a) (double a a))
+(map yep [1 2])

@@ -48,16 +48,16 @@
          (bindings (mitch pat e)))
     (if (eq? 'fail bindings)
         'fail
-        (if (equal? (normalize guard rws) 'true)
+        (if (equal? (normalize (rewrite guard bindings) rws) 'true)
             (rewrite body bindings)
             'fail))))
 
-(define (try-rws e rws)
+(define (try-rws e rws all-rws)
   (if (null? rws)
       'fail
-      (let ((poo (try-rw e (car rws) rws)))
+      (let ((poo (try-rw e (car rws) all-rws)))
         (if (eq? 'fail poo)
-            (try-rws e (cdr rws))
+            (try-rws e (cdr rws) all-rws)
             poo))))
 
 (define (normalize-conditional c rws)
@@ -83,7 +83,7 @@
    (#t (let ((e (if (app? e)
                     (map (lambda (e) (normalize e rws)) e)
                     e)))
-         (let ((s (try-rws e rws)))
+         (let ((s (try-rws e rws rws)))
            (if (eq? 'fail s)
                e
                s))))))
@@ -189,4 +189,4 @@
 (define (go)
   (run (load-files (list "src.ss"))))
 ;(load "tracing.ss")
-;(tracefun normalize)
+;(tracefun normalize); try-rw)

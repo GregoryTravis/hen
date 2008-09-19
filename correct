@@ -223,3 +223,15 @@ false
 + a-global
 10
 
++ (guardo-a 10 10)
+(bar 10 10)
+
++ (guardo-b 10 10)
+(guardo-b 10 10)
+
++ (guardo-c 10 10)
+(bar 10 10)
+
++ (guardo-c 10 20)
+(guardo-c 10 20)
+
