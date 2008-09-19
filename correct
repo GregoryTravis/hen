@@ -235,3 +235,9 @@ false
 + (guardo-c 10 20)
 (guardo-c 10 20)
 
++ (jerk [1 . 2] 1 2)
+10
+
++ (jerk [1 . 2] 2 1)
+20
+
