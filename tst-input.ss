@@ -118,3 +118,12 @@ a-global
 (guardo-b 10 10)
 (guardo-c 10 10)
 (guardo-c 10 20)
+
+(fun (jerk a b c)
+     (== a (cons b c))
+     10)
+(fun (jerk a b c)
+     20)
+
+(jerk (cons 1 2) 1 2)
+(jerk (cons 1 2) 2 1)
