@@ -1,14 +1,14 @@
-(fun (foo a b) (bar b b))
+(fun (foo a b) (Bar b b))
 (foo 10 20)
-(bar 10 20)
+(Bar 10 20)
 (foo 20 10)
-(bar 20 10)
+(Bar 20 10)
 
 (fun (tak []) [])
-(fun (tak (cons a d)) (cons (harf a a) (tak d)))
+(fun (tak (Cons a d)) (Cons (Harf a a) (tak d)))
 (tak [1 2])
 
-(fun (yep a) (double a a))
+(fun (yep a) (Double a a))
 (map yep [1 2])
 
 (append [1 2] [3 4])
@@ -104,26 +104,32 @@ a-global
 
 (fun (guardo-a a b)
      true
-     (bar a a))
+     (Bar a a))
 
 (fun (guardo-b a b)
      false
-     (bar a a))
+     (Bar a a))
+
+(fun (guardo-b a b)
+     (Voo b a))
 
 (fun (guardo-c a b)
      (== a b)
-     (bar a a))
+     (Bar a a))
+
+(fun (guardo-c a b)
+     (Bic b b))
 
 (guardo-a 10 10)
-(guardo-b 10 10)
+(guardo-b 10 50)
 (guardo-c 10 10)
 (guardo-c 10 20)
 
 (fun (jerk a b c)
-     (== a (cons b c))
+     (== a (Cons b c))
      10)
 (fun (jerk a b c)
      20)
 
-(jerk (cons 1 2) 1 2)
-(jerk (cons 1 2) 2 1)
+(jerk (Cons 1 2) 1 2)
+(jerk (Cons 1 2) 2 1)
