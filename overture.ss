@@ -44,6 +44,9 @@
 (fun (== (integer a) (integer b))
      (primitive-call (== a b)))
 
+(fun (== (cons a b) (cons c d))
+     (and (== a c) (== b d)))
+
 (fun (> (integer a) (integer b))
      (primitive-call (> a b)))
 
