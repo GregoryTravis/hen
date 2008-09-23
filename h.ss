@@ -1,3 +1,4 @@
+
 (load "lib.ss")
 (load "sb.ss")
 (load "primitives.ss")
@@ -170,6 +171,71 @@
    ((atom? pat) pat)
    (#t (err 'otherwise pat))))
 
+(define sg (symbol-generator-generator))
+
+(define (remove-nonlinearity pat)
+  (let* ((tpat (nl-tag-vars pat))
+         (vars (group-by car (nl-gather-tagged-vars tpat)))
+         (nls (grep (lambda (var) (> (length var) 2)) vars))
+         (nlvars (map car nls))
+         (repat (nl-reassign-vars nlvars tpat))
+         (comps (nl-build-comparisons nls)))
+    (cons repat comps)))
+
+(define (nl-tag-vars pat)
+  (cond
+   ((app? pat) (map nl-tag-vars pat))
+   ((or (literal? pat) (symbol? pat)) pat)
+   ((var? pat) (cons pat (list 'unquote (sg))))
+   (#t (err 'nl-tag-vars pat))))
+
+(define (nl-gather-tagged-vars pat)
+  (cond
+   ((and (pair? pat) (var? (car pat))) (list pat))
+   ((app? pat) (map-append nl-gather-tagged-vars pat))
+   ((or (literal? pat) (symbol? pat)) '())
+   (#t (err 'nl-gather-tagged-vars pat))))
+
+(define (nl-reassign-vars nlvars pat)
+  (cond
+   ((and (pair? pat) (var? (car pat)))
+    (if (member? (car pat) nlvars)
+        (cdr pat)
+        (car pat)))
+   ((app? pat) (map (lambda (pat) (nl-reassign-vars nlvars pat)) pat))
+   ((or (literal? pat) (symbol? pat)) pat)
+   (#t (err 'nl-reassign-vars pat))))
+
+(define (nl-build-comparisons vars)
+  (if (null? vars)
+      'true
+      (cons 'and
+            (map-append (lambda (varlist)
+                          (let ((renames (cdr varlist)))
+                            (map (lambda (rename)
+                                   `(== ,(cdar renames) ,(cdr rename)))
+                                 (cdr renames))))
+                        vars))))
+
+;; Har de har, the default guards are (and true true), which would
+;; work except that the definition of 'and' has that guard too, har de
+;; har har.
+(define (simplify-guard pat)
+  (cond
+   ((and (pair? pat)
+         (eq? 'and (car pat))
+         (pair? (cdr pat))
+         (eq? 'true (cadr pat))
+         (pair? (cddr pat))
+         (null? (cdddr pat)))
+    (simplify-guard (caddr pat)))
+   ((and (pair? pat)
+         (eq? 'and (car pat))
+         (pair? (cdr pat))
+         (null? (cddr pat)))
+    (cadr pat))
+   (#t pat)))
+
 (define (preprocess-rule rw)
   (assert (fun? rw))
   (let* ((pat (cadr rw))
@@ -178,6 +244,13 @@
          (ppat (mark-vars pat))
          (vars (gather-vars ppat))
          (pguard (mark-these-vars guard vars))
+
+         ;; nonlinearity
+         (stuff (remove-nonlinearity ppat))
+         (ppat (car stuff))
+         (pguard `(and ,pguard ,(cdr stuff)))
+         (pguard (simplify-guard pguard))
+
          (pbody (mark-these-vars body vars)))
     `(fun ,ppat ,pguard ,pbody)))
 

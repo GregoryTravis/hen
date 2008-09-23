@@ -51,25 +51,37 @@
 (define (pea-primitive-integer-/ a b)
   (prim (/ (unprim a) (unprim b))))
 
-(define (true-false-ify x)
+(define (tfy x)
   (cond
    ((eq? #f x) 'false)
    ((eq? #t x) 'true)
-   (#t (err 'true-false-ify x))))
+   (#t (err 'tfy x))))
+
+(define (untfy x)
+  (cond
+   ((eq? x 'true) #t)
+   ((eq? x 'false) #f)
+   (#t (err 'untfy x))))
+
+(define (tfall? lyst)
+  (all? (map untfy lyst)))
 
 (define (pea-primitive-== a b)
-  (let ((a (unprim a))
-        (b (unprim b)))
-    (cond
-     ((string? a) (true-false-ify (string= a b)))
-     ((symbol? a) (true-false-ify (eq? a b)))
-     ((number? a) (true-false-ify (= a b)))
-     (#t (err 'pea-primitive-== a b)))))
+  (let ((ta (typeof a))
+        (tb (typeof b)))
+    (tfy (and (eq? ta tb)
+              (cond
+               ((eq? 'cton ta) (tfall? (map pea-primitive-== a b)))
+               ((eq? 'string ta) (string= a b))
+               ((eq? 'number ta) (= a b))
+               ((eq? 'ctor ta) (eq? a b))
+               (#t (err '== a b)))))))
+;(tracefun pea-primitive-== all?)
 
 (define (pea-primitive-> a b)
   (let ((a (unprim a))
         (b (unprim b)))
-    (true-false-ify (and (number? a) (number? b) (> a b)))))
+    (tfy (and (number? a) (number? b) (> a b)))))
 
 (define (pea-primitive-read-file filename)
   (sb-consyize (sb-read-file (unprim filename))))

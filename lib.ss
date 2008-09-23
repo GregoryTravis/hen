@@ -279,9 +279,11 @@
           (any? (cdr lyst)))))
 
 (define (all? lyst)
-  (if (null? lyst)
-      #t
-      (and (car lyst) (all? (cdr lyst)))))
+  (cond
+   ((null? lyst) #t)
+   ((eq? #t (car lyst)) (all? (cdr lyst)))
+   ((eq? #f (car lyst)) #f)
+   (#t (err 'all? lyst))))
 
 (define (none lyst)
   (not (any? lyst)))
@@ -439,7 +441,7 @@
       '()
       (let* ((group-of-car (f (car lyst)))
              (divided (divide-by-pred
-                       (lambda (x) (eq? group-of-car (f x)))
+                       (lambda (x) (equal? group-of-car (f x)))
                        lyst))
              (in-group (car divided))
              (not-in-group (cdr divided)))
@@ -896,3 +898,11 @@
     (if (eof-object? line)
         '()
         (cons (++ line "\n") (read-all-lines port)))))
+
+(define (typeof o)
+  (cond
+   ((cton? o) 'cton)
+   ((ctor? o) 'ctor)
+   ((string? o) 'string)
+   ((number? o) 'number)
+   (#t (err 'typeof o))))

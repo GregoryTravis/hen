@@ -41,11 +41,7 @@
 (fun (/ (Integer a) (Integer b))
      (Integer (primitive-call (integer-/ a b))))
 
-(fun (== (Integer a) (Integer b))
-     (primitive-call (== a b)))
-
-(fun (== (Cons a b) (Cons c d))
-     (and (== a c) (== b d)))
+(fun (== a b) (primitive-call (== a b)))
 
 (fun (> (Integer a) (Integer b))
      (primitive-call (> a b)))
