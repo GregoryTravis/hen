@@ -1,4 +1,3 @@
-
 (load "lib.ss")
 (load "sb.ss")
 (load "primitives.ss")
@@ -9,11 +8,13 @@
   (set! global-env (var-declarations->env globals)))
 (define (var-declarations->env globals)
   (map global-var->binding globals))
-(define (env-exists? e env)
-  (not (eq? #f (assoc e env))))
-(define (env-lookup e env)
-  (assert (env-exists? e env) e env)
-  (cdr (assoc e env)))
+;; (define (env-exists? e env)
+;;   (not (eq? #f (assoc e env))))
+;; (define (env-lookup e env)
+;;   (assert (env-exists? e env) e env)
+;;   (cdr (assoc e env)))
+(define env-exists? lookup-exists?)
+(define env-lookup lookup)
 (define (global-exists? e) (env-exists? e global-env))
 (define (global-lookup e) (env-lookup e global-env))
 
