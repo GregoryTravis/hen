@@ -116,13 +116,7 @@
 ;(tracefun normalize normalize-conditional)
 ;(tracefun normalize)
 
-(define (add-pattern-guards e)
-  (if (fun-no-guard? e)
-      `(fun ,(cadr e) true ,(caddr e))
-      e))
-
 (define (preprocess src)
-  (set! src (map add-pattern-guards src))
   (set! src (primitivize src))
   src)
 
@@ -236,8 +230,26 @@
     (cadr pat))
    (#t pat)))
 
+;; (define (add-guard e)
+;;   (assert (fun-without-guard? e))
+;;   `(fun ,(cadr e) (? true) ,(caddr e)))
+
+;; Add guard if rule doesn't have one, and strip the guard syntax (? _)
+(define (fun-standardize-guard e)
+  (cond
+   ((fun-without-guard-syntax? e) `(fun ,(cadr e) true ,(caddr e)))
+   ((fun-with-guard-syntax? e) `(fun ,(cadr e) ,(cadr (caddr e)) ,(caddr (cdr e))))
+   (#t (err 'fun-standardize-guard e))))
+
+;      (add-guard r)
+;      r))
+;;   (set! r (if (fun-without-guard? r) (add-guard r) r))
+;;   (assert (fun-with-guard? r))
+;;   `(fun ,(cadr r) ,(cadr (caddr r)) ,(cadddr r)))
+
 (define (preprocess-rule rw)
-  (assert (fun? rw))
+  (assert (fun-src-syntax? rw))
+  (set! rw (fun-standardize-guard rw))
   (let* ((pat (cadr rw))
          (guard (caddr rw))
          (body (cadddr rw))
@@ -257,9 +269,9 @@
 ;(tracefun preprocess-rule mark-these-vars mark-vars gather-vars)
 ;(tracefun mark-these-vars)
 
-(define (gather-rws src) (grep fun? src))
+(define (gather-rws src) (grep fun-src-syntax? src))
 (define (gather-global-vars src) (grep global-var? src))
-(define (gather-exps src) (grep (fnot (for fun? global-var?)) src))
+(define (gather-exps src) (grep (fnot (for fun-src-syntax? global-var?)) src))
 
 (define (run src)
   (let* ((src (preprocess src))

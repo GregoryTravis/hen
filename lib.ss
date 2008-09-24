@@ -755,15 +755,39 @@
   (and (eq? 3 (length p))
        (eq? 'if-pair? (car p))))
 
-(define (fun-no-guard? e)
+(define (guard? e)
+  (and (pair? e)
+       (eq? '? (car e))
+       (proper-list? (cdr e))))
+
+(define (fun-without-guard-syntax? e)
   (and (pair? e)
        (eq? 'fun (car e))
        (= 3 (length e))))
 
+(define (fun-with-guard-syntax? e)
+  (and (pair? e)
+       (eq? 'fun (car e))
+       (guard? (caddr e))
+       (= 4 (length e))))
+
+(define (fun-src-syntax? e)
+  (or (fun-with-guard-syntax? e)
+      (fun-without-guard-syntax? e)))
+
+;(define (fun-with-guard? e)
 (define (fun? e)
   (and (pair? e)
        (eq? 'fun (car e))
+;       (guard? (caddr e))
        (= 4 (length e))))
+
+;; (define (fun? e) (or (fun-without-guard? e)
+;;                      (fun-with-guard? e)))
+
+;; (define (guard-exp e)
+;;   (assert (guard? e))
+;;   (cadr e))
 
 (define (var? e)
   (and (pair? e)

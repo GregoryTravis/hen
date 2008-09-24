@@ -71,7 +71,10 @@
         (tb (typeof b)))
     (tfy (and (eq? ta tb)
               (cond
-               ((eq? 'cton ta) (tfall? (map pea-primitive-== a b)))
+               ((eq? 'cton ta)
+                (if (= (length a) (length b))
+                    (tfall? (map pea-primitive-== a b))
+                    #f))
                ((eq? 'string ta) (string= a b))
                ((eq? 'number ta) (= a b))
                ((eq? 'ctor ta) (eq? a b))

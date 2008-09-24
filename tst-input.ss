@@ -107,18 +107,18 @@
 a-global
 
 (fun (guardo-a a b)
-     true
+     (? true)
      (Bar a a))
 
 (fun (guardo-b a b)
-     false
+     (? false)
      (Bar a a))
 
 (fun (guardo-b a b)
      (Voo b a))
 
 (fun (guardo-c a b)
-     (== a b)
+     (? (== a b))
      (Bar a a))
 
 (fun (guardo-c a b)
@@ -130,7 +130,7 @@ a-global
 (guardo-c 10 20)
 
 (fun (jerk a b c)
-     (== a (Cons b c))
+     (? (== a (Cons b c)))
      10)
 (fun (jerk a b c)
      20)
@@ -150,3 +150,11 @@ a-global
 
 (jerku (Poo 34) (Poo 34) (G) (Lap 5) (Lap 6))
 (jerku (Poo 34) (Poo 34) (G) (Lap 5) (Lap 5))
+
+(fun (figg a b)
+     (? (== a (Jerk)))
+     (Shoe a b))
+(fun (figg a b) (Blap a b))
+
+(figg 10 20)
+(figg (Jerk) 20)
