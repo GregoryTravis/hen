@@ -199,7 +199,7 @@
 (define (nl-build-comparisons vars)
   (mtch vars
         () 'true
-        x (cons 'and
+        _ (cons 'and
                 (map-append (lambda (varlist)
                               (let ((renames (cdr varlist)))
                                 (map (lambda (rename)
