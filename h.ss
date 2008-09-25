@@ -286,5 +286,6 @@
     (map (lambda (e) (evl e rws)) exps)))
 
 (define (go)
+  (run (load-files (list "src.ss"))))
 ;(load "tracing.ss")
 ;(tracefun normalize); try-rw)
