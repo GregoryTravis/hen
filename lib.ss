@@ -7,7 +7,7 @@
 (require (lib "pregexp.ss"))
 (require (lib "process.ss"))
 (require (lib "compat.ss"))
-(require (lib "pretty.ss"))
+(require (for-syntax (lib "pretty.ss")))
 ;(require (lib "../errortrace/errortrace.ss"))
 ;(require-for-syntax (lib "list.ss"))
 
@@ -1063,14 +1063,10 @@
               ,(mtch-render target-var clauses clauses))))
       (if mtch-show-expansion
           (begin
-            (display 'mtch)
-            (display "\n")
-            (display target)
-            (display "\n")
-            (display clauses)
-            (display "\n")
-            (display code)
-            (display "\n"))
+            (pretty-print 'mtch)
+            (pretty-print target)
+            (pretty-print clauses)
+            (pretty-print code))
           '())
       code)))
 
