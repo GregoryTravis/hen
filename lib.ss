@@ -969,10 +969,25 @@
         (set! serial (+ serial 1))
         (string->symbol (string-append "_m" (number->string s)))))))
 
-(define-for-syntax (mtch-render-top target clauses)
-  (let ((target-var (mtch-vargen)))
-    `(let ((,target-var ,target))
-       ,(mtch-render target-var clauses clauses))))
+(define (mtch-target pat target)
+  (let ((env (mtch-target0 pat target)))
+    (if (not (null? (grep (lambda (x) (eq? x #f)) env)))
+        #f
+        env)))
+
+(define (mtch-target0 pat target)
+  (cond
+   ((and (pair? pat) (pair? target))
+    (append (mtch-target0 (car pat) (car target))
+            (mtch-target0 (cdr pat) (cdr target))))
+   ((eq? pat '_) '())
+   ((ctor? pat) (if (eq? pat target) '() '(#f)))
+   ((symbol? pat) (list (cons pat target)))
+   ((and (is-quote? pat) (symbol? (quote-quoted pat)))
+    (if (eq? (quote-quoted pat) target) '() '(#f)))
+   ((is-quote? pat) (err 'mtch-huh pat target))
+   ((literal? pat) (if (equal? pat target) '() '(#f)))
+   (#t (err 'mtch-target0 pat target))))
 
 (define (mtch-rewrite env body)
   (cond
@@ -1001,25 +1016,10 @@
                  ,(mtch-render target (cddr clauses) clauses)
                  (mtch-rewrite ,env-var ',body)))))))
 
-(define (mtch-target pat target)
-  (let ((env (mtch-target0 pat target)))
-    (if (not (null? (grep (lambda (x) (eq? x #f)) env)))
-        #f
-        env)))
-
-(define (mtch-target0 pat target)
-  (cond
-   ((and (pair? pat) (pair? target))
-    (append (mtch-target0 (car pat) (car target))
-            (mtch-target0 (cdr pat) (cdr target))))
-   ((eq? pat '_) '())
-   ((ctor? pat) (if (eq? pat target) '() '(#f)))
-   ((symbol? pat) (list (cons pat target)))
-   ((and (is-quote? pat) (symbol? (quote-quoted pat)))
-    (if (eq? (quote-quoted pat) target) '() '(#f)))
-   ((is-quote? pat) (err 'mtch-huh pat target))
-   ((literal? pat) (if (equal? pat target) '() '(#f)))
-   (#t (err 'mtch-target0 pat target))))
+(define-for-syntax (mtch-render-top target clauses)
+  (let ((target-var (mtch-vargen)))
+    `(let ((,target-var ,target))
+       ,(mtch-render target-var clauses clauses))))
 
 (define-macro (mtch target . clauses)
   (mtch-render-top target clauses))
