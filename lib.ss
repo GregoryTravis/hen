@@ -939,9 +939,15 @@
 (define (lookup-exists? e env)
   (not (eq? #f (assoc e env))))
 
-(define match-vargen (symbol-generator-generator))
+;(define-for-syntax match-vargen (symbol-generator-generator))
+(define-for-syntax match-vargen
+  (let ((serial 0))
+    (lambda ()
+      (let ((s serial))
+        (set! serial (+ serial 1))
+        (string->symbol (string-append "_m" (number->string s)))))))
 
-(define (match-render-top target clauses)
+(define-for-syntax (match-render-top target clauses)
   (let ((target-var (match-vargen)))
     `(let ((,target-var ,target))
        ,(match-render target-var clauses clauses))))
@@ -960,7 +966,7 @@
    ((literal? body) body)
    (#t (err 'match-rewrite env body))))
 
-(define (match-render target clauses all-clauses)
+(define-for-syntax (match-render target clauses all-clauses)
   (if (null? clauses)
       `(err 'Match 'Error ,target ': ',all-clauses)
       (begin
@@ -994,4 +1000,4 @@
    (#t (err 'match-target0 pat target))))
 
 (define-macro (mtch target . clauses)
-  `(eval (match-render-top ',target ',clauses)))
+  (match-render-top target clauses))
