@@ -1,22 +1,9 @@
-(fun (guardo-a a b)
-     (? true)
-     (Bar a a))
+(fun (jerku a a b c c) 12)
+(fun (jerku q a b c c) 0)
+(fun (jerku a a b c d) 4)
+(fun (jerku a v b c d) 18)
 
-(fun (guardo-b a b)
-     (? false)
-     (Bar a a))
-
-(fun (guardo-b a b)
-     (Voo b a))
-
-(fun (guardo-c a b)
-     (? (== a b))
-     (Bar a a))
-
-(fun (guardo-c a b)
-     (Bic b b))
-
-(guardo-a 10 10)
-(guardo-b 10 50)
-(guardo-c 10 10)
-(guardo-c 10 20)
+(jerku 1 1 2 3 3)
+(jerku 10 1 2 3 3)
+(jerku 1 1 2 3 30)
+(jerku 10 1 2 3 30)
