@@ -216,6 +216,9 @@
 ;; work except that the definition of 'and' has that guard too, har de
 ;; har har.
 (define (simplify-guard pat)
+;;   (match pat
+;;          ('and 'true x) x
+;;          ('and x) x))
   (cond
    ((and (pair? pat)
          (eq? 'and (car pat))
@@ -283,6 +286,5 @@
     (map (lambda (e) (evl e rws)) exps)))
 
 (define (go)
-  (run (load-files (list "src.ss"))))
 ;(load "tracing.ss")
 ;(tracefun normalize); try-rw)

@@ -992,3 +992,6 @@
    ((is-quote? pat) (err 'match-huh pat target))
    ((literal? pat) (if (equal? pat target) '() '(#f)))
    (#t (err 'match-target0 pat target))))
+
+(define-macro (mtch target . clauses)
+  `(eval (match-render-top ',target ',clauses)))
