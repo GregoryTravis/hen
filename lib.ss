@@ -101,6 +101,29 @@
         (apply a (append args (list result)))
         result))))
 
+(define (nth n list)
+  (if (= 0 n)
+      (car list)
+      (nth (- n 1) (cdr list))))
+
+(define (take n lyst)
+  (if (> n 0)
+      (if (null? lyst)
+          (err)
+          (cons (car lyst) (take (1- n) (cdr lyst))))
+      '()))
+
+(define (nth-tail n lyst)
+  (if (= 0 n)
+      lyst
+      (nth-tail (1- n) (cdr lyst))))
+
+(define (scoop-by n lyst)
+  (if (null? lyst)
+      '()
+      (cons (take n lyst)
+            (scoop-by n (nth-tail n lyst)))))
+
 (define concat string-append)
 
 (define (applyer f)
