@@ -1007,20 +1007,6 @@
    ((literal? pat) (if (equal? pat target) '() '(#f)))
    (#t (err 'mtch-target0 pat target))))
 
-;; (define-for-syntax (mtch-rewrite env body)
-;;   (cond
-;;    ((ctor? body) body)
-;;    ((symbol? body)
-;;     (if (lookup-exists? body env)
-;;         (lookup body env)
-;;         body))
-;;    ((null? body) body)
-;;    ((pair? body)
-;;     (cons (mtch-rewrite env (car body))
-;;           (mtch-rewrite env (cdr body))))
-;;    ((mtch-literal? body) body)
-;;    (#t (err 'mtch-rewrite env body))))
-
 (define (mtch-lookup k env)
   (let ((v (assoc k env)))
     (if (eq? #f v)
@@ -1029,7 +1015,6 @@
 
 (define-for-syntax (mtch-gather-vars e)
   (cond
-   ;((ctor? e) '())
    ((symbol? e) (list e))
    ((pair? e) (append (mtch-gather-vars (car e))
                       (mtch-gather-vars (cdr e))))
@@ -1044,8 +1029,6 @@
 (define-for-syntax (mtch-rewriter-exp env-var pat body)
   (let ((vars (mtch-gather-vars pat)))
     (cond
-;     ((cton? body)
-;      (cons (car body) (map (lambda (x) (mtch-rewriter-exp env-var pat x)) (cdr body))))
      ((mtch-is-quote? body) `',body)
      ((symbol? body)
       (if (member body vars)
