@@ -216,9 +216,10 @@
 ;; work except that the definition of 'and' has that guard too, har de
 ;; har har.
 (define (simplify-guard pat)
-;;   (match pat
-;;          ('and 'true x) x
-;;          ('and x) x))
+;;   (mtch pat
+;;          ('and 'true x) (simplify-guard x)
+;;          ('and x) (simplify-guard x)
+;;          x x))
   (cond
    ((and (pair? pat)
          (eq? 'and (car pat))
