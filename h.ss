@@ -8,11 +8,6 @@
   (set! global-env (var-declarations->env globals)))
 (define (var-declarations->env globals)
   (map global-var->binding globals))
-;; (define (env-exists? e env)
-;;   (not (eq? #f (assoc e env))))
-;; (define (env-lookup e env)
-;;   (assert (env-exists? e env) e env)
-;;   (cdr (assoc e env)))
 (define env-exists? lookup-exists?)
 (define env-lookup lookup)
 (define (global-exists? e) (env-exists? e global-env))
@@ -221,23 +216,12 @@
          ('and x) (simplify-guard x)
          x x))
 
-;; (define (add-guard e)
-;;   (assert (fun-without-guard? e))
-;;   `(fun ,(cadr e) (? true) ,(caddr e)))
-
 ;; Add guard if rule doesn't have one, and strip the guard syntax (? _)
 (define (fun-standardize-guard e)
   (cond
    ((fun-without-guard-syntax? e) `(fun ,(cadr e) true ,(caddr e)))
    ((fun-with-guard-syntax? e) `(fun ,(cadr e) ,(cadr (caddr e)) ,(caddr (cdr e))))
    (#t (err 'fun-standardize-guard e))))
-
-;      (add-guard r)
-;      r))
-;;   (set! r (if (fun-without-guard? r) (add-guard r) r))
-;;   (assert (fun-with-guard? r))
-;;   `(fun ,(cadr r) ,(cadr (caddr r)) ,(cadddr r)))
-
 (define (preprocess-rule rw)
   (assert (fun-src-syntax? rw))
   (set! rw (fun-standardize-guard rw))
