@@ -1,3 +1,3 @@
 (load "h.ss")
 
-(go)
+(run (load-files (list "src.ss")))

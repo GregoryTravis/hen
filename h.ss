@@ -285,23 +285,4 @@
     (create-global-env globals)
     (map (lambda (e) (evl e rws)) exps)))
 
-(define (go) 1)
-;  (run (load-files (list "src.ss"))))
-;(load "tracing.ss")
 ;(tracefun normalize); try-rw)
-
-;(shew (mtch ''(1) '(a) 30))
-;; (let ((a (mtch '('Foo ('Bar 1 2) 3) '('Foo ('Bar a b) c) '('Gak c b a))))
-;;   (shew a)
-;;   (shew (eval a)))
-
-;; (map (lambda (j) (shew j) (shew (eval j)))
-;;      (list
-;;       (mtch '(1) '(a) 30)
-;;       (mtch '(1 a) '(b a) '(+ b b))
-;;       (mtch '('Jerk 1 2) '('Jerk a b) '('Fupp b a))
-;; ))
-
-;; (shew (mtch '(1) (a) 30)
-;;       (mtch '(1 a) (b a) (+ b b))
-;;       (mtch '(Jerk 1 2) (Jerk a b) (Fupp b a)))
