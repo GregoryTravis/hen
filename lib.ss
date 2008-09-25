@@ -970,6 +970,12 @@
       (eq? #t o)
       (eq? #f o)))
 
+(define-for-syntax (mtch-is-quote? o)
+  (and (pair? o)
+       (eq? (car o) 'quote)
+       (pair? (cdr o))
+       (null? (cddr o))))
+
 (define-for-syntax mtch-vargen
   (let ((serial 0))
     (lambda ()
@@ -985,6 +991,10 @@
 
 (define (mtch-target0 pat target)
   (cond
+   ((is-quote? pat)
+    (if (equal? (quote-quoted pat) target)
+        '()
+        '(#f)))
    ((and (pair? pat) (pair? target))
     (append (mtch-target0 (car pat) (car target))
             (mtch-target0 (cdr pat) (cdr target))))
@@ -1036,6 +1046,7 @@
     (cond
 ;     ((cton? body)
 ;      (cons (car body) (map (lambda (x) (mtch-rewriter-exp env-var pat x)) (cdr body))))
+     ((mtch-is-quote? body) `',body)
      ((symbol? body)
       (if (member body vars)
           `(mtch-lookup ',body ,env-var)
@@ -1060,10 +1071,26 @@
                  ,(mtch-render target (cddr clauses) clauses)
                  (,(mtch-rewriter pat body) ,env-var)))))))
 
+(define-for-syntax mtch-show-expansion #f)
+
 (define-for-syntax (mtch-render-top target clauses)
   (let ((target-var (mtch-vargen)))
-    `(let ((,target-var ,target))
-       ,(mtch-render target-var clauses clauses))))
+    (let ((code
+           `(let ((,target-var ,target))
+              ,(mtch-render target-var clauses clauses))))
+      (if mtch-show-expansion
+          (begin
+            (display 'mtch)
+            (display "\n")
+            (display target)
+            (display "\n")
+            (display clauses)
+            (display "\n")
+            (display code)
+            (display "\n"))
+          '())
+      code)))
+
 
 (define-macro (mtch target . clauses)
   (mtch-render-top target clauses))
