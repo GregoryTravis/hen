@@ -216,24 +216,24 @@
 ;; work except that the definition of 'and' has that guard too, har de
 ;; har har.
 (define (simplify-guard pat)
-;;   (mtch pat
-;;          ('and 'true x) (simplify-guard x)
-;;          ('and x) (simplify-guard x)
-;;          x x))
-  (cond
-   ((and (pair? pat)
-         (eq? 'and (car pat))
-         (pair? (cdr pat))
-         (eq? 'true (cadr pat))
-         (pair? (cddr pat))
-         (null? (cdddr pat)))
-    (simplify-guard (caddr pat)))
-   ((and (pair? pat)
-         (eq? 'and (car pat))
-         (pair? (cdr pat))
-         (null? (cddr pat)))
-    (cadr pat))
-   (#t pat)))
+  (mtch pat
+         ('and 'true x) (simplify-guard x)
+         ('and x) (simplify-guard x)
+         x x))
+;;   (cond
+;;    ((and (pair? pat)
+;;          (eq? 'and (car pat))
+;;          (pair? (cdr pat))
+;;          (eq? 'true (cadr pat))
+;;          (pair? (cddr pat))
+;;          (null? (cdddr pat)))
+;;     (simplify-guard (caddr pat)))
+;;    ((and (pair? pat)
+;;          (eq? 'and (car pat))
+;;          (pair? (cdr pat))
+;;          (null? (cddr pat)))
+;;     (cadr pat))
+;;    (#t pat)))
 
 ;; (define (add-guard e)
 ;;   (assert (fun-without-guard? e))
