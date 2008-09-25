@@ -218,10 +218,10 @@
 
 ;; Add guard if rule doesn't have one, and strip the guard syntax (? _)
 (define (fun-standardize-guard e)
-  (cond
-   ((fun-without-guard-syntax? e) `(fun ,(cadr e) true ,(caddr e)))
-   ((fun-with-guard-syntax? e) `(fun ,(cadr e) ,(cadr (caddr e)) ,(caddr (cdr e))))
-   (#t (err 'fun-standardize-guard e))))
+  (mtch e
+        ('fun pat body) (list 'fun pat 'true body)
+        ('fun pat (? guard-exp) body) (list 'fun pat guard-exp body)))
+
 (define (preprocess-rule rw)
   (assert (fun-src-syntax? rw))
   (set! rw (fun-standardize-guard rw))
