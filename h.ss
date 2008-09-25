@@ -197,15 +197,24 @@
    (#t (err 'nl-reassign-vars pat))))
 
 (define (nl-build-comparisons vars)
-  (if (null? vars)
-      'true
-      (cons 'and
-            (map-append (lambda (varlist)
-                          (let ((renames (cdr varlist)))
-                            (map (lambda (rename)
-                                   `(== ,(cdar renames) ,(cdr rename)))
-                                 (cdr renames))))
-                        vars))))
+  (mtch vars
+        () 'true
+        x (cons 'and
+                (map-append (lambda (varlist)
+                              (let ((renames (cdr varlist)))
+                                (map (lambda (rename)
+                                       `(== ,(cdar renames) ,(cdr rename)))
+                                     (cdr renames))))
+                            vars))))
+;;   (if (null? vars)
+;;       'true
+;;       (cons 'and
+;;             (map-append (lambda (varlist)
+;;                           (let ((renames (cdr varlist)))
+;;                             (map (lambda (rename)
+;;                                    `(== ,(cdar renames) ,(cdr rename)))
+;;                                  (cdr renames))))
+;;                         vars))))
 
 ;; Har de har, the default guards are (and true true), which would
 ;; work except that the definition of 'and' has that guard too, har de

@@ -1032,7 +1032,7 @@
 (define-for-syntax (mtch-rewriter-exp env-var pat body)
   (let ((vars (mtch-gather-vars pat)))
     (cond
-     ((mtch-is-quote? body) `',body)
+     ((mtch-is-quote? body) body)
      ((symbol? body)
       (if (member body vars)
           `(mtch-lookup ',body ,env-var)
