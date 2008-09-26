@@ -39,15 +39,14 @@
 
 (define (try-rw e rw rws)
   (assert (fun? rw) rw)
-  (let* ((pat (cadr rw))
-         (guard (caddr rw))
-         (body (cadddr rw))
-         (bindings (mitch pat e)))
-    (if (eq? 'fail bindings)
-        'fail
-        (if (equal? (normalize (rewrite guard bindings) rws) 'true)
-            (rewrite body bindings)
-            'fail))))
+  (mtch rw
+        ('fun pat guard body)
+        (let ((bindings (mitch pat e)))
+          (if (eq? 'fail bindings)
+              'fail
+              (if (equal? (normalize (rewrite guard bindings) rws) 'true)
+                  (rewrite body bindings)
+                  'fail)))))
 
 (define (try-rws e rws all-rws)
   (if (null? rws)
