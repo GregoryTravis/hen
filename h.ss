@@ -234,12 +234,27 @@
 ;;   (assert (fun-without-guard? e))
 ;;   `(fun ,(cadr e) (? true) ,(caddr e)))
 
+(define (fun-add-begin-maybe blah)
+  (if (= (length blah) 1)
+      (car blah)
+      (cons 'begin blah)))
+
 ;; Add guard if rule doesn't have one, and strip the guard syntax (? _)
 (define (fun-standardize-guard e)
   (cond
-   ((fun-without-guard-syntax? e) `(fun ,(cadr e) true ,(caddr e)))
-   ((fun-with-guard-syntax? e) `(fun ,(cadr e) ,(cadr (caddr e)) ,(caddr (cdr e))))
+   ((fun-without-guard-syntax? e) `(fun ,(cadr e) true ,(fun-add-begin-maybe (cddr e))))
+   ((fun-with-guard-syntax? e) `(fun ,(cadr e) ,(cadr (caddr e)) ,(fun-add-begin-maybe (cddr (cdr e)))))
    (#t (err 'fun-standardize-guard e))))
+
+;; (define (fun-add-begin e)
+;; (shew e)
+;;   (let ((body (caddr e)))
+;;     (if (guard? (car body))
+;;         (set! body (cdr body))
+;;         '())
+;;     (if (> (length body) 1)
+;;         (cons 'begin body)
+;;         (car body))))
 
 ;      (add-guard r)
 ;      r))
@@ -247,9 +262,12 @@
 ;;   (assert (fun-with-guard? r))
 ;;   `(fun ,(cadr r) ,(cadr (caddr r)) ,(cadddr r)))
 
+;(tracefun fun-standardize-guard)
+
 (define (preprocess-rule rw)
   (assert (fun-src-syntax? rw))
   (set! rw (fun-standardize-guard rw))
+  ;(set! rw (fun-add-begin rw))
   (let* ((pat (cadr rw))
          (guard (caddr rw))
          (body (cadddr rw))
@@ -278,6 +296,7 @@
          (rws (map preprocess-rule (gather-rws src)))
          (globals (gather-global-vars src))
          (exps (gather-exps src)))
+;(shew 'rws rws)
     (create-global-env globals)
     (map (lambda (e) (evl e rws)) exps)))
 

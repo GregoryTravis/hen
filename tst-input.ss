@@ -158,3 +158,8 @@ a-global
 
 (figg 10 20)
 (figg (Jerk) 20)
+
+(fun (asldfih a b) a b)
+(fun (asdfuae a b) (? true) a b)
+(asldfih 10 20)
+(asdfuae 10 20)
