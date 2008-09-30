@@ -1,3 +1,4 @@
+
 (load "lib.ss")
 (load "sb.ss")
 (load "primitives.ss")
@@ -8,8 +9,11 @@
   (set! global-env (var-declarations->env globals)))
 (define (var-declarations->env globals)
   (map global-var->binding globals))
-(define env-exists? lookup-exists?)
-(define env-lookup lookup)
+(define (env-exists? e env)
+  (not (eq? #f (assoc e env))))
+(define (env-lookup e env)
+  (assert (env-exists? e env) e env)
+  (cdr (assoc e env)))
 (define (global-exists? e) (env-exists? e global-env))
 (define (global-lookup e) (env-lookup e global-env))
 
@@ -39,14 +43,15 @@
 
 (define (try-rw e rw rws)
   (assert (fun? rw) rw)
-  (mtch rw
-        ('fun pat guard body)
-        (let ((bindings (mitch pat e)))
-          (if (eq? 'fail bindings)
-              'fail
-              (if (equal? (normalize (rewrite guard bindings) rws) 'true)
-                  (rewrite body bindings)
-                  'fail)))))
+  (let* ((pat (cadr rw))
+         (guard (caddr rw))
+         (body (cadddr rw))
+         (bindings (mitch pat e)))
+    (if (eq? 'fail bindings)
+        'fail
+        (if (equal? (normalize (rewrite guard bindings) rws) 'true)
+            (rewrite body bindings)
+            'fail))))
 
 (define (try-rws e rws all-rws)
   (if (null? rws)
@@ -62,10 +67,10 @@
         (then-part (caddr c))
         (else-part (cadddr c)))
     (let ((b (normalize if-part rws)))
-      (mtch b
-            'true (normalize then-part rws)
-            'false (normalize else-part rws)
-            x (err 'conditional-exp-not-boolean c b)))))
+      (cond
+       ((eq? 'true b) (normalize then-part rws))
+       ((eq? 'false b) (normalize else-part rws))
+       (#t (err 'conditional-exp-not-boolean c b))))))
 
 (define (normalize-primitive e rws)
   (do-primitive-call (cons (car e)
@@ -196,30 +201,51 @@
    (#t (err 'nl-reassign-vars pat))))
 
 (define (nl-build-comparisons vars)
-  (mtch vars
-        () 'true
-        _ (cons 'and
-                (map-append (lambda (varlist)
-                              (let ((renames (cdr varlist)))
-                                (map (lambda (rename)
-                                       `(== ,(cdar renames) ,(cdr rename)))
-                                     (cdr renames))))
-                            vars))))
+  (if (null? vars)
+      'true
+      (cons 'and
+            (map-append (lambda (varlist)
+                          (let ((renames (cdr varlist)))
+                            (map (lambda (rename)
+                                   `(== ,(cdar renames) ,(cdr rename)))
+                                 (cdr renames))))
+                        vars))))
 
 ;; Har de har, the default guards are (and true true), which would
 ;; work except that the definition of 'and' has that guard too, har de
 ;; har har.
 (define (simplify-guard pat)
-  (mtch pat
-         ('and 'true x) (simplify-guard x)
-         ('and x) (simplify-guard x)
-         x x))
+  (cond
+   ((and (pair? pat)
+         (eq? 'and (car pat))
+         (pair? (cdr pat))
+         (eq? 'true (cadr pat))
+         (pair? (cddr pat))
+         (null? (cdddr pat)))
+    (simplify-guard (caddr pat)))
+   ((and (pair? pat)
+         (eq? 'and (car pat))
+         (pair? (cdr pat))
+         (null? (cddr pat)))
+    (cadr pat))
+   (#t pat)))
+
+;; (define (add-guard e)
+;;   (assert (fun-without-guard? e))
+;;   `(fun ,(cadr e) (? true) ,(caddr e)))
 
 ;; Add guard if rule doesn't have one, and strip the guard syntax (? _)
 (define (fun-standardize-guard e)
-  (mtch e
-        ('fun pat body) (list 'fun pat 'true body)
-        ('fun pat (? guard-exp) body) (list 'fun pat guard-exp body)))
+  (cond
+   ((fun-without-guard-syntax? e) `(fun ,(cadr e) true ,(caddr e)))
+   ((fun-with-guard-syntax? e) `(fun ,(cadr e) ,(cadr (caddr e)) ,(caddr (cdr e))))
+   (#t (err 'fun-standardize-guard e))))
+
+;      (add-guard r)
+;      r))
+;;   (set! r (if (fun-without-guard? r) (add-guard r) r))
+;;   (assert (fun-with-guard? r))
+;;   `(fun ,(cadr r) ,(cadr (caddr r)) ,(cadddr r)))
 
 (define (preprocess-rule rw)
   (assert (fun-src-syntax? rw))
@@ -254,3 +280,8 @@
          (exps (gather-exps src)))
     (create-global-env globals)
     (map (lambda (e) (evl e rws)) exps)))
+
+(define (go)
+  (run (load-files (list "src.ss"))))
+;(load "tracing.ss")
+;(tracefun normalize); try-rw)
