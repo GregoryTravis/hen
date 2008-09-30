@@ -976,6 +976,13 @@
        (pair? (cdr o))
        (null? (cddr o))))
 
+(define mtch-vargen
+  (let ((serial 0))
+    (lambda ()
+      (let ((s serial))
+        (set! serial (+ serial 1))
+        (string->symbol (string-append "_m" (number->string s)))))))
+
 (define-for-syntax mtch-vargen
   (let ((serial 0))
     (lambda ()
@@ -1075,3 +1082,47 @@
 
 (define-macro (mtch target . clauses)
   (mtch-render-top target clauses))
+
+(define-for-syntax (gup-clause target pat body)
+  (let ((carvar (mtch-vargen))
+        (cdrvar (mtch-vargen)))
+    (cond
+     ((mtch-is-quote? pat)
+;      `(if (equal? ',(quote-quoted pat) ,target)
+      `(if (equal? ',pat ,target)
+           ,body
+           (fail)))     ((pair? pat)
+      `(if (pair? ,target)
+           (let ((,carvar (car ,target))
+                 (,cdrvar (cdr ,target)))
+             ,(gup-clause carvar
+                          (car pat)
+                          (gup-clause cdrvar
+                                      (cdr pat)
+                                      body)))
+           (fail)))
+     ((eq? '_ pat) body)
+     ((symbol? pat)
+      `(let ((,pat ,target)) ,body))
+     ((mtch-literal? pat)
+      `(if (equal? ',pat ,target)
+           ,body
+           (fail)))
+     (#t (err 'gup-clause target pat body)))))
+
+(define-for-syntax (gup-clauses target clauses)
+  (if (null? clauses)
+      `(err 'match-failure target)
+      (let ((pat (car clauses))
+            (body (cadr clauses))
+            (rest (cddr clauses)))
+        (let ((next (gup-clauses target rest)))
+          `(let ((fail (lambda () ,next)))
+             ,(gup-clause target pat body))))))
+
+(define-for-syntax (gup target clauses)
+  `(let ((target ',target))
+     ,(gup-clauses 'target clauses)))
+
+(define-macro (gupp target . clauses)
+  (gup target clauses))

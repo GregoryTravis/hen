@@ -256,3 +256,25 @@
     (map (lambda (e) (evl e rws)) exps)))
 
 ;(tracefun normalize); try-rw)
+
+;; (map
+;;  (lambda (j)
+;;    (shew j)
+;;    (let ((g (gup (car j) (cadr j))))
+;;      (shew g)
+;;      (shew (eval g))))
+;;  '(
+;;    ((1) ((a) (cons a a) (b a) (+ b b)))
+;;    ((1 2) ((a) (cons a a) (b a) (+ b b)))
+;;    ((1 2) ((a) (cons a a) (a b) (+ b b)))
+;;    (('Jerk 1 2) (('Jerk a b) (list 'Fupp b a)))
+;;    (('q 1 2) (('q a b) b))
+;;    ))
+;(shew (gupp '(1) (a) a))
+(shew (gupp (1) (a) a))
+
+(shew (gupp (1) (a) (cons a a) (b a) (+ b b)))
+(shew (gupp (1 2) (a) (cons a a) (b a) (+ b b)))
+(shew (gupp (1 2) (a) (cons a a) (a b) (+ b b)))
+(shew (gupp ('Jerk 1 2) ('Jerk a b) (list 'Fupp b a)))
+(shew (gupp ('q 1 2) ('q a b) b))
