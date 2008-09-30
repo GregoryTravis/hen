@@ -62,10 +62,10 @@
         (then-part (caddr c))
         (else-part (cadddr c)))
     (let ((b (normalize if-part rws)))
-      (cond
-       ((eq? 'true b) (normalize then-part rws))
-       ((eq? 'false b) (normalize else-part rws))
-       (#t (err 'conditional-exp-not-boolean c b))))))
+      (mtch b
+            'true (normalize then-part rws)
+            'false (normalize else-part rws)
+            x (err 'conditional-exp-not-boolean c b)))))
 
 (define (normalize-primitive e rws)
   (do-primitive-call (cons (car e)
