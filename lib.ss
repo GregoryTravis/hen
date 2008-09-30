@@ -976,13 +976,6 @@
        (pair? (cdr o))
        (null? (cddr o))))
 
-(define mtch-vargen
-  (let ((serial 0))
-    (lambda ()
-      (let ((s serial))
-        (set! serial (+ serial 1))
-        (string->symbol (string-append "_m" (number->string s)))))))
-
 (define-for-syntax mtch-vargen
   (let ((serial 0))
     (lambda ()
@@ -990,114 +983,20 @@
         (set! serial (+ serial 1))
         (string->symbol (string-append "_m" (number->string s)))))))
 
-(define (mtch-target pat target)
-  (let ((env (mtch-target0 pat target)))
-    (if (not (null? (grep (lambda (x) (eq? x #f)) env)))
-        #f
-        env)))
-
-(define (mtch-target0 pat target)
-  (cond
-   ((is-quote? pat)
-    (if (equal? (quote-quoted pat) target)
-        '()
-        '(#f)))
-   ((pair? pat)
-    (if (pair? target)
-        (append (mtch-target0 (car pat) (car target))
-                (mtch-target0 (cdr pat) (cdr target)))
-        '(#f)))
-   ((eq? pat '_) '())
-   ((ctor? pat) (if (eq? pat target) '() '(#f)))
-   ((symbol? pat) (list (cons pat target)))
-   ((and (is-quote? pat) (symbol? (quote-quoted pat)))
-    (if (eq? (quote-quoted pat) target) '() '(#f)))
-   ((is-quote? pat) (err 'mtch-huh pat target))
-   ((literal? pat) (if (equal? pat target) '() '(#f)))
-   (#t (err 'mtch-target0 pat target))))
-
-(define (mtch-lookup k env)
-  (let ((v (assoc k env)))
-    (if (eq? #f v)
-        (err 'mtch-lookup k env)
-        (cdr v))))
-
-(define-for-syntax (mtch-gather-vars e)
-  (cond
-   ((mtch-is-quote? e) '())
-   ((symbol? e) (list e))
-   ((pair? e) (append (mtch-gather-vars (car e))
-                      (mtch-gather-vars (cdr e))))
-   ((or (null? e)
-        (mtch-literal? e)) '())
-   (#t (err 'mtch-gather-vars e))))
-
-(define-for-syntax (mtch-rewriter pat body)
-  (let ((env-var (mtch-vargen)))
-    `(lambda (,env-var) ,(mtch-rewriter-exp env-var pat body))))
-
-(define-for-syntax (mtch-rewriter-exp env-var pat body)
-  (let ((vars (mtch-gather-vars pat)))
-    (cond
-     ((mtch-is-quote? body) body)
-     ((symbol? body)
-      (if (member body vars)
-          `(mtch-lookup ',body ,env-var)
-          body))
-     ((null? body) '())
-     ((mtch-literal? body) body)
-     ((pair? body)
-      (cons (mtch-rewriter-exp env-var pat (car body))
-            (mtch-rewriter-exp env-var pat (cdr body))))
-     (#t (err 'mtch-rewrite env-var pat body)))))
-
-(define-for-syntax (mtch-render target clauses all-clauses)
-  (if (null? clauses)
-      `(err 'Mtch 'Error ,target ': ',all-clauses)
-      (begin
-        ;(assert (= 2 (length (car clauses))))
-        (let* ((pat (car clauses))
-               (body (cadr clauses))
-               (env-var (mtch-vargen)))
-          `(let ((,env-var (mtch-target ',pat ,target)))
-             (if (eq? #f ,env-var)
-                 ,(mtch-render target (cddr clauses) clauses)
-                 (,(mtch-rewriter pat body) ,env-var)))))))
-
-(define-for-syntax mtch-show-expansion #f)
-
-(define-for-syntax (mtch-render-top target clauses)
-  (let ((target-var (mtch-vargen)))
-    (let ((code
-           `(let ((,target-var ,target))
-              ,(mtch-render target-var clauses clauses))))
-      (if mtch-show-expansion
-          (begin
-            (pretty-print 'mtch)
-            (pretty-print target)
-            (pretty-print clauses)
-            (pretty-print code))
-          '())
-      code)))
-
-(define-macro (mtch target . clauses)
-  (mtch-render-top target clauses))
-
-(define-for-syntax (gup-clause target pat body)
+(define-for-syntax (mtch-clause target pat body)
   (let ((carvar (mtch-vargen))
         (cdrvar (mtch-vargen)))
     (cond
      ((mtch-is-quote? pat)
-;      `(if (equal? ',(quote-quoted pat) ,target)
-      `(if (equal? ',pat ,target)
+      `(if (equal? ',(cadr pat) ,target)
            ,body
            (fail)))     ((pair? pat)
       `(if (pair? ,target)
            (let ((,carvar (car ,target))
                  (,cdrvar (cdr ,target)))
-             ,(gup-clause carvar
+             ,(mtch-clause carvar
                           (car pat)
-                          (gup-clause cdrvar
+                          (mtch-clause cdrvar
                                       (cdr pat)
                                       body)))
            (fail)))
@@ -1108,21 +1007,32 @@
       `(if (equal? ',pat ,target)
            ,body
            (fail)))
-     (#t (err 'gup-clause target pat body)))))
+     (#t (err 'mtch-clause target pat body)))))
 
-(define-for-syntax (gup-clauses target clauses)
+(define-for-syntax (mtch-clauses target clauses all-clauses)
   (if (null? clauses)
-      `(err 'match-failure target)
+      `(err 'match-failure target ',all-clauses)
       (let ((pat (car clauses))
             (body (cadr clauses))
             (rest (cddr clauses)))
-        (let ((next (gup-clauses target rest)))
+        (let ((next (mtch-clauses target rest all-clauses)))
           `(let ((fail (lambda () ,next)))
-             ,(gup-clause target pat body))))))
+             ,(mtch-clause target pat body))))))
 
-(define-for-syntax (gup target clauses)
-  `(let ((target ',target))
-     ,(gup-clauses 'target clauses)))
+(define-for-syntax (mtch-render target clauses)
+  (let ((code
+         `(let ((target ,target))
+            ,(mtch-clauses 'target clauses clauses))))
+    (if mtch-show-expansion
+        (begin
+          (pretty-print 'mtch)
+          (pretty-print target)
+          (pretty-print clauses)
+          (pretty-print code))
+        '())
+    code))
 
-(define-macro (gupp target . clauses)
-  (gup target clauses))
+(define-for-syntax mtch-show-expansion #f)
+
+(define-macro (mtch target . clauses)
+  (mtch-render target clauses))
