@@ -108,8 +108,11 @@
 (define (evl e rws)
   (display "+ ")
   (sb e)
-  (sb (normalize e rws))
-  (display "\n"))
+  (let ((n (normalize e rws)))
+    (if (not (eq? n 'NoResult))
+        (sb n)
+        '())
+    (display "\n")))
 
 ;(tracefun evl normalize normalize-step try-rws try-rw)
 ;(tracefun try-rw mitch rewrite)
