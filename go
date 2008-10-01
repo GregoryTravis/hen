@@ -2,8 +2,8 @@ file=main.ss
 file=imain.ss
 
 hen $file 2>&1 | tee /tmp/main.out
-diff -q /tmp/main.out /tmp/correct.main.out
-cp /tmp/main.out /tmp/correct.main.out
+#diff -q /tmp/main.out /tmp/correct.main.out
+#cp /tmp/main.out /tmp/correct.main.out
 
 #mzscheme -j -r main.ss | square-brackets backwards
 exit
