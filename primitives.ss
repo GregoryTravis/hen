@@ -53,14 +53,14 @@
 
 (define (tfy x)
   (cond
-   ((eq? #f x) 'false)
-   ((eq? #t x) 'true)
+   ((eq? #f x) 'False)
+   ((eq? #t x) 'True)
    (#t (err 'tfy x))))
 
 (define (untfy x)
   (cond
-   ((eq? x 'true) #t)
-   ((eq? x 'false) #f)
+   ((eq? x 'True) #t)
+   ((eq? x 'False) #f)
    (#t (err 'untfy x))))
 
 (define (tfall? lyst)

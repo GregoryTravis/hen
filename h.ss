@@ -33,6 +33,7 @@
    (#t (err))))
 
 (define (rewrite body bindings)
+;(shew 'hi body (var? body))
   (cond
    ((var? body) (env-lookup (var-name body) bindings))
    ((app? body) (map (lambda (e) (rewrite e bindings))
@@ -49,7 +50,7 @@
          (bindings (mitch pat e)))
     (if (eq? 'fail bindings)
         'fail
-        (if (equal? (normalize (rewrite guard bindings) rws) 'true)
+        (if (equal? (normalize (rewrite guard bindings) rws) 'True)
             (rewrite body bindings)
             'fail))))
 
@@ -68,8 +69,8 @@
         (else-part (cadddr c)))
     (let ((b (normalize if-part rws)))
       (cond
-       ((eq? 'true b) (normalize then-part rws))
-       ((eq? 'false b) (normalize else-part rws))
+       ((eq? 'True b) (normalize then-part rws))
+       ((eq? 'False b) (normalize else-part rws))
        (#t (err 'conditional-exp-not-boolean c b))))))
 
 (define (normalize-primitive e rws)
@@ -132,7 +133,8 @@
       (assert (symbol? (quote-quoted pat)))
       (quote-quoted pat)))
    ((var? pat) (err))
-   ((symbol? pat) (make-var pat))
+   ((ctor? pat) pat)
+   ((non-ctor-symbol? pat) (make-var pat))
    ((list? pat)
     (cond
      ((null? pat) '())
@@ -202,7 +204,7 @@
 
 (define (nl-build-comparisons vars)
   (if (null? vars)
-      'true
+      'True
       (cons 'and
             (map-append (lambda (varlist)
                           (let ((renames (cdr varlist)))
@@ -219,7 +221,7 @@
    ((and (pair? pat)
          (eq? 'and (car pat))
          (pair? (cdr pat))
-         (eq? 'true (cadr pat))
+         (eq? 'True (cadr pat))
          (pair? (cddr pat))
          (null? (cdddr pat)))
     (simplify-guard (caddr pat)))
@@ -242,7 +244,7 @@
 ;; Add guard if rule doesn't have one, and strip the guard syntax (? _)
 (define (fun-standardize-guard e)
   (cond
-   ((fun-without-guard-syntax? e) `(fun ,(cadr e) true ,(fun-add-begin-maybe (cddr e))))
+   ((fun-without-guard-syntax? e) `(fun ,(cadr e) True ,(fun-add-begin-maybe (cddr e))))
    ((fun-with-guard-syntax? e) `(fun ,(cadr e) ,(cadr (caddr e)) ,(fun-add-begin-maybe (cddr (cdr e)))))
    (#t (err 'fun-standardize-guard e))))
 
@@ -296,7 +298,6 @@
          (rws (map preprocess-rule (gather-rws src)))
          (globals (gather-global-vars src))
          (exps (gather-exps src)))
-;(shew 'rws rws)
     (create-global-env globals)
     (map (lambda (e) (evl e rws)) exps)))
 
@@ -304,3 +305,4 @@
   (run (load-files (list "src.ss"))))
 ;(load "tracing.ss")
 ;(tracefun normalize); try-rw)
+;(tracefun env-lookup global-lookup)

@@ -399,6 +399,9 @@
              (char<=? c #\Z)))
       #f))
 
+(define (non-ctor-symbol? o)
+  (and (symbol? o) (not (ctor? o))))
+
 (define (member-deep a lyst)
   (cond
    ((pair? lyst)
@@ -766,8 +769,8 @@
          (or (eq? l 3) (eq? l 4)))))
 
 (define (boolean? x)
-  (or (eq? x 'true)
-      (eq? x 'false)))
+  (or (eq? x 'True)
+      (eq? x 'False)))
 
 (define (pair?-exp? p)
   (and (pair? p)

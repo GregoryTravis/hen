@@ -52,100 +52,100 @@
 3/4
 
 + (== 3 4)
-false
+False
 
 + (!= 3 4)
-true
+True
 
 + (< 3 4)
-true
+True
 
 + (> 3 4)
-false
+False
 
 + (<= 3 4)
-true
+True
 
 + (>= 3 4)
-false
+False
 
 + (== 4 3)
-false
+False
 
 + (!= 4 3)
-true
+True
 
 + (< 4 3)
-false
+False
 
 + (> 4 3)
-true
+True
 
 + (<= 4 3)
-false
+False
 
 + (>= 4 3)
-true
+True
 
 + (== 4 4)
-true
+True
 
 + (!= 4 4)
-false
+False
 
 + (< 4 4)
-false
+False
 
 + (> 4 4)
-false
+False
 
 + (<= 4 4)
-true
+True
 
 + (>= 4 4)
-true
+True
 
-+ (not false)
-true
++ (not False)
+True
 
-+ (not true)
-false
++ (not True)
+False
 
-+ (and true true)
-true
++ (and True True)
+True
 
-+ (and false true)
-false
++ (and False True)
+False
 
-+ (and true false)
-false
++ (and True False)
+False
 
-+ (and false false)
-false
++ (and False False)
+False
 
-+ (or true true)
-true
++ (or True True)
+True
 
-+ (or false true)
-true
++ (or False True)
+True
 
-+ (or true false)
-true
++ (or True False)
+True
 
-+ (or false false)
-false
++ (or False False)
+False
 
-+ (xor true false)
-true
++ (xor True False)
+True
 
-+ (xor false true)
-true
++ (xor False True)
+True
 
-+ (xor true true)
-false
++ (xor True True)
+False
 
-+ (xor false false)
-false
++ (xor False False)
+False
 
 + (fact 10)
 3628800

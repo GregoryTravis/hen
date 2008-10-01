@@ -48,23 +48,23 @@
 (<= 4 4)
 (>= 4 4)
 
-(not false)
-(not true)
+(not False)
+(not True)
 
-(and true true)
-(and false true)
-(and true false)
-(and false false)
+(and True True)
+(and False True)
+(and True False)
+(and False False)
 
-(or true true)
-(or false true)
-(or true false)
-(or false false)
+(or True True)
+(or False True)
+(or True False)
+(or False False)
 
-(xor true false)
-(xor false true)
-(xor true true)
-(xor false false)
+(xor True False)
+(xor False True)
+(xor True True)
+(xor False False)
 
 (fun (fact n)
      (if (== n 0)
@@ -107,11 +107,11 @@
 a-global
 
 (fun (guardo-a a b)
-     (? true)
+     (? True)
      (Bar a a))
 
 (fun (guardo-b a b)
-     (? false)
+     (? False)
      (Bar a a))
 
 (fun (guardo-b a b)
@@ -160,6 +160,6 @@ a-global
 (figg (Jerk) 20)
 
 (fun (asldfih a b) a b)
-(fun (asdfuae a b) (? true) a b)
+(fun (asdfuae a b) (? True) a b)
 (asldfih 10 20)
 (asdfuae 10 20)
