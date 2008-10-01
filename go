@@ -1,5 +1,5 @@
 file=main.ss
-#file=interpreter.ss
+file=imain.ss
 
 hen $file 2>&1 | tee /tmp/main.out
 diff -q /tmp/main.out /tmp/correct.main.out
