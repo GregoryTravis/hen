@@ -958,6 +958,7 @@
    ((ctor? o) 'ctor)
    ((string? o) 'string)
    ((number? o) 'number)
+   ((symbol? o) 'symbol)
    (#t (err 'typeof o))))
 
 (define (lookup k env)

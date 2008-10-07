@@ -78,6 +78,7 @@
                ((eq? 'string ta) (string= a b))
                ((eq? 'number ta) (= a b))
                ((eq? 'ctor ta) (eq? a b))
+               ((eq? 'symbol ta) (eq? a b))
                (#t (err '== a b)))))))
 ;(tracefun pea-primitive-== all?)
 
