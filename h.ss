@@ -3,7 +3,7 @@
 (load "primitives.ss")
 (load "assemble.ss")
 
-(define hen-tracing #t)
+(define hen-tracing #f)
 
 (define global-env '())
 (define (create-global-env globals)

@@ -163,21 +163,15 @@ False
 5
 5
 6
-[]
 
 + (map shew [5 5 6])
 5
 5
 6
-[
-  []
-  []
-  []
- ]
+[NoResult NoResult NoResult]
 
 + (shew [4 5])
 [4 5]
-[]
 
 + (grep blah [1 2 30 40 5])
 [30 40]
@@ -199,29 +193,24 @@ False
 
 + (shew 5)
 5
-[]
 
 + (shew 5 6)
 5
 6
-[]
 
 + (shew 5 6 7)
 5
 6
 7
-[]
 
 + (shew 5 6 7 8)
 5
 6
 7
 8
-[]
 
 + (shew a-global)
 10
-[]
 
 + (+ a-global a-global)
 20
@@ -276,4 +265,37 @@ False
 
 + (asdfuae 10 20)
 20
+
++ (match-descend (Var a) 10)
+(Just [(Binding (Var a) 10)])
+
++ (match-descend (Pair (Var a) (Var b)) (Pair 30 40))
+(Just
+ [(Binding (Var a) 30) (Binding (Var b) 40)])
+
++ (match-descend (Pair (Var a) (Pair (Var b) (Var c))) (Pair 30 40))
+(Fail)
+
++ (match-descend (Constant 10) (Constant 10))
+(Just [])
+
++ (match-descend (Constant 10) (Constant 20))
+(Fail)
+
++ (match-descend (Constant joe) (Constant joe))
+(Just [])
+
++ (match-descend (Constant joe) (Constant blah))
+(Fail)
+
++ (match-descend
+  (Pair (Constant Food) (Pair (Var a) Nil))
+  (Pair (Constant Food) (Pair 10 Nil)))
+(Just [(Binding (Var a) 10)])
+
++ (uuf 1)
+(Constant (Integer (Primitive 1)))
+
++ (match-descend (uuf 1) (uuf 1))
+(Just [])
 

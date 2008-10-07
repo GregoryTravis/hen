@@ -17,17 +17,24 @@
 (fun (match-descend (Constant c) (Constant d)) (Fail))
 (fun (match-descend Nil Nil) (Just []))
 
-(match-descend (Var a) 10)
-(match-descend (Pair (Var a) (Var b)) (Pair 30 40))
-(match-descend (Pair (Var a) (Pair (Var b) (Var c))) (Pair 30 40))
-(match-descend (Constant 10) (Constant 10))
-(match-descend (Constant 10) (Constant 20))
-(match-descend (Constant joe) (Constant joe))
-(match-descend (Constant joe) (Constant blah))
+;; (match-descend (Var a) 10)
+;; (match-descend (Pair (Var a) (Var b)) (Pair 30 40))
+;; (match-descend (Pair (Var a) (Pair (Var b) (Var c))) (Pair 30 40))
+;; (match-descend (Constant 10) (Constant 10))
+;; (match-descend (Constant 10) (Constant 20))
+;; (match-descend (Constant joe) (Constant joe))
+;; (match-descend (Constant joe) (Constant blah))
 
-(match-descend (Pair (Constant Food) (Pair (Var a) Nil))
-               (Pair (Constant Food) (Pair 10 Nil)))
+;; (match-descend (Pair (Constant Food) (Pair (Var a) Nil))
+;;                (Pair (Constant Food) (Pair 10 Nil)))
 
-;(match-descend [Jerk [Food a] [Drink b]] [Jerk [Food 10] [Drink 20]])
-;(match-descend (Jerk (Food a) (Drink b)) (Jerk (Food 10) (Drink 20)))
-;(match-descend (Food a) (Food 10))
+(fun (uuf [a . d]) (Cons (uuf a) (uuf d)))
+(fun (uuf []) [])
+(fun (uuf (Integer (Primitive a))) (Constant (Integer (Primitive 1))))
+(fun (uuf a) a)
+
+;(uuf 1)
+;(match-descend (uuf 1) (uuf 1))
+
+1
+jerk
