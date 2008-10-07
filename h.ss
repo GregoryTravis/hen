@@ -3,6 +3,8 @@
 (load "primitives.ss")
 (load "assemble.ss")
 
+(define hen-tracing #t)
+
 (define global-env '())
 (define (create-global-env globals)
   (set! global-env (var-declarations->env globals)))
@@ -89,9 +91,28 @@
                e
                s))))))
 
+(define normalize-indent -1)
+
 (define (normalize e rws)
+  (if hen-tracing
+      (begin
+        (set! normalize-indent (+ normalize-indent 1))
+        (display (make-string-string normalize-indent "| "))
+        (display "+ ")
+        (lshew e)
+        (display "\n")
+        (flush-output))
+      '())
   (let ((ee (normalize-step e rws)))
-    ;;(shew (++ e " => " ee))
+    (if hen-tracing
+        (begin
+          (display (make-string-string normalize-indent "| "))
+          (display "-> ")
+          (lshew ee)
+          (display "\n")
+          (flush-output)
+          (set! normalize-indent (- normalize-indent 1)))
+        '())
     (if (or (equal? e ee) (eq? 'fail ee))
         (normalized-done e)
         (normalize ee rws))))
