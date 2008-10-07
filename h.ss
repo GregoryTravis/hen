@@ -91,6 +91,7 @@
 
 (define (normalize e rws)
   (let ((ee (normalize-step e rws)))
+    ;;(shew (++ e " => " ee))
     (if (or (equal? e ee) (eq? 'fail ee))
         (normalized-done e)
         (normalize ee rws))))
