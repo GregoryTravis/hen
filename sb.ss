@@ -107,7 +107,7 @@
 
 (define (sb-consyize l)
   (cond
-   ((null? l) '())
+   ((atom? l) l)
    ((pair? l) (list 'Cons (sb-in-cvt (car l)) (sb-consyize (cdr l))))
    (#t (err))))
 
