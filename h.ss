@@ -206,7 +206,7 @@
   (cond
    ((app? pat) (map nl-tag-vars pat))
    ((or (literal? pat) (symbol? pat)) pat)
-   ((var? pat) (cons pat (list 'unquote (sg))))
+   ((var? pat) (cons pat (make-var (sg))))
    (#t (err 'nl-tag-vars pat))))
 
 (define (nl-gather-tagged-vars pat)
