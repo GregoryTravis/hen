@@ -31,10 +31,16 @@
 (fun (uuf [a . d]) (Cons (uuf a) (uuf d)))
 (fun (uuf []) [])
 (fun (uuf (Integer (Primitive a))) (Constant (Integer (Primitive 1))))
-(fun (uuf a) a)
+(fun (uuf (Symbol (Primitive s)))
+     (Constant (Symbol (Primitive s))))
 
-;(uuf 1)
-;(match-descend (uuf 1) (uuf 1))
+;; (uuf [1 . 2])
+;; (uuf 1)
+;; (uuf [])
 
-1
-jerk
+(uuf a)
+;(uuf (Symbol (Primitive a)))
+
+;; ;(match-descend a 1)
+;; ;(match-descend (uuf 1) (uuf 1))
+;; ;(match-descend (uuf a) (uuf 1))
