@@ -445,6 +445,7 @@
 
 (define (fnot f) (lambda (x) (not (f x))))
 (define (for a b) (lambda (x) (or (a x) (b x))))
+(define (feq? a) (lambda (b) (eq? a b)))
 
 (define (map-append f . lysts)
   (apply append (apply map (cons f lysts))))

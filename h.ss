@@ -335,8 +335,11 @@
   (mtch (list pat e)
         (('var a) b) (list (list a b))
         (('pair a b) ('pair c d)) (append (moch a c) (moch b d))
-        (('atom a) ('atom b)) (if (eq? a b) '() (err 'moch pat e))
+        (('atom a) ('atom b)) (if (eq? a b) '() '(#f))
+        (x y) (list #f)
         ))
+(define (moch-failed bindings)
+  (any? (map (feq? #f) bindings)))
 
 ;; (define (la-atom? a)
 ;;   (or (number? a)
@@ -390,7 +393,19 @@
 
 (define (rw pat body target)
   (let ((bindings (moch pat target)))
-    (apply-bindings bindings body)))
+    (if (moch-failed bindings)
+        #f
+        (list (apply-bindings bindings body)))))
+
+(define (rwrw rws target)
+  (if (null? rws)
+      #f
+      (let* ((pat (caar rws))
+             (body (cadar rws))
+             (result (rw pat body target)))
+        (if (eq? result #f)
+            (rwrw (cdr rws) target)
+            result))))
 
 (shew
 ;;  (syn 'a)
@@ -419,12 +434,20 @@
 ;; (apply-bindings '((b (atom 2)) (a (atom 1)) (c (atom 3))) '(pair (var c) (pair (var b) (atom ()))))
 ;; (apply-bindings '((b (atom 2)) (a (atom 1)) (c (atom 3))) (syn '(c b)))
 
- (rw '(var a) '(var a) '(atom 10))
- (rw (syn 'a) (syn 'a) (syn 10))
- (rw (syn '(a b c)) (syn '(d c b)) (syn '(a 2 3)))
 
- (rw (syn '(a (Foo b) (Bar c))) (syn '(Baz c b)) (syn '(a (Foo 2) (Bar (Cup 3))))) ;; -> (Baz (Cup 3) 2)
- (syn '(Baz (Cup 3) 2))
+;;  (rw '(var a) '(var a) '(atom 10))
+;;  (rw (syn 'a) (syn 'a) (syn 10))
+;;  (rw (syn '(a b c)) (syn '(d c b)) (syn '(a 2 3)))
+
+ (car (rw (syn '(a (Foo b) (Bar c))) (syn '(Baz c b)) (syn '(a (Foo 2) (Bar (Cup 3))))))
+;;  (syn '(Baz (Cup 3) 2))
+
+;; (moch (syn '(Foo a)) (syn '(Bar 10)))
+;; (rw (syn '(Foo a)) (syn '(Ook a a)) (syn '(Bar 10)))
+ (rwrw (list
+        (list (syn '(Foo a)) (syn '(Ook a a)))
+        (list (syn '(Bar a)) (syn '(Ack a a))))
+       (syn '(Bar 10)))
 
 ;; ;;  (moch `(var a) 20)
 ;;  (moch (syn 'a) 20)
