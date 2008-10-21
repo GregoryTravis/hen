@@ -13,34 +13,34 @@
             '(pair (atom a) (pair (atom 10) (pair (atom 400) (pair (atom 20) (atom ())))))))
  (rw (syn '(a 10 b 20)) '(pair (atom bleah) (pair (var b) (atom ()))) (syn '(a 10 400 20)))
 
-(apply-binding-to-body-var 'a '((a (atom 1))) '(var a))
-(apply-binding-to-body-var 'a '((b (atom 2)) (a (atom 1)) (c (atom 3))) '(var a))
+ (apply-binding-to-body-var 'a '((a (atom 1))) '(var a))
+ (apply-binding-to-body-var 'a '((b (atom 2)) (a (atom 1)) (c (atom 3))) '(var a))
 
-(apply-bindings '((b (atom 2)) (a (atom 1)) (c (atom 3))) '(var a))
-(apply-bindings '((b (atom 2)) (a (atom 1)) (c (atom 3))) (syn 'a))
+ (apply-bindings '((b (atom 2)) (a (atom 1)) (c (atom 3))) '(var a))
+ (apply-bindings '((b (atom 2)) (a (atom 1)) (c (atom 3))) (syn 'a))
 
-(apply-bindings '((b (atom 2)) (a (atom 1)) (c (atom 3))) '(var b))
-(apply-bindings '((b (atom 2)) (a (atom 1)) (c (atom 3))) (syn 'b))
+ (apply-bindings '((b (atom 2)) (a (atom 1)) (c (atom 3))) '(var b))
+ (apply-bindings '((b (atom 2)) (a (atom 1)) (c (atom 3))) (syn 'b))
 
-(apply-bindings '((b (atom 2)) (a (atom 1)) (c (atom 3))) '(var c))
-(apply-bindings '((b (atom 2)) (a (atom 1)) (c (atom 3))) (syn 'c))
+ (apply-bindings '((b (atom 2)) (a (atom 1)) (c (atom 3))) '(var c))
+ (apply-bindings '((b (atom 2)) (a (atom 1)) (c (atom 3))) (syn 'c))
 
-(apply-bindings '((b (atom 2)) (a (atom 1)) (c (atom 3))) '(pair (var c) (atom ())))
-(apply-bindings '((b (atom 2)) (a (atom 1)) (c (atom 3))) (syn '(c)))
+ (apply-bindings '((b (atom 2)) (a (atom 1)) (c (atom 3))) '(pair (var c) (atom ())))
+ (apply-bindings '((b (atom 2)) (a (atom 1)) (c (atom 3))) (syn '(c)))
 
-(apply-bindings '((b (atom 2)) (a (atom 1)) (c (atom 3))) '(pair (var c) (pair (var b) (atom ()))))
-(apply-bindings '((b (atom 2)) (a (atom 1)) (c (atom 3))) (syn '(c b)))
+ (apply-bindings '((b (atom 2)) (a (atom 1)) (c (atom 3))) '(pair (var c) (pair (var b) (atom ()))))
+ (apply-bindings '((b (atom 2)) (a (atom 1)) (c (atom 3))) (syn '(c b)))
 
 
  (rw '(var a) '(var a) '(atom 10))
  (rw (syn 'a) (syn 'a) (syn 10))
  (rw (syn '(a b c)) (syn '(d c b)) (syn '(a 2 3)))
 
-(car (rw (syn '(a (Foo b) (Bar c))) (syn '(Baz c b)) (syn '(a (Foo 2) (Bar (Cup 3))))))
+ (car (rw (syn '(a (Foo b) (Bar c))) (syn '(Baz c b)) (syn '(a (Foo 2) (Bar (Cup 3))))))
  (syn '(Baz (Cup 3) 2))
 
-(moch (syn '(Foo a)) (syn '(Bar 10)))
-(rw (syn '(Foo a)) (syn '(Ook a a)) (syn '(Bar 10)))
+ (moch (syn '(Foo a)) (syn '(Bar 10)))
+ (rw (syn '(Foo a)) (syn '(Ook a a)) (syn '(Bar 10)))
 
  (rwrw (list
         (list (syn '(Foo a)) (syn '(Ook a a)))
@@ -71,5 +71,14 @@
               (list (syn '(Foo a)) (syn '(Ook a a)))
               (list (syn '(Bar a)) (syn '(Ack a a))))
              (syn '(Bar 10)))))
-
  )
+
+(shew (run '((fun (a 10 b 20) (Q b b))
+             (fun (a (Hen t) 20) (Tipp t))
+             (fun (a b 20) (Jort b))
+             (fun (a b c) (Jork c b c))
+             (a 10 400 20)
+             (a (Hen 6) 20)
+             (a (Ben 6) 20)
+             (a (Hen 6) 50)
+             )))

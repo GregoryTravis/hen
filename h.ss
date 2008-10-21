@@ -406,26 +406,15 @@
             (rwrw (cdr rws) target)
             result))))
 
-(define prog
-  '(
-    (fun (a 10 b 20) (Q b b))
-    (fun (a (Hen t) 20) (Tipp t))
-    (fun (a b 20) (Jort b))
-    (fun (a b c) (Jork c b c))
-    ))
+(define (run prog)
+  (let ((rules (prog->rules (grep fun-without-guard-syntax? prog)))
+        (exps (grep (fnot fun-without-guard-syntax?) prog)))
+    (map (lambda (e)
+           (unsyn (car (rwrw rules (syn e)))))
+         exps)))
 
 (define (prog->rules prog)
   (map (lambda (fun)
          (assert (fun-without-guard-syntax? fun))
          (list (syn (cadr fun)) (syn (caddr fun))))
        prog))
-
-(shew (map (lambda (e)
-             (unsyn (car (rwrw (prog->rules prog)
-                               (syn e)))))
-           '(
-             (a 10 400 20)
-             (a (Hen 6) 20)
-             (a (Ben 6) 20)
-             (a (Hen 6) 50)
-             )))
