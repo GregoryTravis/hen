@@ -383,13 +383,16 @@
  (moch `(pair (atom a) (pair (var b) (pair (atom 20) (atom ())))) `(pair (atom a) (pair (atom 2) (pair (atom 20) (atom ())))))
  (moch (syn `(a b 20)) (syn `(a 2 20)))
 
-; (moch `(pair (pair (var a) (var b)) (var c)) `(pair (pair (atom 1) (atom 2)) (atom 3)))
+ (moch '(pair (atom a) (pair (var b) (pair (var c) (atom ())))) '(pair (atom a) (pair (atom 1) (pair (atom 2) (atom ())))))
+ (moch (syn '(a b c)) (syn '(a 1 2)))
 
-; (moch (syn '(a b 20)) `(pair 1 2))
-;;  (moch `(atom 3) `(atom 3))
-;  (moch `(pair (pair (var a) (var b)) (var c)) `(pair (pair 1 2) 3))
-;;  (moch `(pair (pair (var a) (var b)) (var c)) `(pair (pair (pair 4 5) 2) 3))
-;;  (moch `(atom jerk) `(atom jerk))
-;;  (moch `(pair (atom Foo) (pair (var a) (var b)))
-;;        `(pair (atom Foo) (pair (atom 1) (atom 2))))
+ (moch '(atom 3) '(atom 3))
+ (moch (syn 3) (syn 3))
+
+ (moch '(var jerk) '(var jerk))
+ (moch (syn 'jerk) (syn 'jerk))
+
+ (moch `(pair (atom Foo) (pair (var a) (atom ())))
+       `(pair (atom Foo) (pair (atom 10) (atom ()))))
+ (moch (syn '(Foo a)) (syn '(Foo 10)))
 )
