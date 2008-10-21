@@ -330,3 +330,61 @@
 ;(load "tracing.ss")
 ;(tracefun normalize); try-rw)
 ;(tracefun env-lookup global-lookup)
+
+(define (moch pat e)
+  (mtch (list pat e)
+        (('var a) b) (list (list a b))
+        (('pair a b) ('pair c d)) (append (moch a c) (moch b d))
+        (('atom a) ('atom b)) (if (eq? a b) '() (err 'moch pat e))
+        ))
+
+;; (define (la-atom? a)
+;;   (or (number? a)
+;;       (string? a)
+;;       (quoted-symbol? a)))
+
+(define (quote-first l)
+  (cons `',(car l) (cdr l)))
+
+(define (pairify l)
+  (cond
+   ((pair? l) `(pair ,(car l) ,(pairify (cdr l))))
+   ((null? l) '(atom ()))
+   (#t l)))
+
+(define (syn a)
+  (cond
+   ((is-quote? a)
+    (if (symbol? (quote-quoted a))
+        `(atom ,(quote-quoted a))
+        (err 'syn a)))
+   ((or (number? a) (string? a)) `(atom ,a))
+   ((proper-list? a)
+    (pairify (map syn (quote-first a))))
+   ((symbol? a) `(var ,a))
+   ((null? a) '(atom ()))
+   (#t (err 'syn a))))
+
+;(tracefun syn pairify)
+;(tracefun moch)
+
+(shew
+ (syn 'a)
+ (syn '(a 10 b 20))
+ (syn ''a)
+  (moch `(var a) 20)
+  (moch (syn 'a) 20)
+
+(moch `(pair (atom a) (pair (var b) (pair (atom 20) (atom ())))) `(pair (atom a) (pair (atom 2) (pair (atom 20) (atom ())))))
+(moch (syn `(a b 20)) (syn `(a 2 20)))
+
+; (moch `(pair (pair (var a) (var b)) (var c)) `(pair (pair (atom 1) (atom 2)) (atom 3)))
+
+; (moch (syn '(a b 20)) `(pair 1 2))
+;;  (moch `(atom 3) `(atom 3))
+;  (moch `(pair (pair (var a) (var b)) (var c)) `(pair (pair 1 2) 3))
+;;  (moch `(pair (pair (var a) (var b)) (var c)) `(pair (pair (pair 4 5) 2) 3))
+;;  (moch `(atom jerk) `(atom jerk))
+;;  (moch `(pair (atom Foo) (pair (var a) (var b)))
+;;        `(pair (atom Foo) (pair (atom 1) (atom 2))))
+)
