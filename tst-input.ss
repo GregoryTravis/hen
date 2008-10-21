@@ -6,3 +6,5 @@
 (a (Hen 6) 20)
 (a (Ben 6) 20)
 (a (Hen 6) 50)
+(primitive-call (integer-+ (Primitive 1) (Primitive 2)))
+(primitive-call (integer-+ (Primitive 10) (Primitive 20)))

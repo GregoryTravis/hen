@@ -51,3 +51,7 @@ a
 (Jort (Ben 6))
 + (a (Hen 6) 50) 
 (Jork 50 (Hen 6) 50)
++ (primitive-call (integer-+ (Primitive 1) (Primitive 2))) 
+(Primitive 3)
++ (primitive-call (integer-+ (Primitive 10) (Primitive 20))) 
+(Primitive 30)

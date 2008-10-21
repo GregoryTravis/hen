@@ -400,6 +400,22 @@
             (rwrw (cdr rws) target)
             result))))
 
+(define (primycall? e)
+  (mtch e
+   ('pair ('atom 'primitive-call) . d) #t
+   a #f))
+
+(define (nmlz rws target)
+  (if (primycall? target)
+      (list (syn (do-primitive-call (cadr (unsyn target)))))
+      (rwrw rws target)))
+
+(define (prog->rules prog)
+  (map (lambda (fun)
+         (assert (fun-without-guard-syntax? fun))
+         (list (syn (cadr fun)) (syn (caddr fun))))
+       prog))
+
 (define (run prog)
   (let ((rules (prog->rules (grep fun-without-guard-syntax? prog)))
         (exps (grep (fnot fun-without-guard-syntax?) prog)))
@@ -407,16 +423,10 @@
            (display "+ ")
            (lshew e)
            (display "\n")
-           (let ((result (rwrw rules (syn e))))
+           (let ((result (nmlz rules (syn e))))
              (if (eq? result #f)
                  (err 'run prog)
                  (let ((result (unsyn (car result))))
                    (shew result)
                    result))))
          exps)))
-
-(define (prog->rules prog)
-  (map (lambda (fun)
-         (assert (fun-without-guard-syntax? fun))
-         (list (syn (cadr fun)) (syn (caddr fun))))
-       prog))
