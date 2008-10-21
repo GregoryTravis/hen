@@ -1,4 +1,4 @@
-(load "../lib.ss")
+(load/cd "../lib.ss")
 
 (shew 1)
 
