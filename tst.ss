@@ -73,12 +73,4 @@
              (syn '(Bar 10)))))
  )
 
-(shew (run '((fun (a 10 b 20) (Q b b))
-             (fun (a (Hen t) 20) (Tipp t))
-             (fun (a b 20) (Jort b))
-             (fun (a b c) (Jork c b c))
-             (a 10 400 20)
-             (a (Hen 6) 20)
-             (a (Ben 6) 20)
-             (a (Hen 6) 50)
-             )))
+(shew (run (sb-read-file "tst-input.ss")))
