@@ -1,3 +1,3 @@
 (load "h.ss")
 
-;(run (load-files (list "src.ss")))
+(shew (run (sb-read-file "src.ss")))

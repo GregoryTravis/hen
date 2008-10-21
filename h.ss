@@ -325,12 +325,6 @@
     (create-global-env globals)
     (map (lambda (e) (evl e rws)) exps)))
 
-(define (go)
-  (run (load-files (list "src.ss"))))
-;(load "tracing.ss")
-;(tracefun normalize); try-rw)
-;(tracefun env-lookup global-lookup)
-
 (define (moch pat e)
   (mtch (list pat e)
         (('var a) b) (list (list a b))
@@ -418,3 +412,9 @@
          (assert (fun-without-guard-syntax? fun))
          (list (syn (cadr fun)) (syn (caddr fun))))
        prog))
+
+(define (go)
+  (run (load-files (list "src.ss"))))
+;(load "tracing.ss")
+;(tracefun normalize); try-rw)
+;(tracefun env-lookup global-lookup)
