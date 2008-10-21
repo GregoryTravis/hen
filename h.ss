@@ -369,14 +369,19 @@
 ;(tracefun moch)
 
 (shew
- (syn 'a)
- (syn '(a 10 b 20))
- (syn ''a)
-  (moch `(var a) 20)
-  (moch (syn 'a) 20)
+;;  (syn 'a)
+;;  (syn '(a 10 b 20))
+;;  (syn ''a)
 
-(moch `(pair (atom a) (pair (var b) (pair (atom 20) (atom ())))) `(pair (atom a) (pair (atom 2) (pair (atom 20) (atom ())))))
-(moch (syn `(a b 20)) (syn `(a 2 20)))
+ (moch '(pair (atom a) (pair (atom 10) (pair (var b) (pair (atom 20) (atom ())))))
+       '(pair (atom a) (pair (atom 10) (pair (atom 400) (pair (atom 20) (atom ()))))))
+ (moch (syn '(a 10 b 20)) (syn '(a 10 400 20)))
+
+ (moch `(var a) 20)
+ (moch (syn 'a) 20)
+
+ (moch `(pair (atom a) (pair (var b) (pair (atom 20) (atom ())))) `(pair (atom a) (pair (atom 2) (pair (atom 20) (atom ())))))
+ (moch (syn `(a b 20)) (syn `(a 2 20)))
 
 ; (moch `(pair (pair (var a) (var b)) (var c)) `(pair (pair (atom 1) (atom 2)) (atom 3)))
 
