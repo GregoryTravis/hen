@@ -73,4 +73,4 @@
              (syn '(Bar 10)))))
  )
 
-(shew (run (sb-read-file "tst-input.ss")))
+(run (sb-read-file "tst-input.ss"))
