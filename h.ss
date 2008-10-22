@@ -325,11 +325,11 @@
     (create-global-env globals)
     (map (lambda (e) (evl e rws)) exps)))
 
-(define (moch pat e)
-  (mtch (list pat e)
-        (('var a) b) (list (list a b))
-        (('pair a b) ('pair c d)) (append (moch a c) (moch b d))
-        (('atom a) ('atom b)) (if (eq? a b) '() '(#f))
+(define (moch e pat)
+  (mtch (list e pat)
+        (b ('var a)) (list (list a b))
+        (('pair ea eb) ('pair pa pb)) (append (moch ea pa) (moch eb pb))
+        (('atom ea) ('atom pa)) (if (eq? ea pa) '() '(#f))
         (x y) (list #f)
         ))
 (define (moch-failed bindings)
@@ -368,8 +368,6 @@
         ('atom a) a
         ('var a) (list 'unquote a)))
 
-;(tracefun syn pairify)
-;(tracefun moch)
 
 (define (apply-binding-to-body-var name bindings body)
   (let ((a (assoc name bindings)))
@@ -384,20 +382,22 @@
                           ,(apply-bindings bindings b))
         ('atom a) body))
 
-(define (rw pat body target)
-  (let ((bindings (moch pat target)))
+;; Maybe
+(define (rw target pat body)
+  (let ((bindings (moch target pat)))
     (if (moch-failed bindings)
         #f
         (list (apply-bindings bindings body)))))
 
-(define (rwrw rws target)
+;; Maybe
+(define (rwrw target rws)
   (if (null? rws)
       #f
       (let* ((pat (caar rws))
              (body (cadar rws))
-             (result (rw pat body target)))
+             (result (rw target pat body)))
         (if (eq? result #f)
-            (rwrw (cdr rws) target)
+            (rwrw target (cdr rws))
             result))))
 
 (define (primycall? e)
@@ -405,10 +405,47 @@
    ('pair ('atom 'primitive-call) . d) #t
    a #f))
 
-(define (nmlz rws target)
-  (if (primycall? target)
-      (list (syn (do-primitive-call (cadr (unsyn target)))))
-      (rwrw rws target)))
+(define (nmlzd? e)
+  (mtch e
+        ('atom e) #t
+        ('pair ('atom x) d) (ctor? x)
+        ('var v) (err 'normalized-to-var e)))
+
+;; Not maybe
+(define (nmlz-children e rws)
+  (mtch e
+        ('pair a d) `(pair ,(nmlz a rws)
+                           ,(nmlz-children d rws))
+        x x))
+
+;; Maybe
+(define (nmlz-rewrite e rws)
+  (if (primycall? e)
+      (list (syn (do-primitive-call (cadr (unsyn e)))))
+      (rwrw e rws)))
+
+;; Maybe
+(define (nmlz-step e rws)
+  (nmlz-rewrite (nmlz-children e rws) rws))
+
+;; Not maybe
+(define (nmlz-iterate e rws)
+  (let ((ee (nmlz-step e rws)))
+    (if (eq? ee #f)
+        e
+        (let ((ee (car ee)))
+          (cond
+           ((nmlzd? ee) ee)
+           ((equal? ee e) (err 'infinite-loop ee rws))
+           (#t (nmlz-iterate ee rws)))))))
+
+;; Not maybe
+(define (nmlz e rws)
+  (nmlz-iterate e rws))
+
+;(tracefun syn pairify)
+;(tracefun syn unsyn pairify)
+;(tracefun nmlz nmlz-iterate nmlz-step nmlz-rewrite nmlz-children rwrw rw moch)
 
 (define (prog->rules prog)
   (map (lambda (fun)
@@ -423,10 +460,7 @@
            (display "+ ")
            (lshew e)
            (display "\n")
-           (let ((result (nmlz rules (syn e))))
-             (if (eq? result #f)
-                 (err 'run prog)
-                 (let ((result (unsyn (car result))))
-                   (shew result)
-                   result))))
+           (let ((result (unsyn (nmlz (syn e) rules))))
+             (shew result)
+             result))
          exps)))
