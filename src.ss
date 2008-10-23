@@ -8,3 +8,4 @@
 (a (Hen 6) 50)
 (primitive-call (integer-+ (Primitive 1) (Primitive 2)))
 (primitive-call (integer-+ (Primitive 10) (Primitive 20)))
+(primitive-call (integer-+ (Primitive 1) (primitive-call (integer-+ (Primitive 2) (Primitive 3)))))

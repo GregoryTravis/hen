@@ -418,10 +418,15 @@
                            ,(nmlz-children d rws))
         x x))
 
+(define (nmlz-primitive-call e rws)
+  (mtch e
+        ('pair ('atom 'primitive-call) (pair (pair primfun args) (atom ())))
+        (list (syn (do-primitive-call (unsyn `(pair ,primfun ,(nmlz-children args rws))))))))
+
 ;; Maybe
 (define (nmlz-rewrite e rws)
   (if (primycall? e)
-      (list (syn (do-primitive-call (cadr (unsyn e)))))
+      (nmlz-primitive-call e rws)
       (rwrw e rws)))
 
 ;; Maybe
@@ -445,7 +450,8 @@
 
 ;(tracefun syn pairify)
 ;(tracefun syn unsyn pairify)
-;(tracefun nmlz nmlz-iterate nmlz-step nmlz-rewrite nmlz-children rwrw rw moch)
+;(tracefun nmlz nmlz-iterate nmlz-step nmlz-rewrite nmlz-children nmlz-primitive-call do-primitive-call rwrw rw moch)
+;(tracefun nmlz do-primitive-call nmlz-primitive-call)
 
 (define (prog->rules prog)
   (map (lambda (fun)

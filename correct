@@ -55,3 +55,5 @@ a
 (Primitive 3)
 + (primitive-call (integer-+ (Primitive 10) (Primitive 20))) 
 (Primitive 30)
++ (primitive-call (integer-+ (Primitive 1) (primitive-call (integer-+ (Primitive 2) (Primitive 3))))) 
+(Primitive 6)
