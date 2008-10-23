@@ -400,54 +400,6 @@
             (rwrw target (cdr rws))
             result))))
 
-(define (primycall? e)
-  (mtch e
-   ('pair ('atom 'primitive-call) . d) #t
-   a #f))
-
-;; (define (nmlzd? e)
-;;   (mtch e
-;;         ('atom e) #t
-;;         ('pair ('atom x) d) (ctor? x)
-;;         ('var v) (err 'normalized-to-var e)))
-
-;; ;; Not maybe
-;; (define (nmlz-children e rws)
-;;   (mtch e
-;;         ('pair a d) `(pair ,(nmlz a rws)
-;;                            ,(nmlz-children d rws))
-;;         x x))
-
-;; (define (nmlz-primitive-call e rws)
-;;   (mtch e
-;;         ('pair ('atom 'primitive-call) (pair (pair primfun args) (atom ())))
-;;         (list (syn (do-primitive-call (unsyn `(pair ,primfun ,(nmlz-children args rws))))))))
-
-;; ;; Maybe
-;; (define (nmlz-rewrite e rws)
-;;   (if (primycall? e)
-;;       (nmlz-primitive-call e rws)
-;;       (rwrw e rws)))
-
-;; ;; Maybe
-;; (define (nmlz-step e rws)
-;;   (nmlz-rewrite (nmlz-children e rws) rws))
-
-;; ;; Not maybe
-;; (define (nmlz-iterate e rws)
-;;   (let ((ee (nmlz-step e rws)))
-;;     (if (eq? ee #f)
-;;         e
-;;         (let ((ee (car ee)))
-;;           (cond
-;;            ((nmlzd? ee) ee)
-;;            ((equal? ee e) (err 'infinite-loop ee rws))
-;;            (#t (nmlz-iterate ee rws)))))))
-
-;; ;; Not maybe
-;; (define (nmlz e rws)
-;;   (nmlz-iterate e rws))
-
 (define (try-rwrw e rws)
   (let ((ee (rwrw e rws)))
     (if (eq? ee #f)
