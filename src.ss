@@ -12,3 +12,4 @@
 (fun (+ (Integer a) (Integer b))
      (primitive-call (integer-+ a b)))
 (+ (Integer (Primitive 10)) (Integer (Primitive 20)))
+(Boo (a 10 400 20))

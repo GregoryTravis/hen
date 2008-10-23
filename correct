@@ -59,3 +59,5 @@ a
 (Primitive 6)
 + (+ (Integer (Primitive 10)) (Integer (Primitive 20))) 
 (Primitive 30)
++ (Boo (a 10 400 20)) 
+(Boo (Q 400 400))
