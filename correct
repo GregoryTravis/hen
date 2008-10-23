@@ -58,6 +58,6 @@ a
 + (primitive-call (integer-+ (Primitive 1) (primitive-call (integer-+ (Primitive 2) (Primitive 3))))) 
 (Primitive 6)
 + (+ (Integer (Primitive 10)) (Integer (Primitive 20))) 
-(Primitive 30)
+(Integer (Primitive 30))
 + (Boo (a 10 400 20)) 
 (Boo (Q 400 400))
