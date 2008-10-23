@@ -42,12 +42,14 @@
   (lsb app)
   (display "\n")
   (trace-indent)
+  (flush-output)
   (let ((r (runner)))
     (trace-unindent)
     (display (make-string-string impl-tracefun-indentation "| "))
     (display "-> ")
     (lsb r)
     (display "\n")
+    (flush-output)
     r))
 
 ;; untested
