@@ -1,17 +1,16 @@
-(fun (a 10 b 20) (Q b b))
+(fun (a 5 x) (B x))
+(a 5 10)
+
+(fun (+ (Integer a) (Integer b))
+     (Integer (primitive-call (integer-+ a b))))
+(+ 10 20)
+
+(fun (a 10 b 20) (Q (+ b b) b))
 (fun (a (Hen t) 20) (Tipp t))
 (fun (a b 20) (Jort b))
-(fun (a b c) (Jork c b c))
+(fun (a b c) (Jork c b (+ c c)))
 (a 10 400 20)
 (a (Hen 6) 20)
 (a (Ben 6) 20)
 (a (Hen 6) 50)
-(primitive-call (integer-+ (Primitive 1) (Primitive 2)))
-(primitive-call (integer-+ (Primitive 10) (Primitive 20)))
-(primitive-call (integer-+ (Primitive 1) (primitive-call (integer-+ (Primitive 2) (Primitive 3)))))
-
-(fun (+ (Integer a) (Integer b))
-     (Integer (primitive-call (integer-+ a b))))
-(+ (Integer (Primitive 10)) (Integer (Primitive 20)))
-
 (Boo (a 10 400 20))

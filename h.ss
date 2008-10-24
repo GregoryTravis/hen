@@ -41,6 +41,19 @@
         ('atom a) a
         ('var a) (list 'unquote a)))
 
+(define (unterse a)
+  (cond
+   ((integer? a) `(Integer (Primitive ,a)))
+   ((string? a) `(String (Primitive ,a)))
+   ((pair? a) (map unterse a))
+   (#t a)))
+
+(define (terse a)
+  (mtch a
+        ('Integer ('Primitive a)) a
+        ('String ('Primitive a)) a
+        (x . y) (map terse a)
+        x x))
 
 (define (apply-binding-to-body-var name bindings body)
   (let ((a (assoc name bindings)))
@@ -114,7 +127,7 @@
 (define (prog->rules prog)
   (map (lambda (fun)
          (assert (fun-without-guard-syntax? fun))
-         (list (syn (cadr fun)) (syn (caddr fun))))
+         (list (syn (unterse (cadr fun))) (syn (unterse (caddr fun)))))
        prog))
 
 (define (run prog)
@@ -124,7 +137,12 @@
            (display "+ ")
            (lshew e)
            (display "\n")
-           (let ((result (unsyn (nmlz (syn e) rules))))
-             (shew result)
+;;            (shew 'syn-unterse)
+;;            (lshew (syn (unterse e)))
+;;            (display "\n")
+           (let ((result (unsyn (nmlz (syn (unterse e)) rules))))
+             (shew (terse result))
+;;              (shew 'terse)
+;;              (shew (terse result))
              result))
          exps)))
