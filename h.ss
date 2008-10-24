@@ -13,11 +13,6 @@
 (define (moch-failed bindings)
   (any? (map (feq? #f) bindings)))
 
-;; (define (la-atom? a)
-;;   (or (number? a)
-;;       (string? a)
-;;       (quoted-symbol? a)))
-
 (define (quote-first l)
   (cons `',(car l) (cdr l)))
 
