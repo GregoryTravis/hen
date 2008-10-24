@@ -68,14 +68,12 @@
                           ,(apply-bindings bindings b))
         ('atom a) body))
 
-;; Maybe
 (define (rw target pat body)
   (let ((bindings (moch target pat)))
     (if (moch-failed bindings)
         #f
         (list (apply-bindings bindings body)))))
 
-;; Maybe
 (define (rwrw target rws)
   (if (null? rws)
       #f
@@ -118,12 +116,6 @@
         ee
         (nmlz ee rws))))
 
-;(tracefun syn pairify)
-;(tracefun syn unsyn pairify)
-;(tracefun nmlz nmlz-iterate nmlz-step nmlz-rewrite nmlz-children nmlz-primitive-call do-primitive-call rwrw rw moch)
-;(tracefun nmlz do-primitive-call nmlz-primitive-call)
-;(tracefun nmlz-step try-rwrw)
-
 (define (prog->rules prog)
   (map (lambda (fun)
          (assert (fun-without-guard-syntax? fun))
@@ -137,12 +129,7 @@
            (display "+ ")
            (lshew e)
            (display "\n")
-;;            (shew 'syn-unterse)
-;;            (lshew (syn (unterse e)))
-;;            (display "\n")
            (let ((result (unsyn (nmlz (syn (unterse e)) rules))))
              (shew (terse result))
-;;              (shew 'terse)
-;;              (shew (terse result))
              result))
          exps)))
