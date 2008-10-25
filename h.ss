@@ -24,6 +24,7 @@
 
 (define (syn a)
   (cond
+   ((null? a) '(atom ()))
    ((is-quote? a)
     (if (symbol? (quote-quoted a))
         `(atom ,(quote-quoted a))
@@ -32,7 +33,6 @@
    ((proper-list? a)
     (pairify (map syn (quote-first a))))
    ((symbol? a) `(var ,a))
-   ((null? a) '(atom ()))
    (#t (err 'syn a))))
 
 (define (unsyn a)
@@ -129,7 +129,9 @@
            (display "+ ")
            (lshew e)
            (display "\n")
+           (flush-output)
            (let ((result (unsyn (nmlz (syn (unterse e)) rules))))
              (shew (terse result))
+             (flush-output)
              result))
          exps)))
