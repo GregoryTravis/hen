@@ -14,10 +14,19 @@
            (cc (cf rendered)))
       (if sb-debug
           (begin
-            (display "==== sb write before ====\n")
+            (display "==== sb write original ====\n")
             (display s)
             (display "\n")
-            (display "==== sb write after =====\n")
+
+            (display "==== sb write after sf ====\n")
+            (display sf)
+            (display "\n")
+
+            (display "==== sb write rendered ====\n")
+            (display rendered)
+            (display "\n")
+
+            (display "==== sb write after cf =====\n")
             (display cc)
             (display "=========================\n"))
           '())
@@ -30,11 +39,21 @@
          (sses (sf scanneds)))
     (if sb-debug
         (begin
-          (display "==== sb read before =====\n")
+          (display "==== sb read original =====\n")
           (display c)
-          (display "==== sb write after =====\n")
+
+          (display "==== sb read after cf =====\n")
+          (display cc)
+          (display "\n")
+
+          (display "==== sb read scanneds =====\n")
+          (display scanneds)
+          (display "\n")
+
+          (display "==== sb read after sf =====\n")
           (display sses)
           (display "\n")
+
           (display "=========================\n"))
         '())
     sses))
@@ -111,13 +130,24 @@
    ((pair? l) (list 'Cons (sb-in-cvt (car l)) (sb-consyize (cdr l))))
    (#t (err))))
 
+(define (sb-process-dot l)
+  (cond
+   ((null? l) '())
+   ((and (pair? l)
+         (eq? (car l) sb-hwarf-dot))
+    (begin
+      (assert (null? (cddr l)))
+      (cadr l)))
+   ((pair? l) (cons (car l) (sb-process-dot (cdr l))))
+   (#t (err 'sb-process-dot l))))
+
 (define (sb-in-cvt s)
   (cond
    ((and (pair? s) (eq? sb-barf-bletch (car s)))
     (begin
       (assert (eq? sb-barf-bletch (caddr s)))
       (assert (= 3 (length s)))
-      (map sb-in-cvt (sb-consyize (cadr s)))))
+      (map sb-in-cvt (sb-consyize (map-improper sb-in-cvt (sb-process-dot (cadr s)))))))
    ((pair? s) (map-improper sb-in-cvt s))
    ((atom? s) s)
    (#t (err 'sb-in-cvt))))
@@ -125,7 +155,10 @@
 (define (make-sb-reader port)
   (make-cs-reader
    (lambda (s)
-     (regexp-replace* "\\[" (regexp-replace* "\\]" s (++ ") " sb-barf-bletch ")")) (++ "(" sb-barf-bletch " (")))
+     (set! s (regexp-replace* "\\]" s (++ ") " sb-barf-bletch ")")))
+     (set! s (regexp-replace* "\\[" s (++ "(" sb-barf-bletch " (")))
+     (set! s (regexp-replace* " \\. " s (++ " " sb-hwarf-dot " ")))
+     s)
    sb-in-cvt
    port))
 
