@@ -1,5 +1,7 @@
 (load "lib.ss")
 
+(define lazy #f)
+
 (define forms (read-objects "src.ss"))
 (define (run-file filename)
   (process-defines (read-objects filename))
@@ -32,9 +34,17 @@
         (if (eq? p #f)
             (lookup-env e (cdr env))
             (2nd p)))))
-                          
+
+(define (unthunk f)
+  (let ((body (3rd (2nd (2nd f))))
+        (env (3rd (2nd f))))
+    (evl body env)))
+
 (define (apply-fun f args)
   (cond
+   ((and (pair? f)
+         (eq? '& (car f)))
+    (apply-fun (unthunk f) args))
    ((and (pair? f)
          (eq? '$ (car f)))
     (let* ((lam (2nd f))
@@ -69,18 +79,27 @@
          (eq? '/. (car e)))
     `($ ,e ,env))
    ((pair? e)
-    (let ((ee (map (lambda (e) (evl e env))
+    (let ((ee (map (lambda (e) (if lazy
+                                   `(& ($ (/. () ,e) ,env))
+                                   (evl e env)))
                    e)))
       (apply-fun (car ee) (cdr ee))))
    (#t e)))
+
+(define (evl-nf e)
+  (let ((ee (evl e '())))
+    (if (and (pair? ee)
+             (eq? '& (car ee)))
+        (unthunk ee)
+        ee)))
 
 (define (evl-top e)
   (display "+ ")
   (lshew e)
   (display "\n")
-  (let ((r (evl e '())))
+  (let ((r (evl-nf e)))
     (lshew r)
     (display "\n")
     r))
 
-;(tracefun apply-fun evl lookup-env blimpp)
+;(tracefun apply-fun evl blimpp unthunk evl-nf)

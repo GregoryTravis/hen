@@ -1,27 +1,5 @@
-(def glap 133)
+;(def main (/. () (if 'True 10 20)))
 
-(def fact (/. (n) (if (== n 0)
-                      1
-                      (* n (fact (- n 1))))))
+(def poo (/. (a b) a))
 
-(def main
-     (/. ()
-         (list (/. (x) 10)
-               ((/. (x) 10) 1)
-               ((/. (x) x) 1)
-               ((/. (x) x) ((/. (x) x) 3))
-               ((/. (x) glap) 1)
-               1
-               ((/. (x) x) 3)
-               (+ glap 2)
-
-               (if 'True 1 2)
-               (if 'False 1 2)
-               (> 1 2)
-               (> 2 1)
-               (== 0 0)
-               (== 0 1)
-
-               (fact 10)
-               (list 1 2)
-               )))
+(def main (/. () (poo 10 20)))
