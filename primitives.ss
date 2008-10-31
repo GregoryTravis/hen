@@ -11,16 +11,16 @@
         (err 'blimpp f)
         (apply (cdr prim-f) args))))
 
-(define-primitive 'integer-+
+(define-primitive '+
   (lambda (a b)
     (+ a b)))
-(define-primitive 'integer--
+(define-primitive '-
   (lambda (a b)
     (- a b)))
-(define-primitive 'integer-*
+(define-primitive '*
   (lambda (a b)
     (* a b)))
-(define-primitive 'integer-/
+(define-primitive '/
   (lambda (a b)
     (/ a b)))
 
