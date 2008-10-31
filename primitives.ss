@@ -72,3 +72,6 @@
   (lambda (e)
     (sb (unpreprocess e))
     'NoResult))
+
+(define-primitive 'list
+  (lambda args args))

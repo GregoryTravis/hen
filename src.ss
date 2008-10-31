@@ -23,3 +23,5 @@
                       1
                       (* n (fact (- n 1))))))
 (def main (/. () (fact 10)))
+
+(def main (/. () (list 1 2)))
