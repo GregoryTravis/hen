@@ -43,6 +43,9 @@
 (define (mych p t)
   (cond
    ((symbol? p) (list (list p t)))
+   ((and (is-quote? p)
+         (symbol? (quote-quoted p))
+         (eq? (quote-quoted p) t)) '())
    ((pair? p) (append (mych (car p) (car t))
                       (mych (cdr p) (cdr t))))
    ((and (null? p) (null? t)) '())
