@@ -24,12 +24,11 @@
   (lambda (a b)
     (/ a b)))
 
-(define-primitive 'tfy
-  (lambda (x)
-    (cond
-     ((eq? #f x) 'False)
-     ((eq? #t x) 'True)
-     (#t (err 'tfy x)))))
+(define (tfy x)
+  (cond
+   ((eq? #f x) 'False)
+   ((eq? #t x) 'True)
+   (#t (err 'tfy x))))
 
 (define-primitive 'untfy
   (lambda (x)
