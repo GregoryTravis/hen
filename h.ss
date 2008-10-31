@@ -2,11 +2,31 @@
 
 (define forms (read-objects "src.ss"))
 (define (go)
-  (map evl-top forms))
+  (process-defines forms)
+  (evl-top '(main)))
+
+(define (process-defines forms)
+  (map store-define forms))
+
+(define (store-define e)
+  (mtch e
+        ('def var exp) (global-env-define var (evl exp '()))))
+
+(define global-env '())
+
+(define (global-env-define var exp)
+  (set! global-env
+        (cons (list var exp) global-env)))
+
+(define (global-lookup-env e)
+  (let ((a (assoc e global-env)))
+    (if (eq? a #f)
+        (err 'global-lookup-env e)
+        (2nd a))))
 
 (define (lookup-env e env)
   (if (null? env)
-      (err 'no-such-variable e)
+      (global-lookup-env e)
       (let ((p (assoc e (car env))))
         (if (eq? p #f)
             (lookup-env e (cdr env))
@@ -49,4 +69,4 @@
     (display "\n")
     r))
 
-;(tracefun apply-fun evl lookup-env)
+(tracefun apply-fun evl lookup-env)
