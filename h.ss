@@ -69,4 +69,4 @@
     (display "\n")
     r))
 
-(tracefun apply-fun evl lookup-env)
+;(tracefun apply-fun evl lookup-env)
