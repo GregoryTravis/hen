@@ -37,16 +37,13 @@
   (cond
    ((and (pair? f)
          (eq? '$ (car f)))
-   (let* ((lam (2nd f))
-          (env (3rd f))
-          (formals (2nd lam))
-          (body (3rd lam)))
-     (evl body
-          (cons (zip list
-                     formals
-                     (map (lambda (e) (evl e env))
-                          args))
-                env))))
+    (let* ((lam (2nd f))
+           (env (3rd f))
+           (formals (2nd lam))
+           (body (3rd lam)))
+      (evl body
+           (cons (zip list formals args)
+                 env))))
    ((and (pair? f)
          (eq? '@ (car f)))
     (blimpp (2nd f) args))
