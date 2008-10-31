@@ -1,8 +1,8 @@
 (load "lib.ss")
 
 (define forms (read-objects "src.ss"))
-(define (go)
-  (process-defines forms)
+(define (run-file filename)
+  (process-defines (read-objects filename))
   (evl-top '(main)))
 
 (define (process-defines forms)

@@ -1,2 +1,2 @@
 (load "h.ss")
-(go)
+(run-file "src.ss")
