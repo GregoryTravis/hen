@@ -54,6 +54,19 @@
 
 (define (evl e env)
   (cond
+   ((and (pair? e)
+         (eq? (1st e) 'quote))
+    (2nd e))
+   ((and (pair? e)
+         (eq? (1st e) 'if))
+    (let ((pred (2nd e))
+          (then (3rd e))
+          (else (4th e)))
+      (let ((b (evl pred env)))
+        (cond
+         ((eq? b 'True) (evl then env))
+         ((eq? b 'False) (evl else env))
+         (#t (err 'if pred b))))))
    ((symbol? e) (lookup-env e env))
    ((and (pair? e)
          (eq? '/. (car e)))

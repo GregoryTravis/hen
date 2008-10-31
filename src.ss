@@ -9,5 +9,8 @@
 ;(def main (/. () 1))
 ;(def main (/. () ((/. (x) x) 3)))
 
-(def a 10)
-(def main (/. () (integer-+ a 2)))
+;; (def a 10)
+;; (def main (/. () (integer-+ a 2)))
+
+(def main (/. () (if 'True 1 2)))
+(def main (/. () (if 'False 1 2)))
