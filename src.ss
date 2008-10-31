@@ -9,5 +9,5 @@
 ;(def main (/. () 1))
 ;(def main (/. () ((/. (x) x) 3)))
 
-(def a 10)
-(def main (/. () a))
+;(def a 10)
+(def main (/. () (integer-+ 1 2)))

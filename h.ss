@@ -12,11 +12,14 @@
   (mtch e
         ('def var exp) (global-env-define var (evl exp '()))))
 
-(define global-env '())
-
 (define (global-env-define var exp)
   (set! global-env
         (cons (list var exp) global-env)))
+
+(define global-env '())
+(load "primitives.ss")
+
+(shew global-env)
 
 (define (global-lookup-env e)
   (let ((a (assoc e global-env)))
@@ -35,7 +38,7 @@
 (define (apply-fun f args)
   (cond
    ((and (pair? f)
-        (eq? '$ (car f)))
+         (eq? '$ (car f)))
    (let* ((lam (2nd f))
           (env (3rd f))
           (formals (2nd lam))
@@ -46,6 +49,9 @@
                      (map (lambda (e) (evl e env))
                           args))
                 env))))
+   ((and (pair? f)
+         (eq? '@ (car f)))
+    (blimpp (2nd f) args))
    (#t (err 'apply-fun f))))
 
 (define (evl e env)
@@ -69,4 +75,5 @@
     (display "\n")
     r))
 
-;(tracefun apply-fun evl lookup-env)
+(tracefun apply-fun evl lookup-env)
+(tracefun blimpp)
