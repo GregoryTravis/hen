@@ -19,8 +19,6 @@
 (define global-env '())
 (load "primitives.ss")
 
-(shew global-env)
-
 (define (global-lookup-env e)
   (let ((a (assoc e global-env)))
     (if (eq? a #f)
@@ -75,5 +73,4 @@
     (display "\n")
     r))
 
-(tracefun apply-fun evl lookup-env)
-(tracefun blimpp)
+;(tracefun apply-fun evl lookup-env blimpp)
