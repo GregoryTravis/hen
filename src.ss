@@ -16,3 +16,5 @@
 (def main (/. () (if 'False 1 2)))
 (def main (/. () (> 1 2)))
 (def main (/. () (> 2 1)))
+(def main (/. () (== 0 0)))
+(def main (/. () (== 0 1)))
