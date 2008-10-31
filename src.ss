@@ -15,3 +15,4 @@
 ;; (def poo (/. (a b) (Hoo b a)))
 ;; (def main (/. () (poo 1 2)))
 ;(def main (/. () ((/. (a b) (Hoo b a)) 1 2)))
+(def main (/. () ((/. (1 b) (Hoo b b)) 1 2)))

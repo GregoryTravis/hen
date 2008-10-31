@@ -46,6 +46,7 @@
    ((pair? p) (append (mych (car p) (car t))
                       (mych (cdr p) (cdr t))))
    ((and (null? p) (null? t)) '())
+   ((and (number? p) (= p t)) '())
    (#t (err 'mych p t))))
 
 (define (apply-fun f args)
