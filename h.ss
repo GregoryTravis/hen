@@ -40,6 +40,14 @@
         (env (3rd (2nd f))))
     (evl body env)))
 
+(define (mych p t)
+  (cond
+   ((symbol? p) (list (list p t)))
+   ((pair? p) (append (mych (car p) (car t))
+                      (mych (cdr p) (cdr t))))
+   ((and (null? p) (null? t)) '())
+   (#t (err 'mych p t))))
+
 (define (apply-fun f args)
   (cond
    ((and (pair? f)
@@ -52,8 +60,7 @@
            (formals (2nd lam))
            (body (3rd lam)))
       (evl body
-           (cons (zip list formals args)
-                 env))))
+           (cons (mych formals args) env))))
    ((and (pair? f)
          (eq? '@ (car f)))
     (blimpp (2nd f) args))
