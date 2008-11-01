@@ -63,13 +63,29 @@
       (err 'must o stuff)
       (car o)))
 
+(define (try-apply-multilam mlam env args)
+  (if (null? (cdr mlam))
+      #f
+      (let ((r (try-apply-lam
+                (cadr mlam)
+                env
+                args)))
+        (if (eq? r #f)
+            (try-apply-multilam
+             (cons '/./. (cddr mlam))
+             env
+             args)
+            r))))
+
 (define (try-apply-lam lam env args)
-  (let* ((formals (2nd lam))
-         (body (3rd lam)))
-    (let ((bindings (mych formals args)))
-      (if (eq? bindings #f)
-          #f
-          (list (evl body (cons bindings env)))))))
+  (if (eq? (car lam) '/./.)
+      (try-apply-multilam lam env args)
+      (let* ((formals (2nd lam))
+             (body (3rd lam)))
+        (let ((bindings (mych formals args)))
+          (if (eq? bindings #f)
+              #f
+              (list (evl body (cons bindings env))))))))
 
 (define (must-apply-lam lam env args)
   (must (try-apply-lam lam env args) 'pattern-lambda-failure lam env args))
@@ -109,7 +125,7 @@
          (#t (err 'if pred b))))))
    ((symbol? e) (lookup-env e env))
    ((and (pair? e)
-         (eq? '/. (car e)))
+         (or (eq? '/. (car e)) (eq? '/./. (car e))))
     `($ ,e ,env))
    ((pair? e)
     (let ((ee (map (lambda (e) (if lazy
@@ -117,7 +133,7 @@
                                    (evl e env)))
                    e)))
       (apply-fun (car ee) (cdr ee))))
-   (#t e)))
+   (#t e))) 
 
 (define (evl-nf e)
   (let ((ee (evl e '())))
@@ -136,3 +152,4 @@
     r))
 
 ;(tracefun apply-fun evl blimpp unthunk evl-nf)
+;(tracefun try-apply-lam try-apply-multilam)
