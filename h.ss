@@ -40,17 +40,39 @@
         (env (3rd (2nd f))))
     (evl body env)))
 
+(define (mab-append a b)
+  (if (or (eq? a #f) (eq? b #f))
+      #f
+      (append a b)))
+
 (define (mych p t)
   (cond
    ((symbol? p) (list (list p t)))
    ((and (is-quote? p)
          (symbol? (quote-quoted p))
          (eq? (quote-quoted p) t)) '())
-   ((pair? p) (append (mych (car p) (car t))
-                      (mych (cdr p) (cdr t))))
+   ((pair? p) (mab-append (mych (car p) (car t))
+                          (mych (cdr p) (cdr t))))
    ((and (null? p) (null? t)) '())
    ((and (number? p) (= p t)) '())
-   (#t (err 'mych p t))))
+   (#t #f)))
+   ;(#t (err 'mych p t))))
+
+(define (must o . stuff)
+  (if (eq? o #f)
+      (err 'must o stuff)
+      (car o)))
+
+(define (try-apply-lam lam env args)
+  (let* ((formals (2nd lam))
+         (body (3rd lam)))
+    (let ((bindings (mych formals args)))
+      (if (eq? bindings #f)
+          #f
+          (list (evl body (cons bindings env)))))))
+
+(define (must-apply-lam lam env args)
+  (must (try-apply-lam lam env args) 'pattern-lambda-failure lam env args))
 
 (define (apply-fun f args)
   (cond
@@ -59,12 +81,7 @@
     (apply-fun (unthunk f) args))
    ((and (pair? f)
          (eq? '$ (car f)))
-    (let* ((lam (2nd f))
-           (env (3rd f))
-           (formals (2nd lam))
-           (body (3rd lam)))
-      (evl body
-           (cons (mych formals args) env))))
+    (must-apply-lam (2nd f) (3rd f) args))
    ((and (pair? f)
          (eq? '@ (car f)))
     (blimpp (2nd f) args))
