@@ -4,17 +4,41 @@
 
 (define forms (read-objects "src.ss"))
 (define (run-file filename)
-  (process-defines (read-objects filename))
+  (map process-top-level-forms (read-objects filename))
+  ;(shew global-env)
   (evl-top '(main)))
 
-(define (process-defines forms)
-  (map store-define forms))
+(define (process-top-level-forms form)
+  (cond
+   ((eq? (car form) 'def) (process-def form))
+   ((eq? (car form) 'fun) (process-fun form))
+   (#t (err 'process-define form))))
 
-(define (store-define e)
+(define (process-def e)
   (mtch e
         ('def var exp) (global-env-define var (evl exp '()))))
 
+(define (process-fun e)
+  (mtch e
+        ('fun args body)
+        (let* ((fun-name (car args))
+               (lam `(/. ,(cdr args) ,body))
+               (clo (evl lam '()))
+               (existing-value (assoc fun-name global-env)))
+          (if (eq? existing-value #f)
+              (global-env-define fun-name clo)
+              (let ((clos (cdr existing-value)))
+                (global-env-define fun-name `(/./. ,(cons clo clos))))))))
+
+(define (global-env-remove-maybe var)
+  (let ((a (assoc var global-env)))
+    (if (eq? a #f)
+        '()
+        (set! global-env
+              (remove a global-env)))))
+
 (define (global-env-define var exp)
+  (global-env-remove-maybe var)
   (set! global-env
         (cons (list var exp) global-env)))
 
@@ -99,9 +123,12 @@
          (eq? '$ (car f)))
     (must-apply-lam (2nd f) (3rd f) args))
    ((and (pair? f)
+         (eq? '/./. (car f)))
+    (must-apply-lam (2nd f) (3rd f) args))
+   ((and (pair? f)
          (eq? '@ (car f)))
     (blimpp (2nd f) args))
-   (#t (err 'apply-fun f))))
+   (#t (err 'apply-fun f args))))
 
 (define (evl e env)
   (cond
@@ -127,6 +154,9 @@
    ((and (pair? e)
          (or (eq? '/. (car e)) (eq? '/./. (car e))))
     `($ ,e ,env))
+;   ((and (pair? e)
+;         (eq? '/./. (car e)))
+;    `(/./. ,@(map (lambda (e) (evl e env)) (cdr e))))
    ((pair? e)
     (let ((ee (map (lambda (e) (if lazy
                                    `(& ($ (/. () ,e) ,env))
@@ -151,5 +181,4 @@
     (display "\n")
     r))
 
-;(tracefun apply-fun evl blimpp unthunk evl-nf)
-;(tracefun try-apply-lam try-apply-multilam)
+;(tracefun apply-fun evl blimpp unthunk evl-nf try-apply-lam try-apply-multilam)
