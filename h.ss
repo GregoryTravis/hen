@@ -34,9 +34,9 @@
                (clo (evl lam '()))
                (existing-value (assoc fun-name global-env)))
           (if (eq? existing-value #f)
-              (global-env-define fun-name clo)
-              (let ((clos (cdr existing-value)))
-                (global-env-define fun-name `(/./. ,@(snoc clos clo))))))))
+              (global-env-define fun-name `(/./. ,clo))
+              (let ((clos (cadr existing-value)))
+                (global-env-define fun-name `(/./. ,@(snoc (cdr clos) clo))))))))
 
 (define (add-toplevel-exps)
   (process-fun `(fun (__toplevel-forms) (begin ,@(map (lambda (e) `(shew ,e)) toplevel-forms)))))
@@ -211,5 +211,4 @@
         '())
     r))
 
-;(tracefun apply-fun evl blimpp unthunk evl-nf try-apply-lam try-apply-multilam)
-;(tracefun apply-fun)
+;(tracefun apply-fun evl blimpp unthunk evl-nf try-apply-lam try-apply-multilam mych)
