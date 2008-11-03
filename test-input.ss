@@ -63,3 +63,71 @@
 (reverse (Cons 1 Nil))
 (reverse (Cons 1 (Cons 2 Nil)))
 (reverse (Cons 1 (Cons 2 (Cons 3 (Cons 4 Nil)))))
+
+(fun (foo a b) (Bar b b))
+
+(foo 10 20)
+(foo 20 10)
+
+(Foo 10 20)
+(Bar 10 20)
+(Foo 20 10)
+(Bar 20 10)
+
+(fun (tak Nil) Nil)
+(fun (tak (Cons a d)) (Cons (Harf a a) (tak d)))
+(tak (Cons 1 (Cons 2 Nil)))
+
+(fun (yep a) (Double a a))
+(map yep (Cons 1 (Cons 2 Nil)))
+
+(append (Cons 1 (Cons 2 Nil)) (Cons 3 (Cons 4 Nil)))
+
+(reverse (Cons 1 (Cons 2 Nil)))
+(reverse (reverse (Cons 1 (Cons 2 (Cons 3 (Cons 4 Nil))))))
+
+(reverse (append (Cons 1 (Cons 2 Nil)) (Cons 3 (Cons 4 Nil))))
+
+(+ 3 4)
+(- 3 4)
+(* 3 4)
+(/ 3 4)
+
+(== 3 4)
+(!= 3 4)
+(< 3 4)
+(> 3 4)
+(<= 3 4)
+(>= 3 4)
+
+(== 4 3)
+(!= 4 3)
+(< 4 3)
+(> 4 3)
+(<= 4 3)
+(>= 4 3)
+
+(== 4 4)
+(!= 4 4)
+(< 4 4)
+(> 4 4)
+(<= 4 4)
+(>= 4 4)
+
+(not False)
+(not True)
+
+(and True True)
+(and False True)
+(and True False)
+(and False False)
+
+(or True True)
+(or False True)
+(or True False)
+(or False False)
+
+(xor True False)
+(xor False True)
+(xor True True)
+(xor False False)

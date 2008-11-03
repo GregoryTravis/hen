@@ -32,3 +32,51 @@ Nil
 (Cons 1 Nil)
 (Cons 2 (Cons 1 Nil))
 (Cons 4 (Cons 3 (Cons 2 (Cons 1 Nil))))
+(Bar 20 20)
+(Bar 10 10)
+(Foo 10 20)
+(Bar 10 20)
+(Foo 20 10)
+(Bar 20 10)
+(Cons (Harf 1 1) (Cons (Harf 2 2) Nil))
+(Cons (Double 1 1) (Cons (Double 2 2) Nil))
+(Cons 1 (Cons 2 (Cons 3 (Cons 4 Nil))))
+(Cons 2 (Cons 1 Nil))
+(Cons 1 (Cons 2 (Cons 3 (Cons 4 Nil))))
+(Cons 4 (Cons 3 (Cons 2 (Cons 1 Nil))))
+7
+-1
+12
+3/4
+False
+True
+True
+False
+True
+False
+False
+True
+False
+True
+False
+True
+True
+False
+False
+False
+True
+True
+True
+False
+True
+False
+False
+False
+True
+True
+True
+False
+True
+True
+False
+False
