@@ -25,3 +25,6 @@ False
 3628800
 (Cons 2 (Cons 4 Nil))
 (Cons 1 (Cons 1 Nil))
+(Cons 1 (Cons 2 (Cons 3 (Cons 4 Nil))))
+(Cons 3 (Cons 4 Nil))
+(Cons 3 (Cons 4 Nil))
