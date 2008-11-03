@@ -52,3 +52,14 @@
 (fun (foo x) (* x 2))
 
 (map foo (Cons 1 (Cons 2 Nil)))
+
+(fun (grep p Nil) Nil)
+(fun (grep p (Cons a d))
+     (if (p a)
+         (Cons a (grep p d))
+         (grep p d)))
+
+(fun (hisk 1) True)
+(fun (hisk x) False)
+
+(grep hisk (Cons 1 (Cons 2 (Cons 3 (Cons 1 Nil)))))

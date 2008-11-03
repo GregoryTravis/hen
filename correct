@@ -24,3 +24,4 @@ False
 3628800
 3628800
 (Cons 2 (Cons 4 Nil))
+(Cons 1 (Cons 1 Nil))
