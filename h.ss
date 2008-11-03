@@ -5,7 +5,7 @@
 (define forms (read-objects "src.ss"))
 (define (run-file filename)
   (map process-top-level-forms (read-objects filename))
-  ;(shew global-env)
+  ;;(shew global-env)
   (evl-top '(main)))
 
 (define (process-top-level-forms form)
@@ -28,7 +28,7 @@
           (if (eq? existing-value #f)
               (global-env-define fun-name clo)
               (let ((clos (cdr existing-value)))
-                (global-env-define fun-name `(/./. ,(cons clo clos))))))))
+                (global-env-define fun-name `(/./. ,@(snoc clos clo))))))))
 
 (define (global-env-remove-maybe var)
   (let ((a (assoc var global-env)))
@@ -87,32 +87,31 @@
       (err 'must o stuff)
       (car o)))
 
-(define (try-apply-multilam mlam env args)
+(define (try-apply-multilam mlam args)
   (if (null? (cdr mlam))
       #f
-      (let ((r (try-apply-lam
-                (cadr mlam)
-                env
-                args)))
+      (let ((r (try-apply-lam (cadr mlam) args)))
         (if (eq? r #f)
             (try-apply-multilam
              (cons '/./. (cddr mlam))
-             env
              args)
             r))))
 
-(define (try-apply-lam lam env args)
-  (if (eq? (car lam) '/./.)
-      (try-apply-multilam lam env args)
-      (let* ((formals (2nd lam))
-             (body (3rd lam)))
-        (let ((bindings (mych formals args)))
-          (if (eq? bindings #f)
-              #f
-              (list (evl body (cons bindings env))))))))
+(define (try-apply-lam clo args)
+  (let* ((lam (2nd clo))
+         (env (3rd clo))
+         (formals (2nd lam))
+         (body (3rd lam)))
+    (let ((bindings (mych formals args)))
+      (if (eq? bindings #f)
+          #f
+          (list (evl body (cons bindings env)))))))
 
-(define (must-apply-lam lam env args)
-  (must (try-apply-lam lam env args) 'pattern-lambda-failure lam env args))
+(define (must-apply-lam clo args)
+  (must (try-apply-lam clo args) 'must-apply-lam clo args))
+
+(define (must-apply-multilam mlam args)
+  (must (try-apply-multilam mlam args) 'must-apply-multilam mlam args))
 
 (define (apply-fun f args)
   (cond
@@ -121,10 +120,10 @@
     (apply-fun (unthunk f) args))
    ((and (pair? f)
          (eq? '$ (car f)))
-    (must-apply-lam (2nd f) (3rd f) args))
+    (must-apply-lam f args))
    ((and (pair? f)
          (eq? '/./. (car f)))
-    (must-apply-lam (2nd f) (3rd f) args))
+    (must-apply-multilam f args))
    ((and (pair? f)
          (eq? '@ (car f)))
     (blimpp (2nd f) args))
@@ -152,11 +151,11 @@
          (#t (err 'if pred b))))))
    ((symbol? e) (lookup-env e env))
    ((and (pair? e)
-         (or (eq? '/. (car e)) (eq? '/./. (car e))))
+         (eq? '/. (car e)))
     `($ ,e ,env))
-;   ((and (pair? e)
-;         (eq? '/./. (car e)))
-;    `(/./. ,@(map (lambda (e) (evl e env)) (cdr e))))
+   ((and (pair? e)
+         (eq? '/./. (car e)))
+    `(/./. ,@(map (lambda (e) (evl e env)) (cdr e))))
    ((pair? e)
     (let ((ee (map (lambda (e) (if lazy
                                    `(& ($ (/. () ,e) ,env))
