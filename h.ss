@@ -4,6 +4,7 @@
 
 (define forms (read-objects "src.ss"))
 (define (run-file filename)
+  (map process-top-level-forms (read-objects "overture.ss"))
   (map process-top-level-forms (read-objects filename))
   ;;(shew global-env)
   (add-toplevel-exps)

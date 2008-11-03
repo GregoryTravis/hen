@@ -46,34 +46,18 @@
 (fact2 10)
 (fact3 10)
 
-(fun (map f Nil) Nil)
-(fun (map f (Cons a d)) (Cons (f a) (map f d)))
-
 (fun (foo x) (* x 2))
 
 (map foo (Cons 1 (Cons 2 Nil)))
-
-(fun (grep p Nil) Nil)
-(fun (grep p (Cons a d))
-     (if (p a)
-         (Cons a (grep p d))
-         (grep p d)))
 
 (fun (hisk 1) True)
 (fun (hisk x) False)
 
 (grep hisk (Cons 1 (Cons 2 (Cons 3 (Cons 1 Nil)))))
 
-(fun (append Nil a) a)
-(fun (append (Cons a d) b) (Cons a (append d b)))
-
 (append (Cons 1 (Cons 2 Nil)) (Cons 3 (Cons 4 Nil)))
 (append Nil (Cons 3 (Cons 4 Nil)))
 (append (Cons 3 (Cons 4 Nil)) Nil)
-
-(fun (reverse Nil) Nil)
-(fun (reverse (Cons a d))
-     (append (reverse d) (Cons a Nil)))
 
 (reverse Nil)
 (reverse (Cons 1 Nil))
