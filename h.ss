@@ -87,7 +87,8 @@
 
 (define (mych p t)
   (cond
-   ((symbol? p) (list (list p t)))
+   ((and (symbol? p) (ctor? p) (eq? p t)) '())
+   ((and (symbol? p) (not (ctor? p))) (list (list p t)))
    ((and (is-quote? p)
          (symbol? (quote-quoted p))
          (eq? (quote-quoted p) t)) '())
@@ -174,7 +175,8 @@
          ((eq? b 'True) (evl then env))
          ((eq? b 'False) (evl else env))
          (#t (err 'if pred b))))))
-   ((symbol? e) (lookup-env e env))
+   ((and (symbol? e) (not (ctor? e))) (lookup-env e env))
+   ((and (symbol? e) (ctor? e)) e)
    ((and (pair? e)
          (eq? '/. (car e)))
     `($ ,e ,env))
@@ -209,3 +211,4 @@
     r))
 
 ;(tracefun apply-fun evl blimpp unthunk evl-nf try-apply-lam try-apply-multilam)
+;(tracefun apply-fun)
