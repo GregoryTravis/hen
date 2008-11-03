@@ -70,8 +70,8 @@
 
 (define-primitive 'shew
   (lambda (e)
-    (sb (unpreprocess e))
-    'NoResult))
+    (shew e)
+    'Mu))
 
 (define-primitive 'list
   (lambda args args))

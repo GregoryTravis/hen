@@ -6,13 +6,20 @@
 (define (run-file filename)
   (map process-top-level-forms (read-objects filename))
   ;;(shew global-env)
-  (evl-top '(main)))
+  (add-toplevel-exps)
+  (add-default-main-maybe)
+  (evl-top '(main))
+  (evl-top '(__toplevel-forms)))
 
 (define (process-top-level-forms form)
   (cond
-   ((eq? (car form) 'def) (process-def form))
-   ((eq? (car form) 'fun) (process-fun form))
-   (#t (err 'process-define form))))
+   ((and (pair? form) (eq? (car form) 'def)) (process-def form))
+   ((and (pair? form) (eq? (car form) 'fun)) (process-fun form))
+   (#t (process-toplevel-exp form))))
+
+(define toplevel-forms '())
+(define (process-toplevel-exp form)
+  (set! toplevel-forms (snoc toplevel-forms form)))
 
 (define (process-def e)
   (mtch e
@@ -29,6 +36,15 @@
               (global-env-define fun-name clo)
               (let ((clos (cdr existing-value)))
                 (global-env-define fun-name `(/./. ,@(snoc clos clo))))))))
+
+(define (add-toplevel-exps)
+  (process-fun `(fun (__toplevel-forms) (begin ,@(map (lambda (e) `(shew ,e)) toplevel-forms)))))
+
+(define (add-default-main-maybe)
+  (if (eq? (assoc 'main global-env) #f)
+      (process-fun `(fun (main) 'Mu))
+      '()))
+
 
 (define (global-env-remove-maybe var)
   (let ((a (assoc var global-env)))
@@ -129,8 +145,17 @@
     (blimpp (2nd f) args))
    (#t (err 'apply-fun f args))))
 
+(define (evl-begin e env)
+  (cond
+   ((null? (cdr e)) 'Mu)
+   ((null? (cddr e)) (evl (cadr e) env))
+   (#t (evl `((/. (dummy) (begin ,@(cddr e))) ,(cadr e)) env))))
+
 (define (evl e env)
   (cond
+   ((and (pair? e)
+         (eq? (car e) 'begin))
+    (evl-begin e env))
    ((and (pair? e)
          (ctor? (car e)))
     (cons (car e)
@@ -172,12 +197,15 @@
         ee)))
 
 (define (evl-top e)
-  (display "+ ")
-  (lshew e)
-  (display "\n")
+  ;(display "+ ")
+  ;(lshew e)
+  ;(display "\n")
   (let ((r (evl-nf e)))
-    (lshew r)
-    (display "\n")
+    (if (not (eq? r 'Mu))
+        (begin
+          (lshew r)
+          (display "\n"))
+        '())
     r))
 
 ;(tracefun apply-fun evl blimpp unthunk evl-nf try-apply-lam try-apply-multilam)
