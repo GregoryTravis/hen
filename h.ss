@@ -185,10 +185,10 @@
          (eq? '/./. (car e)))
     `(/./. ,@(map (lambda (e) (evl e env)) (cdr e))))
    ((pair? e)
-    (let ((ee (map (lambda (e) (if lazy
-                                   `(& ($ (/. () ,e) ,env))
-                                   (evl e env)))
-                   e)))
+    (let ((ee (map-improper (lambda (e) (if lazy
+                                            `(& ($ (/. () ,e) ,env))
+                                            (evl e env)))
+                            e)))
       (apply-fun (car ee) (cdr ee))))
    (#t e))) 
 
