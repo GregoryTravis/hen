@@ -54,3 +54,6 @@
        (shew . d)))
 
 (fun (list . args) args)
+
+(fun (interactive-shew Mu) Mu)
+(fun (interactive-shew a) (shew a))

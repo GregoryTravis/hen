@@ -39,7 +39,7 @@
                 (global-env-define fun-name `(/./. ,@(snoc (cdr clos) clo))))))))
 
 (define (add-toplevel-exps)
-  (process-fun `(fun (__toplevel-forms) (begin ,@(map (lambda (e) `(shew ,e)) toplevel-forms)))))
+  (process-fun `(fun (__toplevel-forms) (begin ,@(map (lambda (e) `(interactive-shew ,e)) toplevel-forms)))))
 
 (define (add-default-main-maybe)
   (if (eq? (assoc 'main global-env) #f)

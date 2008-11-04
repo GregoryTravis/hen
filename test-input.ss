@@ -148,3 +148,6 @@
 (list 1 2)
 (list 1 2 3)
 (list 1 2 3 4)
+
+(interactive-shew 1)
+(interactive-shew Mu)
