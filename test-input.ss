@@ -142,3 +142,9 @@
 (shew 1 2)
 (shew 1 2 3)
 (shew 1 2 3 4)
+
+(list)
+(list 1)
+(list 1 2)
+(list 1 2 3)
+(list 1 2 3 4)

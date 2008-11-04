@@ -8,3 +8,4 @@
 (shew 1 2)
 (shew 1 2 3)
 (shew 1 2 3 4)
+(list 1 2 3 4 5)

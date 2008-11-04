@@ -52,3 +52,5 @@
      (begin
        (__prim-shew a)
        (shew . d)))
+
+(fun (list . args) args)

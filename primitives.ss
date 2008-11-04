@@ -72,6 +72,3 @@
   (lambda (e)
     (shew e)
     'Mu))
-
-(define-primitive 'list
-  (lambda args args))
