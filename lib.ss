@@ -353,6 +353,12 @@
             (map-improper f (cdr s)))
       (f s)))
 
+(define (tmap f s)
+  (if (pair? s)
+      (cons (tmap f (car s))
+            (tmap f (cdr s)))
+      (f s)))
+
 (define (sr . es)
   (apply shew es)
   (last es))
