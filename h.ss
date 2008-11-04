@@ -93,7 +93,7 @@
    ((and (is-quote? p)
          (symbol? (quote-quoted p))
          (eq? (quote-quoted p) t)) '())
-   ((pair? p) (mab-append (mych (car p) (car t))
+   ((and (pair? p) (pair? t)) (mab-append (mych (car p) (car t))
                           (mych (cdr p) (cdr t))))
    ((and (null? p) (null? t)) '())
    ((and (number? p) (= p t)) '())
