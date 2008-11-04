@@ -47,7 +47,8 @@
 (fun (begin a) a)
 (fun (begin a . rest) (begin . rest))
 
-;; (fun (shew a) (primitive-call (shew a)))
-;; (fun (shew a b) (begin (shew a) (shew b)))
-;; (fun (shew a b c) (begin (shew a) (shew b c)))
-;; (fun (shew a b c d) (begin (shew a) (shew b c d)))
+(fun (shew) Mu)
+(fun (shew a . d)
+     (begin
+       (__prim-shew a)
+       (shew . d)))

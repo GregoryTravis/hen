@@ -68,7 +68,7 @@
   (lambda (filename)
     (sb-consyize (sb-read-file filename))))
 
-(define-primitive 'shew
+(define-primitive '__prim-shew
   (lambda (e)
     (shew e)
     'Mu))

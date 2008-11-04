@@ -1,1 +1,10 @@
-((/. (a) (+ . a)) (list 1 2))
+;; (begin)
+;; (begin (shew 1))
+;; (begin (shew 1) (shew 2))
+;; (begin (shew 1) (shew 2) (shew 3))
+
+(shew)
+(shew 1)
+(shew 1 2)
+(shew 1 2 3)
+(shew 1 2 3 4)
