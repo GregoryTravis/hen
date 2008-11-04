@@ -131,3 +131,8 @@
 (xor False True)
 (xor True True)
 (xor False False)
+
+(begin)
+(begin (shew 1))
+(begin (shew 1) (shew 2))
+(begin (shew 1) (shew 2) (shew 3))

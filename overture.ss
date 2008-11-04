@@ -43,10 +43,9 @@
 ;; (fun (read-file (String filename))
 ;;      (primitive-call (read-file filename)))
 
-;; (fun (begin a) a)
-;; (fun (begin a b) b)
-;; (fun (begin a b c) c)
-;; (fun (begin a b c d) d)
+(fun (begin) Mu)
+(fun (begin a) a)
+(fun (begin a . rest) (begin . rest))
 
 ;; (fun (shew a) (primitive-call (shew a)))
 ;; (fun (shew a b) (begin (shew a) (shew b)))
