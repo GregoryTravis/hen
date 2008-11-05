@@ -190,9 +190,9 @@
                                             `(& ($ (/. () ,e) ,env))
                                             (evl e env)))
                             e)))
-      (if trace-evl (shew 'start e) '())
+      (if trace-evl (tracing-push-print e) '())
       (let ((r (apply-fun (car ee) (cdr ee))))
-        (if trace-evl (shew 'end e) '())
+        (if trace-evl (tracing-pop-print r) '())
         r)))
    (#t e))) 
 
