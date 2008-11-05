@@ -9,17 +9,20 @@
      (env-lookup v env))
 (fun (evl (Lambda var exp) env)
      (Closure (Lambda var exp) env))
-(fun (evl (App (Closure (Lambda var body) (Env . bindings)) arg) env)
-     (evl body (Env (Binding var (evl arg env)) . bindings)))
+(fun (evl (App (Closure (Lambda (Var v) body) (Env . bindings)) arg) env)
+     (evl body (Env (Binding v (evl arg env)) . bindings)))
+;(fun (evl (App (Closure (Lambda (Cons a b
 
 (fun (evl a env) a)
 
 (evl 2 (Env))
 (evl (App (list + 2 3)) (Env))
 (evl (Var 'a) (Env (Binding 'a 10)))
-(evl (Lambda 'v 'a) (Env (Binding 'a 10)))
-(evl (App (Closure (Lambda 'v (Var 'a)) (Env (Binding 'a 10))) 20) (Env))
-(evl (App (Closure (Lambda 'v (Var 'v)) (Env (Binding 'a 10))) 20) (Env))
+(evl (Lambda (Var 'v) 'a) (Env (Binding 'a 10)))
+(evl (App (Closure (Lambda (Var 'v) (Var 'a)) (Env (Binding 'a 10))) 20) (Env))
+
+;; (evl (App (Closure (Lambda 'v (Var 'v)) (Env (Binding 'a 10))) 20) (Env))
+
 ;(evl (Lambda var exp))
 
 ;; (env-lookup 'a (Env))
@@ -33,3 +36,11 @@
 ;; (evl (Var 'a) (Env (Binding 'b 10)))
 ;; (evl (Var 'a) (Env (Binding 'a 10) (Binding 'b 10)))
 ;; (evl (Var 'a) (Env (Binding 'b 10) (Binding 'a 10)))
+
+;; (fun (maybe-append False bindings) False)
+;; (fun (maybe-append bindings False) False)
+
+;; (fun (match (Cons a b) (Cons c d))
+;;      (maybe-append (match a c) (match b d)))
+;; (fun (match (Var v) x)
+;;      (list (Binding v x)))
