@@ -11,7 +11,15 @@
      (Closure (Lambda var exp) env))
 (fun (evl (App (Closure (Lambda (Var v) body) (Env . bindings)) arg) env)
      (evl body (Env (Binding v (evl arg env)) . bindings)))
-;(fun (evl (App (Closure (Lambda (Cons a b
+;; (fun (evl (App (Closure (Lambda (Cons a b) body) env)
+;;                (Cons c d)))
+;;      (App (Closure 
+;; (fun (match (Var v) x) (list (Binding v x)))
+;; (fun (cons-env bindings) (Env bindings))
+;; (fun (evl (App (Closure (Lambda pat body) (Env . bindings)) target) env)
+;;      (evl body (cons-env (append (match pat target) bindings))))
+;; ;     (evl body (Env . (append (match pat target) bindings))))
+;; ;     (evl body (Env . bindings)))
 
 (fun (evl a env) a)
 
