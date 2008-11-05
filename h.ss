@@ -161,7 +161,7 @@
    ((and (pair? e)
          (ctor? (car e)))
     (cons (car e)
-          (map (lambda (e) (evl e env))
+          (map-improper (lambda (e) (evl e env))
                (cdr e))))
    ((and (pair? e)
          (eq? (1st e) 'quote))
