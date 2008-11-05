@@ -4,13 +4,16 @@
          value
          (env-lookup v (Env . rest))))
 
-(fun (evl (App (+ a b)) env) (+ a b))
+(fun (evl (Constant c) env) (Constant c))
+(fun (evl (App (+ (Constant a) (Constant b))) env) (Constant (+ a b)))
 (fun (evl (Var v) env)
      (env-lookup v env))
 (fun (evl (Lambda var exp) env)
      (Closure (Lambda var exp) env))
 (fun (evl (App (Closure (Lambda (Var v) body) (Env . bindings)) arg) env)
      (evl body (Env (Binding v (evl arg env)) . bindings)))
+;(fun (evl (App (Closure (
+
 ;; (fun (evl (App (Closure (Lambda (Cons a b) body) env)
 ;;                (Cons c d)))
 ;;      (App (Closure 
@@ -21,13 +24,14 @@
 ;; ;     (evl body (Env . (append (match pat target) bindings))))
 ;; ;     (evl body (Env . bindings)))
 
-(fun (evl a env) a)
+;(fun (evl a env) a)
 
-(evl 2 (Env))
-(evl (App (list + 2 3)) (Env))
-(evl (Var 'a) (Env (Binding 'a 10)))
-(evl (Lambda (Var 'v) 'a) (Env (Binding 'a 10)))
-(evl (App (Closure (Lambda (Var 'v) (Var 'a)) (Env (Binding 'a 10))) 20) (Env))
+(evl (Constant 2) (Env))
+(evl (App (list + (Constant 2) (Constant 3))) (Env))
+(evl (Var 'a) (Env (Binding 'a (Constant 10))))
+(evl (Lambda (Var 'v) 'a) (Env (Binding 'a (Constant 10))))
+;; (evl (App (Closure (Lambda (Var 'v) (Var 'a)) (Env (Binding 'a (Constant 10)))) (Constant 20)) (Env))
+;; (evl (App (Closure (Lambda (Constant 10) (Var 'a)) (Env (Binding 'a (Constant 10)))) (Constant 10)) (Env))
 
 ;; (evl (App (Closure (Lambda 'v (Var 'v)) (Env (Binding 'a 10))) 20) (Env))
 
