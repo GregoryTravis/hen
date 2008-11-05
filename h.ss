@@ -1,6 +1,7 @@
 (load "lib.ss")
 
 (define lazy #f)
+(define trace-evl #f)
 
 (define forms (read-objects "src.ss"))
 (define (run-file filename)
@@ -189,7 +190,10 @@
                                             `(& ($ (/. () ,e) ,env))
                                             (evl e env)))
                             e)))
-      (apply-fun (car ee) (cdr ee))))
+      (if trace-evl (shew 'start e) '())
+      (let ((r (apply-fun (car ee) (cdr ee))))
+        (if trace-evl (shew 'end e) '())
+        r)))
    (#t e))) 
 
 (define (evl-nf e)
