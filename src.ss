@@ -27,20 +27,25 @@
 
 (fun (evl (Cons a b) env) (Cons (evl a env) (evl b env)))
 
-(evl (Constant 2) (Env))
-(evl (App (list + (Constant 2) (Constant 3))) (Env))
-(evl (Var 'a) (Env (Binding 'a (Constant 10))))
-(evl (Lambda (Var 'v) 'a) (Env (Binding 'a (Constant 10))))
+(fun (evl (App (Primitive f) . args) env)
+     (f . args))
 
-(evl (App (Closure (Lambda (Var 'v) (Var 'a)) (Env (Binding 'a (Constant 10)))) (Constant 20)) (Env))
-(evl (App (Lambda (Var 'v) (Constant 30)) (Constant 20)) (Env))
+(evl (App (Primitive +) 2 3) (Env))
 
-(evl (App (Closure (Lambda (Constant 10) (Var 'a)) (Env (Binding 'a (Constant 20)))) (Constant 10)) (Env))
-(evl (App (Closure (Lambda (Constant 10) (Var 'a)) (Env (Binding 'a (Constant 20)))) (Constant 30)) (Env))
+;; (evl (Constant 2) (Env))
+;; (evl (App (list + (Constant 2) (Constant 3))) (Env))
+;; (evl (Var 'a) (Env (Binding 'a (Constant 10))))
+;; (evl (Lambda (Var 'v) 'a) (Env (Binding 'a (Constant 10))))
 
-(evl (App (Closure (Lambda (Cons (Var 'a) (Var 'b)) (Var 'b)) (Env)) (Cons (Constant 1) (Constant 2))) (Env))
-(evl (App (Lambda (Cons (Var 'a) (Var 'b)) (Var 'a)) (Cons (Constant 1) (Constant 2))) (Env))
-(evl (App (Lambda (Cons (Var 'a) (Var 'b)) (Var 'b)) (Cons (Constant 1) (Constant 2))) (Env))
+;; (evl (App (Closure (Lambda (Var 'v) (Var 'a)) (Env (Binding 'a (Constant 10)))) (Constant 20)) (Env))
+;; (evl (App (Lambda (Var 'v) (Constant 30)) (Constant 20)) (Env))
+
+;; (evl (App (Closure (Lambda (Constant 10) (Var 'a)) (Env (Binding 'a (Constant 20)))) (Constant 10)) (Env))
+;; (evl (App (Closure (Lambda (Constant 10) (Var 'a)) (Env (Binding 'a (Constant 20)))) (Constant 30)) (Env))
+
+;; (evl (App (Closure (Lambda (Cons (Var 'a) (Var 'b)) (Var 'b)) (Env)) (Cons (Constant 1) (Constant 2))) (Env))
+;; (evl (App (Lambda (Cons (Var 'a) (Var 'b)) (Var 'a)) (Cons (Constant 1) (Constant 2))) (Env))
+;; (evl (App (Lambda (Cons (Var 'a) (Var 'b)) (Var 'b)) (Cons (Constant 1) (Constant 2))) (Env))
 
 
 ;; (env-lookup 'a (Env))
