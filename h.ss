@@ -216,4 +216,3 @@
     r))
 
 ;(tracefun apply-fun evl blimpp unthunk evl-nf try-apply-lam try-apply-multilam mych)
-;(tracefun try-apply-multilam try-apply-lam)
