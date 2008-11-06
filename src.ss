@@ -5,7 +5,6 @@
          (env-lookup v (Env . rest))))
 
 (fun (evl (Constant c) env) (Constant c))
-;(fun (evl (App (+ (Constant a) (Constant b))) env) (Constant (+ a b)))
 (fun (evl (Var v) env)
      (env-lookup v env))
 (fun (evl (Lambda var exp) env)
@@ -13,8 +12,6 @@
 (fun (evl (App (Closure (Lambda (Var v) body) (Env . bindings)) arg) env)
      (evl body (Env (Binding v (evl arg env)) . bindings)))
 
-;; (fun (evl (App (Lambda (Var v) body) arg) env)
-;;      (evl (App (evl (Lambda (Var v) body) env) arg) env))
 (fun (evl (App (Lambda pat body) arg) env)
      (evl (App (evl (Lambda pat body) env) arg) env))
 
