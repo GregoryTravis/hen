@@ -9,6 +9,7 @@
      (env-lookup v env))
 (fun (evl (Lambda var exp) env)
      (Closure (Lambda var exp) env))
+
 (fun (evl (App (Closure (Lambda (Var v) body) (Env . bindings)) arg) env)
      (evl body (Env (Binding v (evl arg env)) . bindings)))
 
@@ -26,10 +27,10 @@
 (fun (evl (App (Var v) . args) env)
      (evl (App (env-lookup v env) . args) env))
 
-(fun (evl (Cons a b) env) (Cons (evl a env) (evl b env)))
-
 (fun (evl (App (Primitive +) (Constant a) (Constant b)) env)
      (Constant (+ a b)))
+
+(fun (evl (Cons a b) env) (Cons (evl a env) (evl b env)))
 
 (evl (Constant 2) (Env))
 (evl (Var 'a) (Env (Binding 'a (Constant 10))))
