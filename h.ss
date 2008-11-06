@@ -155,6 +155,7 @@
    (#t (evl `((/. (dummy) (begin ,@(cddr e))) ,(cadr e)) env))))
 
 (define (evl e env)
+;(shew 'uh e)
   (cond
    ((and (pair? e)
          (eq? (car e) 'begin))
@@ -190,7 +191,8 @@
                                             `(& ($ (/. () ,e) ,env))
                                             (evl e env)))
                             e)))
-      (if trace-evl (tracing-push-print e) '())
+;      (if trace-evl (tracing-push-print (list e env)) '())
+      (if trace-evl (tracing-push-print (list (cons (car e) (cdr ee)) env)) '())
       (let ((r (apply-fun (car ee) (cdr ee))))
         (if trace-evl (tracing-pop-print r) '())
         r)))

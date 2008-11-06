@@ -339,7 +339,7 @@
 (car '()))
 ;  (exit))
 
-(define show-shorten-length 5)
+(define show-shorten-length 50)
 (define (show-shorten-list lyst) (show-shorten-list1 lyst 0))
 (define (show-shorten-list1 lyst acc)
   (cond
