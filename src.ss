@@ -17,20 +17,20 @@
 
 ;; Function call.
 (fun (evl (App f arg) env)
-     (evl (App2 (evl f env) (evl arg env)) env))
+     (apply-fun (evl f env) (evl arg env)))
 
 ;; Primitive function call
-(fun (evl (App2 (Primitive '+) (Cons (Constant a) (Cons (Constant b) Nil))) env)
+(fun (apply-fun (Primitive '+) (Cons (Constant a) (Cons (Constant b) Nil)))
      (Constant (+  a b)))
 
 ;; Pattern lambda function call
-(fun (evl (App2 (Closure (Lambda (Constant c) body) env) (Constant cc)) env)
+(fun (apply-fun (Closure (Lambda (Constant c) body) env) (Constant cc))
      (if (== c cc)
          (evl body env)
          Fail))
-(fun (evl (App2 (Closure (Lambda (Var v) body) (Env . bindings)) arg) env)
-     (evl body (Env (Binding v (evl arg env)) . bindings)))
-(fun (evl (App2 (Closure (Lambda (Cons a d) body) closure-env) (Cons aa dd)) env)
+(fun (apply-fun (Closure (Lambda (Var v) body) (Env . bindings)) arg)
+     (evl body (Env (Binding v arg) . bindings)))
+(fun (apply-fun (Closure (Lambda (Cons a d) body) closure-env) (Cons aa dd))
      (evl (App (Lambda a (App (Lambda d body) dd)) aa) closure-env))
 
 (fun (evl (Cons a b) env) (Cons (evl a env) (evl b env)))
