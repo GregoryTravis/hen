@@ -4,6 +4,15 @@
          value
          (env-lookup v (Env . rest))))
 
+;; Utilities.
+(fun (cons a d) (list a . d))
+;; (fun (evl-list (Cons a d) env)
+;;      (Cons (evl a env) (evl-list d env)))
+;; (fun (evl-list Nil env) Nil)
+(fun (evl-list (a . d) env)
+     (cons (evl a env) (evl-list d env)))
+(fun (evl-list () env) (list))
+
 ;; Constants.
 (fun (evl (Constant c) env) (Constant c))
 
@@ -38,6 +47,10 @@
 (fun (apply-fun-or-fail (Closure (Lambda pat body) closure-env) target)
      Nope)
 
+;; Multi-lambda.
+(fun (evl (LLambda . clos) env)
+     (LLambda (evl-list clos env)))
+
 (fun (must (Yup a)) a)
 (fun (must Nope) (err 'pattern-match-failure))
 
@@ -45,20 +58,27 @@
 (fun (evl (Cons a b) env) (Cons (evl a env) (evl b env)))
 (fun (evl Nil env) Nil)
 
+(evl (LLambda (Lambda (Var 'a) 'c)
+              (Lambda (Var 'a) 'c)
+              (Lambda (Var 'a) 'c)
+              (Lambda (Var 'a) 'c)
+              (Lambda (Var 'b) 'b))
+     (Env (Binding 'c (Constant 10))))
+
 ;(evl (App (Lambda (Cons (Var 'a) (Var 'b)) 'a) (Constant 10)) (Env))
 
-(evl (Constant 2) (Env))
-(evl (Var 'a) (Env (Binding 'a (Constant 10))))
-(evl (Lambda (Var 'v) 'a) (Env (Binding 'a (Constant 10))))
+;; (evl (Constant 2) (Env))
+;; (evl (Var 'a) (Env (Binding 'a (Constant 10))))
+;; (evl (Lambda (Var 'v) 'a) (Env (Binding 'a (Constant 10))))
 
-(evl (App (Lambda (Var 'v) (Var 'a)) (Constant 20)) (Env (Binding 'a (Constant 10))))
-(evl (App (Lambda (Var 'v) (Constant 30)) (Constant 20)) (Env))
+;; (evl (App (Lambda (Var 'v) (Var 'a)) (Constant 20)) (Env (Binding 'a (Constant 10))))
+;; (evl (App (Lambda (Var 'v) (Constant 30)) (Constant 20)) (Env))
 
-(evl (App (Lambda (Constant 10) (Var 'a)) (Constant 10)) (Env (Binding 'a (Constant 20))))
-;(evl (App (Lambda (Constant 10) (Var 'a)) (Constant 30)) (Env (Binding 'a (Constant 20))))
+;; (evl (App (Lambda (Constant 10) (Var 'a)) (Constant 10)) (Env (Binding 'a (Constant 20))))
+;; ;(evl (App (Lambda (Constant 10) (Var 'a)) (Constant 30)) (Env (Binding 'a (Constant 20))))
 
-(evl (App (Lambda (Cons (Var 'a) (Var 'b)) (Var 'a)) (Cons (Constant 1) (Constant 2))) (Env))
-(evl (App (Lambda (Cons (Var 'a) (Var 'b)) (Var 'b)) (Cons (Constant 1) (Constant 2))) (Env))
+;; (evl (App (Lambda (Cons (Var 'a) (Var 'b)) (Var 'a)) (Cons (Constant 1) (Constant 2))) (Env))
+;; (evl (App (Lambda (Cons (Var 'a) (Var 'b)) (Var 'b)) (Cons (Constant 1) (Constant 2))) (Env))
 
 
 ;; (env-lookup 'a (Env))
