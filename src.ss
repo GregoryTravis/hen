@@ -27,13 +27,15 @@
 ;; Function call.
 (fun (evl (App f arg) env)
      (apply-fun (evl f env) (evl arg env)))
+(fun (evl (NiceApp f arg) env)
+     (apply-fun-or-fail (evl f env) (evl arg env)))
 
 (fun (apply-fun f arg)
      (must (apply-fun-or-fail f arg)))
 
 ;; Primitive function call
 (fun (apply-fun-or-fail (Primitive '+) (Cons (Constant a) (Cons (Constant b) Nil)))
-     (Constant (+  a b)))
+     (Yup (Constant (+  a b))))
 
 ;; Pattern lambda function call
 (fun (apply-fun-or-fail (Closure (Lambda (Constant c) body) env) (Constant cc))
@@ -43,13 +45,23 @@
 (fun (apply-fun-or-fail (Closure (Lambda (Var v) body) (Env . bindings)) arg)
      (Yup (evl body (Env (Binding v arg) . bindings))))
 (fun (apply-fun-or-fail (Closure (Lambda (Cons a d) body) closure-env) (Cons aa dd))
-     (Yup (evl (App (Lambda a (App (Lambda d body) dd)) aa) closure-env)))
+     (evl (App (Lambda a (NiceApp (Lambda d body) dd)) aa) closure-env))
 (fun (apply-fun-or-fail (Closure (Lambda pat body) closure-env) target)
      Nope)
+(fun (apply-fun-or-fail (LLambda clo . clos) arg)
+     (this-or-that (apply-fun-or-fail clo arg)
+                   (apply-fun-or-fail (LLambda . clos) arg)))
+(fun (apply-fun-or-fail (LLambda) arg)
+     Nope)
+
+(fun (this-or-that (Yup a) b) (Yup a))
+(fun (this-or-that Nope b) b)
+
+(fun (brap l) (LLambda . l))
 
 ;; Multi-lambda.
 (fun (evl (LLambda . clos) env)
-     (LLambda (evl-list clos env)))
+     (brap (evl-list clos env)))
 
 (fun (must (Yup a)) a)
 (fun (must Nope) (err 'pattern-match-failure))
@@ -58,11 +70,18 @@
 (fun (evl (Cons a b) env) (Cons (evl a env) (evl b env)))
 (fun (evl Nil env) Nil)
 
-(evl (LLambda (Lambda (Var 'a) 'c)
-              (Lambda (Var 'a) 'c)
-              (Lambda (Var 'a) 'c)
-              (Lambda (Var 'a) 'c)
-              (Lambda (Var 'b) 'b))
+(evl (App
+      (LLambda (Lambda (Constant 10) (Constant 1))
+               (Lambda (Cons (Var 'a) (Constant 20)) (Var 'a))
+               (Lambda (Cons (Constant 10) (Var 'a)) (Var 'a))
+               (Lambda (Cons (Var 'a) (Var 'b)) (Var 'a))
+               (Lambda (Var 'a) (Var 'a)))
+;      (Constant 10)
+;      (Cons (Constant 100) (Constant 20))
+;      (Cons (Constant 200) (Constant 40))
+      (Cons (Constant 10) (Constant 600))
+;      (Constant 500)
+      )
      (Env (Binding 'c (Constant 10))))
 
 ;(evl (App (Lambda (Cons (Var 'a) (Var 'b)) 'a) (Constant 10)) (Env))
