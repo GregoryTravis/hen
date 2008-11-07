@@ -33,6 +33,7 @@
 (fun (apply-fun (Closure (Lambda (Cons a d) body) closure-env) (Cons aa dd))
      (evl (App (Lambda a (App (Lambda d body) dd)) aa) closure-env))
 
+;; Data.
 (fun (evl (Cons a b) env) (Cons (evl a env) (evl b env)))
 (fun (evl Nil env) Nil)
 
