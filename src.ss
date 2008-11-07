@@ -10,8 +10,6 @@
 (fun (evl (Lambda var exp) env)
      (Closure (Lambda var exp) env))
 
-(fun (bonk . stuff) (App2 . stuff))
-
 (fun (evl (App f arg) env)
      (evl (App2 (evl f env) (evl arg env)) env))
 
