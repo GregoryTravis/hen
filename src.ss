@@ -17,7 +17,7 @@
 
 ;; Function call.
 (fun (evl (App f arg) env)
-     (apply-fun (evl f env) (evl arg env)))
+     (must (apply-fun (evl f env) (evl arg env))))
 
 ;; Primitive function call
 (fun (apply-fun (Primitive '+) (Cons (Constant a) (Cons (Constant b) Nil)))
@@ -26,17 +26,23 @@
 ;; Pattern lambda function call
 (fun (apply-fun (Closure (Lambda (Constant c) body) env) (Constant cc))
      (if (== c cc)
-         (evl body env)
-         Fail))
+         (Yup (evl body env))
+         Nope))
 (fun (apply-fun (Closure (Lambda (Var v) body) (Env . bindings)) arg)
-     (evl body (Env (Binding v arg) . bindings)))
+     (Yup (evl body (Env (Binding v arg) . bindings))))
 (fun (apply-fun (Closure (Lambda (Cons a d) body) closure-env) (Cons aa dd))
-     (evl (App (Lambda a (App (Lambda d body) dd)) aa) closure-env))
+     (Yup (evl (App (Lambda a (App (Lambda d body) dd)) aa) closure-env)))
+(fun (apply-fun (Closure (Lambda pat body) closure-env) target)
+     Nope)
+
+(fun (must (Yup a)) a)
+(fun (must Nope) (err 'pattern-match-failure))
 
 ;; Data.
 (fun (evl (Cons a b) env) (Cons (evl a env) (evl b env)))
 (fun (evl Nil env) Nil)
 
+;(evl (App (Lambda (Cons (Var 'a) (Var 'b)) 'a) (Constant 10)) (Env))
 
 (evl (Constant 2) (Env))
 (evl (Var 'a) (Env (Binding 'a (Constant 10))))
@@ -46,7 +52,7 @@
 (evl (App (Lambda (Var 'v) (Constant 30)) (Constant 20)) (Env))
 
 (evl (App (Lambda (Constant 10) (Var 'a)) (Constant 10)) (Env (Binding 'a (Constant 20))))
-(evl (App (Lambda (Constant 10) (Var 'a)) (Constant 30)) (Env (Binding 'a (Constant 20))))
+;(evl (App (Lambda (Constant 10) (Var 'a)) (Constant 30)) (Env (Binding 'a (Constant 20))))
 
 (evl (App (Lambda (Cons (Var 'a) (Var 'b)) (Var 'a)) (Cons (Constant 1) (Constant 2))) (Env))
 (evl (App (Lambda (Cons (Var 'a) (Var 'b)) (Var 'b)) (Cons (Constant 1) (Constant 2))) (Env))
