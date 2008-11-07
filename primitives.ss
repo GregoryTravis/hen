@@ -72,3 +72,7 @@
   (lambda (e)
     (shew e)
     'Mu))
+
+(define-primitive 'err
+  (lambda args
+    (apply err args)))
