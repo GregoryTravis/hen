@@ -17,22 +17,25 @@
 
 ;; Function call.
 (fun (evl (App f arg) env)
-     (must (apply-fun (evl f env) (evl arg env))))
+     (apply-fun (evl f env) (evl arg env)))
+
+(fun (apply-fun f arg)
+     (must (apply-fun-or-fail f arg)))
 
 ;; Primitive function call
-(fun (apply-fun (Primitive '+) (Cons (Constant a) (Cons (Constant b) Nil)))
+(fun (apply-fun-or-fail (Primitive '+) (Cons (Constant a) (Cons (Constant b) Nil)))
      (Constant (+  a b)))
 
 ;; Pattern lambda function call
-(fun (apply-fun (Closure (Lambda (Constant c) body) env) (Constant cc))
+(fun (apply-fun-or-fail (Closure (Lambda (Constant c) body) env) (Constant cc))
      (if (== c cc)
          (Yup (evl body env))
          Nope))
-(fun (apply-fun (Closure (Lambda (Var v) body) (Env . bindings)) arg)
+(fun (apply-fun-or-fail (Closure (Lambda (Var v) body) (Env . bindings)) arg)
      (Yup (evl body (Env (Binding v arg) . bindings))))
-(fun (apply-fun (Closure (Lambda (Cons a d) body) closure-env) (Cons aa dd))
+(fun (apply-fun-or-fail (Closure (Lambda (Cons a d) body) closure-env) (Cons aa dd))
      (Yup (evl (App (Lambda a (App (Lambda d body) dd)) aa) closure-env)))
-(fun (apply-fun (Closure (Lambda pat body) closure-env) target)
+(fun (apply-fun-or-fail (Closure (Lambda pat body) closure-env) target)
      Nope)
 
 (fun (must (Yup a)) a)
