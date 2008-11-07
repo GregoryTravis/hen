@@ -4,36 +4,37 @@
          value
          (env-lookup v (Env . rest))))
 
+;; Constants.
 (fun (evl (Constant c) env) (Constant c))
+
+;; Variables.
 (fun (evl (Var v) env)
      (env-lookup v env))
+
+;; Lambda expresion.
 (fun (evl (Lambda var exp) env)
      (Closure (Lambda var exp) env))
 
+;; Function call.
 (fun (evl (App f arg) env)
      (evl (App2 (evl f env) (evl arg env)) env))
 
+;; Primitive function call
 (fun (evl (App2 (Primitive '+) (Cons (Constant a) (Cons (Constant b) Nil))) env)
      (Constant (+  a b)))
 
-(fun (evl (App2 (Closure (Lambda (Var v) body) (Env . bindings)) arg) env)
-     (evl body (Env (Binding v (evl arg env)) . bindings)))
-
+;; Pattern lambda function call
 (fun (evl (App2 (Closure (Lambda (Constant c) body) env) (Constant cc)) env)
      (if (== c cc)
          (evl body env)
          Fail))
-
+(fun (evl (App2 (Closure (Lambda (Var v) body) (Env . bindings)) arg) env)
+     (evl body (Env (Binding v (evl arg env)) . bindings)))
 (fun (evl (App2 (Closure (Lambda (Cons a d) body) closure-env) (Cons aa dd)) env)
      (evl (App (Lambda a (App (Lambda d body) dd)) aa) closure-env))
 
-(fun (evl (App2 (Var v) . args) env)
-     (evl (App2 (env-lookup v env) . args) env))
-
 (fun (evl (Cons a b) env) (Cons (evl a env) (evl b env)))
 (fun (evl Nil env) Nil)
-
-;(evl (App (Var 'plus) (Cons (Constant 1) (Cons (Constant 2) Nil))) (Env (Binding 'plus (Primitive '+))))
 
 (evl (Constant 2) (Env))
 (evl (Var 'a) (Env (Binding 'a (Constant 10))))
