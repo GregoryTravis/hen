@@ -6,9 +6,6 @@
 
 ;; Utilities.
 (fun (cons a d) (list a . d))
-;; (fun (evl-list (Cons a d) env)
-;;      (Cons (evl a env) (evl-list d env)))
-;; (fun (evl-list Nil env) Nil)
 (fun (evl-list (a . d) env)
      (cons (evl a env) (evl-list d env)))
 (fun (evl-list () env) (list))
