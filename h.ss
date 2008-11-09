@@ -179,9 +179,8 @@
    ((and (pair? e)
          (eq? (car e) 'let))
     (begin
-(shew e)
       (assert (eq? (length e) 3))
-(evl (let->lambda e) env)))
+      (evl (let->lambda e) env)))
    ((and (pair? e)
          (eq? (car e) 'begin))
     (evl-begin e env))

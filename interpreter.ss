@@ -4,11 +4,10 @@
          value
          (env-lookup v (Env . rest))))
 (fun (env-lookup v (Sequence a b))
-     ((/. (ea)
-          (if (== ea NoSuchValue)
-              (env-lookup v b)
-              ea))
-      (env-lookup v a)))
+     (let ((ea (env-lookup v a)))
+       (if (== ea NoSuchValue)
+           (env-lookup v b)
+           ea)))
 
 ;; Utilities.
 (fun (cons a d) (list a . d))
