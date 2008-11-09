@@ -30,11 +30,7 @@
 (fun (evl (App f arg) env genv)
      (apply-fun (evl f env genv) (evl arg env genv) genv))
 (fun (evl (NiceApp f arg) env genv)
-;     (glook (evl f env genv) arg env genv)) 
      (apply-fun-or-fail (evl f env genv) (evl arg env genv) genv))
-;; (fun (glook Fail arg env genv) Fail)
-;; (fun (glook (Yup v) arg env genv)
-;;      (apply-fun-or-fail v (evl arg env genv) genv))
 
 (fun (apply-fun f arg genv)
      (must (apply-fun-or-fail f arg genv)))
