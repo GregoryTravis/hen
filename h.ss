@@ -173,9 +173,22 @@
               (rest-bindings (cdr bindings)))
           `((/. (,var) ,(let->lambda `(let ,rest-bindings ,body))) ,value)))))
 
+(define (evl-match t cs env)
+  (evl
+   `((/./. ,@(map (lambda (ha) (list '/.
+                                        (list (car ha))
+                                        ;(car ha)
+                                             (cadr ha)))
+                          (scoop-by 2 cs)))
+        ,t)
+   env))
+
 (define (evl e env)
 ;(shew 'uh e)
   (cond
+   ((and (pair? e)
+         (eq? (car e) '@))
+    (evl-match (cadr e) (cddr e) env))
    ((and (pair? e)
          (eq? (car e) 'let))
     (begin
@@ -241,4 +254,4 @@
         '())
     r))
 
-;(tracefun apply-fun evl blimpp unthunk evl-nf try-apply-lam try-apply-multilam let->lambda)
+;(tracefun apply-fun evl blimpp unthunk evl-nf try-apply-lam try-apply-multilam let->lambda evl-match)

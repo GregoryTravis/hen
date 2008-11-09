@@ -78,3 +78,13 @@
 (env-lookup 'b (Sequence (Env (Binding 'a (Constant 10)) (Binding 'b (Constant 20))) (Env (Binding 'c (Constant 100)) (Binding 'd (Constant 200)))))
 (env-lookup 'c (Sequence (Env (Binding 'a (Constant 10)) (Binding 'b (Constant 20))) (Env (Binding 'c (Constant 100)) (Binding 'd (Constant 200)))))
 (env-lookup 'd (Sequence (Env (Binding 'a (Constant 10)) (Binding 'b (Constant 20))) (Env (Binding 'c (Constant 100)) (Binding 'd (Constant 200)))))
+
+(@ (list 10)
+   (a) 1
+   (a b) 2)
+(@ (list 10 20)
+   (a) 1
+   (a b) 2)
+(@ (Foo 4 40)
+   (Foo a b) (+ a b)
+   x 100)
