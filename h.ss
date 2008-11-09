@@ -155,13 +155,23 @@
    ((null? (cddr e)) (evl (cadr e) env))
    (#t (evl `((/. (dummy) (begin ,@(cddr e))) ,(cadr e)) env))))
 
-(define (evl-let bindings body env genv)
-  (if (null? bindings)
-      (env body env genv)
-      (let ((var (caar bindings))
-            (value (cadar bindings))
-            (rest-bindings (cdr bindings)))
-        `((/. ,var ,(evl-let rest-bindings body env genv)) ,value))))
+;; (define (evl-let bindings body env)
+;;   (if (null? bindings)
+;;       (evl body env)
+;;       (let ((var (caar bindings))
+;;             (value (cadar bindings))
+;;             (rest-bindings (cdr bindings)))
+;;         (evl `((/. ,var ,(evl-let rest-bindings body env)) ,value))))
+
+(define (let->lambda letexp)
+  (let ((bindings (cadr letexp))
+        (body (caddr letexp)))
+    (if (null? bindings)
+        body
+        (let ((var (caar bindings))
+              (value (cadar bindings))
+              (rest-bindings (cdr bindings)))
+          `((/. (,var) ,(let->lambda `(let ,rest-bindings ,body))) ,value)))))
 
 (define (evl e env)
 ;(shew 'uh e)
@@ -169,8 +179,9 @@
    ((and (pair? e)
          (eq? (car e) 'let))
     (begin
+(shew e)
       (assert (eq? (length e) 3))
-      (evl-let (cadr env) (caddr env))))
+(evl (let->lambda e) env)))
    ((and (pair? e)
          (eq? (car e) 'begin))
     (evl-begin e env))
@@ -231,4 +242,4 @@
         '())
     r))
 
-;(tracefun apply-fun evl blimpp unthunk evl-nf try-apply-lam try-apply-multilam mych)
+;(tracefun apply-fun evl blimpp unthunk evl-nf try-apply-lam try-apply-multilam let->lambda)
