@@ -10,7 +10,6 @@
            ea)))
 
 ;; Utilities.
-(fun (cons a d) (list a . d))
 (fun (evl-list (a . d) env genv)
      (cons (evl a env genv) (evl-list d env genv)))
 (fun (evl-list () env genv) (list))
