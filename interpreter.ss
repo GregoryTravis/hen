@@ -47,11 +47,9 @@
 (fun (apply-fun-or-fail (Closure (Lambda (Var v) body) (Env . bindings)) arg genv)
      (Yup (evl body (Env (Binding v arg) . bindings) genv)))
 (fun (apply-fun-or-fail (Closure (Lambda (Cons a d) body) closure-env) (Cons aa dd) genv)
-;     (evl (App (Lambda a (NiceApp (Lambda d body) dd)) aa) closure-env genv))
-     (vink (evl (NiceApp (Lambda a (NiceApp (Lambda d body) dd)) aa) closure-env genv)))
-(fun (vink (Yup (Yup v))) (Yup v))
-(fun (vink (Yup Nope)) Nope)
-(fun (vink Nope) Nope)
+     (@ (evl (NiceApp (Lambda a (NiceApp (Lambda d body) dd)) aa) closure-env genv)
+        (Yup a) a
+        Nope Nope))
 
 (fun (apply-fun-or-fail (Closure (Lambda pat body) closure-env) target genv)
      Nope)
