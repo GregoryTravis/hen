@@ -155,9 +155,22 @@
    ((null? (cddr e)) (evl (cadr e) env))
    (#t (evl `((/. (dummy) (begin ,@(cddr e))) ,(cadr e)) env))))
 
+(define (evl-let bindings body env genv)
+  (if (null? bindings)
+      (env body env genv)
+      (let ((var (caar bindings))
+            (value (cadar bindings))
+            (rest-bindings (cdr bindings)))
+        `((/. ,var ,(evl-let rest-bindings body env genv)) ,value))))
+
 (define (evl e env)
 ;(shew 'uh e)
   (cond
+   ((and (pair? e)
+         (eq? (car e) 'let))
+    (begin
+      (assert (eq? (length e) 3))
+      (evl-let (cadr env) (caddr env))))
    ((and (pair? e)
          (eq? (car e) 'begin))
     (evl-begin e env))

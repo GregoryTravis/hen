@@ -1,0 +1,87 @@
+(fun (env-lookup v (Env)) NoSuchValue)
+(fun (env-lookup v (Env (Binding vv value) . rest))
+     (if (== v vv)
+         value
+         (env-lookup v (Env . rest))))
+(fun (env-lookup v (Sequence a b))
+     ((/. (ea)
+          (if (== ea NoSuchValue)
+              (env-lookup v b)
+              ea))
+      (env-lookup v a)))
+
+;; Utilities.
+(fun (cons a d) (list a . d))
+(fun (evl-list (a . d) env genv)
+     (cons (evl a env genv) (evl-list d env genv)))
+(fun (evl-list () env genv) (list))
+
+;; Constants.
+(fun (evl (Constant c) env genv) (Constant c))
+
+;; Variables.
+(fun (evl (Var v) env genv)
+     (env-lookup v (Sequence env genv)))
+
+;; Lambda expresion.
+(fun (evl (Lambda var exp) env genv)
+     (Closure (Lambda var exp) env))
+
+;; Function call.
+(fun (evl (App f arg) env genv)
+     (apply-fun (evl f env genv) (evl arg env genv) genv))
+(fun (evl (NiceApp f arg) env genv)
+;     (glook (evl f env genv) arg env genv)) 
+     (apply-fun-or-fail (evl f env genv) (evl arg env genv) genv))
+;; (fun (glook Fail arg env genv) Fail)
+;; (fun (glook (Yup v) arg env genv)
+;;      (apply-fun-or-fail v (evl arg env genv) genv))
+
+(fun (apply-fun f arg genv)
+     (must (apply-fun-or-fail f arg genv)))
+
+;; Primitive function call
+(fun (apply-fun-or-fail (Primitive '+) (Cons (Constant a) (Cons (Constant b) Nil)) genv)
+     (Yup (Constant (+ a b))))
+
+;; Pattern lambda function call
+(fun (apply-fun-or-fail (Closure (Lambda (Constant c) body) env) (Constant cc) genv)
+     (if (== c cc)
+         (Yup (evl body env genv))
+         Nope))
+(fun (apply-fun-or-fail (Closure (Lambda (Var v) body) (Env . bindings)) arg genv)
+     (Yup (evl body (Env (Binding v arg) . bindings) genv)))
+(fun (apply-fun-or-fail (Closure (Lambda (Cons a d) body) closure-env) (Cons aa dd) genv)
+;     (evl (App (Lambda a (NiceApp (Lambda d body) dd)) aa) closure-env genv))
+     (vink (evl (NiceApp (Lambda a (NiceApp (Lambda d body) dd)) aa) closure-env genv)))
+(fun (vink (Yup (Yup v))) (Yup v))
+(fun (vink (Yup Nope)) Nope)
+(fun (vink Nope) Nope)
+
+(fun (apply-fun-or-fail (Closure (Lambda pat body) closure-env) target genv)
+     Nope)
+(fun (apply-fun-or-fail (LLambda clo . clos) arg genv)
+     (joof (apply-fun-or-fail clo arg genv)
+           (LLambda . clos) arg genv))
+(fun (joof Nope ll arg genv) (apply-fun-or-fail ll arg genv))
+(fun (joof (Yup a) ll arg genv) (Yup a))
+;     (this-or-that (apply-fun-or-fail clo arg genv)
+;                   (apply-fun-or-fail (LLambda . clos) arg genv)))
+(fun (apply-fun-or-fail (LLambda) arg genv)
+     Nope)
+
+;(fun (this-or-that (Yup a) b) (Yup a))
+;(fun (this-or-that Nope b) b)
+
+(fun (brap l) (LLambda . l))
+
+;; Multi-lambda.
+(fun (evl (LLambda . clos) env genv)
+     (brap (evl-list clos env genv)))
+
+(fun (must (Yup a)) a)
+(fun (must Nope) (err 'pattern-match-failure))
+
+;; Data.
+(fun (evl (Cons a b) env genv) (Cons (evl a env genv) (evl b env genv)))
+(fun (evl Nil env genv) Nil)
