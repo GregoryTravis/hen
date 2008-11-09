@@ -4,11 +4,11 @@
          value
          (env-lookup v (Env . rest))))
 (fun (env-lookup v (Sequence a b))
-     (goober v (env-lookup v a) b))
-(fun (goober v NoSuchValue b)
-     (env-lookup v b))
-(fun (goober v vv b)
-     vv)
+     ((/. (ea)
+          (if (== ea NoSuchValue)
+              (env-lookup v b)
+              ea))
+      (env-lookup v a)))
 
 ;; Utilities.
 (fun (cons a d) (list a . d))
