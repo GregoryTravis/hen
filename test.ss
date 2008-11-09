@@ -1,2 +1,2 @@
 (load "h.ss")
-(run-file "test-input.ss")
+(run-files "test-input.ss")

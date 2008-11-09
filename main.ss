@@ -1,2 +1,2 @@
 (load "h.ss")
-(run-file "src.ss")
+(run-files "src.ss" "interpreter-test.ss")

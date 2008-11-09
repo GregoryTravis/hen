@@ -4,12 +4,14 @@
 (define trace-evl #f)
 
 (define forms (read-objects "src.ss"))
-(define (run-file filename)
+(define (run-files . filenames)
   (map process-top-level-forms (read-objects "overture.ss"))
-  (map process-top-level-forms (read-objects filename))
-  ;;(shew global-env)
+  (map (lambda (filename)
+         (map process-top-level-forms (read-objects filename)))
+       filenames)
   (add-toplevel-exps)
   (add-default-main-maybe)
+  ;(shew global-env)
   (evl-top '(main))
   (evl-top '(__toplevel-forms)))
 
@@ -46,7 +48,6 @@
   (if (eq? (assoc 'main global-env) #f)
       (process-fun `(fun (main) 'Mu))
       '()))
-
 
 (define (global-env-remove-maybe var)
   (let ((a (assoc var global-env)))
