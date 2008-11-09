@@ -102,3 +102,30 @@ False
 (1 2 3)
 (1 2 3 4)
 1
+(Constant 1)
+(Constant 800)
+(Constant 200)
+(Constant 900)
+(Constant 1000)
+(Constant 2)
+(Constant 10)
+(Closure (Lambda (Var v) a) (Env (Binding a (Constant 10))))
+(Constant 10)
+(Constant 30)
+(Constant 20)
+(Constant 1)
+(Constant 2)
+NoSuchValue
+10
+NoSuchValue
+10
+10
+NoSuchValue
+10
+NoSuchValue
+10
+10
+(Constant 10)
+(Constant 20)
+(Constant 100)
+(Constant 200)
