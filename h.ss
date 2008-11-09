@@ -100,7 +100,6 @@
    ((and (null? p) (null? t)) '())
    ((and (number? p) (= p t)) '())
    (#t #f)))
-   ;(#t (err 'mych p t))))
 
 (define (must o . stuff)
   (if (eq? o #f)
@@ -155,14 +154,6 @@
    ((null? (cddr e)) (evl (cadr e) env))
    (#t (evl `((/. (dummy) (begin ,@(cddr e))) ,(cadr e)) env))))
 
-;; (define (evl-let bindings body env)
-;;   (if (null? bindings)
-;;       (evl body env)
-;;       (let ((var (caar bindings))
-;;             (value (cadar bindings))
-;;             (rest-bindings (cdr bindings)))
-;;         (evl `((/. ,var ,(evl-let rest-bindings body env)) ,value))))
-
 (define (let->lambda letexp)
   (let ((bindings (cadr letexp))
         (body (caddr letexp)))
@@ -176,15 +167,14 @@
 (define (evl-match t cs env)
   (evl
    `((/./. ,@(map (lambda (ha) (list '/.
-                                        (list (car ha))
+                                     (list (car ha))
                                         ;(car ha)
-                                             (cadr ha)))
-                          (scoop-by 2 cs)))
-        ,t)
+                                     (cadr ha)))
+                  (scoop-by 2 cs)))
+     ,t)
    env))
 
 (define (evl e env)
-;(shew 'uh e)
   (cond
    ((and (pair? e)
          (eq? (car e) '@))
@@ -243,9 +233,6 @@
         ee)))
 
 (define (evl-top e)
-  ;(display "+ ")
-  ;(lshew e)
-  ;(display "\n")
   (let ((r (evl-nf e)))
     (if (not (eq? r 'Mu))
         (begin

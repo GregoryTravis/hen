@@ -59,9 +59,6 @@
 (fun (apply-fun-or-fail (LLambda) arg genv)
      Nope)
 
-;(fun (this-or-that (Yup a) b) (Yup a))
-;(fun (this-or-that Nope b) b)
-
 (fun (brap l) (LLambda . l))
 
 ;; Multi-lambda.
