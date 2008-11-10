@@ -61,3 +61,18 @@
 
 (fun (must (Yup a)) a)
 (fun (must Nope) (err 'pattern-match-failure))
+
+;; (fun (take 0 lyst) Nil)
+;; (fun (take n (Cons a d))
+;;      (Cons a (take (- n 1) d)))
+(fun (take 0 lyst) ())
+(fun (take n (a . d))
+     (cons a (take (- n 1) d)))
+
+(fun (nth-tail 0 lyst) lyst)
+(fun (nth-tail n (a . d)) (nth-tail (- n 1) d))
+
+(fun (scoop-by n ()) ())
+(fun (scoop-by n lyst)
+     (cons (take n lyst)
+           (scoop-by n (nth-tail n lyst))))
