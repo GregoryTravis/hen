@@ -71,12 +71,10 @@
 (fun (evl (Let () body) env genv)
      (evl body env genv))
 
-(fun (bipup a b . d)
-     (cons (Lambda a b) (bipup . d)))
-(fun (bipup) ())
+(fun (brunt (a b)) (Lambda a b))
 
 (fun (evl (Match target . clauses) env genv)
      (evl
-      (App (cons LLambda (bipup . clauses)) target)
+      (App (cons LLambda (map brunt (scoop-by 2 clauses))) target)
           env
           genv))
