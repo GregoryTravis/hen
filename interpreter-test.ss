@@ -81,5 +81,7 @@
 
 (evl (Let (list (B (Var 'a) (Constant 100))) (Var 'a)) (Env) (Env))
 
+(evl (Match (Constant 2) (Constant 2) (Constant 3)) (Env) (Env))
 (evl (Match (Constant 2) (Constant 2) (Constant 3) (Constant 4) (Constant 5)) (Env) (Env))
+(evl (Match (Constant 4) (Constant 4) (Constant 5)) (Env) (Env))
 (evl (Match (Constant 4) (Constant 2) (Constant 3) (Constant 4) (Constant 5)) (Env) (Env))
