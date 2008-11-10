@@ -72,5 +72,3 @@
      (evl (App (Lambda var (Let (BS . bindings) body)) value) env genv))
 (fun (evl (Let (BS) body) env genv)
      (evl body env genv))
-
-;(evl (Let (BS (B (Var 'a) (Constant 100))) (Var 'a)) (Env) (Env))
