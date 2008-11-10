@@ -68,7 +68,7 @@
 (fun (evl (Cons a b) env genv) (Cons (evl a env genv) (evl b env genv)))
 (fun (evl Nil env genv) Nil)
 
-(fun (evl (Let (BS (B var value) . bindings) body) env genv)
-     (evl (App (Lambda var (Let (BS . bindings) body)) value) env genv))
-(fun (evl (Let (BS) body) env genv)
+(fun (evl (Let ((B var value) . bindings) body) env genv)
+     (evl (App (Lambda var (Let bindings body)) value) env genv))
+(fun (evl (Let () body) env genv)
      (evl body env genv))

@@ -79,4 +79,4 @@
 (env-lookup 'c (Sequence (Env (Binding 'a (Constant 10)) (Binding 'b (Constant 20))) (Env (Binding 'c (Constant 100)) (Binding 'd (Constant 200)))))
 (env-lookup 'd (Sequence (Env (Binding 'a (Constant 10)) (Binding 'b (Constant 20))) (Env (Binding 'c (Constant 100)) (Binding 'd (Constant 200)))))
 
-(evl (Let (BS (B (Var 'a) (Constant 100))) (Var 'a)) (Env) (Env))
+(evl (Let (list (B (Var 'a) (Constant 100))) (Var 'a)) (Env) (Env))
