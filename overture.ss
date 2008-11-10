@@ -1,6 +1,9 @@
 (fun (map f Nil) Nil)
 (fun (map f (Cons a d)) (Cons (f a) (map f d)))
 
+(fun (map f ()) ())
+(fun (map f (a . d)) (cons (f a) (map f d)))
+
 (fun (grep p Nil) Nil)
 (fun (grep p (Cons a d))
      (if (p a)
