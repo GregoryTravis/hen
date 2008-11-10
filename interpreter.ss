@@ -71,10 +71,9 @@
 (fun (evl (Let () body) env genv)
      (evl body env genv))
 
-(fun (brunt (a b)) (Lambda a b))
-
 (fun (evl (Match target . clauses) env genv)
      (evl
-      (App (cons LLambda (map brunt (scoop-by 2 clauses))) target)
+      (App (cons LLambda (map (/. ((a b)) (Lambda a b))
+                              (scoop-by 2 clauses))) target)
           env
           genv))
