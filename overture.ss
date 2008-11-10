@@ -58,3 +58,6 @@
 
 (fun (interactive-shew Mu) Mu)
 (fun (interactive-shew a) (shew a))
+
+(fun (must (Yup a)) a)
+(fun (must Nope) (err 'pattern-match-failure))

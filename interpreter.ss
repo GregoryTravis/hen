@@ -65,9 +65,6 @@
 (fun (evl (LLambda . clos) env genv)
      (brap (evl-list clos env genv)))
 
-(fun (must (Yup a)) a)
-(fun (must Nope) (err 'pattern-match-failure))
-
 ;; Data.
 (fun (evl (Cons a b) env genv) (Cons (evl a env genv) (evl b env genv)))
 (fun (evl Nil env genv) Nil)
