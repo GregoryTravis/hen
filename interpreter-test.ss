@@ -80,3 +80,6 @@
 (env-lookup 'd (Sequence (Env (Binding 'a (Constant 10)) (Binding 'b (Constant 20))) (Env (Binding 'c (Constant 100)) (Binding 'd (Constant 200)))))
 
 (evl (Let (list (B (Var 'a) (Constant 100))) (Var 'a)) (Env) (Env))
+
+(evl (Match (Constant 2) (Constant 2) (Constant 3) (Constant 4) (Constant 5)) (Env) (Env))
+(evl (Match (Constant 4) (Constant 2) (Constant 3) (Constant 4) (Constant 5)) (Env) (Env))

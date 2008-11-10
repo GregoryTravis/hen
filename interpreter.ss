@@ -70,3 +70,13 @@
      (evl (App (Lambda var (Let bindings body)) value) env genv))
 (fun (evl (Let () body) env genv)
      (evl body env genv))
+
+(fun (bipup a b . d)
+     (cons (Lambda a b) (bipup . d)))
+(fun (bipup) ())
+
+(fun (evl (Match target . clauses) env genv)
+     (evl
+      (App (cons LLambda (bipup . clauses)) target)
+          env
+          genv))
