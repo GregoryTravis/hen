@@ -58,11 +58,9 @@
 (fun (apply-fun-or-fail (LLambda) arg genv)
      Nope)
 
-(fun (brap l) (LLambda . l))
-
 ;; Multi-lambda.
 (fun (evl (LLambda . clos) env genv)
-     (brap (evl-list clos env genv)))
+     (cons LLambda (evl-list clos env genv)))
 
 ;; Data.
 (fun (evl (Cons a b) env genv) (Cons (evl a env genv) (evl b env genv)))
