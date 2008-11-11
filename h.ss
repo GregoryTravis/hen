@@ -176,6 +176,12 @@
 
 (define (evl e env)
   (cond
+
+   ;; Special forms
+
+   ((and (pair? e)
+         (eq? (1st e) 'quote))
+    (2nd e))
    ((and (pair? e)
          (eq? (car e) '@))
     (evl-match (cadr e) (cddr e) env))
@@ -188,14 +194,6 @@
          (eq? (car e) 'begin))
     (evl-begin e env))
    ((and (pair? e)
-         (ctor? (car e)))
-    (cons (car e)
-          (map-improper (lambda (e) (evl e env))
-               (cdr e))))
-   ((and (pair? e)
-         (eq? (1st e) 'quote))
-    (2nd e))
-   ((and (pair? e)
          (eq? (1st e) 'if))
     (let ((pred (2nd e))
           (then (3rd e))
@@ -205,14 +203,30 @@
          ((eq? b 'True) (evl then env))
          ((eq? b 'False) (evl else env))
          (#t (err 'if pred b))))))
+
+   ;; Atoms
+
    ((and (symbol? e) (not (ctor? e))) (lookup-env e env))
    ((and (symbol? e) (ctor? e)) e)
+
+   ;; /. and /./.
+
    ((and (pair? e)
          (eq? '/. (car e)))
     `($ ,e ,env))
    ((and (pair? e)
          (eq? '/./. (car e)))
     `(/./. ,@(map (lambda (e) (evl e env)) (cdr e))))
+
+   ;; Ctons
+
+   ((and (pair? e)
+         (ctor? (car e)))
+    (cons (car e)
+          (map-improper (lambda (e) (evl e env))
+               (cdr e))))
+
+   ;; Function application
    ((pair? e)
     (let ((ee (map-improper (lambda (e) (if lazy
                                             `(& ($ (/. () ,e) ,env))
