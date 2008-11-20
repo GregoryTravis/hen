@@ -16,24 +16,29 @@
 (define (trace-indent) (set! impl-tracefun-indentation (+ 1 impl-tracefun-indentation)))
 (define (trace-unindent) (set! impl-tracefun-indentation (+ -1 impl-tracefun-indentation)))
 
+(define (tracing-push-print exp)
+  (display "        ")
+  (display (make-string-string impl-tracefun-indentation "| "))
+  (display "+ ")
+  (lshew exp)
+  (display "\n")
+  (flush-output)
+  (set! impl-tracefun-indentation (+ impl-tracefun-indentation 1)))
+
+(define (tracing-pop-print exp)
+  (set! impl-tracefun-indentation (- impl-tracefun-indentation 1))
+  (display "        ")
+  (display (make-string-string impl-tracefun-indentation "| "))
+  (display "-> ")
+  (lshew exp)
+  (display "\n")
+  (flush-output))
+
 (define (tracefun-hookist name f)
   (lambda args
-    (display "        ")
-    (display (make-string-string impl-tracefun-indentation "| "))
-    (display "+ ")
-    (lshew (cons name args))
-    (display "\n")
-    (flush-output)
-    (set! impl-tracefun-indentation (+ impl-tracefun-indentation 1))
+    (tracing-push-print (cons name args))
     (let ((result (apply f args)))
-      (flush-output)
-      (set! impl-tracefun-indentation (- impl-tracefun-indentation 1))
-      (display "        ")
-      (display (make-string-string impl-tracefun-indentation "| "))
-      (display "-> ")
-      (lshew result)
-      (display "\n")
-      (flush-output)
+      (tracing-pop-print result)
       result)))
 
 (define (plain-ol-tracer app runner)
@@ -109,12 +114,13 @@
       (car list)
       (nth (- n 1) (cdr list))))
 
-(define (take n lyst)
-  (if (> n 0)
-      (if (null? lyst)
-          (err)
-          (cons (car lyst) (take (1- n) (cdr lyst))))
-      '()))
+;; Mzscheme already has this, and the args are swapped.
+;; (define (take n lyst)
+;;   (if (> n 0)
+;;       (if (null? lyst)
+;;           (err)
+;;           (cons (car lyst) (take (1- n) (cdr lyst))))
+;;       '()))
 
 (define (nth-tail n lyst)
   (if (= 0 n)
@@ -124,7 +130,7 @@
 (define (scoop-by n lyst)
   (if (null? lyst)
       '()
-      (cons (take n lyst)
+      (cons (take lyst n)
             (scoop-by n (nth-tail n lyst)))))
 
 (define concat string-append)
@@ -334,7 +340,7 @@
 (car '()))
 ;  (exit))
 
-(define show-shorten-length 5)
+(define show-shorten-length 50)
 (define (show-shorten-list lyst) (show-shorten-list1 lyst 0))
 (define (show-shorten-list1 lyst acc)
   (cond
@@ -351,6 +357,12 @@
   (if (pair? s)
       (cons (f (car s))
             (map-improper f (cdr s)))
+      (f s)))
+
+(define (tmap f s)
+  (if (pair? s)
+      (cons (tmap f (car s))
+            (tmap f (cdr s)))
       (f s)))
 
 (define (sr . es)
@@ -977,3 +989,16 @@
 (define 2nd cadr)
 (define 3rd caddr)
 (define 4th cadddr)
+
+;; This doesn't really ever change.
+(define (consify l)
+  (cond
+   ((pair? l) `(Cons ,(consify (car l)) ,(consify (cdr l))))
+   ((null? l) 'Nil)
+   (#t l)))
+
+(define (consify-top-layer l)
+  (cond
+   ((pair? l) `(Cons ,(car l) ,(consify-top-layer (cdr l))))
+   ((null? l) 'Nil)
+   (#t l)))
