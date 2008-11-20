@@ -996,3 +996,9 @@
    ((pair? l) `(Cons ,(consify (car l)) ,(consify (cdr l))))
    ((null? l) 'Nil)
    (#t l)))
+
+(define (consify-top-layer l)
+  (cond
+   ((pair? l) `(Cons ,(car l) ,(consify-top-layer (cdr l))))
+   ((null? l) 'Nil)
+   (#t l)))
