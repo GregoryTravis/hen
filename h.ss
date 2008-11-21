@@ -3,7 +3,26 @@
 (define (run-file filename)
   (map evl-top (read-objects filename)))
 
+(define (check-file filename)
+  (map evl-check (read-objects filename)))
+
+(define (evl-check e)
+  (let* ((ce (ski e))
+         (ee (->/. ce))
+         (cee (ski ee))
+         (cev (evl ce))
+         (ceev (evl cee)))
+;;     (shew '---)
+;;     (shew e)
+;;     (shew ce)
+;;     (shew ee)
+;;     (shew cee)
+;;     (shew (evl ce))
+;;     (shew (evl cee))
+    (assert (equal? cev ceev) cev ceev)))
+
 (define (evl-top e)
+  ;(evl-check e)
   (display "+ ")
   (lshew e)
   (display "\n")
@@ -31,6 +50,32 @@
    x (if (or (symbol? x) (number? x) (string? x)) x (err 'ski e))
 
    ))
+
+(define sg (symbol-generator-generator))
+
+(define (->/. e)
+  (let ((v0 (sg))
+        (v1 (sg)))
+    (mtch
+     e
+
+     (('S a) b) `(/. ,v0 ((,(->/. a) ,v0) (,(->/. b) ,v0)))
+
+     ((('S a) b) c) `((,(->/. a) ,(->/. c)) (,(->/. b) ,(->/. c)))
+
+     ('K a) `(/. ,v0 ,(->/. a))
+
+     (('K a) b) (->/. a)
+
+     'I `(/. ,v0 ,v0)
+
+     ('I a) (->/. a)
+
+     (a b) `(,(->/. a) ,(->/. b))
+
+     x x
+
+     )))
 
 (define (evl-step e)
   (mtch
