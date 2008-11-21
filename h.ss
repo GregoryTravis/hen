@@ -42,6 +42,12 @@
 
    ('I x) x
 
+   (('+ a) b) (+ a b)
+
+   (('= a) b) (if (= a b) 'True 'False)
+
+   ((('if b) t) e) (mtch b 'True t 'False e)
+
    (a b) (list (evl-step a) (evl-step b))
 
    x x
