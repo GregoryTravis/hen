@@ -1,2 +1,2 @@
 (load "h.ss")
-(go)
+;(go)
