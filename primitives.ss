@@ -3,10 +3,12 @@
 (define (define-primitive name f)
   (set! primitive-env
         (cons (cons name f) primitive-env))
-  (global-env-define name `(@ ,name)))
+  (set! primitive-env (cons name f)))
 
-(define (blimpp f args)
-  (let ((prim-f (assoc f primitive-env)))
+(define (run-primitive-app app)
+  (let* ((name (car app))
+         (args (cdr app))
+         (prim-f (assoc name primitive-env)))
     (if (eq? prim-f #f)
         (err 'blimpp f)
         (apply (cdr prim-f) args))))
