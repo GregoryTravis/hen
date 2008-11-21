@@ -1,53 +1,53 @@
 (load "lib.ss")
 
-(define (bup e)
+(define (ski e)
   (mtch
    e
 
-   (/. x (/. y b)) (bup `(/. ,x ,(bup `(/. ,y ,b))))
+   (/. x (/. y b)) (ski `(/. ,x ,(ski `(/. ,y ,b))))
 
-   (/. x (a b)) `((S ,(bup `(/. ,x ,a))) ,(bup `(/. ,x ,b)))
+   (/. x (a b)) `((S ,(ski `(/. ,x ,a))) ,(ski `(/. ,x ,b)))
 
    ('/. x y) (if (eq? x y) `I `(K ,y))
 
-   (a b) (list (bup a) (bup b))
+   (a b) (list (ski a) (ski b))
 
-   x (if (symbol? x) x (err 'bup e))
+   x (if (symbol? x) x (err 'ski e))
 
    ))
 
-(define (oik e)
+(define (evl-step e)
   (mtch
    e
 
-   ;((('S f) g) x) `(,(oik `(,(oik f) ,(oik x))) ,(oik `(,(oik g) ,(oik x))))
+   ;((('S f) g) x) `(,(evl-step `(,(evl-step f) ,(evl-step x))) ,(evl-step `(,(evl-step g) ,(evl-step x))))
    ((('S f) g) x) `((,f ,x) (,g ,x))
 
-   ;(('K x) y) (oik x)
+   ;(('K x) y) (evl-step x)
    (('K x) y) x
 
-   ;('I x) (oik x)
+   ;('I x) (evl-step x)
    ('I x) x
 
-   (a b) (list (oik a) (oik b))
+   (a b) (list (evl-step a) (evl-step b))
 
    x x
 
    ))
 
-(define (oiks e)
-  (let ((ee (oik e)))
+(define (evl e)
+  (let ((ee (evl-step e)))
     (if (equal? e ee)
         e
-        (oiks ee))))
+        (evl ee))))
 
-;(tracefun oik oiks)
+;(tracefun evl-step evl)
 
 (map
  (lambda (x)
    (shew x)
-   (shew (bup x))
-   (shew (oiks (bup x))))
+   (shew (ski x))
+   (shew (evl (ski x))))
  (list
   'a
   '(/. r r)
