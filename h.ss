@@ -28,7 +28,7 @@
 
    (a b) (list (ski a) (ski b))
 
-   x (if (symbol? x) x (err 'ski e))
+   x (if (atom? x) x (err 'ski e))
 
    ))
 
