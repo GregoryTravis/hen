@@ -13,11 +13,7 @@
 
 (define (bracket e v)
   (cond
-   ((and (lam? e) (eq? (var-of e) v)) (err 'alpha!))
-
-;   ((lam? e) `(/. ,(var-of e) ,(bracket (body-of e) v)))
    ((lam? e) (bracket (bracket (body-of e) (var-of e)) v))
-
    ((and (pair? e) (> (length e) 2))
     (let ((curried (cons (list (car e) (cadr e)) (cddr e))))
       (bracket curried v)))
