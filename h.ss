@@ -1,5 +1,21 @@
 (load "lib.ss")
 
+(define (run-file filename)
+  (map evl-top (read-objects filename)))
+
+(define (evl-top e)
+  (display "+ ")
+  (lshew e)
+  (display "\n")
+  (display "- ")
+  (let ((ce (ski e)))
+    (lshew ce)
+    (display "\n")
+    (display "=> ")
+    (let ((ee (evl ce)))
+      (lshew ee)
+      (display "\n\n"))))
+
 (define (ski e)
   (mtch
    e
