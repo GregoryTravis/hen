@@ -1,1 +1,34 @@
-fresh!
+a
+a
+a
+(/. r r)
+I
+I
+((/. r r) a)
+(I a)
+a
+(/. r s)
+(K s)
+(K s)
+((/. r s) a)
+((K s) a)
+s
+(/. r (s t))
+((S (K s)) (K t))
+((S (K s)) (K t))
+((/. r (s t)) a)
+(((S (K s)) (K t)) a)
+(s t)
+(/. r (/. s s))
+(K I)
+(K I)
+(/. r (/. s r))
+((S (K K)) I)
+((S (K K)) I)
+((/. p (p x)) (/. y y))
+(((S I) (K x)) I)
+x
+((/. p ((p a) b)) (/. s (/. t ((qq s) t))))
+(((S ((S I) (K a))) (K b))
+ ((S ((S (K S)) ((S ((S (K S)) ((S (K K)) (K qq)))) ((S (K K)) I)))) (K I)))
+((qq a) b)
