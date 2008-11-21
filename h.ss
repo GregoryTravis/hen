@@ -36,13 +36,10 @@
   (mtch
    e
 
-   ;((('S f) g) x) `(,(evl-step `(,(evl-step f) ,(evl-step x))) ,(evl-step `(,(evl-step g) ,(evl-step x))))
    ((('S f) g) x) `((,f ,x) (,g ,x))
 
-   ;(('K x) y) (evl-step x)
    (('K x) y) x
 
-   ;('I x) (evl-step x)
    ('I x) x
 
    (a b) (list (evl-step a) (evl-step b))
