@@ -1,7 +1,7 @@
 (load "lib.ss")
 
 (define (run-file filename)
-  (map lup-top (read-objects filename)))
+  (map evl-top (read-objects filename)))
 
 (define (check-file filename)
   (map evl-check (read-objects filename)))
@@ -77,35 +77,7 @@
 
      )))
 
-(define (evl-step e)
-  (mtch
-   e
-
-   ((('S f) g) x) `((,f ,x) (,g ,x))
-
-   (('K x) y) x
-
-   ('I x) x
-
-   (('+ a) b) (+ a b)
-
-   (('= a) b) (if (= a b) 'True 'False)
-
-   ((('if b) t) e) (mtch b 'True t 'False e)
-
-   (a b) (list (evl-step a) (evl-step b))
-
-   x x
-
-   ))
-
-(define (evl e)
-  (let ((ee (evl-step e)))
-    (if (equal? e ee)
-        e
-        (evl ee))))
-
-(define (lup-step s)
+(define (evl-step s)
   (mtch
    s
 
@@ -134,16 +106,16 @@
 ;;       (number? o)))
 ;; (define (done? s) (and (= (length s) 1) (data? (car s))))
 
-(define (lup s)
-  (let ((ss (lup-step s)))
+(define (evl s)
+  (let ((ss (evl-step s)))
     (if (equal? s ss)
         (car s)
-        (lup ss))))
+        (evl ss))))
 ;;     (if (done? ss)
 ;;         (car ss)
-;;         (lup ss))))
+;;         (evl ss))))
 
-(define (lup-top e)
+(define (evl-top e)
   (display "+ ")
   (lshew e)
   (display "\n")
@@ -151,9 +123,9 @@
     (display "- ")
     (lshew ce)
     (display "\n")
-    (let ((ee (lup (list ce))))
+    (let ((ee (evl (list ce))))
       (display "=> ")
       (lshew ee)
       (display "\n\n"))))
 
-;(tracefun lup-top lup lup-step)
+;(tracefun evl-top evl evl-step)
