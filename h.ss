@@ -86,11 +86,12 @@
    ('K) s
    ('I) s
 
+   ('+ ('+ a) (('+ aa) b)) (list (+ a b))
+
    (a . rest) (cond
                ((symbol? a) (err 'what-is (car s) s))
                ((number? a) s)
                (#t (err 'bad-form s)))
-
 
    ))
 
