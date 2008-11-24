@@ -87,8 +87,10 @@
    ('I) s
 
    ('+ ('+ a) (('+ aa) b)) (list (+ (evl0 (list a)) (evl0 (list b))))
+   ('if ('if b) (('if bb) t) ((('if bb) t) e)) (list (let ((b (evl0 (list b)))) (mtch b 'True t 'False e)))
 
    (a . rest) (cond
+               ((ctor? a) s)
                ((symbol? a) (err 'what-is (car s) s))
                ((number? a) s)
                (#t (err 'bad-form s)))
