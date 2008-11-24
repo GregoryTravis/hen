@@ -79,11 +79,18 @@
    ((a . d) . dd)
    `(,a (,a . ,d) . ,dd)
 
-;;    '(S) s
-;;    '(K) s
-;;    '(I) s
+   ('S f g) s
+   ('S f) s
+   ('S) s
+   ('K x) s
+   ('K) s
+   ('I) s
 
-   x x
+   (a . rest) (cond
+               ((symbol? a) (err 'what-is (car s) s))
+               ((number? a) s)
+               (#t (err 'bad-form s)))
+
 
    ))
 
@@ -122,4 +129,4 @@
       (display "\n\n")
       ee)))
 
-;(tracefun evl-top evl evl-step)
+;(tracefun evl evl-step)
