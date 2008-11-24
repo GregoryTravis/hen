@@ -3,9 +3,6 @@
 (define (run-file filename)
   (map evl-top (read-objects filename)))
 
-(define (check-file filename)
-  (map evl-check (read-objects filename)))
-
 (define (evl-check e)
   (let* ((ce (ski e))
          (ee (->/. ce))
