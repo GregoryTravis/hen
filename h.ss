@@ -126,7 +126,11 @@
 (define (evl e)
   (if (done? e)
       e
-      (evl (evl-step e))))
+      (let ((ee (evl-step e)))
+        (if (smart= e ee)
+            ee
+            (evl ee)))))
+      ;(evl (evl-step e))))
 
 (define (evl-top e)
   ;(evl-check e)
@@ -143,5 +147,5 @@
       (display "\n\n")
       ee)))
 
-;(tracefun evl-top evl-fully evl-minimally evl-step)
+;(tracefun evl evl-step)
 ;(tracefun ski)
