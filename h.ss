@@ -23,8 +23,8 @@
   (let* ((ce (ski e))
          (ee (->/. ce))
          (cee (ski ee))
-         (cev (evl (list ce)))
-         (ceev (evl (list cee))))
+         (cev (evl-fully ce))
+         (ceev (evl-fully cee)))
 ;;     (shew '---)
 ;;     (shew e)
 ;;     (shew ce)
@@ -76,85 +76,158 @@
 
      )))
 
-(define (evl-step s)
+;; (define (evl-step s)
+;;   (mtch
+;;    s
+
+;;    ('S (d0 f) (d1 g) (d2 x) . tail)
+;;    `(((,f ,x) (,g ,x)) . ,tail)
+
+;;    ('K (d0 x) (d1 y) . tail)
+;;    `(,x . ,tail)
+
+;;    ('I (d0 x) . tail)
+;;    `(,x . ,tail)
+
+;;    ((a . d) . dd)
+;;    `(,a (,a . ,d) . ,dd)
+
+;;    ('S f g) s
+;;    ('S f) s
+;;    ('S) s
+;;    ('K x) s
+;;    ('K) s
+;;    ('I) s
+
+;;    ('+ ('+ a) (('+ aa) b)) (list (+ (evl0 (list a)) (evl0 (list b))))
+;;    ('- ('- a) (('- aa) b)) (list (- (evl0 (list a)) (evl0 (list b))))
+;;    ('* ('* a) (('* aa) b)) (list (* (evl0 (list a)) (evl0 (list b))))
+;;    ('== ('== a) (('== aa) b)) (list (if (smart= (evl0 (list a)) (evl0 (list b))) 'True 'False))
+;;    ('if ('if b) (('if bb) t) ((('if bb) t) e)) (list (mtch (evl0 (list b)) 'True t 'False e))
+
+;;    (a . rest) (cond
+;;                ((and (ctor? a) (null? rest)) s)
+;;                ((lookup-exists? a global-env) (cons (lookup a global-env) rest))
+;;                ((symbol? a) (err 'what-is (car s) s))
+;;                ((number? a) s)
+;;                (#t (err 'bad-form s)))
+
+;;    ))
+
+;; ;; (define (data? o)
+;; ;;   (or (and (symbol? o) (not (member? o '(S K I))))
+;; ;;       (number? o)))
+;; ;; (define (done? s) (and (= (length s) 1) (data? (car s))))
+
+;; (define (done-stack s)
+;;   (if (= (length s) 1)
+;;       (car s)
+;;       (done-stack (cons (cons (car s) (cdadr s)) (cddr s)))))
+;;   ;(cons (car s) (map cadr (cdr s))))
+
+;; (define (evl0 s) (evl s))
+
+;; (define (evl s)
+;;   (let ((ss (evl-step s)))
+;;     (if (equal? s ss)
+;;         (done-stack s)
+;;         (evl ss))))
+;; ;;     (if (done? ss)
+;; ;;         (car ss)
+;; ;;         (evl ss))))
+
+;; (define (evl-fully e)
+;;   (let ((e (evl0 (list e))))
+;;     (mtch
+;;      e
+
+;; ;     ('S a) (evl0 (list e))
+;; ;     ('K a) (evl0 (list e))
+;; ;     ('I a) (evl0 (list e))
+
+;;      (a b) (list (evl-fully (car e))
+;;                  (evl-fully (cadr e)))
+
+;;      x (if (or (number? x) (symbol? x)) x (err 'evl-fully e)))))
+
+(define (evl-step e)
   (mtch
-   s
+   e
 
-   ('S (d0 f) (d1 g) (d2 x) . tail)
-   `(((,f ,x) (,g ,x)) . ,tail)
+   ((('S f) g) x)
+   `((,f ,x) (,g ,x))
 
-   ('K (d0 x) (d1 y) . tail)
-   `(,x . ,tail)
+   (('K x) y)
+   x
 
-   ('I (d0 x) . tail)
-   `(,x . ,tail)
+   ('I x)
+   x
 
-   ((a . d) . dd)
-   `(,a (,a . ,d) . ,dd)
+   (('S f) g) e
+   ('S f) e
+   'S e
+   ('K x) e
+   'K e
+   'I e
+   ('+ x) e
+   '+ e
+   ('- x) e
+   '- e
+   ('* x) e
+   '* e
+   ('== x) e
+   '== e
+   (('if b) t) e
+   ('if b) e
+   'if e
 
-   ('S f g) s
-   ('S f) s
-   ('S) s
-   ('K x) s
-   ('K) s
-   ('I) s
+   (('+ a) b) (+ (evl-fully a) (evl-fully b))
+   (('- a) b) (- (evl-fully a) (evl-fully b))
+   (('* a) b) (* (evl-fully a) (evl-fully b))
+   (('== a) b) (if (smart= (evl-fully a) (evl-fully b)) 'True 'False)
+   ((('if b) t) e) (mtch (evl-fully b) 'True t 'False e)
+   
+   (a b) (evl-step (list (evl-minimally a) b))
 
-   ('+ ('+ a) (('+ aa) b)) (list (+ (evl0 (list a)) (evl0 (list b))))
-   ('- ('- a) (('- aa) b)) (list (- (evl0 (list a)) (evl0 (list b))))
-   ('* ('* a) (('* aa) b)) (list (* (evl0 (list a)) (evl0 (list b))))
-   ('== ('== a) (('== aa) b)) (list (if (smart= (evl0 (list a)) (evl0 (list b))) 'True 'False))
-   ('if ('if b) (('if bb) t) ((('if bb) t) e)) (list (mtch (evl0 (list b)) 'True t 'False e))
+   x (cond
+      ((done-fully? x) x)
+      ((and (symbol? x) (lookup-exists? x global-env)) (lookup x global-env))
+      (#t (err 'evl-step e)))
+   ))
 
-   (a . rest) (cond
-               ((and (ctor? a) (null? rest)) s)
-               ((lookup-exists? a global-env) (cons (lookup a global-env) rest))
-               ((symbol? a) (err 'what-is (car s) s))
-               ((number? a) s)
-               (#t (err 'bad-form s)))
+(define (done-minimally? e)
+  (mtch
+   e
+
+   (('S f) g) #t
+   ('S f) #t
+   'S #t
+   ('K x) #t
+   'K #t
+   'I #t
+
+   (a . b) #f
+
+   x (done-fully? e)
 
    ))
 
-;; (define (data? o)
-;;   (or (and (symbol? o) (not (member? o '(S K I))))
-;;       (number? o)))
-;; (define (done? s) (and (= (length s) 1) (data? (car s))))
+(define (evl-minimally e)
+  (if (done-minimally? e)
+      e
+      (evl-minimally (evl-step e))))
 
-(define (done-stack s)
-  (if (= (length s) 1)
-      (car s)
-      (done-stack (cons (cons (car s) (cdadr s)) (cddr s)))))
-  ;(cons (car s) (map cadr (cdr s))))
-
-(define (evl0 s) (evl s))
-
-(define (evl s)
-  (let ((ss (evl-step s)))
-    (if (equal? s ss)
-        (done-stack s)
-        (evl ss))))
-;;     (if (done? ss)
-;;         (car ss)
-;;         (evl ss))))
-
-(define (til-same f arg)
-  (let ((result (f arg)))
-    (if (smart= arg result)
-        result
-        (til-same f result))))
+(define (done-fully? e)
+  (or (number? e) (ctor? e)))
 
 (define (evl-fully e)
-  (let ((e (evl0 (list e))))
-    (mtch
-     e
-
-;     ('S a) (evl0 (list e))
-;     ('K a) (evl0 (list e))
-;     ('I a) (evl0 (list e))
-
-     (a b) (list (evl-fully (car e))
-                 (evl-fully (cadr e)))
-
-     x (if (or (number? x) (symbol? x)) x (err 'evl-fully e)))))
+  (if (done-fully? e)
+      e
+      (let ((ee (evl-minimally e)))
+        (mtch ee
+              (a b) (evl-fully (list (evl-fully a) (evl-fully b)))
+              x (if (done-fully? x) x (err 'evl-fully e ee))
+              ))))
 
 (define (evl-top e)
   ;(evl-check e)
@@ -171,5 +244,5 @@
       (display "\n\n")
       ee)))
 
-;(tracefun evl evl0 evl-step evl-fully)
+;(tracefun evl-top evl-fully evl-minimally evl-step)
 ;(tracefun ski)

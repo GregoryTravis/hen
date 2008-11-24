@@ -1007,3 +1007,9 @@
   (or (and (number? a) (= a b))
       (and (string? a) (string= a b))
       (and (pair? a) (equal? a b))))
+
+(define (til-same f arg)
+  (let ((result (f arg)))
+    (if (smart= arg result)
+        result
+        (til-same f result))))
