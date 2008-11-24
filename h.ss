@@ -11,7 +11,24 @@
 
       x
       (evl-top x)))
-   (read-objects filename)))
+   (map preprocess-tlf (read-objects filename))))
+
+(define (preprocess-tlf e)
+  (mtch
+   e
+
+   ('fun (name . args) . body)
+   `(fun (,name . ,args) . ,(preprocess body))
+
+   x
+   (preprocess x)))
+
+(define (preprocess e)
+  (mtch e
+        ('/. args body) `(/. ,args ,(preprocess body))
+        (a b c . rest) (preprocess `((,a ,b) ,c . ,rest))
+        (a b) (list (preprocess a) (preprocess b))
+        x x))
 
 (define global-env '())
 (define (define-fun name args body)
