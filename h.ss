@@ -23,8 +23,8 @@
   (let* ((ce (ski e))
          (ee (->/. ce))
          (cee (ski ee))
-         (cev (evl-fully ce))
-         (ceev (evl-fully cee)))
+         (cev (evl ce))
+         (ceev (evl cee)))
 ;;     (shew '---)
 ;;     (shew e)
 ;;     (shew ce)
@@ -150,6 +150,9 @@
 
 ;;      x (if (or (number? x) (symbol? x)) x (err 'evl-fully e)))))
 
+(define (done? e)
+  (or (number? e) (ctor? e)))
+
 (define (evl-step e)
   (mtch
    e
@@ -181,53 +184,57 @@
    ('if b) e
    'if e
 
-   (('+ a) b) (+ (evl-fully a) (evl-fully b))
-   (('- a) b) (- (evl-fully a) (evl-fully b))
-   (('* a) b) (* (evl-fully a) (evl-fully b))
-   (('== a) b) (if (smart= (evl-fully a) (evl-fully b)) 'True 'False)
-   ((('if b) t) e) (mtch (evl-fully b) 'True t 'False e)
+   (('+ a) b) (+ (evl a) (evl b))
+   (('- a) b) (- (evl a) (evl b))
+   (('* a) b) (* (evl a) (evl b))
+   (('== a) b) (if (smart= (evl a) (evl b)) 'True 'False)
+   ((('if b) t) e) (mtch (evl b) 'True t 'False e)
    
-   (a b) (evl-step (list (evl-minimally a) b))
+   (a b) (evl-step (list (evl a) b))
 
    x (cond
-      ((done-fully? x) x)
       ((and (symbol? x) (lookup-exists? x global-env)) (lookup x global-env))
-      (#t (err 'evl-step e)))
+      (#t (err 'evl e)))
    ))
 
-(define (done-minimally? e)
-  (mtch
-   e
-
-   (('S f) g) #t
-   ('S f) #t
-   'S #t
-   ('K x) #t
-   'K #t
-   'I #t
-
-   (a . b) #f
-
-   x (done-fully? e)
-
-   ))
-
-(define (evl-minimally e)
-  (if (done-minimally? e)
+(define (evl e)
+  (if (done? e)
       e
-      (evl-minimally (evl-step e))))
+      (evl (evl-step e))))
 
-(define (done-fully? e)
-  (or (number? e) (ctor? e)))
+;; (define (done-minimally? e)
+;;   (mtch
+;;    e
 
-(define (evl-fully e)
-  (if (done-fully? e)
-      e
-      (let ((ee (evl-minimally e)))
-        (mtch ee
-              (a b) (evl-fully (list (evl-fully a) (evl-fully b)))
-              x (if (done-fully? x) x (err 'evl-fully e ee))
-              ))))
+;;    (('S f) g) #t
+;;    ('S f) #t
+;;    'S #t
+;;    ('K x) #t
+;;    'K #t
+;;    'I #t
+
+;;    (a . b) #f
+
+;;    x (done-fully? e)
+
+;;    ))
+
+;; (define (evl-minimally e)
+;;   (if (done-minimally? e)
+;;       e
+;;       (evl-minimally (evl-step e))))
+
+;; (define (done-fully? e)
+;;   (or (number? e) (ctor? e)))
+
+;; (define (evl-fully e)
+;;   (if (done-fully? e)
+;;       e
+;;       (let ((ee (evl-minimally e)))
+;;         (mtch ee
+;;               (a b) (evl-fully (list (evl-fully a) (evl-fully b)))
+;;               x (if (done-fully? x) x (err 'evl-fully e ee))
+;;               ))))
 
 (define (evl-top e)
   ;(evl-check e)
@@ -238,7 +245,7 @@
     (display "- ")
     (lshew ce)
     (display "\n")
-    (let ((ee (evl-fully ce)))
+    (let ((ee (evl ce)))
       (display "=> ")
       (lshew ee)
       (display "\n\n")
