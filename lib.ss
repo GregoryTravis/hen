@@ -1002,3 +1002,8 @@
    ((pair? l) `(Cons ,(car l) ,(consify-top-layer (cdr l))))
    ((null? l) 'Nil)
    (#t l)))
+
+(define (smart= a b)
+  (or (and (number? a) (= a b))
+      (and (string? a) (string= a b))
+      (and (pair? a) (equal? a b))))
