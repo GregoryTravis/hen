@@ -86,7 +86,7 @@
    ('K) s
    ('I) s
 
-   ('+ ('+ a) (('+ aa) b)) (list (+ a b))
+   ('+ ('+ a) (('+ aa) b)) (list (+ (evl0 (list a)) (evl0 (list b))))
 
    (a . rest) (cond
                ((symbol? a) (err 'what-is (car s) s))
@@ -106,6 +106,8 @@
       (done-stack (cons (cons (car s) (cdadr s)) (cddr s)))))
   ;(cons (car s) (map cadr (cdr s))))
 
+(define (evl0 s) (evl s))
+
 (define (evl s)
   (let ((ss (evl-step s)))
     (if (equal? s ss)
@@ -124,10 +126,10 @@
     (display "- ")
     (lshew ce)
     (display "\n")
-    (let ((ee (evl (list ce))))
+    (let ((ee (evl0 (list ce))))
       (display "=> ")
       (lshew ee)
       (display "\n\n")
       ee)))
 
-;(tracefun evl evl-step)
+;(tracefun evl evl0 evl-step)
