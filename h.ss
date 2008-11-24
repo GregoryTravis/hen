@@ -100,6 +100,8 @@
    ('I) s
 
    ('+ ('+ a) (('+ aa) b)) (list (+ (evl0 (list a)) (evl0 (list b))))
+   ('- ('- a) (('- aa) b)) (list (- (evl0 (list a)) (evl0 (list b))))
+   ('* ('* a) (('* aa) b)) (list (* (evl0 (list a)) (evl0 (list b))))
    ('== ('== a) (('== aa) b)) (list (if (smart= (evl0 (list a)) (evl0 (list b))) 'True 'False))
    ('if ('if b) (('if bb) t) ((('if bb) t) e)) (list (mtch (evl0 (list b)) 'True t 'False e))
 
