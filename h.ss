@@ -91,7 +91,7 @@
    ('if ('if b) (('if bb) t) ((('if bb) t) e)) (list (mtch (evl0 (list b)) 'True t 'False e))
 
    (a . rest) (cond
-               ((ctor? a) s)
+               ((and (ctor? a) (= (length s) 1)) s)
                ((symbol? a) (err 'what-is (car s) s))
                ((number? a) s)
                (#t (err 'bad-form s)))
