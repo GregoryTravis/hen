@@ -25,8 +25,12 @@
 (- 40 15)
 ((* 10) 20)
 (* 10 20)
-(fun (fact n) (((if ((== n) 0)) 1) ((* n) (fact ((- n) 1)))))
-(fact 10)
+
+(fun (fact1 n) (((if ((== n) 0)) 1) ((* n) (fact1 ((- n) 1)))))
+(fact1 10)
+
+(fun (fact2 n) (if (== n 0) 1 (* n (fact2 (- n 1)))))
+(fact2 10)
 
 (((if ((== 0) 3)) True) False)
 (((if ((== 0) 0)) True) False)

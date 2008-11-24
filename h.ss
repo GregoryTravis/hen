@@ -6,7 +6,7 @@
      (mtch
       e
 
-      ('fun (name . args) . body)
+      ('fun (name . args) body)
       (define-fun name args body)
 
       x
@@ -17,8 +17,8 @@
   (mtch
    e
 
-   ('fun (name . args) . body)
-   `(fun (,name . ,args) . ,(preprocess body))
+   ('fun (name . args) body)
+   `(fun (,name . ,args)  ,(preprocess body))
 
    x
    (preprocess x)))
@@ -34,7 +34,7 @@
 (define (define-fun name args body)
   (assert (= (length args) 1))
   (set! global-env
-        (cons (cons name (ski `(/. ,(car args) . ,body))) global-env)))
+        (cons (cons name (ski `(/. ,(car args) ,body))) global-env)))
 
 (define (evl-check e)
   (let* ((ce (ski e))
@@ -164,5 +164,6 @@
       (display "\n\n")
       ee)))
 
-;(tracefun evl evl-step)
+;(tracefun evl)
 ;(tracefun ski)
+;(tracefun preprocess preprocess-tlf)
