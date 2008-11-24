@@ -1,7 +1,23 @@
 (load "lib.ss")
 
 (define (run-file filename)
-  (map evl-top (read-objects filename)))
+  (map
+   (lambda (e)
+     (mtch
+      e
+
+      ('fun (name . args) . body)
+      (define-fun name args body)
+
+      x
+      (evl-top x)))
+   (read-objects filename)))
+
+(define global-env '())
+(define (define-fun name args body)
+  (assert (= (length args) 1))
+  (set! global-env
+        (cons (cons name (ski `(/. ,(car args) . ,body))) global-env)))
 
 (define (evl-check e)
   (let* ((ce (ski e))
@@ -22,9 +38,9 @@
   (mtch
    e
 
-   (/. x (/. y b)) (ski `(/. ,x ,(ski `(/. ,y ,b))))
+   ('/. x (/. y b)) (ski `(/. ,x ,(ski `(/. ,y ,b))))
 
-   (/. x (a b)) `((S ,(ski `(/. ,x ,a))) ,(ski `(/. ,x ,b)))
+   ('/. x (a b)) `((S ,(ski `(/. ,x ,a))) ,(ski `(/. ,x ,b)))
 
    ('/. x y) (if (eq? x y) `I `(K ,y))
 
@@ -88,7 +104,8 @@
    ('if ('if b) (('if bb) t) ((('if bb) t) e)) (list (mtch (evl0 (list b)) 'True t 'False e))
 
    (a . rest) (cond
-               ((and (ctor? a) (= (length s) 1)) s)
+               ((and (ctor? a) (null? rest)) s)
+               ((lookup-exists? a global-env) (cons (lookup a global-env) rest))
                ((symbol? a) (err 'what-is (car s) s))
                ((number? a) s)
                (#t (err 'bad-form s)))
@@ -117,6 +134,26 @@
 ;;         (car ss)
 ;;         (evl ss))))
 
+(define (til-same f arg)
+  (let ((result (f arg)))
+    (if (smart= arg result)
+        result
+        (til-same f result))))
+
+(define (evl-fully e)
+  (let ((e (evl0 (list e))))
+    (mtch
+     e
+
+;     ('S a) (evl0 (list e))
+;     ('K a) (evl0 (list e))
+;     ('I a) (evl0 (list e))
+
+     (a b) (list (evl-fully (car e))
+                 (evl-fully (cadr e)))
+
+     x (if (or (number? x) (symbol? x)) x (err 'evl-fully e)))))
+
 (define (evl-top e)
   ;(evl-check e)
   (display "+ ")
@@ -126,10 +163,11 @@
     (display "- ")
     (lshew ce)
     (display "\n")
-    (let ((ee (evl0 (list ce))))
+    (let ((ee (evl-fully ce)))
       (display "=> ")
       (lshew ee)
       (display "\n\n")
       ee)))
 
-;(tracefun evl evl0 evl-step)
+;(tracefun evl evl0 evl-step evl-fully)
+;(tracefun ski)
