@@ -139,7 +139,7 @@
    (('+ a) b) (+ (evl a) (evl b))
    (('- a) b) (- (evl a) (evl b))
    (('* a) b) (* (evl a) (evl b))
-   (('== a) b) (if (smart= (evl a) (evl b)) 'True 'False)
+   (('== a) b) (if (smart== (evl a) (evl b)) 'True 'False)
    ((('if b) t) e) (mtch (evl b) 'True t 'False e)
    
    (a b) (evl-step (list (evl a) b))
@@ -153,7 +153,7 @@
   (if (done? e)
       e
       (let ((ee (evl-step e)))
-        (if (smart= e ee)
+        (if (smart== e ee)
             ee
             (evl ee)))))
       ;(evl (evl-step e))))

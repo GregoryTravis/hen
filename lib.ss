@@ -1003,14 +1003,14 @@
    ((null? l) 'Nil)
    (#t l)))
 
-(define (smart= a b)
+(define (smart== a b)
   (or (and (number? a) (= a b))
       (and (string? a) (string= a b))
       (equal? a b)))
 
 (define (til-same f arg)
   (let ((result (f arg)))
-    (if (smart= arg result)
+    (if (smart== arg result)
         result
         (til-same f result))))
 
