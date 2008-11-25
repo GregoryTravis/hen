@@ -1013,3 +1013,10 @@
     (if (smart= arg result)
         result
         (til-same f result))))
+
+(define (map-when f lyst pred)
+  (if (null? lyst)
+      '()
+      (let ((a (car lyst)))
+        (cons (if (pred a) (f a) a)
+              (map-when f (cdr lyst) pred)))))
