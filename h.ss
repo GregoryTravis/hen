@@ -6,10 +6,15 @@
 (define (fun? e)
   (and (pair? e) (eq? (car e) 'fun)))
 
+(define (def? e)
+  (and (pair? e) (eq? (car e) 'def)))
+
 (define (fun->def e)
   (mtch e
         ('fun (name arg) body)
-        `(def ,name (/. ,arg ,body))))
+        `(def ,name (/. ,arg ,body))
+
+        x x))
 
 (define (preprocess-def e)
   (mtch e
@@ -17,8 +22,9 @@
         `(def ,name ,(preprocess e))))
 
 (define (run-src forms)
-  (let ((defs (map preprocess-def (map fun->def (grep fun? forms))))
-        (tlfs (map preprocess (grep (fnot fun?) forms))))
+  (let* ((forms (map fun->def forms))
+         (defs (map preprocess-def (grep def? forms)))
+         (tlfs (map preprocess (grep (fnot def?) forms))))
     (map define-def defs)
     ;(dump-globals)
     (map evl-top tlfs)))
