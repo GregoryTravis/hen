@@ -1,27 +1,27 @@
 (load "lib.ss")
 
 (define (run-file filename)
-  (map
-   (lambda (e)
-     (mtch
-      e
+  (run-src (read-objects filename)))
 
-      ('fun (name . args) body)
-      (define-fun name args body)
+(define (fun? e)
+  (and (pair? e) (eq? (car e) 'fun)))
 
-      x
-      (evl-top x)))
-   (map preprocess-tlf (read-objects filename))))
+(define (fun->def e)
+  (mtch e
+        ('fun (name arg) body)
+        `(def ,name (/. ,arg ,body))))
 
-(define (preprocess-tlf e)
-  (mtch
-   e
+(define (preprocess-def e)
+  (mtch e
+        ('def name e)
+        `(def ,name ,(preprocess e))))
 
-   ('fun (name . args) body)
-   `(fun (,name . ,args)  ,(preprocess body))
-
-   x
-   (preprocess x)))
+(define (run-src forms)
+  (let ((defs (map preprocess-def (map fun->def (grep fun? forms))))
+        (tlfs (map preprocess (grep (fnot fun?) forms))))
+    (map define-def defs)
+    ;(dump-globals)
+    (map evl-top tlfs)))
 
 (define (preprocess e)
   (mtch e
@@ -31,10 +31,13 @@
         x x))
 
 (define global-env '())
-(define (define-fun name args body)
-  (assert (= (length args) 1))
-  (set! global-env
-        (cons (cons name (ski `(/. ,(car args) ,body))) global-env)))
+(define (define-def e)
+  (mtch e
+        ('def name e)
+        (set! global-env
+              (cons (cons name (ski e)) global-env))))
+(define (dump-globals)
+  (shew global-env))
 
 (define (evl-check e)
   (let* ((ce (ski e))
@@ -164,6 +167,6 @@
       (display "\n\n")
       ee)))
 
-;(tracefun evl)
+;(tracefun evl evl-step)
 ;(tracefun ski)
-;(tracefun preprocess preprocess-tlf)
+;(tracefun preprocess)
