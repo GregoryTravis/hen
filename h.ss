@@ -64,7 +64,7 @@
   (mtch
    e
 
-   ('/. (a . d) body) `(U ,(ski `(/. ,a (/. ,d ,body))))
+   ;('/. (a . d) body) `(U ,(ski `(/. ,a (/. ,d ,body))))
 
    ('/. x (/. y b)) (ski `(/. ,x ,(ski `(/. ,y ,b))))
 
@@ -115,8 +115,8 @@
 
    (('P a) b) e
 
-   (('U f) (('P x) y))
-   `((,f ,x) ,y)
+   ;(('U f) (('P x) y))
+   ;`((,f ,x) ,y)
 
    ((('S f) g) x)
    `((,f ,x) (,g ,x))
@@ -127,8 +127,8 @@
    ('I x)
    x
 
-   ('P a) e
-   ('U f) e
+   ;('P a) e
+   ;('U f) e
    (('S f) g) e
    ('S f) e
    'S e
@@ -146,6 +146,19 @@
    (('if b) t) e
    ('if b) e
    'if e
+
+   (('cons a) b) `((P ,a) ,b)
+
+   ('car (('P a) b)) a
+   ('car x) `(car ,(evl x))
+
+   ('cdr (('P a) b)) b
+   ('cdr x) `(cdr ,(evl x))
+
+   ('cons x) e
+   'cons e
+   'car e
+   'cdr e
 
    (('+ a) b) (+ (evl a) (evl b))
    (('- a) b) (- (evl a) (evl b))
