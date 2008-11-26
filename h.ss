@@ -113,6 +113,8 @@
   (mtch
    e
 
+   ('FAIL x) (err x)
+
    (('P a) b) e
 
    ;(('U f) (('P x) y))
@@ -183,7 +185,6 @@
         (if (smart== e ee)
             ee
             (evl ee)))))
-      ;(evl (evl-step e))))
 
 (define (evl-top e)
   ;(evl-check e)
@@ -207,7 +208,7 @@
 
 (define (simplify-/./. ls)
   (if (null? ls)
-      'UMM
+      '(/. x (FAIL x))
       (simplify-/. (car ls) (simplify-/./. (cdr ls)))))
 
 (define (simplify-/. e failure)
