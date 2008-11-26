@@ -148,6 +148,7 @@
    'if e
 
    ('pair? p) (let ((p (evl p))) (mtch p (('P a) b) 'True x 'False))
+   'pair? e
 
    (('cons a) b) `((P ,a) ,b)
 
