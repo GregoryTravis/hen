@@ -150,3 +150,24 @@
 - (pair? (cdr ((cons 1) 2))) 
 => False 
 
+((/.
+  a0
+  (((if (pair? a0)) ((/. a ((/. b ((+ a) b)) (cdr a0))) (car a0))) (FAIL a0)))
+ ((S
+   ((S ((S (K if)) ((S (K pair?)) I)))
+    ((S
+      ((S
+        ((S (K S))
+         ((S
+           ((S (K S))
+            ((S ((S (K S)) ((S (K K)) (K S))))
+             ((S
+               ((S (K S))
+                ((S ((S (K S)) ((S (K K)) (K S))))
+                 ((S ((S (K S)) ((S (K K)) (K K)))) ((S (K K)) (K +))))))
+              ((S ((S (K S)) ((S (K K)) (K K)))) (K I))))))
+          ((S (K K)) (K I)))))
+       ((S ((S (K S)) ((S (K K)) (K cdr)))) ((S (K K)) I))))
+     ((S (K car)) I))))
+  ((S (K FAIL)) I))
+ 3)
