@@ -203,3 +203,20 @@
 ;(tracefun evl evl-step)
 ;(tracefun ski)
 ;(tracefun preprocess)
+;(tracefun simplify-/. simplify-/./.)
+
+(define (simplify-/./. ls)
+  (if (null? ls)
+      'UMM
+      (simplify-/. (car ls) (simplify-/./. (cdr ls)))))
+
+(define (simplify-/. e failure)
+  (let ((v (sg)))
+    (mtch
+     e
+
+     ('/. ('P a b) body)
+     `(/. ,v (((if (pair? ,v)) ((/. a ((/. b ,body) (cdr ,v))) (car ,v))) (,failure ,v)))
+
+     ('/. a body)
+     (if (symbol? a) e (err 'simplify-/. e)))))

@@ -2,6 +2,13 @@
 
 (run-file "test-input.ss")
 
+(shew
+ (let ((a (simplify-/. '(/. (P a b) ((+ a) b)) 'FAIL)))
+   (list
+    a
+    (ski a)
+    (evl (ski `(,a ((cons 1) 2)))))))
+
 (map evl-check
      '(;a
        ((/. r r) 1)
