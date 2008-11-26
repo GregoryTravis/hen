@@ -114,3 +114,39 @@
 - (cdr ((cons 1) 2)) 
 => 2 
 
++ ((cons 1) 2) 
+- ((cons 1) 2) 
+=> ((P 1) 2) 
+
++ (car ((cons 1) 2)) 
+- (car ((cons 1) 2)) 
+=> 1 
+
++ (cdr ((cons 1) 2)) 
+- (cdr ((cons 1) 2)) 
+=> 2 
+
++ (pair? ((cons 1) 2)) 
+- (pair? ((cons 1) 2)) 
+=> True 
+
++ (pair? (car ((cons 1) 2))) 
+- (pair? (car ((cons 1) 2))) 
+=> False 
+
++ (pair? (cdr ((cons 1) 2))) 
+- (pair? (cdr ((cons 1) 2))) 
+=> False 
+
++ (pair? ((cons 1) 2)) 
+- (pair? ((cons 1) 2)) 
+=> True 
+
++ (pair? (car ((cons 1) 2))) 
+- (pair? (car ((cons 1) 2))) 
+=> False 
+
++ (pair? (cdr ((cons 1) 2))) 
+- (pair? (cdr ((cons 1) 2))) 
+=> False 
+

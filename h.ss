@@ -147,6 +147,8 @@
    ('if b) e
    'if e
 
+   ('pair? p) (let ((p (evl p))) (mtch p (('P a) b) 'True x 'False))
+
    (('cons a) b) `((P ,a) ,b)
 
    ('car (('P a) b)) a
