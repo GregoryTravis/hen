@@ -9,6 +9,13 @@
     (ski a)
     (evl (ski `(,a ((cons 1) 2)))))))
 
+(shew 
+ (let ((a
+        (simplify-/./.
+         '((/. (P a b) ((+ a) b))
+           (/. x 100)))))
+   (list a (ski a) (evl (ski `(,a ((cons 1) 2)))) (evl (ski `(,a 40))))))
+
 (map evl-check
      '(;a
        ((/. r r) 1)

@@ -1,3 +1,47 @@
+((/.
+  a0
+  (((if (pair? a0)) ((/. a ((/. b ((+ a) b)) (cdr a0))) (car a0))) (FAIL a0)))
+ ((S
+   ((S ((S (K if)) ((S (K pair?)) I)))
+    ((S
+      ((S
+        ((S (K S))
+         ((S
+           ((S (K S))
+            ((S ((S (K S)) ((S (K K)) (K S))))
+             ((S
+               ((S (K S))
+                ((S ((S (K S)) ((S (K K)) (K S))))
+                 ((S ((S (K S)) ((S (K K)) (K K)))) ((S (K K)) (K +))))))
+              ((S ((S (K S)) ((S (K K)) (K K)))) (K I))))))
+          ((S (K K)) (K I)))))
+       ((S ((S (K S)) ((S (K K)) (K cdr)))) ((S (K K)) I))))
+     ((S (K car)) I))))
+  ((S (K FAIL)) I))
+ 3)
+((/.
+  a2
+  (((if (pair? a2)) ((/. a ((/. b ((+ a) b)) (cdr a2))) (car a2)))
+   ((/. x 100) a2)))
+ ((S
+   ((S ((S (K if)) ((S (K pair?)) I)))
+    ((S
+      ((S
+        ((S (K S))
+         ((S
+           ((S (K S))
+            ((S ((S (K S)) ((S (K K)) (K S))))
+             ((S
+               ((S (K S))
+                ((S ((S (K S)) ((S (K K)) (K S))))
+                 ((S ((S (K S)) ((S (K K)) (K K)))) ((S (K K)) (K +))))))
+              ((S ((S (K S)) ((S (K K)) (K K)))) (K I))))))
+          ((S (K K)) (K I)))))
+       ((S ((S (K S)) ((S (K K)) (K cdr)))) ((S (K K)) I))))
+     ((S (K car)) I))))
+  ((S ((S (K K)) (K 100))) I))
+ 3
+ 100)
 + ((/. x x) 1) 
 - (I 1) 
 => 1 
@@ -151,8 +195,8 @@
 => False 
 
 ((/.
-  a0
-  (((if (pair? a0)) ((/. a ((/. b ((+ a) b)) (cdr a0))) (car a0))) (FAIL a0)))
+  a3
+  (((if (pair? a3)) ((/. a ((/. b ((+ a) b)) (cdr a3))) (car a3))) (FAIL a3)))
  ((S
    ((S ((S (K if)) ((S (K pair?)) I)))
     ((S
@@ -171,3 +215,26 @@
      ((S (K car)) I))))
   ((S (K FAIL)) I))
  3)
+((/.
+  a5
+  (((if (pair? a5)) ((/. a ((/. b ((+ a) b)) (cdr a5))) (car a5)))
+   ((/. x 100) a5)))
+ ((S
+   ((S ((S (K if)) ((S (K pair?)) I)))
+    ((S
+      ((S
+        ((S (K S))
+         ((S
+           ((S (K S))
+            ((S ((S (K S)) ((S (K K)) (K S))))
+             ((S
+               ((S (K S))
+                ((S ((S (K S)) ((S (K K)) (K S))))
+                 ((S ((S (K S)) ((S (K K)) (K K)))) ((S (K K)) (K +))))))
+              ((S ((S (K S)) ((S (K K)) (K K)))) (K I))))))
+          ((S (K K)) (K I)))))
+       ((S ((S (K S)) ((S (K K)) (K cdr)))) ((S (K K)) I))))
+     ((S (K car)) I))))
+  ((S ((S (K K)) (K 100))) I))
+ 3
+ 100)
