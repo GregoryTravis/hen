@@ -31,6 +31,7 @@
 
 (define (preprocess e)
   (mtch e
+        ('/./. . lams) (process-/./. lams)
         ('/. args body) `(/. ,args ,(preprocess body))
         (a b c . rest) (preprocess `((,a ,b) ,c . ,rest))
         (a b) (list (preprocess a) (preprocess b))
@@ -206,10 +207,14 @@
 ;(tracefun preprocess)
 ;(tracefun simplify-/. simplify-/./.)
 
-(define (simplify-/./. ls)
+(define (process-/./. lams)
+  (let ((failure-code `(/. x (FAIL x))))
+    (simplify-/./. lams failure-code)))
+
+(define (simplify-/./. ls failure)
   (if (null? ls)
-      '(/. x (FAIL x))
-      (simplify-/. (car ls) (simplify-/./. (cdr ls)))))
+      failure
+      (simplify-/. (car ls) (simplify-/./. (cdr ls) failure))))
 
 (define (simplify-/. e failure)
   (let ((v (sg)))

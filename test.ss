@@ -11,7 +11,7 @@
 
 (shew 
  (let ((a
-        (simplify-/./.
+        (process-/./.
          '((/. (P a b) ((+ a) b))
            (/. x 100)))))
    (list a (ski a) (evl (ski `(,a ((cons 1) 2)))) (evl (ski `(,a 40))))))
