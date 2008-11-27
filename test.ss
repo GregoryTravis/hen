@@ -1,7 +1,5 @@
 (load "h.ss")
 
-(run-file "test-input.ss")
-
 (shew
  (let ((a (simplify-/. '(/. (P a b) ((+ a) b)) 'FAIL)))
    (list
@@ -26,3 +24,5 @@
 ;       (((if True) 1) 2)
 ;       (((if False) 1) 2)
        ))
+
+(run-file "test-input.ss")

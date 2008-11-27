@@ -61,6 +61,26 @@
 ;;     (shew ceev)
     (assert (equal? cev ceev) e ce ee cee cev ceev)))
 
+(define (process-/./. lams)
+  (let ((failure-code `(/. x (FAIL x))))
+    (simplify-/./. lams failure-code)))
+
+(define (simplify-/./. ls failure)
+  (if (null? ls)
+      failure
+      (simplify-/. (car ls) (simplify-/./. (cdr ls) failure))))
+
+(define (simplify-/. e failure)
+  (let ((v (sg)))
+    (mtch
+     e
+
+     ('/. ('P a b) body)
+     `(/. ,v (((if (pair? ,v)) ((/. ,a ((/. ,b ,body) (cdr ,v))) (car ,v))) (,failure ,v)))
+
+     ('/. a body)
+     (if (symbol? a) e (err 'simplify-/. e)))))
+
 (define (ski e)
   (mtch
    e
@@ -75,7 +95,7 @@
 
    (a b) (list (ski a) (ski b))
 
-   (a . b) `((P ,(ski a)) ,(ski b))
+   ;(a . b) `((P ,(ski a)) ,(ski b))
 
    x (if (or (symbol? x) (number? x) (string? x)) x (err 'ski e))
 
@@ -114,7 +134,7 @@
   (mtch
    e
 
-   ('FAIL x) (err x)
+   ('FAIL x) (err 'evl-step-FAIL e)
 
    (('P a) b) e
 
@@ -150,7 +170,7 @@
    ('if b) e
    'if e
 
-   ('pair? p) (let ((p (evl p))) (mtch p (('P a) b) 'True x 'False))
+   ('pair? p) (let ((p (evl-fully p))) (mtch p (('P a) b) 'True x 'False))
    'pair? e
 
    (('cons a) b) `((P ,a) ,b)
@@ -187,6 +207,12 @@
             ee
             (evl ee)))))
 
+(define (evl-fully e)
+  (let ((e (evl e)))
+    (mtch e
+          (('P a) b) `((P ,(evl-fully a)) ,(evl-fully b))
+          x x)))
+
 (define (evl-top e)
   ;(evl-check e)
   (display "+ ")
@@ -196,33 +222,14 @@
     (display "- ")
     (lshew ce)
     (display "\n")
-    (let ((ee (evl ce)))
+    (let ((ee (evl-fully ce)))
       (display "=> ")
       (lshew ee)
       (display "\n\n")
       ee)))
 
-;(tracefun evl evl-step)
+;(tracefun evl evl-step evl-fully)
 ;(tracefun ski)
 ;(tracefun preprocess)
 ;(tracefun simplify-/. simplify-/./.)
-
-(define (process-/./. lams)
-  (let ((failure-code `(/. x (FAIL x))))
-    (simplify-/./. lams failure-code)))
-
-(define (simplify-/./. ls failure)
-  (if (null? ls)
-      failure
-      (simplify-/. (car ls) (simplify-/./. (cdr ls) failure))))
-
-(define (simplify-/. e failure)
-  (let ((v (sg)))
-    (mtch
-     e
-
-     ('/. ('P a b) body)
-     `(/. ,v (((if (pair? ,v)) ((/. a ((/. b ,body) (cdr ,v))) (car ,v))) (,failure ,v)))
-
-     ('/. a body)
-     (if (symbol? a) e (err 'simplify-/. e)))))
+;(tracefun process-/./.)
