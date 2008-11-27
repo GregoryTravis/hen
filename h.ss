@@ -1,7 +1,9 @@
 (load "lib.ss")
 
 (define (run-file filename)
-  (run-src (read-objects filename)))
+  (run-src (append
+            (read-objects "overture.ss")
+            (read-objects filename))))
 
 (define (fun? e)
   (and (pair? e) (eq? (car e) 'fun)))
