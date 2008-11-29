@@ -34,7 +34,7 @@
 (define (preprocess e)
   (mtch e
         ('/./. . lams) (process-/./. lams)
-        ('/. args body) `(/. ,args ,(preprocess body))
+        ('/. args body) (preprocess`(/./. (/. ,args ,(preprocess body))))
         (a b c . rest) (preprocess `((,a ,b) ,c . ,rest))
         (a b) (list (preprocess a) (preprocess b))
         x x))

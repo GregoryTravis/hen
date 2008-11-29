@@ -206,3 +206,7 @@
 - ((map double) ((P 1) ((P 2) ((P 3) Nil)))) 
 => ((P 2) ((P 4) ((P 6) Nil))) 
 
++ ((/. a47 (((if (pair? a47)) ((/. a ((/. b a) (cdr a47))) (car a47))) ((/. x (FAIL x)) a47))) ((P 1) 2)) 
+- (((S ((S ((S (K if)) ((S (K pair?)) I))) ((S ((S ((S (K S)) ((S ((S (K S)) ((S (K K)) (K K)))) (K I)))) ((S ((S (K S)) ((S (K K)) (K cdr)))) ((S (K K)) I)))) ((S (K car)) I)))) ((S ((S ((S (K S)) ((S (K K)) (K FAIL)))) (K I))) I)) ((P 1) 2)) 
+=> 1 
+

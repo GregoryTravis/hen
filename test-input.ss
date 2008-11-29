@@ -63,3 +63,5 @@
 (double 10)
 
 (map double (P 1 (P 2 (P 3 Nil))))
+
+((/. (P a b) a) ((P 1) 2))
