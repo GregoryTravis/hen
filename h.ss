@@ -78,7 +78,9 @@
      e
 
      ('/. ('P a b) body)
-     `(/. ,v (((if (pair? ,v)) ((/. ,a ((/. ,b ,body) (cdr ,v))) (car ,v))) (,failure ,v)))
+     (let* ((blam (simplify-/. `(/. ,b ,body) failure))
+            (alam (simplify-/. `(/. ,a (,blam (cdr ,v))) failure)))
+       `(/. ,v (((if (pair? ,v)) (,alam (car ,v))) (,failure ,v))))
 
      ('/. a body)
      (if (symbol? a) e (err 'simplify-/. e)))))

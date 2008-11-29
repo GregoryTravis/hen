@@ -65,3 +65,10 @@
 (map double (P 1 (P 2 (P 3 Nil))))
 
 ((/. (P a b) a) ((P 1) 2))
+
+(def voo
+     (/./.
+      (/. (P a (P b c)) ((+ b) c))
+      (/. (P a b) b)))
+
+(voo ((P 1) ((P 2) 3)))
