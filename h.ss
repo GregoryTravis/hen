@@ -34,9 +34,9 @@
 (define (preprocess e)
   (mtch e
         ('/./. . lams) (process-/./. lams)
-        ('/. args body) (process-/./. (list e))
-        (a b c . rest) (preprocess `((,a ,b) ,c . ,rest))
+        ('/. args body) (preprocess `(/./. ,e))
         (a b) (list (preprocess a) (preprocess b))
+        (a b c . rest) (err 'preprocess e)
         x x))
 
 (define global-env '())

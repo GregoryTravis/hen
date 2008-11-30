@@ -20,11 +20,8 @@
 (fun (tuct x) x)
 (tuct 10)
 ((+ 20) (tuct 10))
-(+ 20 (tuct 10))
 ((- 40) 15)
-(- 40 15)
 ((* 10) 20)
-(* 10 20)
 
 (fun (fact1 n) (((if ((== n) 0)) 1) ((* n) (fact1 ((- n) 1)))))
 (fact1 10)
@@ -37,15 +34,9 @@
 (((if ((== 3) 0)) ((* 10) 20)) ((* 30) 40))
 ((/. n (((if ((== n) 0)) 1) ((* n) ((- n) 1)))) 3)
 
-(cons 1 2)
-(car (cons 1 2))
-(cdr (cons 1 2))
 ((cons 1) 2)
 (car ((cons 1) 2))
 (cdr ((cons 1) 2))
-(pair? (cons 1 2))
-(pair? (car (cons 1 2)))
-(pair? (cdr (cons 1 2)))
 (pair? ((cons 1) 2))
 (pair? (car ((cons 1) 2)))
 (pair? (cdr ((cons 1) 2)))
@@ -54,12 +45,12 @@
   (/./.
    (/. ((P a) d) ((cons a) (ones d)))
    (/. x x)))
-(ones (P 1 (P 2 (P 3 Nil))))
+(ones ((P 1) ((P 2) ((P 3) Nil))))
 
 (def double (/. x (+ x x)))
 (double 10)
 
-(map double (P 1 (P 2 (P 3 Nil))))
+((map double) ((P 1) ((P 2) ((P 3) Nil))))
 
 ((/. ((P a) b) a) ((P 1) 2))
 
