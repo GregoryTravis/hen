@@ -116,13 +116,13 @@
 
 + (double 10) 
 - (double 10) 
-=> I 
+=> 20 
 
 + ((map double) ((P 1) ((P 2) ((P 3) Nil)))) 
 - ((map double) ((P 1) ((P 2) ((P 3) Nil)))) 
-=> I 
+=> ((P 2) ((P 4) ((P 6) Nil))) 
 
-+ ((/. a25 (((if (pair? a25)) (((/. a (/. b a)) (car a25)) (cdr a25))) ((/. x FAIL) a25))) ((P 1) 2)) 
++ ((/. a40 (((if (pair? a40)) (((/. a (/. b a)) (car a40)) (cdr a40))) ((/. x FAIL) a40))) ((P 1) 2)) 
 - (((S ((S ((S (K if)) ((S (K pair?)) I))) ((S ((S ((S ((S (K S)) ((S (K K)) (K K)))) (K I))) ((S (K car)) I))) ((S (K cdr)) I)))) ((S ((S (K K)) (K FAIL))) I)) ((P 1) 2)) 
 => 1 
 
@@ -138,19 +138,19 @@
 - (I 1) 
 => 1 
 
-+ ((/. a30 (((if (pair? a30)) (((/. a (/. b 1)) (car a30)) (cdr a30))) ((/. x FAIL) a30))) ((P 10) 20)) 
++ ((/. a46 (((if (pair? a46)) (((/. a (/. b 1)) (car a46)) (cdr a46))) ((/. x FAIL) a46))) ((P 10) 20)) 
 - (((S ((S ((S (K if)) ((S (K pair?)) I))) ((S ((S ((S ((S (K S)) ((S (K K)) (K K)))) ((S (K K)) (K 1)))) ((S (K car)) I))) ((S (K cdr)) I)))) ((S ((S (K K)) (K FAIL))) I)) ((P 10) 20)) 
 => 1 
 
-+ ((/. a33 (((if (pair? a33)) (((/. a (/. b a)) (car a33)) (cdr a33))) ((/. x FAIL) a33))) ((P 10) 20)) 
++ ((/. a50 (((if (pair? a50)) (((/. a (/. b a)) (car a50)) (cdr a50))) ((/. x FAIL) a50))) ((P 10) 20)) 
 - (((S ((S ((S (K if)) ((S (K pair?)) I))) ((S ((S ((S ((S (K S)) ((S (K K)) (K K)))) (K I))) ((S (K car)) I))) ((S (K cdr)) I)))) ((S ((S (K K)) (K FAIL))) I)) ((P 10) 20)) 
 => 10 
 
-+ ((/. a36 (((if (pair? a36)) (((/. a (/. b b)) (car a36)) (cdr a36))) ((/. x FAIL) a36))) ((P 10) 20)) 
++ ((/. a54 (((if (pair? a54)) (((/. a (/. b b)) (car a54)) (cdr a54))) ((/. x FAIL) a54))) ((P 10) 20)) 
 - (((S ((S ((S (K if)) ((S (K pair?)) I))) ((S ((S ((S (K K)) (K I))) ((S (K car)) I))) ((S (K cdr)) I)))) ((S ((S (K K)) (K FAIL))) I)) ((P 10) 20)) 
 => 20 
 
-+ ((/. a39 (((if (pair? a39)) (((/. a (/. b ((+ a) b))) (car a39)) (cdr a39))) ((/. x FAIL) a39))) ((P 10) 20)) 
++ ((/. a58 (((if (pair? a58)) (((/. a (/. b ((+ a) b))) (car a58)) (cdr a58))) ((/. x FAIL) a58))) ((P 10) 20)) 
 - (((S ((S ((S (K if)) ((S (K pair?)) I))) ((S ((S ((S ((S (K S)) ((S ((S (K S)) ((S (K K)) (K S)))) ((S ((S (K S)) ((S ((S (K S)) ((S (K K)) (K S)))) ((S ((S (K S)) ((S (K K)) (K K)))) ((S (K K)) (K +)))))) ((S ((S (K S)) ((S (K K)) (K K)))) (K I)))))) ((S (K K)) (K I)))) ((S (K car)) I))) ((S (K cdr)) I)))) ((S ((S (K K)) (K FAIL))) I)) ((P 10) 20)) 
 => 30 
 

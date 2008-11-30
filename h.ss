@@ -36,7 +36,7 @@
         ('/./. . lams) (process-/./. lams)
         ('/. args body) (preprocess `(/./. ,e))
         (a b) (list (preprocess a) (preprocess b))
-        (a b c . rest) (err 'preprocess e)
+        (a b c . rest) (err 'preprocess-list-3 e)
         x x))
 
 (define global-env '())
@@ -74,11 +74,11 @@
 
      ('/. x body)
      (cond
-      ((symbol? x) lam)
+      ((symbol? x) `(/. ,x ,(preprocess body)))
       ((or (number? x)
            (string? x)
            (symbol? x))
-       `(/. ,v (((if (== ,v x)) ,body) (/. x FAIL))))
+       `(/. ,v (((if (== ,v x)) ,(preprocess body)) (/. x FAIL))))
       (#t (err lam))))))
 
 (define (ski e)
@@ -231,4 +231,3 @@
 ;(tracefun evl evl-step evl-fully)
 ;(tracefun ski)
 ;(tracefun preprocess process-/./. process-/.)
-;(tracefun preprocess-def)
