@@ -29,9 +29,6 @@
 (fun (fact1 n) (((if ((== n) 0)) 1) ((* n) (fact1 ((- n) 1)))))
 (fact1 10)
 
-(fun (fact2 n) (if (== n 0) 1 (* n (fact2 (- n 1)))))
-(fact2 10)
-
 (((if ((== 0) 3)) True) False)
 (((if ((== 0) 0)) True) False)
 ((/. n (((if ((== n) 3)) True) False)) 3)
@@ -55,7 +52,7 @@
 
 (def ones
   (/./.
-   (/. (P a d) ((cons a) (ones d)))
+   (/. ((P a) d) ((cons a) (ones d)))
    (/. x x)))
 (ones (P 1 (P 2 (P 3 Nil))))
 
@@ -64,11 +61,18 @@
 
 (map double (P 1 (P 2 (P 3 Nil))))
 
-((/. (P a b) a) ((P 1) 2))
+((/. ((P a) b) a) ((P 1) 2))
 
 (def voo
      (/./.
-      (/. (P a (P b c)) ((+ b) c))
-      (/. (P a b) b)))
+      (/. ((P a) ((P b) c)) ((+ b) c))
+      (/. ((P a) b) b)))
 
 (voo ((P 1) ((P 2) 3)))
+
+(/. x x)
+((/. x x) 1)
+((/. ((P a) b) 1) ((P 10) 20))
+((/. ((P a) b) a) ((P 10) 20))
+((/. ((P a) b) b) ((P 10) 20))
+((/. ((P a) b) ((+ a) b)) ((P 10) 20))

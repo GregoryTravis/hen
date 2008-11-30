@@ -34,7 +34,7 @@
 (define (preprocess e)
   (mtch e
         ('/./. . lams) (process-/./. lams)
-        ('/. args body) (preprocess`(/./. (/. ,args ,(preprocess body))))
+        ('/. args body) (process-/./. (list e))
         (a b c . rest) (preprocess `((,a ,b) ,c . ,rest))
         (a b) (list (preprocess a) (preprocess b))
         x x))
@@ -54,36 +54,32 @@
          (cee (ski ee))
          (cev (evl ce))
          (ceev (evl cee)))
-;;     (shew '---)
-;;     (shew e)
-;;     (shew ce)
-;;     (shew ee)
-;;     (shew cee)
-;;     (shew cev)
-;;     (shew ceev)
+    ;; (begin (shew '---) (shew e) (shew ce) (shew ee) (shew cee) (shew cev) (shew ceev))
     (assert (equal? cev ceev) e ce ee cee cev ceev)))
 
 (define (process-/./. lams)
-  (let ((failure-code `(/. x (FAIL x))))
-    (simplify-/./. lams failure-code)))
+  (if (null? lams)
+      `(/. x FAIL)
+      (process-/. (car lams) (process-/./. (cdr lams)))))
 
-(define (simplify-/./. ls failure)
-  (if (null? ls)
-      failure
-      (simplify-/. (car ls) (simplify-/./. (cdr ls) failure))))
-
-(define (simplify-/. e failure)
+(define (process-/. lam failure)
   (let ((v (sg)))
     (mtch
-     e
+     lam
 
-     ('/. ('P a b) body)
-     (let* ((blam (simplify-/. `(/. ,b ,body) failure))
-            (alam (simplify-/. `(/. ,a (,blam (cdr ,v))) failure)))
-       `(/. ,v (((if (pair? ,v)) (,alam (car ,v))) (,failure ,v))))
+     ('/. (('P a) b) body)
+     (let* ((blam (process-/. `(/. ,b ,(preprocess body)) failure))
+            (alam (process-/. `(/. ,a ,blam) failure)))
+       `(/. ,v (((if (pair? ,v)) ((,alam (car ,v)) (cdr ,v))) (,failure ,v))))
 
-     ('/. a body)
-     (if (symbol? a) e (err 'simplify-/. e)))))
+     ('/. x body)
+     (cond
+      ((symbol? x) lam)
+      ((or (number? x)
+           (string? x)
+           (symbol? x))
+       `(/. ,v (((if (== ,v x)) ,body) (/. x FAIL))))
+      (#t (err lam))))))
 
 (define (ski e)
   (mtch
@@ -234,6 +230,5 @@
 
 ;(tracefun evl evl-step evl-fully)
 ;(tracefun ski)
-;(tracefun preprocess)
-;(tracefun simplify-/. simplify-/./.)
-;(tracefun process-/./.)
+;(tracefun preprocess process-/./. process-/.)
+;(tracefun preprocess-def)
