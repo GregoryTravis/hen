@@ -1020,3 +1020,10 @@
       (let ((a (car lyst)))
         (cons (if (pred a) (f a) a)
               (map-when f (cdr lyst) pred)))))
+
+(define (stump e n)
+  (cond
+   ((= n 0) '...)
+   ((pair? e) (cons (stump (car e) (- n 1))
+                    (stump (cdr e) (- n 1))))
+   (#t e)))
