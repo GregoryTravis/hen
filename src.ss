@@ -1,11 +1,11 @@
-;; (def map2
-;;      (/./.
-;;       (/. ((P f) ((P a) b)) ((cons (f a)) (map2 ((P f) b))))
-;;       (/. ((P f) x) x)))
-
-;; (def double (/. x (+ x x)))
-
-;; ((map2 double) ((P 1) ((P 2) ((P 3) Nil))))
-
+(def voo
+     (/./.
+      (/. ((P f) ((P a) b)) ((cons 20) (voo ((P f) b))))
+      (/. ((P f) x) x)))
 (def double (/. x ((+ x) x)))
-(double 10)
+
+(voo ((P double) ((P 1) Nil)))
+;(voo ((P double) Nil))
+
+((/. ((P f) ((P a) b)) b) ((P 1000) ((P 1) 2)))
+((/. ((P a) b) a) ((P 1) 2))

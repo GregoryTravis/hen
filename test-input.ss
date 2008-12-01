@@ -67,3 +67,15 @@
 ((/. ((P a) b) a) ((P 10) 20))
 ((/. ((P a) b) b) ((P 10) 20))
 ((/. ((P a) b) ((+ a) b)) ((P 10) 20))
+
+(def voo2
+     (/./.
+      (/. ((P f) ((P a) b)) ((cons 20) (voo2 ((P f) b))))
+      (/. ((P f) x) x)))
+(def double (/. x ((+ x) x)))
+
+(voo2 ((P double) ((P 1) Nil)))
+(voo2 ((P double) Nil))
+
+((/. ((P f) ((P a) b)) b) ((P 1000) ((P 1) 2)))
+((/. ((P a) b) a) ((P 1) 2))

@@ -44,7 +44,7 @@
   (mtch e
         ('def name e)
         (set! global-env
-              (cons (cons name (ski e)) global-env))))
+              (cons (cons name (sski e)) global-env))))
 (define (dump-globals)
   (shew global-env))
 
@@ -58,9 +58,12 @@
     (assert (equal? cev ceev) e ce ee cee cev ceev)))
 
 (define (process-/./. lams)
-  (if (null? lams)
-      `(/. x FAIL)
-      (process-/. (car lams) (process-/./. (cdr lams)))))
+  (let ((v (sg)))
+    (if (null? lams)
+        `(/. x FAIL)
+        `(/. ,v (,(process-/. (car lams)
+                              `(,(process-/./. (cdr lams)) ,v))
+                 ,v)))))
 
 (define (process-/. lam failure)
   (let ((v (sg)))
@@ -70,7 +73,7 @@
      ('/. (('P a) b) body)
      (let* ((blam (process-/. `(/. ,b ,(preprocess body)) failure))
             (alam (process-/. `(/. ,a ,blam) failure)))
-       `(/. ,v (((if (pair? ,v)) ((,alam (car ,v)) (cdr ,v))) (,failure ,v))))
+       `(/. ,v (((if (pair? ,v)) ((,alam (car ,v)) (cdr ,v))) ,failure)))
 
      ('/. x body)
      (cond
@@ -87,13 +90,13 @@
 
    ;('/. (a . d) body) `(U ,(ski `(/. ,a (/. ,d ,body))))
 
-   ('/. x (/. y b)) (ski `(/. ,x ,(ski `(/. ,y ,b))))
+   ('/. x (/. y b)) (ski `(/. ,x ,(sski `(/. ,y ,b))))
 
-   ('/. x (a b)) `((S ,(ski `(/. ,x ,a))) ,(ski `(/. ,x ,b)))
+   ('/. x (a b)) (simplify-ski `((S ,(ski `(/. ,x ,a))) ,(ski `(/. ,x ,b))))
 
    ('/. x y) (if (eq? x y) `I `(K ,y))
 
-   (a b) (list (ski a) (ski b))
+   (a b) (simplify-ski (list (ski a) (ski b)))
 
    ;(a . b) `((P ,(ski a)) ,(ski b))
 
@@ -150,7 +153,7 @@
    ('I x)
    x
 
-   ;('P a) e
+   ('P a) e
    ;('U f) e
    (('S f) g) e
    ('S f) e
@@ -222,25 +225,19 @@
 
 (define (evl-top e)
   ;(evl-check e)
-  (display "+ ")
-  (lshew e)
-  (display "\n")
-  (let ((ce (ski e)))
-    (display "- ")
-    (lshew ce)
-    (display "\n")
+  (display "+ ") (lshew e) (display "\n")
+  (let ((ce (sski e)))
+    (display "- ") (lshew ce) (display "\n")
     (let ((ee (evl-fully ce)))
-      (display "=> ")
-      (lshew ee)
-      (display "\n\n")
+      (display "=> ") (lshew ee) (display "\n\n")
       ee)))
 
 (define (simplify-ski-step e)
   (mtch
    e
 
-   (('S ('K a)) ('K b)) `(,a ,b)
-
+   (('S ('K 'I)) joe) joe
+   (('S ('K a)) ('K b)) `(K (,a ,b))
    (('S ('S 'K)) blah) blah
 
 ;;    ;(('S 'K) a) 'I
@@ -264,11 +261,7 @@
         ee
         (simplify-ski ee))))
 
-(define (simplify-ski-top e)
-  (let ((ee (simplify-ski e)))
-    (let ((es (tree-size e))
-          (ees (tree-size ee)))
-      ee)))
+(define (sski e) (simplify-ski (ski e)))
 
 ;(tracefun evl evl-step evl-fully)
 ;(tracefun ski)
