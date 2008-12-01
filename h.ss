@@ -1,5 +1,7 @@
 (load "lib.ss")
 
+(define eval-steps 0)
+
 (define (run-file filename)
   (run-src (append
             (read-objects "overture.ss")
@@ -24,12 +26,15 @@
         `(def ,name ,(preprocess e))))
 
 (define (run-src forms)
+  ;(set! eval-steps 0)
   (let* ((forms (map fun->def forms))
          (defs (map preprocess-def (grep def? forms)))
          (tlfs (map preprocess (grep (fnot def?) forms))))
     (map define-def defs)
     ;(dump-globals)
-    (map evl-top tlfs)))
+    (map evl-top tlfs)
+    ;(shew (list 'steps eval-steps))
+    ))
 
 (define (preprocess e)
   (mtch e
@@ -134,6 +139,7 @@
   (or (number? e) (ctor? e)))
 
 (define (evl-step e)
+  (set! eval-steps (1+ eval-steps))
   (mtch
    e
 
