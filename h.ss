@@ -186,6 +186,13 @@
    'car e
    'cdr e
 
+   ('dbg v)
+   (begin
+     (shew (list 'DBG v))
+     v)
+
+   'dbg e
+
    (('+ a) b) (+ (evl a) (evl b))
    (('- a) b) (- (evl a) (evl b))
    (('* a) b) (* (evl a) (evl b))
@@ -226,6 +233,41 @@
       (display "=> ")
       (lshew ee)
       (display "\n\n")
+      ee)))
+
+(define (simplify-ski-step e)
+  (mtch
+   e
+
+   (('S ('K a)) ('K b)) `(,a ,b)
+
+   (('S ('S 'K)) blah) blah
+
+;;    ;(('S 'K) a) 'I
+;;    ;('I 'I) 'I
+;;    ;(S (S S) (K K))) 'K
+
+;;    ;(((a b) c) d) `((,(simplify-ski `(,a ,b)) ,c)  ,d)
+
+    (a b) (list (simplify-ski a) (simplify-ski b))
+
+   'S e
+   'K e
+   'I e
+
+   x x
+))
+
+(define (simplify-ski e)
+  (let ((ee (simplify-ski-step e)))
+    (if (equal? e ee)
+        ee
+        (simplify-ski ee))))
+
+(define (simplify-ski-top e)
+  (let ((ee (simplify-ski e)))
+    (let ((es (tree-size e))
+          (ees (tree-size ee)))
       ee)))
 
 ;(tracefun evl evl-step evl-fully)
