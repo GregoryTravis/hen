@@ -1027,3 +1027,8 @@
    ((pair? e) (cons (stump (car e) (- n 1))
                     (stump (cdr e) (- n 1))))
    (#t e)))
+
+(define (tree-size a)
+  (if (pair? a)
+      (+ (tree-size (car a)) (tree-size (cdr a)))
+      1))
