@@ -29,6 +29,7 @@
   ;(set! eval-steps 0)
   (let* ((forms (map fun->def forms))
          (defs (map preprocess-def (grep def? forms)))
+         ;(defs (map doobie defs))
          (tlfs (map preprocess (grep (fnot def?) forms))))
     (map define-def defs)
     ;(dump-globals)
@@ -268,6 +269,37 @@
         (simplify-ski ee))))
 
 (define (sski e) (simplify-ski (ski e)))
+
+;; (define (doobie def)
+;;   (mtch
+;;    def
+;;    ('def name val) `(def ,name ,(doobie-exp val))))
+
+;; (define (doobie-arglist args)
+;;   (if (pair? args)
+;;       `((P ,(car args)) ,(doobie-arglist (cdr args)))
+;;       args))
+
+;; (define (doobie-exp e)
+;;   (mtch
+;;    e
+
+;;    ('/. args body) `(/. ,(doobie-arglist args) ,(doobie-exp body))
+
+;;    ;(a b) (list (doobie-exp a) (doobie-exp b))
+;;    (f . args) `(,(doobie-exp f) ,(doobie-arglist args))
+
+;;    x (if (or (symbol? x) (number? x) (string? x)) x (err 'ski e))))
+
+;; ;(shew (doobie-exp '(/. (x . joe) x)))
+;; ;(shew (doobie-exp '(/. (x y z . q) x)))
+;; ;(shew (doobie-exp '(f . 1)))
+;; ;(shew (doobie-exp '(f 1 . 2)))
+;; ;(shew (doobie-exp '(f 1 2 . 3)))
+
+;; (shew (doobie-exp '(/. (a b . c) (+ a c))))
+;; (shew (doobie-exp '(ulp 1 2 . 3)))
+;; (shew (doobie-exp '((/. (a b . c) ((+ a) c)) 1 2 . 3)))
 
 ;(tracefun evl evl-step evl-fully)
 ;(tracefun ski)
