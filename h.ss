@@ -85,8 +85,9 @@
      (cond
       ((symbol? x) `(/. ,x ,(preprocess body)))
       ((or (number? x)
-           (string? x)
-           (symbol? x))
+           (string? x))
+       `(/. ,v (((if ((== ,v) ,x)) ,(preprocess body)) ,failure)))
+      ((quoted-symbol? x)
        `(/. ,v (((if ((== ,v) ,x)) ,(preprocess body)) ,failure)))
       (#t (err lam))))))
 
@@ -139,6 +140,11 @@
 (define (done? e)
   (or (number? e) (ctor? e)))
 
+(define (prim== a b)
+  (mtch (list a b)
+        (('quote a) ('quote b)) (eq? a b)
+        x (smart== a b)))
+
 (define (evl-step e)
   (set! eval-steps (1+ eval-steps))
   (mtch
@@ -147,6 +153,7 @@
    ('FAIL x) (err 'evl-step-FAIL e)
 
    (('P a) b) e
+   ('quote s) e
 
    ;(('U f) (('P x) y))
    ;`((,f ,x) ,y)
@@ -206,7 +213,7 @@
    (('+ a) b) (+ (evl a) (evl b))
    (('- a) b) (- (evl a) (evl b))
    (('* a) b) (* (evl a) (evl b))
-   (('== a) b) (if (smart== (evl a) (evl b)) 'True 'False)
+   (('== a) b) (if (prim== (evl a) (evl b)) 'True 'False)
    ((('if b) t) e) (mtch (evl b) 'True t 'False e)
    
    (a b) (evl-step (list (evl a) b))
