@@ -87,7 +87,7 @@
       ((or (number? x)
            (string? x)
            (symbol? x))
-       `(/. ,v (((if (== ,v x)) ,(preprocess body)) (/. x FAIL))))
+       `(/. ,v (((if ((== ,v) ,x)) ,(preprocess body)) ,failure)))
       (#t (err lam))))))
 
 (define (ski e)
