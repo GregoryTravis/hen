@@ -1032,3 +1032,6 @@
   (if (pair? a)
       (+ (tree-size (car a)) (tree-size (cdr a)))
       1))
+
+(define (quoted-symbol? o)
+  (and (pair? o) (eq? (car o) 'quote) (symbol? (cadr o)) (null? (cddr o))))
