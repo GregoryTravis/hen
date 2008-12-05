@@ -38,10 +38,13 @@
     ))
 
 (define (preprocess e)
+  (preprocess2 (doobie-exp e)))
+
+(define (preprocess2 e)
   (mtch e
         ('/./. . lams) (process-/./. lams)
-        ('/. args body) (preprocess `(/./. ,e))
-        (a b) (list (preprocess a) (preprocess b))
+        ('/. args body) (preprocess2 `(/./. ,e))
+        (a b) (list (preprocess2 a) (preprocess2 b))
         (a b c . rest) (err 'preprocess-list-3 e)
         x x))
 
@@ -78,19 +81,21 @@
      lam
 
      ('/. (('P a) b) body)
-     (let* ((blam (process-/. `(/. ,b ,(preprocess body)) failure))
+;;      (let* ((blam (process-/. `(/. ,b ,(preprocess2 body)) failure))
+;;             (alam (process-/. `(/. ,a ,blam) failure)))
+     (let* ((blam (process-/. `(/. ,b ,(preprocess2 body)) failure))
             (alam (process-/. `(/. ,a ,blam) failure)))
        `(/. ,v (((if (pair? ,v)) ((,alam (car ,v)) (cdr ,v))) ,failure)))
 
      ('/. x body)
      (cond
-      ((symbol? x) `(/. ,x ,(preprocess body)))
+      ((symbol? x) `(/. ,x ,(preprocess2 body)))
       ((or (number? x)
            (string? x))
-       `(/. ,v (((if ((== ,v) ,x)) ,(preprocess body)) ,failure)))
+       `(/. ,v (((if ((== ,v) ,x)) ,(preprocess2 body)) ,failure)))
       ((quoted-symbol? x)
-       `(/. ,v (((if ((== ,v) ,x)) ,(preprocess body)) ,failure)))
-      (#t (err lam))))))
+       `(/. ,v (((if ((== ,v) ,x)) ,(preprocess2 body)) ,failure)))
+      (#t (err 'joe lam))))))
 
 (define (ski e)
   (mtch
@@ -280,47 +285,17 @@
 
 (define (sski e) (simplify-ski (ski e)))
 
-;; (define (doobie def)
-;;   (mtch
-;;    def
-;;    ('def name val) `(def ,name ,(doobie-exp val))))
-
-;; (define (doobie-arglist args)
-;;   (if (pair? args)
-;;       `((P ,(car args)) ,(doobie-arglist (cdr args)))
-;;       args))
-
-;; (define (doobie-exp e)
-;;   (mtch
-;;    e
-
-;;    ('/. args body) `(/. ,(doobie-arglist args) ,(doobie-exp body))
-
-;;    ;(a b) (list (doobie-exp a) (doobie-exp b))
-;;    (f . args) `(,(doobie-exp f) ,(doobie-arglist args))
-
-;;    x (if (or (symbol? x) (number? x) (string? x)) x (err 'ski e))))
-
-;; ;(shew (doobie-exp '(/. (x . joe) x)))
-;; ;(shew (doobie-exp '(/. (x y z . q) x)))
-;; ;(shew (doobie-exp '(f . 1)))
-;; ;(shew (doobie-exp '(f 1 . 2)))
-;; ;(shew (doobie-exp '(f 1 2 . 3)))
-
-;; (shew (doobie-exp '(/. (a b . c) (+ a c))))
-;; (shew (doobie-exp '(ulp 1 2 . 3)))
-;; (shew (doobie-exp '((/. (a b . c) ((+ a) c)) 1 2 . 3)))
-
-;(tracefun evl evl-step evl-fully)
-;(tracefun ski)
-;(tracefun preprocess process-/./. process-/.)
-
 (define (data? e)
   (mtch e
         (('P a) b) #t
         ('$ lam env) #t
         x (or (number? e) (string? e))))
 ;(tracefun data?)
+
+(define (freeze e env)
+  (mtch e
+        ('@ e2 env2) e
+        x `(@ ,e ,env)))
 
 (define (vote-step e env)
   (mtch
@@ -333,7 +308,7 @@
 
    ('FAIL x) (err 'evl-step-FAIL e)
 
-   (('P a) b) `((P (@ ,a ,env)) (@ ,b ,env))
+   (('P a) b) `((P ,(freeze a env)) ,(freeze b env))
 
    ('/. a body)
    `($ ,e ,env)
@@ -359,7 +334,7 @@
    'if e
    ('if b) e
    (('if b) t) e
-   ((('if b) th) el) (mtch (vote-fully b env) 'True `(@ ,th ,env) 'False `(@ ,el ,env))
+   ((('if b) th) el) (mtch (vote-fully b env) 'True (freeze th env) 'False (freeze el env))
 
    '+ e
    ('+ a) e
@@ -379,9 +354,9 @@
 
    'cons e
    ('cons a) e
-   (('cons a) b) `((P (@ ,a ,env)) (@ ,b ,env))
+   (('cons a) b) `((P (@ ,a ,env)) ,(freeze b env))
 
-   (a b) `(,(vote-completely a env) (@ ,b ,env))
+   (a b) `(,(vote-completely a env) ,(freeze b env))
 
    x
    (cond
@@ -414,8 +389,56 @@
 (define (vote e)
   (vote-completely e '()))
 
+(define (doobie def)
+  (mtch
+   def
+   ('def name val) `(def ,name ,(doobie-exp val))))
+
+(define (doobie-arglist args)
+  (mtch
+   args
+   ;(a . d) `((P ,(doobie-arglist (car args))) ,(doobie-arglist (cdr args)))
+   (a . d) `((P ,(car args)) ,(doobie-arglist (cdr args)))
+   () 'Nil
+   x x))
+
+(define (doobie-exp e)
+  (mtch
+   e
+
+   (('+ a) b)  `((+ ,(doobie-exp a)) ,(doobie-exp b))
+   (('cons a) b) `((cons ,(doobie-exp a)) ,(doobie-exp b))
+   ('car a) `(car ,(doobie-exp a))
+   ('cdr a) `(cdr ,(doobie-exp a))
+
+   ('/. args body) `(/. ,(doobie-arglist args) ,(doobie-exp body))
+
+   ('/./. . lams) `(/./. . ,(map doobie-exp lams))
+
+   ;(a b) (list (doobie-exp a) (doobie-exp b))
+   (f . args) `(,(doobie-exp f) ,(doobie-arglist args))
+   () 'Nil
+
+   x (if (or (symbol? x) (number? x) (string? x)) x (err 'ski e))))
+
+;; (shew (doobie-exp '(/. (x . joe) x)))
+;; (shew (doobie-exp '(/. (x y z . q) x)))
+;; (shew (doobie-exp '(f . 1)))
+;; (shew (doobie-exp '(f 1 . 2)))
+;; (shew (doobie-exp '(f 1 2 . 3)))
+
+;; (shew (doobie-exp '(/. (a b . c) (+ a c))))
+;; (shew (doobie-exp '(ulp 1 2 . 3)))
+;; (shew (doobie-exp '((/. (a b . c) ((+ a) c)) 1 2 . 3)))
+
+;(shew (doobie-exp '((/. (a b c) ((+ a) c)) 1 2 3)))
+
+;(tracefun evl evl-step evl-fully)
+;(tracefun ski)
+(tracefun preprocess process-/./. process-/.)
 ;(tracefun vote vote-step)
 ;(tracefun vote-fully vote-completely)
 ;; (shew (process-/. '(/. x x) 'FAIL))
 ;; (shew (process-/./. (list '(/. x x))))
 ;; (shew (process-/./. (list '(/. ((P a) b) a))))
+;(tracefun doobie doobie-exp doobie-arglist)

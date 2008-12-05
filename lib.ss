@@ -13,6 +13,7 @@
 (load "mtch.ss")
 
 (define impl-tracefun-indentation 0)
+(define trace-stump-level 1000)
 (define (trace-indent) (set! impl-tracefun-indentation (+ 1 impl-tracefun-indentation)))
 (define (trace-unindent) (set! impl-tracefun-indentation (+ -1 impl-tracefun-indentation)))
 
@@ -44,7 +45,7 @@
 (define (plain-ol-tracer app runner)
   (display (make-string-string impl-tracefun-indentation "| "))
   (display "+  ")
-  (lshew (stump app 7))
+  (lshew (stump app trace-stump-level))
   (display "\n")
   (trace-indent)
   (flush-output)
@@ -52,7 +53,7 @@
     (trace-unindent)
     (display (make-string-string impl-tracefun-indentation "| "))
     (display "-> ")
-    (lshew (stump r 7))
+    (lshew (stump r trace-stump-level))
     (display "\n")
     (flush-output)
     r))
