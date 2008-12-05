@@ -50,7 +50,8 @@
   (mtch e
         ('def name e)
         (set! global-env
-              (cons (cons name (sski e)) global-env))))
+;              (cons (cons name (sski e)) global-env))))
+              (cons (cons name e) global-env))))
 (define (dump-globals)
   (shew global-env))
 
@@ -240,11 +241,13 @@
 (define (evl-top e)
   ;(evl-check e)
   (display "+ ") (lshew e) (display "\n")
-  (let ((ce (sski e)))
-    (display "- ") (lshew ce) (display "\n")
-    (let ((ee (evl-fully ce)))
+;  (let ((ce (sski e)))
+;    (display "- ") (lshew ce) (display "\n")
+    (let ((ee (vote e)))
       (display "=> ") (lshew ee) (display "\n\n")
-      ee)))
+      ee)
+;)
+)
 
 (define (simplify-ski-step e)
   (mtch
@@ -311,3 +314,108 @@
 ;(tracefun evl evl-step evl-fully)
 ;(tracefun ski)
 ;(tracefun preprocess process-/./. process-/.)
+
+(define (data? e)
+  (mtch e
+        (('P a) b) #t
+        ('$ lam env) #t
+        x (or (number? e) (string? e))))
+;(tracefun data?)
+
+(define (vote-step e env)
+  (mtch
+   e
+
+   'FAIL (err e env)
+
+   ('@ e env)
+   (vote-step e env)
+
+   ('FAIL x) (err 'evl-step-FAIL e)
+
+   (('P a) b) `((P (@ ,a ,env)) (@ ,b ,env))
+
+   ('/. a body)
+   `($ ,e ,env)
+
+   (('$ ('/. a body) env) v)
+   (vote-step body (cons (cons a v) env))
+
+   'pair? e
+   ('pair? e) (mtch (vote-fully e env) (('P a) b) 'True x 'False)
+
+   'True e
+   'False e
+   'Nil e
+
+   ('quote s) e
+
+   'car e
+   ('car p) (mtch (vote-fully p env) (('P a) b) a x (err 'not-pair e))
+
+   'cdr e
+   ('cdr p) (mtch (vote-fully p env) (('P a) b) b x (err 'not-pair e))
+
+   'if e
+   ('if b) e
+   (('if b) t) e
+   ((('if b) th) el) (mtch (vote-fully b env) 'True `(@ ,th ,env) 'False `(@ ,el ,env))
+
+   '+ e
+   ('+ a) e
+   (('+ a) b) (+ (vote-fully a env) (vote-fully b env))
+
+   '- e
+   ('- a) e
+   (('- a) b) (- (vote-fully a env) (vote-fully b env))
+
+   '* e
+   ('* a) e
+   (('* a) b) (* (vote-fully a env) (vote-fully b env))
+
+   '== e
+   ('== a) e
+   (('== a) b) (mtch (prim== (vote-fully a env) (vote-fully b env)) #t 'True #f 'False)
+
+   'cons e
+   ('cons a) e
+   (('cons a) b) `((P (@ ,a ,env)) (@ ,b ,env))
+
+   (a b) `(,(vote-completely a env) (@ ,b ,env))
+
+   x
+   (cond
+    ((symbol? x)
+     (cond
+      ((lookup-exists? x env) (lookup x env))
+      ((lookup-exists? x global-env) (lookup x global-env))
+      (#t (err 'unknown-variable x))))
+    ((or (number? x) (string? x)) x)
+    (#t (err 'evl e)))))
+
+(define (vote-fully e env)
+  (let ((ee (vote-step e env)))
+    (cond
+     ((or (data? ee) (equal? e ee)) ee)
+     (#t (vote-fully ee env)))))
+
+(define (vote-completely e env)
+  (let ((e (vote-fully e env)))
+    (mtch
+     e
+
+     (('P a) b) `((P ,(vote-completely a env)) ,(vote-completely b env))
+
+     x x)))
+;;      (begin
+;;        (assert (data? x))
+;;        x))))
+
+(define (vote e)
+  (vote-completely e '()))
+
+;(tracefun vote vote-step)
+;(tracefun vote-fully vote-completely)
+;; (shew (process-/. '(/. x x) 'FAIL))
+;; (shew (process-/./. (list '(/. x x))))
+;; (shew (process-/./. (list '(/. ((P a) b) a))))
