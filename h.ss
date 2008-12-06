@@ -38,7 +38,9 @@
     ))
 
 (define (preprocess e)
-  (preprocess2 (doobie-exp e)))
+;  (preprocess2 (doobie-exp e)))
+;  (preprocess2 e))
+  (simplify (blunk e)))
 
 (define (preprocess2 e)
   (mtch e
@@ -117,7 +119,13 @@
 
    ))
 
-(define sg (symbol-generator-generator))
+(define sg (tagged-symbol-generator-generator))
+(define tsg
+  (let ((sg (tagged-symbol-generator-generator)))
+    (lambda (tag . stuff)
+      (let ((v (sg tag)))
+        ;(shew `(,v ,tag . ,stuff))
+        v))))
 
 (define (->/. e)
   (let ((v0 (sg))
@@ -247,12 +255,15 @@
   ;(evl-check e)
   (display "+ ") (lshew e) (display "\n")
   (let ((pe (preprocess e)))
-    (display "- ") (lshew pe) (display "\n")
+;    (display "- ") (lshew pe) (display "\n")
 ;  (let ((ce (sski e)))
 ;    (display "- ") (lshew ce) (display "\n")
     (let ((ee (vote pe)))
-      (display "=> ") (lshew ee) (display "\n\n")
-      ee)))
+      (display "=> ") (lshew ee) (display "\n")
+      (let ((se (simplify ee)))
+        ;(display "... ") (lshew se) (display "\n")
+        (display "\n")
+        ee))))
 
 (define (simplify-ski-step e)
   (mtch
@@ -366,7 +377,7 @@
       ((lookup-exists? x global-env) (lookup x global-env))
       (#t (err 'unknown-variable x))))
     ((or (number? x) (string? x)) x)
-    (#t (err 'evl e)))))
+    (#t (err 'vote-step e)))))
 
 (define (vote-fully e env)
   (let ((ee (vote-step e env)))
@@ -433,12 +444,186 @@
 
 ;(shew (doobie-exp '((/. (a b c) ((+ a) c)) 1 2 3)))
 
+(define (build-receiver pat body)
+  (mtch
+   pat
+
+   (('P a) b) (build-receiver a (build-receiver b body))
+
+   x (cond ((symbol? pat) `(/. ,x ,body))
+           ((or (number? pat) (quoted-symbol? pat)) body)
+           (#t (err 'build-receiver pat body)))))
+
+;; (define (build-traverser pat receiver failure)
+;;   (let ((v (sg)))
+;;     (mtch
+;;      pat
+
+;;      (('P a) b)
+;;      `(/. ,v (((if (pair? ,v)) ((,(build-traverser b (build-traverser a receiver failure) failure) (car ,v)) (cdr ,v))) ,failure))
+
+;;      x (cond ((symbol? pat) `(,receiver ,x))
+;; ;     x (cond ((symbol? pat) receiver)
+;;              (#t (err 'build-traverser pat failure))))))
+
+(define (fuck pat failure)
+(let ((rv (tsg 'rec 'traverser-receiver pat))
+        (v (tsg 'd 'traverser pat)))
+    (mtch
+     pat
+
+     (('P a) b)
+     (let ((lefter (fuck a failure))
+           (righter (fuck b failure)))
+       `(/. ,v (/. ,rv (((if (pair? ,v)) ((,righter (cdr ,v)) ((,lefter (car ,v)) ,rv))) ,failure))))
+     x (cond ((symbol? pat)
+              `(/. ,v (/. ,rv (,rv ,v))))
+             ((or (number? pat) (quoted-symbol? pat))
+              `(/. ,v (/. ,rv (((if ((== ,v) ,pat)) ,rv) ,failure))))
+             (#t (err 'build-traverser pat failure))))))
+
+(define (blunk-/. e failure)
+  (let ((v (tsg 'b 'new-/. e)))
+    (mtch e
+;        ('/. pat body) (build-traverser pat (build-receiver pat body) failure)))
+          ('/. pat body) `(/. ,v ((,(fuck pat failure) ,v) ,(build-receiver pat (blunk body)))))))
+
+(define (blunk-/./. lams)
+  (let ((v (tsg 'bb '/./. lams))
+        (failure-v (tsg 'f '/./.-failure)))
+    (if (null? lams)
+        'GAKK
+        `(/. ,v
+             ((/. ,failure-v (,(blunk-/. (car lams) failure-v) ,v))
+              (,(blunk-/./. (cdr lams)) ,v))))))
+
+(define (blunk e)
+  (mtch e
+        ('/. pat body) (blunk-/. e 'TOPFAIL)
+        ('/./. . lams) (blunk-/./. lams)
+        (('P a) b) `((P ,(blunk a)) ,(blunk b))
+
+        ('+ a) `(+ ,(blunk a))
+        (('+ a) b) `((+ ,(blunk a)) ,(blunk b))
+
+        ('== a) `(== ,(blunk a))
+        (('== a) b) `((== ,(blunk a)) ,(blunk b))
+
+        ((('if b) t) e) `(((if ,(blunk b)) ,(blunk t)) ,(blunk e))
+
+        'True e
+        'False e
+        'Nil e
+
+        (a b) `(,(blunk a) ,(blunk b))
+        x (cond
+           ((symbol? e) e)
+           ((number? e) e)
+           ((quoted-symbol? e) e)
+           (#t (err 'blunk e)))))
+
+;; (let ((v (sg)) (fv (sg)))
+;;                         `(/. ,v ((/. ,fv
+
+;; (shew (build-receiver 'x 'x))
+;; (shew (build-receiver '((P a) b) 'a))
+;; (shew (build-receiver '((P a) ((P b) c)) 'a))
+;; (shew (build-receiver '((P ((P a) aa)) ((P b) c)) 'a))
+
+;; (let ((pat '((P j) k)))
+;;   (shew (build-traverser pat (build-receiver pat 'j))))
+
+;; (shew (blunk '(/. x x)))
+;; (shew (blunk '(/. ((P a) b) a)))
+;; (shew (blunk '(/. ((P a) ((P b) c)) a)))
+;(shew (blunk '(/. ((P ((P a) aa)) ((P b) c)) a)))
+;(shew (blunk '(/. ((P j) k) j)))
+
+;; (evl-top (blunk '((/. ((P j) k) j) ((P 10) 20))))
+;; (evl-top (blunk '((/. ((P j) k) k) ((P 10) 20))))
+;; (evl-top (blunk '((/. ((P ((P j) jj)) ((P k) r)) j) ((P ((P 10) 100)) ((P 20) 30)))))
+;; (evl-top (blunk '((/. ((P ((P j) jj)) ((P k) r)) jj) ((P ((P 10) 100)) ((P 20) 30)))))
+;; (evl-top (blunk '((/. ((P ((P j) jj)) ((P k) r)) k) ((P ((P 10) 100)) ((P 20) 30)))))
+;; (evl-top (blunk '((/. ((P ((P j) jj)) ((P k) r)) r) ((P ((P 10) 100)) ((P 20) 30)))))
+
+;; (evl-top (blunk '((/. ((P j) ((P k) r)) j) ((P 10) ((P 20) 30)))))
+;; (evl-top (blunk '((/. ((P j) ((P k) r)) k) ((P 10) ((P 20) 30)))))
+;; (evl-top (blunk '((/. ((P j) ((P k) r)) r) ((P 10) ((P 20) 30)))))
+
+;; (evl-top (blunk '((/. ((P ((P j) jj)) q) j) ((P ((P 10) 100)) 20))))
+;; (evl-top (blunk '((/. ((P ((P j) jj)) q) jj) ((P ((P 10) 100)) 20))))
+;; (evl-top (blunk '((/. ((P ((P j) jj)) q) q) ((P ((P 10) 100)) 20))))
+
+(define (subst x v e)
+  (mtch
+   e
+
+   ('/. xx body)
+   (if (eq? xx x)
+       e
+       `(/. ,xx ,(subst x v body)))
+
+   (a b) `(,(subst x v a) ,(subst x v b))
+
+   xx (if (eq? x xx) v e)))
+
+(define (occurs x body)
+  (mtch
+   body
+
+   (/. xx body)
+   (if (eq? xx x)
+       0
+       (occurs x body))
+
+   (a b)
+   (+ (occurs x a) (occurs x b))
+
+   xx (if (eq? x xx) 1 0)))
+
+(define (simplify-trivial-app e)
+  (mtch
+   e
+
+   (('/. x body) v)
+   (if (symbol? x)
+       (if (or (symbol? v) (= (occurs x body) 1))
+           (subst x v body)
+           e)
+       e)
+   x x))
+
+(define (simplify-env e)
+  (if (null? e)
+      '()
+      (cons (cons (caar e) (simplify (cdar e))) (simplify-env (cdr e)))))
+
+(define (simplify e)
+  (mtch
+   e
+
+   ('$ lam env) `($ ,(simplify lam) ,(simplify-env env))
+
+   (('/. pat body) v) (mtch (simplify-trivial-app e)
+                            (('/. a b) c)
+                            (list (simplify `(/. ,a ,b)) (simplify c))
+                            x
+                            (simplify x))
+
+   ('/. pat body) `(/. ,pat ,(simplify body))
+   (a b) (let ((ee `(,(simplify a) ,(simplify b))))
+           (if (equal? e ee)
+               ee
+               (simplify ee)))
+   ;(simplify `(,(simplify a) ,(simplify b)))
+
+   x x))
+
 ;(tracefun evl evl-step evl-fully)
 ;(tracefun ski)
-(tracefun preprocess process-/./. process-/.)
+;(tracefun preprocess process-/./. process-/.)
 ;(tracefun vote vote-step)
 ;(tracefun vote-fully vote-completely)
-;; (shew (process-/. '(/. x x) 'FAIL))
-;; (shew (process-/./. (list '(/. x x))))
-;; (shew (process-/./. (list '(/. ((P a) b) a))))
-;(tracefun doobie doobie-exp doobie-arglist)
+;(tracefun doobie doobie-exp doobie-arglist);(tracefun simplify simplify-env simplify-trivial-app)
+;(tracefun blunk blunk-/./. blunk-/.)
+;(tracefun simplify simplify-env simplify-trivial-app)
