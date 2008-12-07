@@ -44,13 +44,13 @@
 ;  (preprocess2 e))
   (simplify (blunk e)))
 
-(define (preprocess2 e)
-  (mtch e
-        ('/./. . lams) (process-/./. lams)
-        ('/. args body) (preprocess2 `(/./. ,e))
-        (a b) (list (preprocess2 a) (preprocess2 b))
-        (a b c . rest) (err 'preprocess-list-3 e)
-        x x))
+;; (define (preprocess2 e)
+;;   (mtch e
+;;         ('/./. . lams) (process-/./. lams)
+;;         ('/. args body) (preprocess2 `(/./. ,e))
+;;         (a b) (list (preprocess2 a) (preprocess2 b))
+;;         (a b c . rest) (err 'preprocess-list-3 e)
+;;         x x))
 
 (define global-env '())
 (define (define-def e)
@@ -62,14 +62,14 @@
 (define (dump-globals)
   (shew global-env))
 
-(define (evl-check e)
-  (let* ((ce (ski e))
-         (ee (->/. ce))
-         (cee (ski ee))
-         (cev (evl ce))
-         (ceev (evl cee)))
-    ;; (begin (shew '---) (shew e) (shew ce) (shew ee) (shew cee) (shew cev) (shew ceev))
-    (assert (equal? cev ceev) e ce ee cee cev ceev)))
+;; (define (evl-check e)
+;;   (let* ((ce (ski e))
+;;          (ee (->/. ce))
+;;          (cee (ski ee))
+;;          (cev (evl ce))
+;;          (ceev (evl cee)))
+;;     ;; (begin (shew '---) (shew e) (shew ce) (shew ee) (shew cee) (shew cev) (shew ceev))
+;;     (assert (equal? cev ceev) e ce ee cee cev ceev)))
 
 ;; (define (ski e)
 ;;   (mtch
