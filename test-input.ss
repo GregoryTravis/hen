@@ -1,17 +1,17 @@
-((/. ((P j) k) j) ((P 10) 20))
-((/. ((P j) k) k) ((P 10) 20))
-((/. ((P ((P j) jj)) ((P k) r)) j) ((P ((P 10) 100)) ((P 20) 30)))
-((/. ((P ((P j) jj)) ((P k) r)) jj) ((P ((P 10) 100)) ((P 20) 30)))
-((/. ((P ((P j) jj)) ((P k) r)) k) ((P ((P 10) 100)) ((P 20) 30)))
-((/. ((P ((P j) jj)) ((P k) r)) r) ((P ((P 10) 100)) ((P 20) 30)))
+((/. (P j k) j) (P 10 20))
+((/. (P j k) k) (P 10 20))
+((/. (P (P j jj) (P k r)) j) (P (P 10 100) (P 20 30)))
+((/. (P (P j jj) (P k r)) jj) (P (P 10 100) (P 20 30)))
+((/. (P (P j jj) (P k r)) k) (P (P 10 100) (P 20 30)))
+((/. (P (P j jj) (P k r)) r) (P (P 10 100) (P 20 30)))
 
-((/. ((P j) ((P k) r)) j) ((P 10) ((P 20) 30)))
-((/. ((P j) ((P k) r)) k) ((P 10) ((P 20) 30)))
-((/. ((P j) ((P k) r)) r) ((P 10) ((P 20) 30)))
+((/. (P j (P k r)) j) (P 10 (P 20 30)))
+((/. (P j (P k r)) k) (P 10 (P 20 30)))
+((/. (P j (P k r)) r) (P 10 (P 20 30)))
 
-((/. ((P ((P j) jj)) q) j) ((P ((P 10) 100)) 20))
-((/. ((P ((P j) jj)) q) jj) ((P ((P 10) 100)) 20))
-((/. ((P ((P j) jj)) q) q) ((P ((P 10) 100)) 20))
+((/. (P (P j jj) q) j) (P (P 10 100) 20))
+((/. (P (P j jj) q) jj) (P (P 10 100) 20))
+((/. (P (P j jj) q) q) (P (P 10 100) 20))
 
 ((/. x x) 1)
 ((/. x (x 2)) (/. x x))
@@ -58,51 +58,51 @@
 
 (def ones
   (/./.
-   (/. ((P a) d) ((cons ((P 1) a)) (ones d)))
+   (/. (P aaa d) ((cons (P 1 aaa)) (ones d)))
    (/. x x)))
 (ones Nil)
-(ones ((P 1) ((P 2) ((P 3) Nil))))
+(ones (P 1 (P 2 (P 3 Nil))))
 
 (def double (/. x ((+ x) x)))
 (double 10)
 
-((map double) ((P 1) ((P 2) ((P 3) Nil))))
+((map double) (P 1 (P 2 (P 3 Nil))))
 
-((/. ((P a) b) a) ((P 1) 2))
+((/. (P a b) a) (P 1 2))
 
 (def voo
      (/./.
-      (/. ((P a) ((P b) c)) ((+ b) c))
-      (/. ((P a) b) b)))
+      (/. (P a (P b c)) ((+ b) c))
+      (/. (P a b) b)))
 
-(voo ((P 1) ((P 2) 3)))
+(voo (P 1 (P 2 3)))
 
 (/. x x)
 ((/. x x) 1)
-((/. ((P a) b) 1) ((P 10) 20))
-((/. ((P a) b) a) ((P 10) 20))
-((/. ((P a) b) b) ((P 10) 20))
-((/. ((P a) b) ((+ a) b)) ((P 10) 20))
+((/. (P a b) 1) (P 10 20))
+((/. (P a b) a) (P 10 20))
+((/. (P a b) b) (P 10 20))
+((/. (P a b) ((+ a) b)) (P 10 20))
 
 (def voo2
      (/./.
-      (/. ((P f) ((P a) b)) ((cons 20) (voo2 ((P f) b))))
-      (/. ((P f) x) x)))
+      (/. (P f (P a b)) ((cons 20) (voo2 (P f b))))
+      (/. (P f x) x)))
 (def double (/. x ((+ x) x)))
 
-(voo2 ((P double) ((P 1) Nil)))
-(voo2 ((P double) Nil))
+(voo2 (P double (P 1 Nil)))
+(voo2 (P double Nil))
 
-((/. ((P f) ((P a) b)) b) ((P 1000) ((P 1) 2)))
-((/. ((P a) b) a) ((P 1) 2))
+((/. (P f (P a b)) b) (P 1000 (P 1 2)))
+((/. (P a b) a) (P 1 2))
 
 (def map2
      (/./.
-      (/. ((P f) ((P a) b)) ((cons (f a)) (map2 ((P f) b))))
-      (/. ((P f) x) x)))
+      (/. (P f (P a b)) ((cons (f a)) (map2 (P f b))))
+      (/. (P f x) x)))
 
 (def double (/. x ((+ x) x)))
-(map2 ((P double) ((P 1) ((P 2) ((P 3) Nil)))))
+(map2 (P double (P 1 (P 2 (P 3 Nil)))))
 
 ((/. 1 2) 1)
 
@@ -111,13 +111,13 @@
 
 ((/. 'Nil 1) 'Nil)
 
-((/. ((P 1) ((P 2) 'Nil)) 40) ((P 1) ((P 2) 'Nil)))
-((/. ((P a) ((P b) 'Nil)) ((+ a) b)) ((P 1) ((P 2) 'Nil)))
+((/. (P 1 (P 2 'Nil)) 40) (P 1 (P 2 'Nil)))
+((/. (P a (P b 'Nil)) ((+ a) b)) (P 1 (P 2 'Nil)))
 
 1
 (/. x x)
 ((/. x x) 1)
 ((/. y ((/. x x) y)) 2)
-(/. ((P a) b) a)
-((/. ((P a) b) a) ((P 1) 2))
-((/. ((P a) b) b) ((P 1) 2))
+(/. (P a b) a)
+((/. (P a b) a) (P 1 2))
+((/. (P a b) b) (P 1 2))

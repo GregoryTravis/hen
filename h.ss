@@ -270,7 +270,7 @@
 
 (define (data? e)
   (mtch e
-        (('P a) b) #t
+        ('P a b) #t
         ('$ lam env) #t
         x (or (number? e) (string? e))))
 ;(tracefun data?)
@@ -291,7 +291,7 @@
 
    ('FAIL x) (err 'evl-step-FAIL e)
 
-   (('P a) b) `((P ,(freeze a env)) ,(freeze b env))
+   ('P a b) `(P ,(freeze a env) ,(freeze b env))
 
    ('/. a body)
    `($ ,e ,env)
@@ -300,7 +300,7 @@
    (vote-step body (cons (cons a v) env))
 
    'pair? e
-   ('pair? e) (mtch (vote-fully e env) (('P a) b) 'True x 'False)
+   ('pair? e) (mtch (vote-fully e env) ('P a b) 'True x 'False)
 
    'True e
    'False e
@@ -309,10 +309,10 @@
    ('quote s) e
 
    'car e
-   ('car p) (mtch (vote-fully p env) (('P a) b) a x (err 'not-pair e))
+   ('car p) (mtch (vote-fully p env) ('P a b) a x (err 'not-pair e))
 
    'cdr e
-   ('cdr p) (mtch (vote-fully p env) (('P a) b) b x (err 'not-pair e))
+   ('cdr p) (mtch (vote-fully p env) ('P a b) b x (err 'not-pair e))
 
    'if e
    ('if b) e
@@ -337,7 +337,7 @@
 
    'cons e
    ('cons a) e
-   (('cons a) b) `((P (@ ,a ,env)) ,(freeze b env))
+   (('cons a) b) `(P (@ ,a ,env) ,(freeze b env))
 
    (a b) `(,(vote-completely a env) ,(freeze b env))
 
@@ -362,7 +362,7 @@
     (mtch
      e
 
-     (('P a) b) `((P ,(vote-completely a env)) ,(vote-completely b env))
+     ('P a b) `(P ,(vote-completely a env) ,(vote-completely b env))
 
      x x)))
 ;;      (begin
@@ -381,7 +381,7 @@
   (mtch
    args
    ;(a . d) `((P ,(doobie-arglist (car args))) ,(doobie-arglist (cdr args)))
-   (a . d) `((P ,(car args)) ,(doobie-arglist (cdr args)))
+   (a . d) `(P ,(car args) ,(doobie-arglist (cdr args)))
    () 'Nil
    x x))
 
@@ -408,7 +408,7 @@
   (mtch
    pat
 
-   (('P a) b) (build-receiver a (build-receiver b body))
+   ('P a b) (build-receiver a (build-receiver b body))
 
    x (cond ((symbol? pat) `(/. ,x ,body))
            ((or (number? pat) (quoted-symbol? pat)) body)
@@ -420,7 +420,7 @@
     (mtch
      pat
 
-     (('P a) b)
+     ('P a b)
      (let ((lefter (fuck a failure))
            (righter (fuck b failure)))
        `(/. ,v (/. ,rv (((if (pair? ,v)) ((,righter (cdr ,v)) ((,lefter (car ,v)) ,rv))) ,failure))))
@@ -448,7 +448,7 @@
   (mtch e
         ('/. pat body) (blunk-/. e 'TOPFAIL)
         ('/./. . lams) (blunk-/./. lams)
-        (('P a) b) `((P ,(blunk a)) ,(blunk b))
+        ('P a b) `(P ,(blunk a) ,(blunk b))
 
         ('+ a) `(+ ,(blunk a))
         (('+ a) b) `((+ ,(blunk a)) ,(blunk b))
@@ -478,9 +478,16 @@
        e
        `(/. ,xx ,(subst x v body)))
 
+   ('P a b) `(P ,(subst x v a) ,(subst x v b))
+
    (a b) `(,(subst x v a) ,(subst x v b))
 
-   xx (if (eq? x xx) v e)))
+;   xx (if (eq? x xx) v e)))
+   xx (cond
+       ((eq? x xx) v)
+       ((symbol? e) e)
+       ((or (number? e) (quoted-symbol? e)) e)
+       (#t (err 'subst x v e)))))
 
 (define (occurs x body)
   (mtch
