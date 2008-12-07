@@ -71,55 +71,25 @@
     ;; (begin (shew '---) (shew e) (shew ce) (shew ee) (shew cee) (shew cev) (shew ceev))
     (assert (equal? cev ceev) e ce ee cee cev ceev)))
 
-(define (process-/./. lams)
-  (let ((v (sg)))
-    (if (null? lams)
-        `(/. x FAIL)
-        `(/. ,v (,(process-/. (car lams)
-                              `(,(process-/./. (cdr lams)) ,v))
-                 ,v)))))
+;; (define (ski e)
+;;   (mtch
+;;    e
 
-(define (process-/. lam failure)
-  (let ((v (sg)))
-    (mtch
-     lam
+;;    ;('/. (a . d) body) `(U ,(ski `(/. ,a (/. ,d ,body))))
 
-     ('/. (('P a) b) body)
-;;      (let* ((blam (process-/. `(/. ,b ,(preprocess2 body)) failure))
-;;             (alam (process-/. `(/. ,a ,blam) failure)))
-     (let* ((blam (process-/. `(/. ,b ,(preprocess2 body)) failure))
-            (alam (process-/. `(/. ,a ,blam) failure)))
-       `(/. ,v (((if (pair? ,v)) ((,alam (car ,v)) (cdr ,v))) ,failure)))
+;;    ('/. x (/. y b)) (ski `(/. ,x ,(sski `(/. ,y ,b))))
 
-     ('/. x body)
-     (cond
-      ((symbol? x) `(/. ,x ,(preprocess2 body)))
-      ((or (number? x)
-           (string? x))
-       `(/. ,v (((if ((== ,v) ,x)) ,(preprocess2 body)) ,failure)))
-      ((quoted-symbol? x)
-       `(/. ,v (((if ((== ,v) ,x)) ,(preprocess2 body)) ,failure)))
-      (#t (err 'joe lam))))))
+;;    ('/. x (a b)) (simplify-ski `((S ,(ski `(/. ,x ,a))) ,(ski `(/. ,x ,b))))
 
-(define (ski e)
-  (mtch
-   e
+;;    ('/. x y) (if (eq? x y) `I `(K ,y))
 
-   ;('/. (a . d) body) `(U ,(ski `(/. ,a (/. ,d ,body))))
+;;    (a b) (simplify-ski (list (ski a) (ski b)))
 
-   ('/. x (/. y b)) (ski `(/. ,x ,(sski `(/. ,y ,b))))
+;;    ;(a . b) `((P ,(ski a)) ,(ski b))
 
-   ('/. x (a b)) (simplify-ski `((S ,(ski `(/. ,x ,a))) ,(ski `(/. ,x ,b))))
+;;    x (if (or (symbol? x) (number? x) (string? x)) x (err 'ski e))
 
-   ('/. x y) (if (eq? x y) `I `(K ,y))
-
-   (a b) (simplify-ski (list (ski a) (ski b)))
-
-   ;(a . b) `((P ,(ski a)) ,(ski b))
-
-   x (if (or (symbol? x) (number? x) (string? x)) x (err 'ski e))
-
-   ))
+;;    ))
 
 (define sg (tagged-symbol-generator-generator))
 (define tsg
@@ -129,29 +99,29 @@
         ;(shew `(,v ,tag . ,stuff))
         v))))
 
-(define (->/. e)
-  (let ((v0 (sg))
-        (v1 (sg)))
-    (mtch
-     e
+;; (define (->/. e)
+;;   (let ((v0 (sg))
+;;         (v1 (sg)))
+;;     (mtch
+;;      e
 
-     (('S a) b) `(/. ,v0 ((,(->/. a) ,v0) (,(->/. b) ,v0)))
+;;      (('S a) b) `(/. ,v0 ((,(->/. a) ,v0) (,(->/. b) ,v0)))
 
-     ((('S a) b) c) `((,(->/. a) ,(->/. c)) (,(->/. b) ,(->/. c)))
+;;      ((('S a) b) c) `((,(->/. a) ,(->/. c)) (,(->/. b) ,(->/. c)))
 
-     ('K a) `(/. ,v0 ,(->/. a))
+;;      ('K a) `(/. ,v0 ,(->/. a))
 
-     (('K a) b) (->/. a)
+;;      (('K a) b) (->/. a)
 
-     'I `(/. ,v0 ,v0)
+;;      'I `(/. ,v0 ,v0)
 
-     ('I a) (->/. a)
+;;      ('I a) (->/. a)
 
-     (a b) `(,(->/. a) ,(->/. b))
+;;      (a b) `(,(->/. a) ,(->/. b))
 
-     x x
+;;      x x
 
-     )))
+;;      )))
 
 (define (done? e)
   (or (number? e) (ctor? e)))
@@ -161,97 +131,97 @@
         (('quote a) ('quote b)) (eq? a b)
         x (smart== a b)))
 
-(define (evl-step e)
-  (set! eval-steps (1+ eval-steps))
-  (mtch
-   e
+;; (define (evl-step e)
+;;   (set! eval-steps (1+ eval-steps))
+;;   (mtch
+;;    e
 
-   ('FAIL x) (err 'evl-step-FAIL e)
+;;    ('FAIL x) (err 'evl-step-FAIL e)
 
-   (('P a) b) e
-   ('quote s) e
+;;    (('P a) b) e
+;;    ('quote s) e
 
-   ;(('U f) (('P x) y))
-   ;`((,f ,x) ,y)
+;;    ;(('U f) (('P x) y))
+;;    ;`((,f ,x) ,y)
 
-   ((('S f) g) x)
-   `((,f ,x) (,g ,x))
+;;    ((('S f) g) x)
+;;    `((,f ,x) (,g ,x))
 
-   (('K x) y)
-   x
+;;    (('K x) y)
+;;    x
 
-   ('I x)
-   x
+;;    ('I x)
+;;    x
 
-   ('P a) e
-   ;('U f) e
-   (('S f) g) e
-   ('S f) e
-   'S e
-   ('K x) e
-   'K e
-   'I e
-   ('+ x) e
-   '+ e
-   ('- x) e
-   '- e
-   ('* x) e
-   '* e
-   ('== x) e
-   '== e
-   (('if b) t) e
-   ('if b) e
-   'if e
+;;    ('P a) e
+;;    ;('U f) e
+;;    (('S f) g) e
+;;    ('S f) e
+;;    'S e
+;;    ('K x) e
+;;    'K e
+;;    'I e
+;;    ('+ x) e
+;;    '+ e
+;;    ('- x) e
+;;    '- e
+;;    ('* x) e
+;;    '* e
+;;    ('== x) e
+;;    '== e
+;;    (('if b) t) e
+;;    ('if b) e
+;;    'if e
 
-   ('pair? p) (let ((p (evl-fully p))) (mtch p (('P a) b) 'True x 'False))
-   'pair? e
+;;    ('pair? p) (let ((p (evl-fully p))) (mtch p (('P a) b) 'True x 'False))
+;;    'pair? e
 
-   (('cons a) b) `((P ,a) ,b)
+;;    (('cons a) b) `((P ,a) ,b)
 
-   ('car (('P a) b)) a
-   ('car x) `(car ,(evl x))
+;;    ('car (('P a) b)) a
+;;    ('car x) `(car ,(evl x))
 
-   ('cdr (('P a) b)) b
-   ('cdr x) `(cdr ,(evl x))
+;;    ('cdr (('P a) b)) b
+;;    ('cdr x) `(cdr ,(evl x))
 
-   ('cons x) e
-   'cons e
-   'car e
-   'cdr e
+;;    ('cons x) e
+;;    'cons e
+;;    'car e
+;;    'cdr e
 
-   ('dbg v)
-   (begin
-     (shew (list 'DBG v))
-     v)
+;;    ('dbg v)
+;;    (begin
+;;      (shew (list 'DBG v))
+;;      v)
 
-   'dbg e
+;;    'dbg e
 
-   (('+ a) b) (+ (evl a) (evl b))
-   (('- a) b) (- (evl a) (evl b))
-   (('* a) b) (* (evl a) (evl b))
-   (('== a) b) (if (prim== (evl a) (evl b)) 'True 'False)
-   ((('if b) t) e) (mtch (evl b) 'True t 'False e)
+;;    (('+ a) b) (+ (evl a) (evl b))
+;;    (('- a) b) (- (evl a) (evl b))
+;;    (('* a) b) (* (evl a) (evl b))
+;;    (('== a) b) (if (prim== (evl a) (evl b)) 'True 'False)
+;;    ((('if b) t) e) (mtch (evl b) 'True t 'False e)
    
-   (a b) (evl-step (list (evl a) b))
+;;    (a b) (evl-step (list (evl a) b))
 
-   x (cond
-      ((and (symbol? x) (lookup-exists? x global-env)) (lookup x global-env))
-      (#t (err 'evl e)))
-   ))
+;;    x (cond
+;;       ((and (symbol? x) (lookup-exists? x global-env)) (lookup x global-env))
+;;       (#t (err 'evl e)))
+;;    ))
 
-(define (evl e)
-  (if (done? e)
-      e
-      (let ((ee (evl-step e)))
-        (if (smart== e ee)
-            ee
-            (evl ee)))))
+;; (define (evl e)
+;;   (if (done? e)
+;;       e
+;;       (let ((ee (evl-step e)))
+;;         (if (smart== e ee)
+;;             ee
+;;             (evl ee)))))
 
-(define (evl-fully e)
-  (let ((e (evl e)))
-    (mtch e
-          (('P a) b) `((P ,(evl-fully a)) ,(evl-fully b))
-          x x)))
+;; (define (evl-fully e)
+;;   (let ((e (evl e)))
+;;     (mtch e
+;;           (('P a) b) `((P ,(evl-fully a)) ,(evl-fully b))
+;;           x x)))
 
 (define (evl-top e)
   ;(evl-check e)
@@ -434,18 +404,6 @@
 
    x (if (or (symbol? x) (number? x) (string? x)) x (err 'ski e))))
 
-;; (shew (doobie-exp '(/. (x . joe) x)))
-;; (shew (doobie-exp '(/. (x y z . q) x)))
-;; (shew (doobie-exp '(f . 1)))
-;; (shew (doobie-exp '(f 1 . 2)))
-;; (shew (doobie-exp '(f 1 2 . 3)))
-
-;; (shew (doobie-exp '(/. (a b . c) (+ a c))))
-;; (shew (doobie-exp '(ulp 1 2 . 3)))
-;; (shew (doobie-exp '((/. (a b . c) ((+ a) c)) 1 2 . 3)))
-
-;(shew (doobie-exp '((/. (a b c) ((+ a) c)) 1 2 3)))
-
 (define (build-receiver pat body)
   (mtch
    pat
@@ -455,18 +413,6 @@
    x (cond ((symbol? pat) `(/. ,x ,body))
            ((or (number? pat) (quoted-symbol? pat)) body)
            (#t (err 'build-receiver pat body)))))
-
-;; (define (build-traverser pat receiver failure)
-;;   (let ((v (sg)))
-;;     (mtch
-;;      pat
-
-;;      (('P a) b)
-;;      `(/. ,v (((if (pair? ,v)) ((,(build-traverser b (build-traverser a receiver failure) failure) (car ,v)) (cdr ,v))) ,failure))
-
-;;      x (cond ((symbol? pat) `(,receiver ,x))
-;; ;     x (cond ((symbol? pat) receiver)
-;;              (#t (err 'build-traverser pat failure))))))
 
 (define (fuck pat failure)
 (let ((rv (tsg 'rec 'traverser-receiver pat))
@@ -487,7 +433,6 @@
 (define (blunk-/. e failure)
   (let ((v (tsg 'b 'new-/. e)))
     (mtch e
-;        ('/. pat body) (build-traverser pat (build-receiver pat body) failure)))
           ('/. pat body) `(/. ,v ((,(fuck pat failure) ,v) ,(build-receiver pat (blunk body)))))))
 
 (define (blunk-/./. lams)
