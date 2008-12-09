@@ -216,7 +216,7 @@
 => (P 2 Nil) 
 
 + (/. (P r Nil) r) 
-=> ($ (/. b1761 (((if (pair? b1761)) (((if ((== (cdr b1761)) Nil)) (car b1761)) TOPFAIL)) TOPFAIL)) ()) 
+=> ($ (/. b1803 (((if (pair? b1803)) (((if ((== (cdr b1803)) Nil)) (car b1803)) TOPFAIL)) TOPFAIL)) ()) 
 
 + ((/. (P r Nil) r) (P 3 Nil)) 
 => 3 
@@ -302,6 +302,12 @@
 + (ones (P (P 1 (P 2 (P 3 Nil))) Nil)) 
 => (P (P 1 1) (P (P 1 2) (P (P 1 3) Nil))) 
 
++ ((map (P double Nil)) (P (P 1 (P 2 (P 3 Nil))) Nil)) 
+=> (P 2 (P 4 (P 6 Nil))) 
+
++ ((map (P double Nil)) (P 1 Nil)) 
+=> 1 
+
 + ((/. (P a b) a) (P 1 2)) 
 => 1 
 
@@ -309,7 +315,7 @@
 => 5 
 
 + (/. x x) 
-=> ($ (/. b1831 ((/. x x) b1831)) ()) 
+=> ($ (/. b1873 ((/. x x) b1873)) ()) 
 
 + ((/. x x) (P 1 Nil)) 
 => (P 1 Nil) 
@@ -375,7 +381,7 @@
 => 1 
 
 + (/. x x) 
-=> ($ (/. b2057 ((/. x x) b2057)) ()) 
+=> ($ (/. b2099 ((/. x x) b2099)) ()) 
 
 + ((/. x x) (P 1 Nil)) 
 => (P 1 Nil) 
@@ -384,7 +390,7 @@
 => (P (P 2 Nil) Nil) 
 
 + (/. (P a b) a) 
-=> ($ (/. b2073 (((if (pair? b2073)) ((/. b (car b2073)) (cdr b2073))) TOPFAIL)) ()) 
+=> ($ (/. b2115 (((if (pair? b2115)) ((/. b (car b2115)) (cdr b2115))) TOPFAIL)) ()) 
 
 + ((/. (P a b) a) (P 1 2)) 
 => 1 

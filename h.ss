@@ -220,7 +220,7 @@
    (a b) (evl-step (list (evl a) b))
 
    x (cond
-      ((ctor? e) e)
+;      ((ctor? e) e)
       ((and (symbol? x) (lookup-exists? x global-env)) (lookup x global-env))
       (#t (err 'evl e)))
    ))
