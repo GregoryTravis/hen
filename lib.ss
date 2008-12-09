@@ -13,7 +13,7 @@
 (load "mtch.ss")
 
 (define impl-tracefun-indentation 0)
-(define trace-stump-level 9)
+(define trace-stump-level 1000)
 (define (trace-indent) (set! impl-tracefun-indentation (+ 1 impl-tracefun-indentation)))
 (define (trace-unindent) (set! impl-tracefun-indentation (+ -1 impl-tracefun-indentation)))
 

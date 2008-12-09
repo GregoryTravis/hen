@@ -17,17 +17,8 @@
 
 ((/. (x) x) 1)
 ((/. (x) (x 2)) (/. x x))
-;a
 (/. (r) r)
 ((/. (r) r) 3)
-;(/. (r) s)
-;((/. (r) s) a)
-;(/. (r) (s t))
-;((/. (r) (s t)) 4)
-;(/. (r) (/. s s))
-;(/. (r) (/. s r))
-;((/. (p) (p x)) (/. y y))
-;((/. (p) ((p a) b)) (/. s (/. t ((qq s) t))))
 ((+ 10) 20)
 ((+ ((/. (x) x) 2000)) 3000)
 ((== 30) 30)
@@ -35,7 +26,6 @@
 (((if True) 100) 200)
 (((if False) 100) 200)
 
-;(fun (tuct x) x)
 (def tuct (/. (x) x))
 
 (tuct 10)
@@ -61,17 +51,24 @@
 (pair? (car ((cons 1) 2)))
 (pair? (cdr ((cons 1) 2)))
 
+(def double (/. (x) ((+ x) x)))
+(double 10)
+
 (def ones
   (/./.
    (/. ((P aaa d)) ((cons (P 1 aaa)) (ones d)))
    (/. (x) x)))
 (ones Nil)
+(ones (P 1 Nil))
 (ones (P 1 (P 2 (P 3 Nil))))
 
-(def double (/. (x) ((+ x) x)))
-(double 10)
+;; (def map
+;;      (/. f
+;;          (/./.
+;;           (/. (P a d) ((cons (f a)) ((map f) d)))
+;;           (/. x x))))
 
-;((map double) (P 1 (P 2 (P 3 Nil))))
+; ((map double) (P 1 (P 2 (P 3 Nil))))
 
 ((/. (a . b) a) 1 . 2)
 

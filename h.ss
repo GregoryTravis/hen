@@ -2,6 +2,8 @@
 
 (define eval-steps 0)
 
+(define use-ski #f)
+
 (define (run-file filename)
   (run-src (append
             (read-objects "overture.ss")
@@ -23,7 +25,9 @@
 (define (preprocess-def e)
   (mtch e
         ('def name e)
-        `(def ,name ,(preprocess e))))
+        `(def ,name ,(if use-ski
+                         (sski (preprocess e))
+                         (preprocess e)))))
 
 (define (run-src forms)
   ;(set! eval-steps 0)
@@ -59,8 +63,9 @@
   (mtch e
         ('def name e)
         (set! global-env
-;              (cons (cons name (sski e)) global-env))))
-              (cons (cons name (vote-step e '())) global-env))))
+              (cons (cons name (if use-ski
+                                   (sski e)
+                                   (vote-step e '()))) global-env))))
 (define (dump-globals)
   (shew global-env))
 
@@ -73,27 +78,29 @@
 ;;     ;; (begin (shew '---) (shew e) (shew ce) (shew ee) (shew cee) (shew cev) (shew ceev))
 ;;     (assert (equal? cev ceev) e ce ee cee cev ceev)))
 
-;; (define (ski e)
-;;   (mtch
-;;    e
+(define (ski e)
+  (mtch
+   e
 
-;;    ;('/. (a . d) body) `(U ,(ski `(/. ,a (/. ,d ,body))))
+   ;('/. (a . d) body) `(U ,(ski `(/. ,a (/. ,d ,body))))
 
-;;    ('/. x (/. y b)) (ski `(/. ,x ,(sski `(/. ,y ,b))))
+   ('/. x (/. y b)) (ski `(/. ,x ,(sski `(/. ,y ,b))))
 
-;;    ('/. x (a b)) (simplify-ski `((S ,(ski `(/. ,x ,a))) ,(ski `(/. ,x ,b))))
+   ('/. x (a b)) (simplify-ski `((S ,(ski `(/. ,x ,a))) ,(ski `(/. ,x ,b))))
 
-;;    ('/. x y) (if (eq? x y) `I `(K ,y))
+   ('/. x y) (if (eq? x y) `I `(K ,y))
 
-;;    (a b) (simplify-ski (list (ski a) (ski b)))
+   (a b) (simplify-ski (list (ski a) (ski b)))
 
-;;    ;(a . b) `((P ,(ski a)) ,(ski b))
+   ('P a b) `(P ,(ski a) ,(ski b))
 
-;;    x (if (or (symbol? x) (number? x) (string? x)) x (err 'ski e))
+   ;(a . b) `((P ,(ski a)) ,(ski b))
 
-;;    ))
+   x (if (or (symbol? x) (number? x) (string? x)) x (err 'ski e))
 
-(define sg (tagged-symbol-generator-generator))
+   ))
+
+(define sg (symbol-generator-generator))
 (define tsg
   (let ((sg (tagged-symbol-generator-generator)))
     (lambda (tag . stuff)
@@ -101,29 +108,34 @@
         ;(shew `(,v ,tag . ,stuff))
         v))))
 
-;; (define (->/. e)
-;;   (let ((v0 (sg))
-;;         (v1 (sg)))
-;;     (mtch
-;;      e
+(define (->/. e)
+  (let ((v0 (sg))
+        (v1 (sg)))
+    (mtch
+     e
 
-;;      (('S a) b) `(/. ,v0 ((,(->/. a) ,v0) (,(->/. b) ,v0)))
+     'S '(/. f (/. g (/. x ((f x) (g x)))))
+     'K '(/. x (/. y x))
+     'I '(/. x x)
 
-;;      ((('S a) b) c) `((,(->/. a) ,(->/. c)) (,(->/. b) ,(->/. c)))
+     ;;; These shouldn't be necessary.
+     (('S a) b) `(/. ,v0 ((,(->/. a) ,v0) (,(->/. b) ,v0)))
 
-;;      ('K a) `(/. ,v0 ,(->/. a))
+     ((('S a) b) c) `((,(->/. a) ,(->/. c)) (,(->/. b) ,(->/. c)))
 
-;;      (('K a) b) (->/. a)
+     ('K a) `(/. ,v0 ,(->/. a))
 
-;;      'I `(/. ,v0 ,v0)
+     (('K a) b) (->/. a)
 
-;;      ('I a) (->/. a)
+     'I `(/. ,v0 ,v0)
 
-;;      (a b) `(,(->/. a) ,(->/. b))
+     ('I a) (->/. a)
 
-;;      x x
+     (a b) `(,(->/. a) ,(->/. b))
 
-;;      )))
+     x x
+
+     )))
 
 (define (done? e)
   (or (number? e) (ctor? e)))
@@ -133,111 +145,117 @@
         (('quote a) ('quote b)) (eq? a b)
         x (smart== a b)))
 
-;; (define (evl-step e)
-;;   (set! eval-steps (1+ eval-steps))
-;;   (mtch
-;;    e
+(define (evl-step e)
+  (set! eval-steps (1+ eval-steps))
+  (mtch
+   e
 
-;;    ('FAIL x) (err 'evl-step-FAIL e)
+   ('FAIL x) (err 'evl-step-FAIL e)
 
-;;    (('P a) b) e
-;;    ('quote s) e
+   (('P a) b) (err 'fasdfasdf)
+   ('P a b) e
+   ('quote s) e
 
-;;    ;(('U f) (('P x) y))
-;;    ;`((,f ,x) ,y)
+   ;(('U f) (('P x) y))
+   ;`((,f ,x) ,y)
 
-;;    ((('S f) g) x)
-;;    `((,f ,x) (,g ,x))
+   ((('S f) g) x)
+   `((,f ,x) (,g ,x))
 
-;;    (('K x) y)
-;;    x
+   (('K x) y)
+   x
 
-;;    ('I x)
-;;    x
+   ('I x)
+   x
 
-;;    ('P a) e
-;;    ;('U f) e
-;;    (('S f) g) e
-;;    ('S f) e
-;;    'S e
-;;    ('K x) e
-;;    'K e
-;;    'I e
-;;    ('+ x) e
-;;    '+ e
-;;    ('- x) e
-;;    '- e
-;;    ('* x) e
-;;    '* e
-;;    ('== x) e
-;;    '== e
-;;    (('if b) t) e
-;;    ('if b) e
-;;    'if e
+   ;('U f) e
+   (('S f) g) e
+   ('S f) e
+   'S e
+   ('K x) e
+   'K e
+   'I e
+   ('+ x) e
+   '+ e
+   ('- x) e
+   '- e
+   ('* x) e
+   '* e
+   ('== x) e
+   '== e
+   (('if b) t) e
+   ('if b) e
+   'if e
 
-;;    ('pair? p) (let ((p (evl-fully p))) (mtch p (('P a) b) 'True x 'False))
-;;    'pair? e
+   ('pair? p) (let ((p (evl-fully p))) (mtch p ('P a b) 'True x 'False))
+   'pair? e
 
-;;    (('cons a) b) `((P ,a) ,b)
+   (('cons a) b) `(P ,a ,b)
 
-;;    ('car (('P a) b)) a
-;;    ('car x) `(car ,(evl x))
+   ('car ('P a b)) a
+   ('car x) `(car ,(evl x))
 
-;;    ('cdr (('P a) b)) b
-;;    ('cdr x) `(cdr ,(evl x))
+   ('cdr ('P a b)) b
+   ('cdr x) `(cdr ,(evl x))
 
-;;    ('cons x) e
-;;    'cons e
-;;    'car e
-;;    'cdr e
+   ('cons x) e
+   'cons e
+   'car e
+   'cdr e
 
-;;    ('dbg v)
-;;    (begin
-;;      (shew (list 'DBG v))
-;;      v)
+   ('dbg v)
+   (begin
+     (shew (list 'DBG v))
+     v)
 
-;;    'dbg e
+   'dbg e
 
-;;    (('+ a) b) (+ (evl a) (evl b))
-;;    (('- a) b) (- (evl a) (evl b))
-;;    (('* a) b) (* (evl a) (evl b))
-;;    (('== a) b) (if (prim== (evl a) (evl b)) 'True 'False)
-;;    ((('if b) t) e) (mtch (evl b) 'True t 'False e)
+   (('+ a) b) (+ (evl a) (evl b))
+   (('- a) b) (- (evl a) (evl b))
+   (('* a) b) (* (evl a) (evl b))
+   (('== a) b) (if (prim== (evl a) (evl b)) 'True 'False)
+   ((('if b) t) e) (mtch (evl b) 'True t 'False e)
    
-;;    (a b) (evl-step (list (evl a) b))
+   (a b) (evl-step (list (evl a) b))
 
-;;    x (cond
-;;       ((and (symbol? x) (lookup-exists? x global-env)) (lookup x global-env))
-;;       (#t (err 'evl e)))
-;;    ))
+   x (cond
+      ((and (symbol? x) (lookup-exists? x global-env)) (lookup x global-env))
+      (#t (err 'evl e)))
+   ))
 
-;; (define (evl e)
-;;   (if (done? e)
-;;       e
-;;       (let ((ee (evl-step e)))
-;;         (if (smart== e ee)
-;;             ee
-;;             (evl ee)))))
+(define (evl e)
+  (if (done? e)
+      e
+      (let ((ee (evl-step e)))
+        (if (smart== e ee)
+            ee
+            (evl ee)))))
 
-;; (define (evl-fully e)
-;;   (let ((e (evl e)))
-;;     (mtch e
-;;           (('P a) b) `((P ,(evl-fully a)) ,(evl-fully b))
-;;           x x)))
+(define (evl-fully e)
+  (let ((e (evl e)))
+    (mtch e
+          ('P a b) `(P ,(evl-fully a) ,(evl-fully b))
+          x x)))
 
 (define (evl-top e)
   ;(evl-check e)
   (display "+ ") (lshew e) (display "\n")
   (let ((pe (preprocess e)))
-;    (display "- ") (lshew pe) (display "\n")
-;  (let ((ce (sski e)))
-;    (display "- ") (lshew ce) (display "\n")
-    (let ((ee (vote pe)))
-      (display "=> ") (lshew ee) (display "\n")
-      (let ((se (simplify ee)))
-        ;(display "... ") (lshew se) (display "\n")
-        (display "\n")
-        ee))))
+    (display "- ") (lshew pe) (display "\n")
+
+    (if use-ski
+        (let ((ce (ski pe)))
+          (display "- ") (lshew ce) (display "\n")
+          (let ((ee (evl-fully ce)))
+            (display "=> ") (lshew ee) (display "\n")
+            ee))
+
+        (let ((ee (vote pe)))
+          (display "=> ") (lshew ee) (display "\n")
+          (let ((se (simplify ee)))
+                                        ;(display "... ") (lshew se) (display "\n")
+            (display "\n")
+            ee)))))
 
 (define (simplify-ski-step e)
   (mtch
@@ -444,7 +462,7 @@
               `(/. ,k (/. ,v (/. ,rv (((if ((== ,v) ,pat)) (,k ,rv)) ,failure)))))
              ((symbol? pat)
               `(/. ,k (/. ,v (/. ,rv (,k (,rv ,v))))))
-             (#t (err 'fuck pat failure))))))
+             (#t (err 'fucky pat failure))))))
 
 (define (blunk-/. e failure)
   (let ((v (tsg 'b 'new-/. e)))
@@ -455,7 +473,7 @@
   (let ((v (tsg 'bb '/./. lams))
         (failure-v (tsg 'f '/./.-failure)))
     (if (null? lams)
-        'GAKK
+        `(/. ,v (FAIL 1))
         `(/. ,v
              ((/. ,failure-v (,(blunk-/. (car lams) failure-v) ,v))
               (,(blunk-/./. (cdr lams)) ,v))))))
@@ -566,3 +584,4 @@
 ;(tracefun doobie doobie-exp doobie-arglist);(tracefun simplify simplify-env simplify-trivial-app)
 ;(tracefun blunk blunk-/./. blunk-/.)
 ;(tracefun simplify simplify-env simplify-trivial-app)
+;(tracefun ->/.)
