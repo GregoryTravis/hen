@@ -62,14 +62,15 @@
 (ones (P 1 Nil))
 (ones (P 1 (P 2 (P 3 Nil))))
 
-;; (def map
-;;      (/. f
-;;          (/./.
-;;           (/. (P a d) ((cons (f a)) ((map f) d)))
-;;           (/. x x))))
+(def map
+     (/. (f)
+         (/./.
+          (/. ((P a d)) ((cons (f a)) ((map f) d)))
+          (/. (x) x))))
 
-; ((map double) (P 1 (P 2 (P 3 Nil))))
-
+((map double) (P 1 (P 2 (P 3 Nil))))
+((map double) 1)
+ 
 ((/. (a . b) a) 1 . 2)
 
 (def voo
