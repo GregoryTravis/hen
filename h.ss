@@ -110,13 +110,14 @@
 
 (define (->/. e)
   (let ((v0 (sg))
-        (v1 (sg)))
+        (v1 (sg))
+        (v2 (sg)))
     (mtch
      e
 
-     'S '(/. f (/. g (/. x ((f x) (g x)))))
-     'K '(/. x (/. y x))
-     'I '(/. x x)
+     'S `(/. ,v0 (/. ,v1 (/. ,v2 ((,v0 ,v2) (,v1 ,v2)))))
+     'K `(/. ,v0 (/. ,v1 ,v0))
+     'I `(/. ,v0 ,v0)
 
      ;;; These shouldn't be necessary.
      (('S a) b) `(/. ,v0 ((,(->/. a) ,v0) (,(->/. b) ,v0)))
@@ -219,6 +220,7 @@
    (a b) (evl-step (list (evl a) b))
 
    x (cond
+      ((ctor? e) e)
       ((and (symbol? x) (lookup-exists? x global-env)) (lookup x global-env))
       (#t (err 'evl e)))
    ))
