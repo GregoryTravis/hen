@@ -28,13 +28,14 @@
 (define (run-src forms)
   ;(set! eval-steps 0)
   (let* ((forms (map fun->def forms))
-         (defs (map preprocess-def (grep def? forms)))
-;         (defs (map doobie defs))
+         (defs (grep def? forms))
+         (defs (map doobie defs))
+         (defs (map preprocess-def defs))
          (tlfs (grep (fnot def?) forms))
-;         (tlfs (map doobie-exp tlfs))
+         (tlfs (map doobie-exp tlfs))
          )
     (map define-def defs)
-    ;(dump-globals)
+    ;(shew 'GLOBALS) (dump-globals)
     (map evl-top tlfs)
     ;(shew (list 'steps eval-steps))
     ))
@@ -43,6 +44,7 @@
 ;  (preprocess2 (doobie-exp e)))
 ;  (preprocess2 e))
   (simplify (blunk e)))
+;  (blunk e))
 
 ;; (define (preprocess2 e)
 ;;   (mtch e
@@ -58,7 +60,7 @@
         ('def name e)
         (set! global-env
 ;              (cons (cons name (sski e)) global-env))))
-              (cons (cons name e) global-env))))
+              (cons (cons name (vote-step e '())) global-env))))
 (define (dump-globals)
   (shew global-env))
 
@@ -297,7 +299,9 @@
    `($ ,e ,env)
 
    (('$ ('/. a body) env) v)
-   (vote-step body (cons (cons a v) env))
+   (begin
+     ;(shew 'bind a v)
+     (vote-step body (cons (cons a v) env)))
 
    'pair? e
    ('pair? e) (mtch (vote-fully e env) ('P a b) 'True x 'False)
@@ -389,10 +393,20 @@
   (mtch
    e
 
+   ('P a b) `(P ,(doobie-exp a) ,(doobie-exp b))
    (('+ a) b)  `((+ ,(doobie-exp a)) ,(doobie-exp b))
    (('cons a) b) `((cons ,(doobie-exp a)) ,(doobie-exp b))
    ('car a) `(car ,(doobie-exp a))
    ('cdr a) `(cdr ,(doobie-exp a))
+
+;   ('if a) `(if ,(doobie-exp a))
+;   ('+ a) `(+ ,(doobie-exp a))
+;   ('- a) `(- ,(doobie-exp a))
+   (('+ a) b) `((+ ,(doobie-exp a)) ,(doobie-exp b))
+   (('- a) b) `((- ,(doobie-exp a)) ,(doobie-exp b))
+   (('* a) b) `((* ,(doobie-exp a)) ,(doobie-exp b))
+   ((('if a) b) c) `(((if ,(doobie-exp a)) ,(doobie-exp b)) ,(doobie-exp c))
+   (('cons a) b) `((cons ,(doobie-exp a)) ,(doobie-exp b))
 
    ('/. args body) `(/. ,(doobie-arglist args) ,(doobie-exp body))
 
@@ -410,30 +424,32 @@
 
    ('P a b) (build-receiver a (build-receiver b body))
 
-   x (cond ((symbol? pat) `(/. ,x ,body))
-           ((or (number? pat) (quoted-symbol? pat)) body)
+   x (cond ((or (ctor? pat) (number? pat) (quoted-symbol? pat)) body)
+           ((symbol? pat) `(/. ,x ,body))
            (#t (err 'build-receiver pat body)))))
 
 (define (fuck pat failure)
-(let ((rv (tsg 'rec 'traverser-receiver pat))
-        (v (tsg 'd 'traverser pat)))
+  (let ((rv (tsg 'rec 'traverser-receiver pat))
+        (v (tsg 'd 'traverser pat))
+        (k (tsg 'k 'continuation pat)))
     (mtch
      pat
 
      ('P a b)
      (let ((lefter (fuck a failure))
            (righter (fuck b failure)))
-       `(/. ,v (/. ,rv (((if (pair? ,v)) ((,righter (cdr ,v)) ((,lefter (car ,v)) ,rv))) ,failure))))
-     x (cond ((symbol? pat)
-              `(/. ,v (/. ,rv (,rv ,v))))
-             ((or (number? pat) (quoted-symbol? pat))
-              `(/. ,v (/. ,rv (((if ((== ,v) ,pat)) ,rv) ,failure))))
+;       `(/. ,v (/. ,rv (((if (pair? ,v)) ((,righter (cdr ,v)) ((,lefter (car ,v)) ,rv))) ,failure))))
+       `(/. ,k (/. ,v (/. ,rv (((if (pair? ,v)) (((,lefter ((,righter ,k) (cdr ,v))) (car ,v)) ,rv)) ,failure)))))
+     x (cond ((or (ctor? pat) (number? pat) (quoted-symbol? pat))
+              `(/. ,k (/. ,v (/. ,rv (((if ((== ,v) ,pat)) (,k ,rv)) ,failure)))))
+             ((symbol? pat)
+              `(/. ,k (/. ,v (/. ,rv (,k (,rv ,v))))))
              (#t (err 'fuck pat failure))))))
 
 (define (blunk-/. e failure)
   (let ((v (tsg 'b 'new-/. e)))
     (mtch e
-          ('/. pat body) `(/. ,v ((,(fuck pat failure) ,v) ,(build-receiver pat (blunk body)))))))
+          ('/. pat body) `(/. ,v (((,(fuck pat failure) (/. x x)) ,v) ,(build-receiver pat (blunk body)))))))
 
 (define (blunk-/./. lams)
   (let ((v (tsg 'bb '/./. lams))
