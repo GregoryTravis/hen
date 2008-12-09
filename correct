@@ -135,346 +135,260 @@
    b61)
   (/. j (/. k j))))
 + ((/. b71 ((((/. k74 (/. d73 (/. rec72 (((if (pair? d73)) ((((/. k77 (/. d76 (/. rec75 (k77 (rec75 d76))))) (((/. k80 (/. d79 (/. rec78 (k80 (rec78 d79))))) k74) (cdr d73))) (car d73)) rec72)) TOPFAIL)))) (/. x x)) b71) (/. j (/. k j)))) (P 10 20)) 
-- ((/. b71 (((if (pair? b71)) ((/. b129 (car b71)) (cdr b71))) TOPFAIL)) (P 10 20)) 
 => 10 
 
 + ((/. b133 ((((/. k136 (/. d135 (/. rec134 (((if (pair? d135)) ((((/. k139 (/. d138 (/. rec137 (k139 (rec137 d138))))) (((/. k142 (/. d141 (/. rec140 (k142 (rec140 d141))))) k136) (cdr d135))) (car d135)) rec134)) TOPFAIL)))) (/. x x)) b133) (/. j (/. k k)))) (P 10 20)) 
-- ((/. b133 (((if (pair? b133)) (((/. j (/. b191 b191)) (car b133)) (cdr b133))) TOPFAIL)) (P 10 20)) 
 => 20 
 
 + ((/. b195 ((((/. k198 (/. d197 (/. rec196 (((if (pair? d197)) ((((/. k201 (/. d200 (/. rec199 (((if (pair? d200)) ((((/. k204 (/. d203 (/. rec202 (k204 (rec202 d203))))) (((/. k207 (/. d206 (/. rec205 (k207 (rec205 d206))))) k201) (cdr d200))) (car d200)) rec199)) TOPFAIL)))) (((/. k210 (/. d209 (/. rec208 (((if (pair? d209)) ((((/. k213 (/. d212 (/. rec211 (k213 (rec211 d212))))) (((/. k216 (/. d215 (/. rec214 (k216 (rec214 d215))))) k210) (cdr d209))) (car d209)) rec208)) TOPFAIL)))) k198) (cdr d197))) (car d197)) rec196)) TOPFAIL)))) (/. x x)) b195) (/. j (/. jj (/. k (/. r j)))))) (P (P 10 100) (P 20 30))) 
-- ((/. b195 (((if (pair? b195)) (((/. b237 (/. b241 (((if (pair? b237)) (((/. b273 (/. b277 (((if (pair? b273)) ((b277 (car b273)) (cdr b273))) TOPFAIL))) (cdr b195)) ((b241 (car b237)) (cdr b237)))) TOPFAIL))) (car b195)) (/. b309 (/. b313 (/. b317 (/. b321 b309)))))) TOPFAIL)) (P (P 10 100) (P 20 30))) 
 => 10 
 
 + ((/. b325 ((((/. k328 (/. d327 (/. rec326 (((if (pair? d327)) ((((/. k331 (/. d330 (/. rec329 (((if (pair? d330)) ((((/. k334 (/. d333 (/. rec332 (k334 (rec332 d333))))) (((/. k337 (/. d336 (/. rec335 (k337 (rec335 d336))))) k331) (cdr d330))) (car d330)) rec329)) TOPFAIL)))) (((/. k340 (/. d339 (/. rec338 (((if (pair? d339)) ((((/. k343 (/. d342 (/. rec341 (k343 (rec341 d342))))) (((/. k346 (/. d345 (/. rec344 (k346 (rec344 d345))))) k340) (cdr d339))) (car d339)) rec338)) TOPFAIL)))) k328) (cdr d327))) (car d327)) rec326)) TOPFAIL)))) (/. x x)) b325) (/. j (/. jj (/. k (/. r jj)))))) (P (P 10 100) (P 20 30))) 
-- ((/. b325 (((if (pair? b325)) (((/. b367 (/. b371 (((if (pair? b367)) (((/. b403 (/. b407 (((if (pair? b403)) ((b407 (car b403)) (cdr b403))) TOPFAIL))) (cdr b325)) ((b371 (car b367)) (cdr b367)))) TOPFAIL))) (car b325)) (/. b439 (/. b443 (/. b447 (/. b451 b443)))))) TOPFAIL)) (P (P 10 100) (P 20 30))) 
 => 100 
 
 + ((/. b455 ((((/. k458 (/. d457 (/. rec456 (((if (pair? d457)) ((((/. k461 (/. d460 (/. rec459 (((if (pair? d460)) ((((/. k464 (/. d463 (/. rec462 (k464 (rec462 d463))))) (((/. k467 (/. d466 (/. rec465 (k467 (rec465 d466))))) k461) (cdr d460))) (car d460)) rec459)) TOPFAIL)))) (((/. k470 (/. d469 (/. rec468 (((if (pair? d469)) ((((/. k473 (/. d472 (/. rec471 (k473 (rec471 d472))))) (((/. k476 (/. d475 (/. rec474 (k476 (rec474 d475))))) k470) (cdr d469))) (car d469)) rec468)) TOPFAIL)))) k458) (cdr d457))) (car d457)) rec456)) TOPFAIL)))) (/. x x)) b455) (/. j (/. jj (/. k (/. r k)))))) (P (P 10 100) (P 20 30))) 
-- ((/. b455 (((if (pair? b455)) (((/. b497 (/. b501 (((if (pair? b497)) (((/. b533 (/. b537 (((if (pair? b533)) ((b537 (car b533)) (cdr b533))) TOPFAIL))) (cdr b455)) ((b501 (car b497)) (cdr b497)))) TOPFAIL))) (car b455)) (/. b569 (/. b573 (/. b577 (/. b581 b577)))))) TOPFAIL)) (P (P 10 100) (P 20 30))) 
 => 20 
 
 + ((/. b585 ((((/. k588 (/. d587 (/. rec586 (((if (pair? d587)) ((((/. k591 (/. d590 (/. rec589 (((if (pair? d590)) ((((/. k594 (/. d593 (/. rec592 (k594 (rec592 d593))))) (((/. k597 (/. d596 (/. rec595 (k597 (rec595 d596))))) k591) (cdr d590))) (car d590)) rec589)) TOPFAIL)))) (((/. k600 (/. d599 (/. rec598 (((if (pair? d599)) ((((/. k603 (/. d602 (/. rec601 (k603 (rec601 d602))))) (((/. k606 (/. d605 (/. rec604 (k606 (rec604 d605))))) k600) (cdr d599))) (car d599)) rec598)) TOPFAIL)))) k588) (cdr d587))) (car d587)) rec586)) TOPFAIL)))) (/. x x)) b585) (/. j (/. jj (/. k (/. r r)))))) (P (P 10 100) (P 20 30))) 
-- ((/. b585 (((if (pair? b585)) (((/. b627 (/. b631 (((if (pair? b627)) (((/. b663 (/. b667 (((if (pair? b663)) ((b667 (car b663)) (cdr b663))) TOPFAIL))) (cdr b585)) ((b631 (car b627)) (cdr b627)))) TOPFAIL))) (car b585)) (/. b699 (/. b703 (/. b707 (/. b711 b711)))))) TOPFAIL)) (P (P 10 100) (P 20 30))) 
 => 30 
 
 + ((/. b715 ((((/. k718 (/. d717 (/. rec716 (((if (pair? d717)) ((((/. k721 (/. d720 (/. rec719 (k721 (rec719 d720))))) (((/. k724 (/. d723 (/. rec722 (((if (pair? d723)) ((((/. k727 (/. d726 (/. rec725 (k727 (rec725 d726))))) (((/. k730 (/. d729 (/. rec728 (k730 (rec728 d729))))) k724) (cdr d723))) (car d723)) rec722)) TOPFAIL)))) k718) (cdr d717))) (car d717)) rec716)) TOPFAIL)))) (/. x x)) b715) (/. j (/. k (/. r j))))) (P 10 (P 20 30))) 
-- ((/. b715 (((if (pair? b715)) (((/. b763 (/. b767 (((if (pair? b763)) ((b767 (car b763)) (cdr b763))) TOPFAIL))) (cdr b715)) (/. b803 (/. b807 (car b715))))) TOPFAIL)) (P 10 (P 20 30))) 
 => 10 
 
 + ((/. b811 ((((/. k814 (/. d813 (/. rec812 (((if (pair? d813)) ((((/. k817 (/. d816 (/. rec815 (k817 (rec815 d816))))) (((/. k820 (/. d819 (/. rec818 (((if (pair? d819)) ((((/. k823 (/. d822 (/. rec821 (k823 (rec821 d822))))) (((/. k826 (/. d825 (/. rec824 (k826 (rec824 d825))))) k820) (cdr d819))) (car d819)) rec818)) TOPFAIL)))) k814) (cdr d813))) (car d813)) rec812)) TOPFAIL)))) (/. x x)) b811) (/. j (/. k (/. r k))))) (P 10 (P 20 30))) 
-- ((/. b811 (((if (pair? b811)) (((/. b859 (/. b863 (((if (pair? b859)) ((b863 (car b859)) (cdr b859))) TOPFAIL))) (cdr b811)) ((/. j (/. b899 (/. b903 b899))) (car b811)))) TOPFAIL)) (P 10 (P 20 30))) 
 => 20 
 
 + ((/. b907 ((((/. k910 (/. d909 (/. rec908 (((if (pair? d909)) ((((/. k913 (/. d912 (/. rec911 (k913 (rec911 d912))))) (((/. k916 (/. d915 (/. rec914 (((if (pair? d915)) ((((/. k919 (/. d918 (/. rec917 (k919 (rec917 d918))))) (((/. k922 (/. d921 (/. rec920 (k922 (rec920 d921))))) k916) (cdr d915))) (car d915)) rec914)) TOPFAIL)))) k910) (cdr d909))) (car d909)) rec908)) TOPFAIL)))) (/. x x)) b907) (/. j (/. k (/. r r))))) (P 10 (P 20 30))) 
-- ((/. b907 (((if (pair? b907)) (((/. b955 (/. b959 (((if (pair? b955)) ((b959 (car b955)) (cdr b955))) TOPFAIL))) (cdr b907)) ((/. j (/. b995 (/. b999 b999))) (car b907)))) TOPFAIL)) (P 10 (P 20 30))) 
 => 30 
 
 + ((/. b1003 ((((/. k1006 (/. d1005 (/. rec1004 (((if (pair? d1005)) ((((/. k1009 (/. d1008 (/. rec1007 (((if (pair? d1008)) ((((/. k1012 (/. d1011 (/. rec1010 (k1012 (rec1010 d1011))))) (((/. k1015 (/. d1014 (/. rec1013 (k1015 (rec1013 d1014))))) k1009) (cdr d1008))) (car d1008)) rec1007)) TOPFAIL)))) (((/. k1018 (/. d1017 (/. rec1016 (k1018 (rec1016 d1017))))) k1006) (cdr d1005))) (car d1005)) rec1004)) TOPFAIL)))) (/. x x)) b1003) (/. j (/. jj (/. q j))))) (P (P 10 100) 20)) 
-- ((/. b1003 (((if (pair? b1003)) (((/. b1039 (/. b1043 (((if (pair? b1039)) (((b1043 (car b1039)) (cdr b1039)) (cdr b1003))) TOPFAIL))) (car b1003)) (/. b1087 (/. b1091 (/. b1095 b1087))))) TOPFAIL)) (P (P 10 100) 20)) 
 => 10 
 
 + ((/. b1099 ((((/. k1102 (/. d1101 (/. rec1100 (((if (pair? d1101)) ((((/. k1105 (/. d1104 (/. rec1103 (((if (pair? d1104)) ((((/. k1108 (/. d1107 (/. rec1106 (k1108 (rec1106 d1107))))) (((/. k1111 (/. d1110 (/. rec1109 (k1111 (rec1109 d1110))))) k1105) (cdr d1104))) (car d1104)) rec1103)) TOPFAIL)))) (((/. k1114 (/. d1113 (/. rec1112 (k1114 (rec1112 d1113))))) k1102) (cdr d1101))) (car d1101)) rec1100)) TOPFAIL)))) (/. x x)) b1099) (/. j (/. jj (/. q jj))))) (P (P 10 100) 20)) 
-- ((/. b1099 (((if (pair? b1099)) (((/. b1135 (/. b1139 (((if (pair? b1135)) (((b1139 (car b1135)) (cdr b1135)) (cdr b1099))) TOPFAIL))) (car b1099)) (/. b1183 (/. b1187 (/. b1191 b1187))))) TOPFAIL)) (P (P 10 100) 20)) 
 => 100 
 
 + ((/. b1195 ((((/. k1198 (/. d1197 (/. rec1196 (((if (pair? d1197)) ((((/. k1201 (/. d1200 (/. rec1199 (((if (pair? d1200)) ((((/. k1204 (/. d1203 (/. rec1202 (k1204 (rec1202 d1203))))) (((/. k1207 (/. d1206 (/. rec1205 (k1207 (rec1205 d1206))))) k1201) (cdr d1200))) (car d1200)) rec1199)) TOPFAIL)))) (((/. k1210 (/. d1209 (/. rec1208 (k1210 (rec1208 d1209))))) k1198) (cdr d1197))) (car d1197)) rec1196)) TOPFAIL)))) (/. x x)) b1195) (/. j (/. jj (/. q q))))) (P (P 10 100) 20)) 
-- ((/. b1195 (((if (pair? b1195)) (((/. b1231 (/. b1235 (((if (pair? b1231)) (((b1235 (car b1231)) (cdr b1231)) (cdr b1195))) TOPFAIL))) (car b1195)) (/. b1279 (/. b1283 (/. b1287 b1287))))) TOPFAIL)) (P (P 10 100) 20)) 
 => 20 
 
 + ((/. (P x Nil) x) (P Nil Nil)) 
-- (((/. d1453 (/. rec1452 (((if (pair? d1453)) (((if ((== (cdr d1453)) Nil)) (rec1452 (car d1453))) TOPFAIL)) TOPFAIL))) (P Nil Nil)) (/. x x)) 
 => Nil 
 
 + ((/. (P (P j k) Nil) j) (P (P 10 20) Nil)) 
-- (((/. d1463 (/. rec1462 (((if (pair? d1463)) (((/. d1466 (/. rec1465 (((if (pair? d1466)) (((if ((== (cdr d1463)) Nil)) ((rec1465 (car d1466)) (cdr d1466))) TOPFAIL)) TOPFAIL))) (car d1463)) rec1462)) TOPFAIL))) (P (P 10 20) Nil)) (/. j (/. k j))) 
 => 10 
 
 + ((/. (P (P j k) Nil) k) (P (P 10 20) Nil)) 
-- (((/. d1479 (/. rec1478 (((if (pair? d1479)) (((/. d1482 (/. rec1481 (((if (pair? d1482)) (((if ((== (cdr d1479)) Nil)) ((rec1481 (car d1482)) (cdr d1482))) TOPFAIL)) TOPFAIL))) (car d1479)) rec1478)) TOPFAIL))) (P (P 10 20) Nil)) (/. j (/. k k))) 
 => 20 
 
 + ((/. (P (P (P j jj) (P k r)) Nil) j) (P (P (P 10 100) (P 20 30)) Nil)) 
-- (((/. d1495 (/. rec1494 (((if (pair? d1495)) (((/. d1498 (/. rec1497 (((if (pair? d1498)) (((/. d1501 (/. rec1500 (((if (pair? d1501)) (((/. d1510 (/. rec1509 (((if (pair? d1510)) (((if ((== (cdr d1495)) Nil)) ((rec1509 (car d1510)) (cdr d1510))) TOPFAIL)) TOPFAIL))) (cdr d1498)) ((rec1500 (car d1501)) (cdr d1501)))) TOPFAIL))) (car d1498)) rec1497)) TOPFAIL))) (car d1495)) rec1494)) TOPFAIL))) (P (P (P 10 100) (P 20 30)) Nil)) (/. j (/. jj (/. k (/. r j))))) 
 => 10 
 
 + ((/. (P (P (P j jj) (P k r)) Nil) jj) (P (P (P 10 100) (P 20 30)) Nil)) 
-- (((/. d1523 (/. rec1522 (((if (pair? d1523)) (((/. d1526 (/. rec1525 (((if (pair? d1526)) (((/. d1529 (/. rec1528 (((if (pair? d1529)) (((/. d1538 (/. rec1537 (((if (pair? d1538)) (((if ((== (cdr d1523)) Nil)) ((rec1537 (car d1538)) (cdr d1538))) TOPFAIL)) TOPFAIL))) (cdr d1526)) ((rec1528 (car d1529)) (cdr d1529)))) TOPFAIL))) (car d1526)) rec1525)) TOPFAIL))) (car d1523)) rec1522)) TOPFAIL))) (P (P (P 10 100) (P 20 30)) Nil)) (/. j (/. jj (/. k (/. r jj))))) 
 => 100 
 
 + ((/. (P (P (P j jj) (P k r)) Nil) k) (P (P (P 10 100) (P 20 30)) Nil)) 
-- (((/. d1551 (/. rec1550 (((if (pair? d1551)) (((/. d1554 (/. rec1553 (((if (pair? d1554)) (((/. d1557 (/. rec1556 (((if (pair? d1557)) (((/. d1566 (/. rec1565 (((if (pair? d1566)) (((if ((== (cdr d1551)) Nil)) ((rec1565 (car d1566)) (cdr d1566))) TOPFAIL)) TOPFAIL))) (cdr d1554)) ((rec1556 (car d1557)) (cdr d1557)))) TOPFAIL))) (car d1554)) rec1553)) TOPFAIL))) (car d1551)) rec1550)) TOPFAIL))) (P (P (P 10 100) (P 20 30)) Nil)) (/. j (/. jj (/. k (/. r k))))) 
 => 20 
 
 + ((/. (P (P (P j jj) (P k r)) Nil) r) (P (P (P 10 100) (P 20 30)) Nil)) 
-- (((/. d1579 (/. rec1578 (((if (pair? d1579)) (((/. d1582 (/. rec1581 (((if (pair? d1582)) (((/. d1585 (/. rec1584 (((if (pair? d1585)) (((/. d1594 (/. rec1593 (((if (pair? d1594)) (((if ((== (cdr d1579)) Nil)) ((rec1593 (car d1594)) (cdr d1594))) TOPFAIL)) TOPFAIL))) (cdr d1582)) ((rec1584 (car d1585)) (cdr d1585)))) TOPFAIL))) (car d1582)) rec1581)) TOPFAIL))) (car d1579)) rec1578)) TOPFAIL))) (P (P (P 10 100) (P 20 30)) Nil)) (/. j (/. jj (/. k (/. r r))))) 
 => 30 
 
 + ((/. (P (P j (P k r)) Nil) j) (P (P 10 (P 20 30)) Nil)) 
-- (((/. d1607 (/. rec1606 (((if (pair? d1607)) (((/. d1610 (/. rec1609 (((if (pair? d1610)) (((/. d1616 (/. rec1615 (((if (pair? d1616)) (((if ((== (cdr d1607)) Nil)) ((rec1615 (car d1616)) (cdr d1616))) TOPFAIL)) TOPFAIL))) (cdr d1610)) (rec1609 (car d1610)))) TOPFAIL))) (car d1607)) rec1606)) TOPFAIL))) (P (P 10 (P 20 30)) Nil)) (/. j (/. k (/. r j)))) 
 => 10 
 
 + ((/. (P (P j (P k r)) Nil) k) (P (P 10 (P 20 30)) Nil)) 
-- (((/. d1629 (/. rec1628 (((if (pair? d1629)) (((/. d1632 (/. rec1631 (((if (pair? d1632)) (((/. d1638 (/. rec1637 (((if (pair? d1638)) (((if ((== (cdr d1629)) Nil)) ((rec1637 (car d1638)) (cdr d1638))) TOPFAIL)) TOPFAIL))) (cdr d1632)) (rec1631 (car d1632)))) TOPFAIL))) (car d1629)) rec1628)) TOPFAIL))) (P (P 10 (P 20 30)) Nil)) (/. j (/. k (/. r k)))) 
 => 20 
 
 + ((/. (P (P j (P k r)) Nil) r) (P (P 10 (P 20 30)) Nil)) 
-- (((/. d1651 (/. rec1650 (((if (pair? d1651)) (((/. d1654 (/. rec1653 (((if (pair? d1654)) (((/. d1660 (/. rec1659 (((if (pair? d1660)) (((if ((== (cdr d1651)) Nil)) ((rec1659 (car d1660)) (cdr d1660))) TOPFAIL)) TOPFAIL))) (cdr d1654)) (rec1653 (car d1654)))) TOPFAIL))) (car d1651)) rec1650)) TOPFAIL))) (P (P 10 (P 20 30)) Nil)) (/. j (/. k (/. r r)))) 
 => 30 
 
 + ((/. (P (P (P j jj) q) Nil) j) (P (P (P 10 100) 20) Nil)) 
-- (((/. d1673 (/. rec1672 (((if (pair? d1673)) (((/. d1676 (/. rec1675 (((if (pair? d1676)) (((/. d1679 (/. rec1678 (((if (pair? d1679)) (((if ((== (cdr d1673)) Nil)) (((rec1678 (car d1679)) (cdr d1679)) (cdr d1676))) TOPFAIL)) TOPFAIL))) (car d1676)) rec1675)) TOPFAIL))) (car d1673)) rec1672)) TOPFAIL))) (P (P (P 10 100) 20) Nil)) (/. j (/. jj (/. q j)))) 
 => 10 
 
 + ((/. (P (P (P j jj) q) Nil) jj) (P (P (P 10 100) 20) Nil)) 
-- (((/. d1695 (/. rec1694 (((if (pair? d1695)) (((/. d1698 (/. rec1697 (((if (pair? d1698)) (((/. d1701 (/. rec1700 (((if (pair? d1701)) (((if ((== (cdr d1695)) Nil)) (((rec1700 (car d1701)) (cdr d1701)) (cdr d1698))) TOPFAIL)) TOPFAIL))) (car d1698)) rec1697)) TOPFAIL))) (car d1695)) rec1694)) TOPFAIL))) (P (P (P 10 100) 20) Nil)) (/. j (/. jj (/. q jj)))) 
 => 100 
 
 + ((/. (P (P (P j jj) q) Nil) q) (P (P (P 10 100) 20) Nil)) 
-- (((/. d1717 (/. rec1716 (((if (pair? d1717)) (((/. d1720 (/. rec1719 (((if (pair? d1720)) (((/. d1723 (/. rec1722 (((if (pair? d1723)) (((if ((== (cdr d1717)) Nil)) (((rec1722 (car d1723)) (cdr d1723)) (cdr d1720))) TOPFAIL)) TOPFAIL))) (car d1720)) rec1719)) TOPFAIL))) (car d1717)) rec1716)) TOPFAIL))) (P (P (P 10 100) 20) Nil)) (/. j (/. jj (/. q q)))) 
 => 20 
 
 + ((/. (P x Nil) x) (P 1 Nil)) 
-- (((/. d1739 (/. rec1738 (((if (pair? d1739)) (((if ((== (cdr d1739)) Nil)) (rec1738 (car d1739))) TOPFAIL)) TOPFAIL))) (P 1 Nil)) (/. x x)) 
 => 1 
 
 + ((/. (P x Nil) (x (P 2 Nil))) (P (/. x x) Nil)) 
-- (((/. d1749 (/. rec1748 (((if (pair? d1749)) (((if ((== (cdr d1749)) Nil)) (rec1748 (car d1749))) TOPFAIL)) TOPFAIL))) (P (/. b1757 ((((/. k1760 (/. d1759 (/. rec1758 (k1760 (rec1758 d1759))))) (/. x x)) b1757) (/. x x))) Nil)) (/. x (x (P 2 Nil)))) 
 => (P 2 Nil) 
 
 + (/. (P r Nil) r) 
-- (/. b1761 (((if (pair? b1761)) (((if ((== (cdr b1761)) Nil)) (car b1761)) TOPFAIL)) TOPFAIL)) 
 => ($ (/. b1761 (((if (pair? b1761)) (((if ((== (cdr b1761)) Nil)) (car b1761)) TOPFAIL)) TOPFAIL)) ()) 
 
 + ((/. (P r Nil) r) (P 3 Nil)) 
-- (((/. d1773 (/. rec1772 (((if (pair? d1773)) (((if ((== (cdr d1773)) Nil)) (rec1772 (car d1773))) TOPFAIL)) TOPFAIL))) (P 3 Nil)) (/. r r)) 
 => 3 
 
 + ((+ 10) 20) 
-- ((+ 10) 20) 
 => 30 
 
 + ((+ ((/. (P x Nil) x) (P 2000 Nil))) 3000) 
-- ((+ (((/. d1783 (/. rec1782 (((if (pair? d1783)) (((if ((== (cdr d1783)) Nil)) (rec1782 (car d1783))) TOPFAIL)) TOPFAIL))) (P 2000 Nil)) (/. x x))) 3000) 
 => 5000 
 
 + ((== (P 30 Nil)) (P 30 Nil)) 
-- ((== (P 30 Nil)) (P 30 Nil)) 
 => True 
 
 + ((== (P 30 Nil)) (P 40 Nil)) 
-- ((== (P 30 Nil)) (P 40 Nil)) 
 => False 
 
 + (((if True) 100) 200) 
-- (((if True) 100) 200) 
 => 100 
 
 + (((if False) 100) 200) 
-- (((if False) 100) 200) 
 => 200 
 
 + (tuct (P 10 Nil)) 
-- (tuct (P 10 Nil)) 
 => 10 
 
 + ((+ 20) (tuct (P 10 Nil))) 
-- ((+ 20) (tuct (P 10 Nil))) 
 => 30 
 
 + ((- 40) 15) 
-- ((- 40) 15) 
 => 25 
 
 + ((* 10) 20) 
-- ((* 10) 20) 
 => 200 
 
 + (((if ((== (P 0 Nil)) (P 3 Nil))) True) False) 
-- (((if ((== (P 0 Nil)) (P 3 Nil))) True) False) 
 => False 
 
 + (((if ((== (P 0 Nil)) (P 0 Nil))) True) False) 
-- (((if ((== (P 0 Nil)) (P 0 Nil))) True) False) 
 => True 
 
 + ((/. (P n Nil) (((if ((== (P n Nil)) (P 3 Nil))) True) False)) (P 3 Nil)) 
-- (((/. d1793 (/. rec1792 (((if (pair? d1793)) (((if ((== (cdr d1793)) Nil)) (rec1792 (car d1793))) TOPFAIL)) TOPFAIL))) (P 3 Nil)) (/. n (((if ((== (P n Nil)) (P 3 Nil))) True) False))) 
 => False 
 
 + ((/. (P n Nil) (((if ((== (P n Nil)) (P 3 Nil))) True) False)) (P 0 Nil)) 
-- (((/. d1803 (/. rec1802 (((if (pair? d1803)) (((if ((== (cdr d1803)) Nil)) (rec1802 (car d1803))) TOPFAIL)) TOPFAIL))) (P 0 Nil)) (/. n (((if ((== (P n Nil)) (P 3 Nil))) True) False))) 
 => False 
 
 + (((if ((== (P 0 Nil)) (P 0 Nil))) ((* 10) 20)) ((* 30) 40)) 
-- (((if ((== (P 0 Nil)) (P 0 Nil))) ((* 10) 20)) ((* 30) 40)) 
 => 200 
 
 + (((if ((== (P 3 Nil)) (P 0 Nil))) ((* 10) 20)) ((* 30) 40)) 
-- (((if ((== (P 3 Nil)) (P 0 Nil))) ((* 10) 20)) ((* 30) 40)) 
 => 1200 
 
 + ((/. (P n Nil) (((if ((== (P n Nil)) (P 0 Nil))) 1) ((* n) ((- n) 1)))) (P 3 Nil)) 
-- (((/. d1813 (/. rec1812 (((if (pair? d1813)) (((if ((== (cdr d1813)) Nil)) (rec1812 (car d1813))) TOPFAIL)) TOPFAIL))) (P 3 Nil)) (/. n (((if ((== (P n Nil)) (P 0 Nil))) 1) ((* n) ((- n) 1))))) 
 => 6 
 
 + ((cons 1) 2) 
-- ((cons 1) 2) 
 => (P 1 2) 
 
 + (car ((cons 1) 2)) 
-- (car ((cons 1) 2)) 
 => 1 
 
 + (cdr ((cons 1) 2)) 
-- (cdr ((cons 1) 2)) 
 => 2 
 
 + (pair? (P ((cons 1) 2) Nil)) 
-- (pair? (P ((cons 1) 2) Nil)) 
 => True 
 
 + (pair? (P (car ((cons 1) 2)) Nil)) 
-- (pair? (P (car ((cons 1) 2)) Nil)) 
 => True 
 
 + (pair? (P (cdr ((cons 1) 2)) Nil)) 
-- (pair? (P (cdr ((cons 1) 2)) Nil)) 
 => True 
 
 + (double (P 10 Nil)) 
-- (double (P 10 Nil)) 
 => 20 
 
 + (ones (P Nil Nil)) 
-- (ones (P Nil Nil)) 
 => Nil 
 
 + (ones (P (P 1 Nil) Nil)) 
-- (ones (P (P 1 Nil) Nil)) 
 => (P (P 1 1) Nil) 
 
 + (ones (P (P 1 (P 2 (P 3 Nil))) Nil)) 
-- (ones (P (P 1 (P 2 (P 3 Nil))) Nil)) 
 => (P (P 1 1) (P (P 1 2) (P (P 1 3) Nil))) 
 
 + ((/. (P a b) a) (P 1 2)) 
-- (((/. d1823 (/. rec1822 (((if (pair? d1823)) ((rec1822 (car d1823)) (cdr d1823))) TOPFAIL))) (P 1 2)) (/. a (/. b a))) 
 => 1 
 
 + (voo (P 1 (P 2 3))) 
-- (voo (P 1 (P 2 3))) 
 => 5 
 
 + (/. x x) 
-- (/. b1831 ((/. x x) b1831)) 
 => ($ (/. b1831 ((/. x x) b1831)) ()) 
 
 + ((/. x x) (P 1 Nil)) 
-- ((/. x x) (P 1 Nil)) 
 => (P 1 Nil) 
 
 + ((/. (P a b) 1) (P 10 20)) 
-- (((/. d1841 (/. rec1840 (((if (pair? d1841)) ((rec1840 (car d1841)) (cdr d1841))) TOPFAIL))) (P 10 20)) (/. a (/. b 1))) 
 => 1 
 
 + ((/. (P a b) a) (P 10 20)) 
-- (((/. d1851 (/. rec1850 (((if (pair? d1851)) ((rec1850 (car d1851)) (cdr d1851))) TOPFAIL))) (P 10 20)) (/. a (/. b a))) 
 => 10 
 
 + ((/. (P a b) b) (P 10 20)) 
-- (((/. d1861 (/. rec1860 (((if (pair? d1861)) ((rec1860 (car d1861)) (cdr d1861))) TOPFAIL))) (P 10 20)) (/. a (/. b b))) 
 => 20 
 
 + ((/. (P a b) ((+ a) b)) (P 10 20)) 
-- (((/. d1871 (/. rec1870 (((if (pair? d1871)) ((rec1870 (car d1871)) (cdr d1871))) TOPFAIL))) (P 10 20)) (/. a (/. b ((+ a) b)))) 
 => 30 
 
 + (voo2 (P double (P 1 Nil))) 
-- (voo2 (P double (P 1 Nil))) 
 => (P 20 Nil) 
 
 + (voo2 (P double Nil)) 
-- (voo2 (P double Nil)) 
 => Nil 
 
 + ((/. (P f (P a b)) b) (P 1000 (P 1 2))) 
-- (((/. d1881 (/. rec1880 (((if (pair? d1881)) (((/. d1887 (/. rec1886 (((if (pair? d1887)) ((rec1886 (car d1887)) (cdr d1887))) TOPFAIL))) (cdr d1881)) (rec1880 (car d1881)))) TOPFAIL))) (P 1000 (P 1 2))) (/. f (/. a (/. b b)))) 
 => 2 
 
 + ((/. (P a b) a) (P 1 2)) 
-- (((/. d1897 (/. rec1896 (((if (pair? d1897)) ((rec1896 (car d1897)) (cdr d1897))) TOPFAIL))) (P 1 2)) (/. a (/. b a))) 
 => 1 
 
 + (map2 (P double (P (P 1 (P 2 (P 3 Nil))) Nil))) 
-- (map2 (P double (P (P 1 (P 2 (P 3 Nil))) Nil))) 
 => (P 2 (P 4 (P 6 Nil))) 
 
 + ((/. 1 2) 1) 
-- (((if ((== 1) 1)) 2) TOPFAIL) 
 => 2 
 
 + ((/. (P 1 Nil) 2) (P 1 Nil)) 
-- (((/. d1911 (/. rec1910 (((if (pair? d1911)) (((if ((== (car d1911)) 1)) (((if ((== (cdr d1911)) Nil)) rec1910) TOPFAIL)) TOPFAIL)) TOPFAIL))) (P 1 Nil)) 2) 
 => 2 
 
 + ((/./. (/. 1 100) (/. 2 200)) 1) 
-- ((/. bb1919 ((/. b1921 (((if ((== b1921) 1)) 100) (((if ((== bb1919) 2)) 200) (FAIL 1)))) bb1919)) 1) 
 => 100 
 
 + ((/./. (/. 1 100) (/. 2 200)) 2) 
-- ((/. bb1933 ((/. b1935 (((if ((== b1935) 1)) 100) (((if ((== bb1933) 2)) 200) (FAIL 1)))) bb1933)) 2) 
 => 200 
 
 + ((/./. (/. (P 1 Nil) 100) (/. (P 2 Nil) 200)) (P 1 Nil)) 
-- ((/. bb1947 ((/. f1948 (((if (pair? bb1947)) (((if ((== (car bb1947)) 1)) (((if ((== (cdr bb1947)) Nil)) 100) f1948)) f1948)) f1948)) ((/. f1960 (((if (pair? bb1947)) (((if ((== (car bb1947)) 2)) (((if ((== (cdr bb1947)) Nil)) 200) f1960)) f1960)) f1960)) (FAIL 1)))) (P 1 Nil)) 
 => 100 
 
 + ((/./. (/. (P 1 Nil) 100) (/. (P 2 Nil) 200)) (P 2 Nil)) 
-- ((/. bb1973 ((/. f1974 (((if (pair? bb1973)) (((if ((== (car bb1973)) 1)) (((if ((== (cdr bb1973)) Nil)) 100) f1974)) f1974)) f1974)) ((/. f1986 (((if (pair? bb1973)) (((if ((== (car bb1973)) 2)) (((if ((== (cdr bb1973)) Nil)) 200) f1986)) f1986)) f1986)) (FAIL 1)))) (P 2 Nil)) 
 => 200 
 
 + ((/. (P quote (P Nil Nil)) 1) (P quote (P Nil Nil))) 
-- (((/. d2001 (/. rec2000 (((if (pair? d2001)) (((/. d2007 (/. rec2006 (((if (pair? d2007)) (((if ((== (car d2007)) Nil)) (((if ((== (cdr d2007)) Nil)) rec2006) TOPFAIL)) TOPFAIL)) TOPFAIL))) (cdr d2001)) (rec2000 (car d2001)))) TOPFAIL))) (P quote (P Nil Nil))) (/. quote 1)) 
 => 1 
 
 + ((/. (P 'Nil Nil) 1) (P 'Nil Nil)) 
-- (((/. d2017 (/. rec2016 (((if (pair? d2017)) (((if ((== (car d2017)) 'Nil)) (((if ((== (cdr d2017)) Nil)) rec2016) TOPFAIL)) TOPFAIL)) TOPFAIL))) (P 'Nil Nil)) 1) 
 => 1 
 
 + ((/. (P 1 (P 2 Nil)) 40) (P 1 (P 2 Nil))) 
-- (((/. d2027 (/. rec2026 (((if (pair? d2027)) (((if ((== (car d2027)) 1)) (((/. d2033 (/. rec2032 (((if (pair? d2033)) (((if ((== (car d2033)) 2)) (((if ((== (cdr d2033)) Nil)) rec2032) TOPFAIL)) TOPFAIL)) TOPFAIL))) (cdr d2027)) rec2026)) TOPFAIL)) TOPFAIL))) (P 1 (P 2 Nil))) 40) 
 => 40 
 
 + ((/. (P a (P b Nil)) ((+ a) b)) (P 1 (P 2 Nil))) 
-- (((/. d2043 (/. rec2042 (((if (pair? d2043)) (((/. d2049 (/. rec2048 (((if (pair? d2049)) (((if ((== (cdr d2049)) Nil)) (rec2048 (car d2049))) TOPFAIL)) TOPFAIL))) (cdr d2043)) (rec2042 (car d2043)))) TOPFAIL))) (P 1 (P 2 Nil))) (/. a (/. b ((+ a) b)))) 
 => 3 
 
 + 1 
-- 1 
 => 1 
 
 + (/. x x) 
-- (/. b2057 ((/. x x) b2057)) 
 => ($ (/. b2057 ((/. x x) b2057)) ()) 
 
 + ((/. x x) (P 1 Nil)) 
-- ((/. x x) (P 1 Nil)) 
 => (P 1 Nil) 
 
 + ((/. y ((/. x x) (P y Nil))) (P 2 Nil)) 
-- ((/. y (P y Nil)) (P 2 Nil)) 
 => (P (P 2 Nil) Nil) 
 
 + (/. (P a b) a) 
-- (/. b2073 (((if (pair? b2073)) ((/. b (car b2073)) (cdr b2073))) TOPFAIL)) 
 => ($ (/. b2073 (((if (pair? b2073)) ((/. b (car b2073)) (cdr b2073))) TOPFAIL)) ()) 
 
 + ((/. (P a b) a) (P 1 2)) 
-- (((/. d2085 (/. rec2084 (((if (pair? d2085)) ((rec2084 (car d2085)) (cdr d2085))) TOPFAIL))) (P 1 2)) (/. a (/. b a))) 
 => 1 
 
 + ((/. (P a b) b) (P 1 2)) 
-- (((/. d2095 (/. rec2094 (((if (pair? d2095)) ((rec2094 (car d2095)) (cdr d2095))) TOPFAIL))) (P 1 2)) (/. a (/. b b))) 
 => 2 
 

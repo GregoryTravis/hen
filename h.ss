@@ -241,7 +241,7 @@
   ;(evl-check e)
   (display "+ ") (lshew e) (display "\n")
   (let ((pe (preprocess e)))
-    (display "- ") (lshew pe) (display "\n")
+    ;(display "- ") (lshew pe) (display "\n")
 
     (if use-ski
         (let ((ce (ski pe)))
