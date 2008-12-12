@@ -195,7 +195,17 @@ yeah* lookup(char* s, yeah* env) {
 
 yeah* evl(yeah* e, yeah* env) {
   //printf("-- "); dump(e); printf("\n");
-  if (e->t == APP && e->u.app.f->t == CLOSURE) {
+  if (e->t == APP && e->u.app.f->t == APP && e->u.app.f->u.app.f->t == SYMBOL) {
+    char* f = e->u.app.f->u.app.f->u.symbol.s;
+    yeah* a = e->u.app.f->u.app.arg;
+    yeah* b = e->u.app.arg;
+    if (!strcmp(f, "+")) {
+      ASSERT(a->t == INTEGER && b->t == INTEGER);
+      return integer(a->u.integer.i + b->u.integer.i);
+    } else {
+      err(("Unknown primitive %s\n", f));
+    }
+  } else if (e->t == APP && e->u.app.f->t == CLOSURE) {
     return evl(
       e->u.app.f->u.lambda.body,
       pair(
@@ -236,6 +246,7 @@ int main(int argc, char** argv) {
   topevl(app(lambda(symbol("x"), symbol("x")), integer(1)));
   topevl(integer(10));
   dump(evl(symbol("x"), pair(pair(symbol("x"), integer(1)), Nil)));
+  topevl(app(app(symbol("+"), integer(1)), integer(2)));
 
   return 0;
 }
