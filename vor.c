@@ -1,7 +1,8 @@
 #include <stdio.h>
-#include <stdlib.h>
 
-#define ASSERT(x) do { if (!(x)) { fprintf(stderr, "ASSERTION FAILURE\n"); exit(1); } } while (0)
+#include "a.h"
+#include "mem.h"
+#include "spew.h"
 
 typedef enum {
   LAMBDA,
@@ -55,8 +56,8 @@ struct yeah {
 };
 
 yeah* newyeah(void) {
-  yeah* y = malloc(sizeof(yeah));
-  ASSERT(y);
+  yeah* y = NEW(yeah);
+  A(y);
   return y;
 }
 
@@ -145,7 +146,7 @@ void dump1(yeah* y) {
     dump1(y->u.app.arg);
     printf( ")");
     break;
-  default: ASSERT(0); break;
+  default: err(("%d\n", y->t)); break;
   }
 }
 
