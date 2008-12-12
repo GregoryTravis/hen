@@ -1,3 +1,4 @@
+(require scheme/system)
 (require (lib "ports-6.ss" "rnrs/io"))
 ;(require (lib "simple-6.ss" "rnrs/io")) ; bad one
 (require (lib "32.ss" "srfi"))
@@ -1049,3 +1050,9 @@
 
 (define (join-things glue things)
   (apply ++ (join-things-list glue things)))
+
+(define (cmd . stuff)
+  (display "+ ")
+  (display (join-things " " stuff))
+  (display "\n")
+  (apply system stuff))
