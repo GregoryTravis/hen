@@ -279,10 +279,12 @@ void init() {
 int main(int argc, char** argv) {
   init();
   //trace = 1;
-  topevl(lambda(symbol("x"), symbol("x")));
-  topevl(app(lambda(symbol("x"), symbol("x")), integer(1)));
-  topevl(integer(10));
-  topevl(app(app(symbol("+"), integer(1)), integer(2)));
+/*   topevl(lambda(symbol("x"), symbol("x"))); */
+/*   topevl(app(lambda(symbol("x"), symbol("x")), integer(1))); */
+/*   topevl(integer(10)); */
+/*   topevl(app(app(symbol("+"), integer(1)), integer(2))); */
+
+#include "obj.i"
 
   return 0;
 }

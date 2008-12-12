@@ -147,6 +147,10 @@
 (define (read-objects filename)
   (call-with-input-file filename read-objects-port))
 
+(define (write-string-to-file filename s)
+  (call-with-output-file filename
+    (lambda (port) (display s port))))
+
 (define (read-objects-port p)
   (letrec ((objects '())
            (read-em

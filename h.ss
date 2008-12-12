@@ -636,5 +636,6 @@
    ((or (symbol? e) (number? e)) (->string e))
    (#t (err 'render e))))
 
-(display (render (cmpl (preprocess '((/. x x) 1)))))
-(display "\n")
+(define src '((/. x x) 1))
+;(define src '((/. x (x 1)) (/. x x)))
+(write-string-to-file "obj.i" (++ "topevl(" (render (cmpl (preprocess src))) ");\n"))
