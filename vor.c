@@ -1,8 +1,11 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "a.h"
 #include "mem.h"
 #include "spew.h"
+
+static int trace = 0;
 
 typedef enum {
   LAMBDA,
@@ -127,43 +130,43 @@ yeah* nil(void) {
   return y;
 }
 
-void dump1(yeah* y) {
+void dump(yeah* y) {
   switch (y->t) {
   case INTEGER: printf( "%d", y->u.integer.i ); break;
   case SYMBOL: printf( "%s", y->u.symbol.s ); break;
   case PAIR:
     printf( "(" );
-    dump1(y->u.pair.car);
+    dump(y->u.pair.car);
     printf( " . " );
-    dump1(y->u.pair.cdr);
+    dump(y->u.pair.cdr);
     printf( ")" );
     break;
   case THUNK:
     printf( "(@ ");
-    dump1(y->u.thunk.exp);
+    dump(y->u.thunk.exp);
     printf( " ");
-    dump1(y->u.thunk.env);
+    dump(y->u.thunk.env);
     printf( ")");
     break;
   case CLOSURE:
     printf( "($ ");
-    dump1(y->u.closure.lambda);
+    dump(y->u.closure.lambda);
     printf( " ");
-    dump1(y->u.closure.env);
+    dump(y->u.closure.env);
     printf( ")");
     break;
   case LAMBDA:
     printf( "(/. ");
-    dump1(y->u.lambda.arg);
+    dump(y->u.lambda.arg);
     printf( " ");
-    dump1(y->u.lambda.body);
+    dump(y->u.lambda.body);
     printf( ")");
     break;
   case APP:
     printf( "(");
-    dump1(y->u.app.f);
+    dump(y->u.app.f);
     printf( " ");
-    dump1(y->u.app.arg);
+    dump(y->u.app.arg);
     printf( ")");
     break;
   case NIL:
@@ -173,8 +176,8 @@ void dump1(yeah* y) {
   }
 }
 
-void dump(yeah* y) {
-  dump1(y);
+void dumpn(yeah* y) {
+  dump(y);
   putchar('\n');
 }
 
@@ -193,8 +196,9 @@ yeah* lookup(char* s, yeah* env) {
   }
 }
 
-yeah* evl(yeah* e, yeah* env) {
-  //printf("-- "); dump(e); printf("\n");
+yeah* evl(yeah* e, yeah* env);
+
+yeah* evl_(yeah* e, yeah* env) {
   if (e->t == APP && e->u.app.f->t == APP && e->u.app.f->u.app.f->t == SYMBOL) {
     char* f = e->u.app.f->u.app.f->u.symbol.s;
     yeah* a = e->u.app.f->u.app.arg;
@@ -207,33 +211,65 @@ yeah* evl(yeah* e, yeah* env) {
     }
   } else if (e->t == APP && e->u.app.f->t == CLOSURE) {
     return evl(
-      e->u.app.f->u.lambda.body,
+      e->u.app.f->u.closure.lambda->u.lambda.body,
       pair(
         pair(
-          e->u.app.f->u.lambda.arg,
+          e->u.app.f->u.closure.lambda->u.lambda.arg,
           e->u.app.arg),
-        env));
+        e->u.app.f->u.closure.env));
   } else if (e->t == APP && e->u.app.f->t == LAMBDA) {
-    return evl(evl(e->u.app.f,env), e->u.app.arg);
+    return evl(app(evl(e->u.app.f,env), e->u.app.arg), e->u.app.arg);
   } else if (e->t == LAMBDA) {
     return closure(e, env);
   } else if (e->t == SYMBOL) {
     return lookup(e->u.symbol.s, env);
-  } else if (e->t == INTEGER || e->t == CLOSURE) {
+  } else if (e->t == INTEGER || e->t == CLOSURE || e->t == NIL) {
     return e;
   } else {
     warn(("Can't eval "));
-    dump(e);
+    dumpn(e);
     err((""));
   }
 }
 
+yeah* evl(yeah* e, yeah* env) {
+  if (!trace) {
+    return evl_(e, env);
+  }
+
+  static int indent = 0;
+  indent++;
+
+  for (int i = 0; i < indent; ++i) {
+    printf("| ");
+  }
+  printf("+ ");
+  dump(e);
+  printf("  [");
+  dump(env);
+  printf("]");
+  printf("\n");
+
+  yeah* value = evl_(e, env);
+
+  for (int i = 0; i < indent; ++i) {
+    printf("| ");
+  }
+  printf("-> ");
+  dumpn(value);
+
+  indent--;
+
+  return value;
+}
+
+
 void topevl(yeah* y) {
   printf("+ ");
-  dump(y);
+  dumpn(y);
   yeah* value = evl(y,Nil);
   printf("-> ");
-  dump(value);
+  dumpn(value);
 }
 
 void init() {
@@ -242,10 +278,11 @@ void init() {
 
 int main(int argc, char** argv) {
   init();
+  //trace = 1;
   topevl(lambda(symbol("x"), symbol("x")));
   topevl(app(lambda(symbol("x"), symbol("x")), integer(1)));
   topevl(integer(10));
-  dump(evl(symbol("x"), pair(pair(symbol("x"), integer(1)), Nil)));
+  dumpn(evl(symbol("x"), pair(pair(symbol("x"), integer(1)), Nil)));
   topevl(app(app(symbol("+"), integer(1)), integer(2)));
 
   return 0;
