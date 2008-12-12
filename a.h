@@ -14,6 +14,9 @@
 typedef unsigned char bool;
 typedef unsigned char uchar;
 
+#define true 1
+#define false 0
+
 #define ASSERT
 
 #define _A(expr) ((expr) ? 0 : \
