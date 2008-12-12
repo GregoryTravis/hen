@@ -1,4 +1,3 @@
-#mzscheme -r main.ss
-rm -f vor
-make vor
-vor
+mzscheme -r main.ss
+rm -f vor ; make vor ; vor
+rm -rf vor.dSYM/

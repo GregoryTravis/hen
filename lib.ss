@@ -1036,3 +1036,12 @@
 
 (define (quoted-symbol? o)
   (and (pair? o) (eq? (car o) 'quote) (symbol? (cadr o)) (null? (cddr o))))
+
+(define (join-things-list glue things)
+  (cond
+   ((null? things) things)
+   ((null? (cdr things)) things)
+   (#t (cons (car things) (cons glue (join-things-list glue (cdr things)))))))
+
+(define (join-things glue things)
+  (apply ++ (join-things-list glue things)))

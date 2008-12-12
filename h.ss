@@ -613,3 +613,28 @@
 ;(tracefun blunk blunk-/./. blunk-/.)
 ;(tracefun simplify simplify-env simplify-trivial-app)
 ;(tracefun ->/.)
+
+;(shew (preprocess '((/. x x) 1)))
+
+(define (cmpl e)
+  (mtch
+   e
+
+   ('/. arg body) `(lambda ,(cmpl arg) ,(cmpl body))
+
+   (a b) `(app ,(cmpl a) ,(cmpl b))
+
+   x (cond
+      ((symbol? x) `(symbol ,x))
+      ((integer? x) `(integer ,x))
+      (#t (err 'cmpl x)))))
+
+(define (render e)
+  (cond
+   ((pair? e) (++ (car e) "(" (join-things ", " (map render (cdr e))) ")"))
+   ((symbol? e) (++ #\" e #\"))
+   ((or (symbol? e) (number? e)) (->string e))
+   (#t (err 'render e))))
+
+(display (render (cmpl (preprocess '((/. x x) 1)))))
+(display "\n")

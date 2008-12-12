@@ -282,7 +282,6 @@ int main(int argc, char** argv) {
   topevl(lambda(symbol("x"), symbol("x")));
   topevl(app(lambda(symbol("x"), symbol("x")), integer(1)));
   topevl(integer(10));
-  dumpn(evl(symbol("x"), pair(pair(symbol("x"), integer(1)), Nil)));
   topevl(app(app(symbol("+"), integer(1)), integer(2)));
 
   return 0;
