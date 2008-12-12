@@ -61,6 +61,11 @@ struct yeah {
 
     struct {
     } nil;
+
+    struct {
+      yeah* a;
+      yeah* b;
+    } generic_pointer_pair;
   } u;
 };
 
@@ -185,9 +190,9 @@ yeah* lookup(char* s, yeah* env) {
   if (env == Nil) {
     err(("No such variable %s\n", s ));
   } else {
-    ASSERT(env->t == PAIR);
-    ASSERT(env->u.pair.car->t == PAIR);
-    ASSERT(env->u.pair.car->u.pair.car->t == SYMBOL);
+    A(env->t == PAIR);
+    A(env->u.pair.car->t == PAIR);
+    A(env->u.pair.car->u.pair.car->t == SYMBOL);
     if (!strcmp(s, env->u.pair.car->u.pair.car->u.symbol.s)) {
       return env->u.pair.car->u.pair.cdr;
     } else {
@@ -196,21 +201,29 @@ yeah* lookup(char* s, yeah* env) {
   }
 }
 
-yeah* evl(yeah* e, yeah* env);
+yeah* freeze(yeah* e, yeah* env) {
+  if (e->t == THUNK) {
+    return e;
+  } else {
+    return thunk(e, env);
+  }
+}
 
-yeah* evl_(yeah* e, yeah* env) {
+yeah* evl_step(yeah* e, yeah* env);
+
+yeah* evl_step_(yeah* e, yeah* env) {
   if (e->t == APP && e->u.app.f->t == APP && e->u.app.f->u.app.f->t == SYMBOL) {
     char* f = e->u.app.f->u.app.f->u.symbol.s;
     yeah* a = e->u.app.f->u.app.arg;
     yeah* b = e->u.app.arg;
     if (!strcmp(f, "+")) {
-      ASSERT(a->t == INTEGER && b->t == INTEGER);
+      A(a->t == INTEGER && b->t == INTEGER);
       return integer(a->u.integer.i + b->u.integer.i);
     } else {
       err(("Unknown primitive %s\n", f));
     }
   } else if (e->t == APP && e->u.app.f->t == CLOSURE) {
-    return evl(
+    return evl_step(
       e->u.app.f->u.closure.lambda->u.lambda.body,
       pair(
         pair(
@@ -218,7 +231,9 @@ yeah* evl_(yeah* e, yeah* env) {
           e->u.app.arg),
         e->u.app.f->u.closure.env));
   } else if (e->t == APP) {
-    return evl(app(evl(e->u.app.f,env), e->u.app.arg), e->u.app.arg);
+    return evl_step(app(evl_step(e->u.app.f,env), freeze(e->u.app.arg, env)), env);
+  } else if (e->t == THUNK) {
+    return evl_step(e->u.thunk.exp, e->u.thunk.env);
   } else if (e->t == LAMBDA) {
     return closure(e, env);
   } else if (e->t == SYMBOL) {
@@ -232,13 +247,12 @@ yeah* evl_(yeah* e, yeah* env) {
   }
 }
 
-yeah* evl(yeah* e, yeah* env) {
+yeah* evl_step(yeah* e, yeah* env) {
   if (!trace) {
-    return evl_(e, env);
+    return evl_step_(e, env);
   }
 
   static int indent = 0;
-  indent++;
 
   for (int i = 0; i < indent; ++i) {
     printf("| ");
@@ -250,7 +264,9 @@ yeah* evl(yeah* e, yeah* env) {
   printf("]");
   printf("\n");
 
-  yeah* value = evl_(e, env);
+  indent++;
+  yeah* value = evl_step_(e, env);
+  indent--;
 
   for (int i = 0; i < indent; ++i) {
     printf("| ");
@@ -258,16 +274,49 @@ yeah* evl(yeah* e, yeah* env) {
   printf("-> ");
   dumpn(value);
 
-  indent--;
-
   return value;
 }
 
+bool is_data(yeah* e) {
+  int t = e->t;
+  return t == INTEGER | t == SYMBOL || t == PAIR;
+}
+
+bool equal(yeah* a, yeah* b) {
+  if (a->t != b->t) {
+    return false;
+  }
+
+  switch (a->t) {
+  case INTEGER: return a->u.integer.i == b->u.integer.i;
+ break;
+  case SYMBOL: return !strcmp(a->u.symbol.s, b->u.symbol.s);
+ break;
+  NIL: return true;
+ break;
+  case LAMBDA: case CLOSURE: case THUNK: case PAIR: case APP:
+    return
+      equal(a->u.generic_pointer_pair.a, b->u.generic_pointer_pair.a) &&
+      equal(a->u.generic_pointer_pair.b, b->u.generic_pointer_pair.b);
+    break;
+  default: printf("DIE %d\n", a->t); A(0); break;
+  }
+  A(0);
+}
+
+yeah* evl_fully(yeah* e, yeah* env) {
+  yeah* ee = evl_step(e, env);
+  if (is_data(ee) || equal(e, ee)) {
+    return ee;
+  } else {
+    return evl_fully(ee, env);
+  }
+}
 
 void topevl(yeah* y) {
   printf("+ ");
   dumpn(y);
-  yeah* value = evl(y,Nil);
+  yeah* value = evl_fully(y, Nil);
   printf("-> ");
   dumpn(value);
 }
