@@ -166,6 +166,9 @@ void dump1(yeah* y) {
     dump1(y->u.app.arg);
     printf( ")");
     break;
+  case NIL:
+    printf( "Nil");
+    break;
   default: err(("%d\n", y->t)); break;
   }
 }
@@ -191,6 +194,7 @@ yeah* lookup(char* s, yeah* env) {
 }
 
 yeah* evl(yeah* e, yeah* env) {
+  //printf("-- "); dump(e); printf("\n");
   if (e->t == APP && e->u.app.f->t == CLOSURE) {
     return evl(
       e->u.app.f->u.lambda.body,
@@ -205,7 +209,7 @@ yeah* evl(yeah* e, yeah* env) {
     return closure(e, env);
   } else if (e->t == SYMBOL) {
     return lookup(e->u.symbol.s, env);
-  } else if (e->t == INTEGER) {
+  } else if (e->t == INTEGER || e->t == CLOSURE) {
     return e;
   } else {
     warn(("Can't eval "));
@@ -228,10 +232,10 @@ void init() {
 
 int main(int argc, char** argv) {
   init();
-  //yeah* y = app(lambda(symbol("x"), symbol("x")), integer(1));
-  yeah* y = integer(10);
-
-  topevl(y);
+  topevl(lambda(symbol("x"), symbol("x")));
+  topevl(app(lambda(symbol("x"), symbol("x")), integer(1)));
+  topevl(integer(10));
+  dump(evl(symbol("x"), pair(pair(symbol("x"), integer(1)), Nil)));
 
   return 0;
 }
