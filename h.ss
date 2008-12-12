@@ -638,4 +638,9 @@
 
 (define src '((/. x x) 1))
 (define src '((/. x (x 1)) (/. x x)))
-(write-string-to-file "obj.i" (++ "topevl(" (render (cmpl (preprocess src))) ");\n"))
+(define src '((/. x (x 1)) (/. x ((/. y y) x))))
+(define bsrc (simplify (blunk src)))
+
+(vote-completely bsrc '())
+;(shew 'gen)
+;(write-string-to-file "obj.i" (++ "topevl(" (render (cmpl bsrc)) ");\n"))
