@@ -637,5 +637,5 @@
    (#t (err 'render e))))
 
 (define src '((/. x x) 1))
-;(define src '((/. x (x 1)) (/. x x)))
+(define src '((/. x (x 1)) (/. x x)))
 (write-string-to-file "obj.i" (++ "topevl(" (render (cmpl (preprocess src))) ");\n"))

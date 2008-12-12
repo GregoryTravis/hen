@@ -217,7 +217,7 @@ yeah* evl_(yeah* e, yeah* env) {
           e->u.app.f->u.closure.lambda->u.lambda.arg,
           e->u.app.arg),
         e->u.app.f->u.closure.env));
-  } else if (e->t == APP && e->u.app.f->t == LAMBDA) {
+  } else if (e->t == APP) {
     return evl(app(evl(e->u.app.f,env), e->u.app.arg), e->u.app.arg);
   } else if (e->t == LAMBDA) {
     return closure(e, env);
