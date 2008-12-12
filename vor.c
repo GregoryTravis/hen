@@ -12,9 +12,12 @@ typedef enum {
   SYMBOL,
   PAIR,
   APP,
+  NIL,
 } tag;
 
 typedef struct yeah yeah;
+
+yeah *Nil;
 
 struct yeah {
   tag t;
@@ -52,6 +55,9 @@ struct yeah {
       yeah* f;
       yeah* arg;
     } app;
+
+    struct {
+    } nil;
   } u;
 };
 
@@ -92,6 +98,14 @@ yeah* symbol(char* s) {
   return y;
 }
 
+yeah* pair(yeah* car, yeah* cdr) {
+  yeah* y = newyeah();
+  y->t = PAIR;
+  y->u.pair.car = car;
+  y->u.pair.cdr = cdr;
+  return y;
+}
+
 yeah* integer(int i) {
   yeah* y = newyeah();
   y->t = INTEGER;
@@ -104,6 +118,12 @@ yeah* app(yeah* f, yeah* arg) {
   y->t = APP;
   y->u.app.f = f;
   y->u.app.arg = arg;
+  return y;
+}
+
+yeah* nil(void) {
+  yeah* y = newyeah();
+  y->t = NIL;
   return y;
 }
 
@@ -155,8 +175,63 @@ void dump(yeah* y) {
   putchar('\n');
 }
 
-int main(int argc, char** argv) {
-  yeah* y = lambda(symbol("x"), symbol("x"));
+yeah* lookup(char* s, yeah* env) {
+  if (env == Nil) {
+    err(("No such variable %s\n", s ));
+  } else {
+    ASSERT(env->t == PAIR);
+    ASSERT(env->u.pair.car->t == PAIR);
+    ASSERT(env->u.pair.car->u.pair.car->t == SYMBOL);
+    if (!strcmp(s, env->u.pair.car->u.pair.car->u.symbol.s)) {
+      return env->u.pair.car->u.pair.cdr;
+    } else {
+      return lookup(s, env->u.pair.cdr);
+    }
+  }
+}
+
+yeah* evl(yeah* e, yeah* env) {
+  if (e->t == APP && e->u.app.f->t == CLOSURE) {
+    return evl(
+      e->u.app.f->u.lambda.body,
+      pair(
+        pair(
+          e->u.app.f->u.lambda.arg,
+          e->u.app.arg),
+        env));
+  } else if (e->t == APP && e->u.app.f->t == LAMBDA) {
+    return evl(evl(e->u.app.f,env), e->u.app.arg);
+  } else if (e->t == LAMBDA) {
+    return closure(e, env);
+  } else if (e->t == SYMBOL) {
+    return lookup(e->u.symbol.s, env);
+  } else if (e->t == INTEGER) {
+    return e;
+  } else {
+    warn(("Can't eval "));
+    dump(e);
+    err((""));
+  }
+}
+
+void topevl(yeah* y) {
+  printf("+ ");
   dump(y);
+  yeah* value = evl(y,Nil);
+  printf("-> ");
+  dump(value);
+}
+
+void init() {
+  Nil = nil();
+}
+
+int main(int argc, char** argv) {
+  init();
+  //yeah* y = app(lambda(symbol("x"), symbol("x")), integer(1));
+  yeah* y = integer(10);
+
+  topevl(y);
+
   return 0;
 }
