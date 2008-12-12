@@ -1,1 +1,4 @@
-mzscheme -r main.ss
+#mzscheme -r main.ss
+rm -f vor
+make vor
+vor
