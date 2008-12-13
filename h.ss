@@ -669,6 +669,6 @@
 
 ;(shew (map quote-ctors '(a Nil b)))
 
-(crun-src '((/. (x) x) 1))
+;(crun-src '((/. (x) x) 1))
 ;(crun-src '((/. (x) (x 1)) (/. x x)))
 ;(crun-src '((/. (x) (x 1)) (/. (x) ((/. (y) y) x))))
