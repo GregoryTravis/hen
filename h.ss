@@ -141,6 +141,9 @@
 (define (done? e)
   (or (number? e) (ctor? e)))
 
+(define (er-ctor? e)
+  (and (ctor? e) (not (eq? e 'P))))
+
 (define (prim== a b)
   (mtch (list a b)
         (('quote a) ('quote b)) (eq? a b)
@@ -413,6 +416,7 @@
   (mtch
    e
 
+   ('quote x) e
    ('P a b) `(P ,(doobie-exp a) ,(doobie-exp b))
    (('+ a) b)  `((+ ,(doobie-exp a)) ,(doobie-exp b))
    (('cons a) b) `((cons ,(doobie-exp a)) ,(doobie-exp b))
@@ -434,6 +438,7 @@
 
    ;(a b) (list (doobie-exp a) (doobie-exp b))
    (f . args) `(,(doobie-exp f) ,(doobie-arglist args))
+   ;(f . args) (map doobie-exp e)
    () 'Nil
 
    x (if (or (symbol? x) (number? x) (string? x)) x (err 'ski e))))
@@ -620,11 +625,16 @@
   (mtch
    e
 
+   ('quote x) `(csymbol ,x)
+
+   ('P a b) `(pair ,(cmpl a) ,(cmpl b))
+
    ('/. arg body) `(lambda ,(cmpl arg) ,(cmpl body))
 
    (a b) `(app ,(cmpl a) ,(cmpl b))
 
    x (cond
+      ;((quoted-symbol? x) `(csymbol ,x))
       ((symbol? x) `(symbol ,x))
       ((integer? x) `(integer ,x))
       (#t (err 'cmpl x)))))
@@ -648,12 +658,17 @@
 
 (define (crun-src src)
   (cmd "rm -f obj.i vor")
-  (write-string-to-file "obj.i" (++ "topevl(" (render (cmpl (simplify (blunk src)))) ");\n"))
+  (write-string-to-file "obj.i" (++ "topevl(" (render (cmpl (simplify (blunk (quote-ctors (doobie-exp src)))))) ");\n"))
   (cmd "make vor")
   (if (not (file-exists? "vor"))
       (err "No exe.")
       (cmd "./vor")))
 
-(crun-src '((/. x x) 1))
-(crun-src '((/. x (x 1)) (/. x x)))
-(crun-src '((/. x (x 1)) (/. x ((/. y y) x))))
+(define (quote-ctors e)
+  (atom-traverse (lambda (p) (if (er-ctor? p) `(quote ,p) p)) e))
+
+;(shew (map quote-ctors '(a Nil b)))
+
+(crun-src '((/. (x) x) 1))
+;(crun-src '((/. (x) (x 1)) (/. x x)))
+;(crun-src '((/. (x) (x 1)) (/. (x) ((/. (y) y) x))))

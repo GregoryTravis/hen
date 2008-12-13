@@ -15,12 +15,15 @@ typedef enum {
   SYMBOL,
   PAIR,
   APP,
-  NIL,
+  CSYMBOL,
+//  NIL,
+//  TRUE,
+//  FALSE,
 } tag;
 
 typedef struct yeah yeah;
 
-yeah *Nil;
+yeah *Nil, *True, *False;
 
 struct yeah {
   tag t;
@@ -60,7 +63,8 @@ struct yeah {
     } app;
 
     struct {
-    } nil;
+      char* s;
+    } csymbol;
 
     struct {
       yeah* a;
@@ -106,6 +110,13 @@ yeah* symbol(char* s) {
   return y;
 }
 
+yeah* csymbol(char* s) {
+  yeah* y = newyeah();
+  y->t = CSYMBOL;
+  y->u.symbol.s = s;
+  return y;
+}
+
 yeah* pair(yeah* car, yeah* cdr) {
   yeah* y = newyeah();
   y->t = PAIR;
@@ -129,20 +140,35 @@ yeah* app(yeah* f, yeah* arg) {
   return y;
 }
 
+/*
 yeah* nil(void) {
   yeah* y = newyeah();
   y->t = NIL;
   return y;
 }
 
+yeah* ntrue(void) {
+  yeah* y = newyeah();
+  y->t = TRUE;
+  return y;
+}
+
+yeah* nfalse(void) {
+  yeah* y = newyeah();
+  y->t = FALSE;
+  return y;
+}
+*/
+
 void dump(yeah* y) {
   switch (y->t) {
   case INTEGER: printf( "%d", y->u.integer.i ); break;
   case SYMBOL: printf( "%s", y->u.symbol.s ); break;
+  case CSYMBOL: printf( "'%s", y->u.symbol.s ); break;
   case PAIR:
-    printf( "(" );
+    printf( "(P " );
     dump(y->u.pair.car);
-    printf( " . " );
+    printf( " " );
     dump(y->u.pair.cdr);
     printf( ")" );
     break;
@@ -174,9 +200,9 @@ void dump(yeah* y) {
     dump(y->u.app.arg);
     printf( ")");
     break;
-  case NIL:
-    printf( "Nil");
-    break;
+//  case NIL: printf("Nil"); break;
+//  case TRUE: printf("True"); break;
+//  case FALSE: printf("False"); break;
   default: err(("%d\n", y->t)); break;
   }
 }
@@ -186,8 +212,12 @@ void dumpn(yeah* y) {
   putchar('\n');
 }
 
+bool nilp(yeah* e) {
+  return (e->t == CSYMBOL || e->t == SYMBOL) && !strcmp(e->u.csymbol.s, "Nil");
+}
+
 yeah* lookup(char* s, yeah* env) {
-  if (env == Nil) {
+  if (nilp(env)) {
     err(("No such variable %s\n", s ));
   } else {
     A(env->t == PAIR);
@@ -209,16 +239,65 @@ yeah* freeze(yeah* e, yeah* env) {
   }
 }
 
+bool equal(yeah* a, yeah* b) {
+  if (a->t != b->t) {
+    return false;
+  }
+
+  switch (a->t) {
+  case INTEGER: return a->u.integer.i == b->u.integer.i;
+ break;
+  case SYMBOL: return !strcmp(a->u.symbol.s, b->u.symbol.s);
+ break;
+  case CSYMBOL: return !strcmp(a->u.csymbol.s, b->u.csymbol.s);
+ break;
+  NIL: return true;
+ break;
+  case LAMBDA: case CLOSURE: case THUNK: case PAIR: case APP:
+    return
+      equal(a->u.generic_pointer_pair.a, b->u.generic_pointer_pair.a) &&
+      equal(a->u.generic_pointer_pair.b, b->u.generic_pointer_pair.b);
+    break;
+  default: printf("DIE %d\n", a->t); A(0); break;
+  }
+  A(0);
+}
+
+#define APPF(e) ((e)->u.app.f)
+#define APPARG(e) ((e)->u.app.arg)
+
 yeah* evl_step(yeah* e, yeah* env);
+yeah* evl_fully(yeah* e, yeah* env);
 
 yeah* evl_step_(yeah* e, yeah* env) {
-  if (e->t == APP && e->u.app.f->t == APP && e->u.app.f->u.app.f->t == SYMBOL) {
+  if (e->t == APP && e->u.app.f->t == SYMBOL) {
+    char* f = e->u.app.f->u.symbol.s;
+    yeah* a = e->u.app.arg;
+    if (!strcmp(f, "pair?")) {
+      yeah* aa = evl_fully(a, env);
+      return aa->t == PAIR ? True : False;
+    } else if (!strcmp(f, "car")) {
+      yeah* aa = evl_fully(a, env);
+      A(aa->t == PAIR);
+      return aa->u.pair.car;
+    } else if (!strcmp(f, "cdr")) {
+      yeah* aa = evl_fully(a, env);
+      A(aa->t == PAIR);
+      return aa->u.pair.cdr;
+    } else {
+      //err(("Unknown primitive %s\n", f));
+      //evl_step_(app(e->u.app.f, evl_step(a, env)), env);
+      evl_step_(app(lookup(f, env), a), env);
+    }
+  } if (e->t == APP && e->u.app.f->t == APP && e->u.app.f->u.app.f->t == SYMBOL) {
     char* f = e->u.app.f->u.app.f->u.symbol.s;
     yeah* a = e->u.app.f->u.app.arg;
     yeah* b = e->u.app.arg;
     if (!strcmp(f, "+")) {
       A(a->t == INTEGER && b->t == INTEGER);
       return integer(a->u.integer.i + b->u.integer.i);
+    } else if (!strcmp(f, "==")) {
+      return equal(evl_fully(a, env), evl_fully(b, env)) ? True : False;
     } else {
       err(("Unknown primitive %s\n", f));
     }
@@ -230,6 +309,27 @@ yeah* evl_step_(yeah* e, yeah* env) {
           e->u.app.f->u.closure.lambda->u.lambda.arg,
           e->u.app.arg),
         e->u.app.f->u.closure.env));
+  } else if (e->t == APP && APPF(e)->t == APP && APPF(APPF(e))->t == APP && APPF(APPF(APPF(e)))->t == SYMBOL
+    && !strcmp(APPF(APPF(APPF(e)))->u.symbol.s, "if")) {
+    yeah* b = APPARG(APPF(APPF(e)));
+    yeah* th = APPARG(APPF(e));
+    yeah* el = APPARG(e);
+    /*printf("IF\n");
+    dumpn(e);
+    dumpn(b);
+    dumpn(th);
+    dumpn(el);*/
+    yeah* bb = evl_fully(b, env);
+    //dumpn(bb);
+    if (equal(bb, True)) {
+      return freeze(th, env);
+    } else if (equal(bb, False)) {
+      return freeze(el, env);
+    } else {
+      spew(("Not a bool: "));
+      dumpn(bb);
+      err((""));
+    }
   } else if (e->t == APP) {
     return evl_step(app(evl_step(e->u.app.f,env), freeze(e->u.app.arg, env)), env);
   } else if (e->t == THUNK) {
@@ -238,7 +338,7 @@ yeah* evl_step_(yeah* e, yeah* env) {
     return closure(e, env);
   } else if (e->t == SYMBOL) {
     return lookup(e->u.symbol.s, env);
-  } else if (e->t == INTEGER || e->t == CLOSURE || e->t == NIL) {
+  } else if (e->t == INTEGER || e->t == CLOSURE || e->t == CSYMBOL || e->t == PAIR) {
     return e;
   } else {
     warn(("Can't eval "));
@@ -282,28 +382,6 @@ bool is_data(yeah* e) {
   return t == INTEGER | t == SYMBOL || t == PAIR;
 }
 
-bool equal(yeah* a, yeah* b) {
-  if (a->t != b->t) {
-    return false;
-  }
-
-  switch (a->t) {
-  case INTEGER: return a->u.integer.i == b->u.integer.i;
- break;
-  case SYMBOL: return !strcmp(a->u.symbol.s, b->u.symbol.s);
- break;
-  NIL: return true;
- break;
-  case LAMBDA: case CLOSURE: case THUNK: case PAIR: case APP:
-    return
-      equal(a->u.generic_pointer_pair.a, b->u.generic_pointer_pair.a) &&
-      equal(a->u.generic_pointer_pair.b, b->u.generic_pointer_pair.b);
-    break;
-  default: printf("DIE %d\n", a->t); A(0); break;
-  }
-  A(0);
-}
-
 yeah* evl_fully(yeah* e, yeah* env) {
   yeah* ee = evl_step(e, env);
   if (is_data(ee) || equal(e, ee)) {
@@ -316,18 +394,20 @@ yeah* evl_fully(yeah* e, yeah* env) {
 void topevl(yeah* y) {
   printf("+ ");
   dumpn(y);
-  yeah* value = evl_fully(y, Nil);
+  yeah* value = evl_fully(y, symbol("Nil"));
   printf("-> ");
   dumpn(value);
 }
 
 void init() {
-  Nil = nil();
+  Nil = csymbol("Nil");
+  True = csymbol("True");
+  False = csymbol("False");
 }
 
 int main(int argc, char** argv) {
   init();
-  //trace = 1;
+  trace = 1;
 /*   topevl(lambda(symbol("x"), symbol("x"))); */
 /*   topevl(app(lambda(symbol("x"), symbol("x")), integer(1))); */
 /*   topevl(integer(10)); */
