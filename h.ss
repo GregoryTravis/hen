@@ -437,7 +437,7 @@
    ('/./. . lams) `(/./. . ,(map doobie-exp lams))
 
    ;(a b) (list (doobie-exp a) (doobie-exp b))
-   (f . args) `(,(doobie-exp f) ,(doobie-arglist args))
+   (f . args) `(,(doobie-exp f) ,(doobie-arglist (map-improper doobie-exp args)))
    ;(f . args) (map doobie-exp e)
    () 'Nil
 
