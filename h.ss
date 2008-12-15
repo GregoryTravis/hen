@@ -671,4 +671,5 @@
 
 ;(crun-src '((/. (x) x) 1))
 ;(crun-src '((/. (x) (x 1)) (/. x x)))
-;(crun-src '((/. (x) (x 1)) (/. (x) ((/. (y) y) x))))
+;(crun-src '((/. (x) (x 1)) (/. (z) ((/. (y) y) z))))
+(crun-src '((/. (Nil) 1) Nil))

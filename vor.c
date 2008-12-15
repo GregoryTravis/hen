@@ -1,11 +1,15 @@
 #include <stdio.h>
 #include <string.h>
 
+static int count=0;
+
 #include "a.h"
 #include "mem.h"
 #include "spew.h"
 
 static int trace = 0;
+static int trace_env_too = 0;
+static int max_trace_show = 6;
 
 typedef enum {
   LAMBDA,
@@ -160,6 +164,10 @@ yeah* nfalse(void) {
 }
 */
 
+bool nilp(yeah* e) {
+  return (e->t == CSYMBOL || e->t == SYMBOL) && !strcmp(e->u.csymbol.s, "Nil");
+}
+
 void dump(yeah* y) {
   switch (y->t) {
   case INTEGER: printf( "%d", y->u.integer.i ); break;
@@ -175,9 +183,8 @@ void dump(yeah* y) {
   case THUNK:
     printf( "(@ ");
     dump(y->u.thunk.exp);
-    printf( " ");
-    dump(y->u.thunk.env);
-    printf( ")");
+    printf(")");
+    //dump(y->u.thunk.env);
     break;
   case CLOSURE:
     printf( "($ ");
@@ -210,10 +217,6 @@ void dump(yeah* y) {
 void dumpn(yeah* y) {
   dump(y);
   putchar('\n');
-}
-
-bool nilp(yeah* e) {
-  return (e->t == CSYMBOL || e->t == SYMBOL) && !strcmp(e->u.csymbol.s, "Nil");
 }
 
 yeah* lookup(char* s, yeah* env) {
@@ -263,6 +266,8 @@ bool equal(yeah* a, yeah* b) {
   A(0);
 }
 
+#define ISSYM(e, _s) ((e)->t == SYMBOL && !strcmp((e)->u.symbol.s, (_s)))
+
 #define APPF(e) ((e)->u.app.f)
 #define APPARG(e) ((e)->u.app.arg)
 
@@ -270,6 +275,7 @@ yeah* evl_step(yeah* e, yeah* env);
 yeah* evl_fully(yeah* e, yeah* env);
 
 yeah* evl_step_(yeah* e, yeah* env) {
+count++;
   if (e->t == APP && e->u.app.f->t == SYMBOL) {
     char* f = e->u.app.f->u.symbol.s;
     yeah* a = e->u.app.arg;
@@ -302,6 +308,8 @@ yeah* evl_step_(yeah* e, yeah* env) {
       err(("Unknown primitive %s\n", f));
     }
   } else if (e->t == APP && e->u.app.f->t == CLOSURE) {
+    //printf("BIND %s\n", e->u.app.f->u.closure.lambda->u.lambda.arg->u.symbol.s);
+    //dumpn(e->u.app.arg);
     return evl_step(
       e->u.app.f->u.closure.lambda->u.lambda.body,
       pair(
@@ -338,7 +346,11 @@ yeah* evl_step_(yeah* e, yeah* env) {
     return closure(e, env);
   } else if (e->t == SYMBOL) {
     return lookup(e->u.symbol.s, env);
-  } else if (e->t == INTEGER || e->t == CLOSURE || e->t == CSYMBOL || e->t == PAIR) {
+  } else if (e->t == CSYMBOL) {
+    return symbol(e->u.csymbol.s);
+  } else if (e->t == PAIR) {
+    return pair(thunk(e->u.pair.car, env), thunk(e->u.pair.cdr, env));
+  } else if (e->t == INTEGER || e->t == CLOSURE) {
     return e;
   } else {
     warn(("Can't eval "));
@@ -348,20 +360,31 @@ yeah* evl_step_(yeah* e, yeah* env) {
 }
 
 yeah* evl_step(yeah* e, yeah* env) {
-  if (!trace) {
-    return evl_step_(e, env);
-  }
-
   static int indent = 0;
+
+  if (!trace || indent > max_trace_show) {
+    yeah* value = evl_step_(e, env);
+#if 0
+if (value->t == SYMBOL && !strcmp(value->u.symbol.s, "x")) {
+  dumpn(e);
+  dumpn(env);
+  err((""));
+}
+#endif
+ return value;
+  }
 
   for (int i = 0; i < indent; ++i) {
     printf("| ");
   }
   printf("+ ");
   dump(e);
-  printf("  [");
-  dump(env);
-  printf("]");
+
+  if (trace_env_too) {
+    printf("  [");
+    dump(env);
+    printf("]");
+  }
   printf("\n");
 
   indent++;
@@ -400,20 +423,22 @@ void topevl(yeah* y) {
 }
 
 void init() {
-  Nil = csymbol("Nil");
-  True = csymbol("True");
-  False = csymbol("False");
+  Nil = symbol("Nil");
+  True = symbol("True");
+  False = symbol("False");
 }
 
 int main(int argc, char** argv) {
   init();
-  trace = 1;
+  //trace = 1;
 /*   topevl(lambda(symbol("x"), symbol("x"))); */
 /*   topevl(app(lambda(symbol("x"), symbol("x")), integer(1))); */
 /*   topevl(integer(10)); */
 /*   topevl(app(app(symbol("+"), integer(1)), integer(2))); */
 
 #include "obj.i"
+
+  printf("steps %d\n", count);
 
   return 0;
 }
