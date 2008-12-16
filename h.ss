@@ -22,13 +22,8 @@
             (read-objects "overture.ss")
             (read-objects filename))))
 
-;(define (sexp-as-string e)
-;  (++ "\"" (sdisplay e) "\""))
-
 (define (cmpl-top e)
-;  (++ (render `(topevl ,(sexp-as-string e) ,(cmpl (simplify (blunk (quote-ctors (doobie-exp e))))))) "\n"))
   (++ (render `(topevl ,(sdisplay e) ,(cmpl (simplify (blunk (quote-ctors (doobie-exp e))))))) ";\n"))
-;  (++ "topevl(" (sexp-as-string e) (render (cmpl (simplify (blunk (quote-ctors (doobie-exp e)))))) ");\n"))
 (define (crun-src tlfs)
   (cmd "rm -f obj.i vor")
   (write-string-to-file "obj.i" (apply ++ (map cmpl-top tlfs)))
