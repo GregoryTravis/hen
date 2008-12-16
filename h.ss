@@ -4,17 +4,18 @@
 (define show-tsgs #f)
 (define show-bindings #f)
 
-(define (top-defs tops)
-  (mtch (group-by-preds (list def? fun?) tops)
-        (defs funs)
-        (append
-         defs
-         (map fun->def funs))))
+(define (forms->defs-n-tlfs tops)
+  (mtch (group-by-preds (list (for def? fun?) (fnot (for def? fun?))) tops)
+        (defs-n-funs tlfs)
+        (let ((defs (map fun->def defs-n-funs)))
+          (list defs tlfs))))
 
 (define (run-src forms)
-  (map define-def (map preprocess-def (map doobie (top-defs forms))))
-  (shew global-env)
-  (evl-top (preprocess (doobie-exp '(main)))))
+  (mtch (forms->defs-n-tlfs forms)
+        (defs tlfs)
+        (begin (map define-def (map preprocess-def (map doobie defs)))
+               ;(shew global-env)
+               (map evl-top tlfs (map preprocess (map doobie-exp tlfs))))))
 
 (define (run-file filename)
   (run-src (append
@@ -224,8 +225,8 @@
           ('P a b) `(P ,(evl-fully a) ,(evl-fully b))
           x x)))
 
-(define (evl-top e)
-  (display "+ ") (lshew e) (display "\n")
+(define (evl-top src e)
+  (display "+ ") (lshew src) (display "\n")
   (let ((pe (preprocess e)))
 
     (if use-ski
