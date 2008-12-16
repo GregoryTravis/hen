@@ -198,7 +198,7 @@
    (string-one-line
     (call-with-output-string
      (lambda (port)
-       (map (lambda (j) (pretty-print j port)) args))))))
+       (map (lambda (j) (display j port)) args))))))
 
 (define (proper-list? l)
   (or (eq? l '()) (and (pair? l) (proper-list? (cdr l)))))
