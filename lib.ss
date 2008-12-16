@@ -496,6 +496,17 @@
         (cons (cons group-of-car in-group)
               (group-by f not-in-group)))))
 
+;; Elements may match more than one predicate; they are grouped with
+;; the first one they match.  Every element must match at least one
+;; predicate.
+(define (group-by-preds preds lyst)
+  (if (null? preds)
+      (if (not (null? lyst))
+          (err "Some elements match no preds: " lyst)
+          '())
+      (cons (grep (car preds) lyst)
+            (group-by-preds (cdr preds) (grep (fnot (car preds)) lyst)))))
+
 ;; ;; maybe stuff.
 
 ;; f should return either (value) or #f; find-first-maybe will return

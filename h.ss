@@ -4,17 +4,17 @@
 (define show-tsgs #f)
 (define show-bindings #f)
 
+(define (top-defs tops)
+  (mtch (group-by-preds (list def? fun?) tops)
+        (defs funs)
+        (append
+         defs
+         (map fun->def funs))))
+
 (define (run-src forms)
-  (let* ((forms (map fun->def forms))
-         (defs (grep def? forms))
-         (defs (map doobie defs))
-         (defs (map preprocess-def defs))
-         (tlfs (grep (fnot def?) forms))
-         (tlfs (map doobie-exp tlfs))
-         )
-    (map define-def defs)
-    (map evl-top tlfs)
-    ))
+  (map define-def (map preprocess-def (map doobie (top-defs forms))))
+  (shew global-env)
+  (evl-top (preprocess (doobie-exp '(main)))))
 
 (define (run-file filename)
   (run-src (append
@@ -610,7 +610,7 @@
 (define (quote-ctors e)
   (atom-traverse (lambda (p) (if (er-ctor? p) `(quote ,p) p)) e))
 
-(crun-file "src.ss")
+;(crun-file "src.ss")
 
 ;(tracefun evl evl-step evl-fully)
 ;(tracefun ski)
