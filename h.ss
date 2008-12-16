@@ -305,6 +305,12 @@
         ('@ e2 env2) e
         x `(@ ,e ,env)))
 
+(define (terzie e)
+  (mtch e
+        ('@ e env) `(@ ,(terzie e))
+        (a . b) (map terzie e)
+        x x))
+
 (define (vote-step e env)
   (mtch
    e
@@ -323,7 +329,7 @@
 
    (('$ ('/. a body) env) v)
    (begin
-     ;(shew 'bind a v)
+     ;(shew 'BIND a (terzie v))
      (vote-step body (cons (cons a v) env)))
 
    'pair? e
@@ -454,7 +460,7 @@
            (#t (err 'build-receiver pat body)))))
 
 (define (fuck pat failure)
-  (let ((rv (tsg 'rec 'traverser-receiver pat))
+  (let ((rv (tsg 'rec 'receiver pat))
         (v (tsg 'd 'traverser pat))
         (k (tsg 'k 'continuation pat)))
     (mtch
@@ -656,7 +662,14 @@
 ;; ;(write-string-to-file "obj.i" (++ "topevl(" (render (cmpl bsrc)) ");\n"))
 ;(cmd "ls")
 
+(define (crun-file filename)
+  (map crun-src (append
+                 (read-objects "overture.ss")
+                 (read-objects filename))))
+
 (define (crun-src src)
+  (display "++ ")
+  (shew src)
   (cmd "rm -f obj.i vor")
   (write-string-to-file "obj.i" (++ "topevl(" (render (cmpl (simplify (blunk (quote-ctors (doobie-exp src)))))) ");\n"))
   (cmd "make vor")
@@ -668,8 +681,3 @@
   (atom-traverse (lambda (p) (if (er-ctor? p) `(quote ,p) p)) e))
 
 ;(shew (map quote-ctors '(a Nil b)))
-
-;(crun-src '((/. (x) x) 1))
-;(crun-src '((/. (x) (x 1)) (/. x x)))
-;(crun-src '((/. (x) (x 1)) (/. (z) ((/. (y) y) z))))
-(crun-src '((/. (Nil) 1) Nil))
