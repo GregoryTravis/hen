@@ -25,8 +25,6 @@
 (define (cmpl-top e)
   (++ "topevl(" (render (cmpl (simplify (blunk (quote-ctors (doobie-exp e)))))) ");\n"))
 (define (crun-src tlfs)
-  ;(display "++ ")
-  ;(shew src)
   (cmd "rm -f obj.i vor")
   (write-string-to-file "obj.i" (apply ++ (map cmpl-top tlfs)))
   (cmd "make vor")
