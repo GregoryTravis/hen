@@ -304,6 +304,18 @@ count++;
       b = evl_fully(b, env);
       A(a->t == INTEGER && b->t == INTEGER);
       return integer(a->u.integer.i + b->u.integer.i);
+    } else if (!strcmp(f, "-")) {
+      a = evl_fully(a, env);
+      b = evl_fully(b, env);
+      A(a->t == INTEGER && b->t == INTEGER);
+      return integer(a->u.integer.i - b->u.integer.i);
+    } else if (!strcmp(f, "*")) {
+      a = evl_fully(a, env);
+      b = evl_fully(b, env);
+      A(a->t == INTEGER && b->t == INTEGER);
+      return integer(a->u.integer.i * b->u.integer.i);
+    } else if (!strcmp(f, "cons")) {
+      return pair(freeze(a, env), freeze(b, env));
     } else if (!strcmp(f, "==")) {
       return equal(evl_fully(a, env), evl_fully(b, env)) ? True : False;
     } else {
@@ -440,7 +452,7 @@ int main(int argc, char** argv) {
 
 #include "obj.i"
 
-  printf("steps %d\n", count);
+  //printf("steps %d\n", count);
 
   return 0;
 }

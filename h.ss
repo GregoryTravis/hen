@@ -681,3 +681,5 @@
   (atom-traverse (lambda (p) (if (er-ctor? p) `(quote ,p) p)) e))
 
 ;(shew (map quote-ctors '(a Nil b)))
+
+(crun-file "src.ss")
