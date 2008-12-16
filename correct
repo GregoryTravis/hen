@@ -1,3 +1,7 @@
+++ ((/. (x y) ((* x) y)) 10 20)
+gcc -std=c99 -g -o vor vor.c a.c spew.c mem.c
++ (((/. d2 (/. rec1 (((if (pair? d2)) (((/. d8 (/. rec7 (((if (pair? d8)) (((if ((== (cdr d8)) 'Nil)) (rec7 (car d8))) TOPFAIL)) TOPFAIL))) (cdr d2)) (rec1 (car d2)))) TOPFAIL))) (P 10 (P 20 'Nil))) (/. x (/. y ((* x) y))))
+-> 200
 + ((/. (P x Nil) x) (P Nil Nil)) 
 => Nil 
 
@@ -47,7 +51,7 @@
 => 2 
 
 + (/. (P r Nil) r) 
-=> ($ (/. b532 (((if (pair? b532)) (((if ((== (cdr b532)) Nil)) (car b532)) TOPFAIL)) TOPFAIL)) ()) 
+=> ($ (/. b548 (((if (pair? b548)) (((if ((== (cdr b548)) Nil)) (car b548)) TOPFAIL)) TOPFAIL)) ()) 
 
 + ((/. (P r Nil) r) (P 3 Nil)) 
 => 3 
@@ -146,7 +150,7 @@
 => 5 
 
 + (/. x x) 
-=> ($ (/. b602 ((/. x x) b602)) ()) 
+=> ($ (/. b618 ((/. x x) b618)) ()) 
 
 + ((/. x x) (P 1 Nil)) 
 => (P 1 Nil) 
@@ -212,7 +216,7 @@
 => 1 
 
 + (/. x x) 
-=> ($ (/. b828 ((/. x x) b828)) ()) 
+=> ($ (/. b844 ((/. x x) b844)) ()) 
 
 + ((/. x x) (P 1 Nil)) 
 => (P 1 Nil) 
@@ -221,7 +225,7 @@
 => (P (P 2 Nil) Nil) 
 
 + (/. (P a b) a) 
-=> ($ (/. b844 (((if (pair? b844)) ((/. b (car b844)) (cdr b844))) TOPFAIL)) ()) 
+=> ($ (/. b860 (((if (pair? b860)) ((/. b (car b860)) (cdr b860))) TOPFAIL)) ()) 
 
 + ((/. (P a b) a) (P 1 2)) 
 => 1 
