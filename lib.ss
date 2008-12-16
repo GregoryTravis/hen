@@ -1052,7 +1052,5 @@
   (apply ++ (join-things-list glue things)))
 
 (define (cmd . stuff)
-  (display "+ ")
-  (display (join-things " " stuff))
-  (display "\n")
+  ;(display "+ ") (display (join-things " " stuff)) (display "\n")
   (apply system stuff))
