@@ -428,11 +428,10 @@ yeah* evl_fully(yeah* e, yeah* env) {
   }
 }
 
-void topevl(yeah* y) {
-  printf("+ ");
-  dumpn(y);
-  yeah* value = evl_fully(y, symbol("Nil"));
-  printf("-> ");
+void topevl(char* src, yeah* obj) {
+  printf("+ %s\n", src);
+  yeah* value = evl_fully(obj, symbol("Nil"));
+  printf("=> ");
   dumpn(value);
 }
 

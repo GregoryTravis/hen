@@ -22,12 +22,17 @@
             (read-objects "overture.ss")
             (read-objects filename))))
 
+;(define (sexp-as-string e)
+;  (++ "\"" (sdisplay e) "\""))
+
 (define (cmpl-top e)
-  (++ "topevl(" (render (cmpl (simplify (blunk (quote-ctors (doobie-exp e)))))) ");\n"))
+;  (++ (render `(topevl ,(sexp-as-string e) ,(cmpl (simplify (blunk (quote-ctors (doobie-exp e))))))) "\n"))
+  (++ (render `(topevl ,(sdisplay e) ,(cmpl (simplify (blunk (quote-ctors (doobie-exp e))))))) ";\n"))
+;  (++ "topevl(" (sexp-as-string e) (render (cmpl (simplify (blunk (quote-ctors (doobie-exp e)))))) ");\n"))
 (define (crun-src tlfs)
   (cmd "rm -f obj.i vor")
   (write-string-to-file "obj.i" (apply ++ (map cmpl-top tlfs)))
-  (cmd "make vor")
+  (cmd "make -s vor")
   (if (not (file-exists? "vor"))
       (err "No exe.")
       (cmd "./vor")))
@@ -239,7 +244,7 @@
         (let ((ee (vote pe)))
           (display "=> ") (lshew ee) (display "\n")
           (let ((se (simplify ee)))
-            (display "\n")
+            ;(display "\n")
             ee)))))
 
 (define (simplify-ski-step e)
@@ -606,6 +611,7 @@
    ((pair? e) (++ (car e) "(" (join-things ", " (map render (cdr e))) ")"))
    ((symbol? e) (++ #\" e #\"))
    ((or (symbol? e) (number? e)) (->string e))
+   ((string? e) (++ "\"" e "\""))
    (#t (err 'render e))))
 
 (define (quote-ctors e)
