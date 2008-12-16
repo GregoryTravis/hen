@@ -221,7 +221,7 @@ void dumpn(yeah* y) {
 
 yeah* lookup(char* s, yeah* env) {
   if (nilp(env)) {
-    err(("No such variable %s\n", s ));
+    err(("No such variable %s\n", s));
   } else {
     A(env->t == PAIR);
     A(env->u.pair.car->t == PAIR);
@@ -293,23 +293,25 @@ count++;
     } else {
       //err(("Unknown primitive %s\n", f));
       //evl_step_(app(e->u.app.f, evl_step(a, env)), env);
-      evl_step_(app(lookup(f, env), a), env);
+      return evl_step_(app(lookup(f, env), a), env);
     }
   } if (e->t == APP && e->u.app.f->t == APP && e->u.app.f->u.app.f->t == SYMBOL) {
     char* f = e->u.app.f->u.app.f->u.symbol.s;
     yeah* a = e->u.app.f->u.app.arg;
     yeah* b = e->u.app.arg;
     if (!strcmp(f, "+")) {
+      a = evl_fully(a, env);
+      b = evl_fully(b, env);
       A(a->t == INTEGER && b->t == INTEGER);
       return integer(a->u.integer.i + b->u.integer.i);
     } else if (!strcmp(f, "==")) {
       return equal(evl_fully(a, env), evl_fully(b, env)) ? True : False;
     } else {
-      err(("Unknown primitive %s\n", f));
+      //err(("Unknown primitive %s\n", f));
+      return evl_step_(app(app(lookup(f, env), a), b), env);
     }
   } else if (e->t == APP && e->u.app.f->t == CLOSURE) {
-    //printf("BIND %s\n", e->u.app.f->u.closure.lambda->u.lambda.arg->u.symbol.s);
-    //dumpn(e->u.app.arg);
+    //printf("BIND %s\n", e->u.app.f->u.closure.lambda->u.lambda.arg->u.symbol.s); dumpn(e->u.app.arg);
     return evl_step(
       e->u.app.f->u.closure.lambda->u.lambda.body,
       pair(
@@ -394,7 +396,7 @@ if (value->t == SYMBOL && !strcmp(value->u.symbol.s, "x")) {
   for (int i = 0; i < indent; ++i) {
     printf("| ");
   }
-  printf("-> ");
+  printf("=> ");
   dumpn(value);
 
   return value;
