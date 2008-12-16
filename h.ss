@@ -1,13 +1,40 @@
 (load "lib.ss")
 
-(define eval-steps 0)
-
 (define use-ski #f)
+(define show-tsgs #f)
+(define show-bindings #f)
+
+(define (run-src forms)
+  (let* ((forms (map fun->def forms))
+         (defs (grep def? forms))
+         (defs (map doobie defs))
+         (defs (map preprocess-def defs))
+         (tlfs (grep (fnot def?) forms))
+         (tlfs (map doobie-exp tlfs))
+         )
+    (map define-def defs)
+    (map evl-top tlfs)
+    ))
 
 (define (run-file filename)
   (run-src (append
             (read-objects "overture.ss")
             (read-objects filename))))
+
+(define (crun-src src)
+  (display "++ ")
+  (shew src)
+  (cmd "rm -f obj.i vor")
+  (write-string-to-file "obj.i" (++ "topevl(" (render (cmpl (simplify (blunk (quote-ctors (doobie-exp src)))))) ");\n"))
+  (cmd "make vor")
+  (if (not (file-exists? "vor"))
+      (err "No exe.")
+      (cmd "./vor")))
+
+(define (crun-file filename)
+  (map crun-src (append
+                 (read-objects "overture.ss")
+                 (read-objects filename))))
 
 (define (fun? e)
   (and (pair? e) (eq? (car e) 'fun)))
@@ -29,34 +56,8 @@
                          (sski (preprocess e))
                          (preprocess e)))))
 
-(define (run-src forms)
-  ;(set! eval-steps 0)
-  (let* ((forms (map fun->def forms))
-         (defs (grep def? forms))
-         (defs (map doobie defs))
-         (defs (map preprocess-def defs))
-         (tlfs (grep (fnot def?) forms))
-         (tlfs (map doobie-exp tlfs))
-         )
-    (map define-def defs)
-    ;(shew 'GLOBALS) (dump-globals)
-    (map evl-top tlfs)
-    ;(shew (list 'steps eval-steps))
-    ))
-
 (define (preprocess e)
-;  (preprocess2 (doobie-exp e)))
-;  (preprocess2 e))
   (simplify (blunk e)))
-;  (blunk e))
-
-;; (define (preprocess2 e)
-;;   (mtch e
-;;         ('/./. . lams) (process-/./. lams)
-;;         ('/. args body) (preprocess2 `(/./. ,e))
-;;         (a b) (list (preprocess2 a) (preprocess2 b))
-;;         (a b c . rest) (err 'preprocess-list-3 e)
-;;         x x))
 
 (define global-env '())
 (define (define-def e)
@@ -69,20 +70,9 @@
 (define (dump-globals)
   (shew global-env))
 
-;; (define (evl-check e)
-;;   (let* ((ce (ski e))
-;;          (ee (->/. ce))
-;;          (cee (ski ee))
-;;          (cev (evl ce))
-;;          (ceev (evl cee)))
-;;     ;; (begin (shew '---) (shew e) (shew ce) (shew ee) (shew cee) (shew cev) (shew ceev))
-;;     (assert (equal? cev ceev) e ce ee cee cev ceev)))
-
 (define (ski e)
   (mtch
    e
-
-   ;('/. (a . d) body) `(U ,(ski `(/. ,a (/. ,d ,body))))
 
    ('/. x (/. y b)) (ski `(/. ,x ,(sski `(/. ,y ,b))))
 
@@ -94,8 +84,6 @@
 
    ('P a b) `(P ,(ski a) ,(ski b))
 
-   ;(a . b) `((P ,(ski a)) ,(ski b))
-
    x (if (or (symbol? x) (number? x) (string? x)) x (err 'ski e))
 
    ))
@@ -105,7 +93,7 @@
   (let ((sg (tagged-symbol-generator-generator)))
     (lambda (tag . stuff)
       (let ((v (sg tag)))
-        ;(shew `(,v ,tag . ,stuff))
+        (if show-tsgs (shew `(,v ,tag . ,stuff)) '())
         v))))
 
 (define (->/. e)
@@ -150,7 +138,6 @@
         x (smart== a b)))
 
 (define (evl-step e)
-  (set! eval-steps (1+ eval-steps))
   (mtch
    e
 
@@ -159,9 +146,6 @@
    (('P a) b) (err 'fasdfasdf)
    ('P a b) e
    ('quote s) e
-
-   ;(('U f) (('P x) y))
-   ;`((,f ,x) ,y)
 
    ((('S f) g) x)
    `((,f ,x) (,g ,x))
@@ -172,7 +156,6 @@
    ('I x)
    x
 
-   ;('U f) e
    (('S f) g) e
    ('S f) e
    'S e
@@ -223,7 +206,6 @@
    (a b) (evl-step (list (evl a) b))
 
    x (cond
-;      ((ctor? e) e)
       ((and (symbol? x) (lookup-exists? x global-env)) (lookup x global-env))
       (#t (err 'evl e)))
    ))
@@ -243,10 +225,8 @@
           x x)))
 
 (define (evl-top e)
-  ;(evl-check e)
   (display "+ ") (lshew e) (display "\n")
   (let ((pe (preprocess e)))
-    ;(display "- ") (lshew pe) (display "\n")
 
     (if use-ski
         (let ((ce (ski pe)))
@@ -258,7 +238,6 @@
         (let ((ee (vote pe)))
           (display "=> ") (lshew ee) (display "\n")
           (let ((se (simplify ee)))
-                                        ;(display "... ") (lshew se) (display "\n")
             (display "\n")
             ee)))))
 
@@ -298,7 +277,6 @@
         ('P a b) #t
         ('$ lam env) #t
         x (or (number? e) (string? e))))
-;(tracefun data?)
 
 (define (freeze e env)
   (mtch e
@@ -329,7 +307,7 @@
 
    (('$ ('/. a body) env) v)
    (begin
-     ;(shew 'BIND a (terzie v))
+     (if show-bindings (shew 'BIND a (terzie v)) '())
      (vote-step body (cons (cons a v) env)))
 
    'pair? e
@@ -398,9 +376,6 @@
      ('P a b) `(P ,(vote-completely a env) ,(vote-completely b env))
 
      x x)))
-;;      (begin
-;;        (assert (data? x))
-;;        x))))
 
 (define (vote e)
   (vote-completely e '()))
@@ -429,9 +404,6 @@
    ('car a) `(car ,(doobie-exp a))
    ('cdr a) `(cdr ,(doobie-exp a))
 
-;   ('if a) `(if ,(doobie-exp a))
-;   ('+ a) `(+ ,(doobie-exp a))
-;   ('- a) `(- ,(doobie-exp a))
    (('+ a) b) `((+ ,(doobie-exp a)) ,(doobie-exp b))
    (('- a) b) `((- ,(doobie-exp a)) ,(doobie-exp b))
    (('* a) b) `((* ,(doobie-exp a)) ,(doobie-exp b))
@@ -442,9 +414,7 @@
 
    ('/./. . lams) `(/./. . ,(map doobie-exp lams))
 
-   ;(a b) (list (doobie-exp a) (doobie-exp b))
    (f . args) `(,(doobie-exp f) ,(doobie-arglist (map-improper doobie-exp args)))
-   ;(f . args) (map doobie-exp e)
    () 'Nil
 
    x (if (or (symbol? x) (number? x) (string? x)) x (err 'ski e))))
@@ -469,7 +439,6 @@
      ('P a b)
      (let ((lefter (fuck a failure))
            (righter (fuck b failure)))
-;       `(/. ,v (/. ,rv (((if (pair? ,v)) ((,righter (cdr ,v)) ((,lefter (car ,v)) ,rv))) ,failure))))
        `(/. ,k (/. ,v (/. ,rv (((if (pair? ,v)) (((,lefter ((,righter ,k) (cdr ,v))) (car ,v)) ,rv)) ,failure)))))
      x (cond ((or (ctor? pat) (number? pat) (quoted-symbol? pat))
               `(/. ,k (/. ,v (/. ,rv (((if ((== ,v) ,pat)) (,k ,rv)) ,failure)))))
@@ -529,7 +498,6 @@
 
    (a b) `(,(subst x v a) ,(subst x v b))
 
-;   xx (if (eq? x xx) v e)))
    xx (cond
        ((eq? x xx) v)
        ((symbol? e) e)
@@ -614,19 +582,6 @@
 ;;    (a b) `(,(gint a) ,(gint b))
 ;;    x x))
 
-;(tracefun evl evl-step evl-fully)
-;(tracefun ski)
-;(tracefun preprocess process-/./. process-/.)
-;(tracefun build-receiver fuck)
-;(tracefun vote vote-step)
-;(tracefun vote-fully vote-completely)
-;(tracefun doobie doobie-exp doobie-arglist);(tracefun simplify simplify-env simplify-trivial-app)
-;(tracefun blunk blunk-/./. blunk-/.)
-;(tracefun simplify simplify-env simplify-trivial-app)
-;(tracefun ->/.)
-
-;(shew (preprocess '((/. x x) 1)))
-
 (define (cmpl e)
   (mtch
    e
@@ -652,34 +607,18 @@
    ((or (symbol? e) (number? e)) (->string e))
    (#t (err 'render e))))
 
-(define src '((/. x x) 1))
-(define src '((/. x (x 1)) (/. x x)))
-(define src '((/. x (x 1)) (/. x ((/. y y) x))))
-;(define bsrc (simplify (blunk src)))
-
-;; (vote-completely bsrc '())
-;; ;(shew 'gen)
-;; ;(write-string-to-file "obj.i" (++ "topevl(" (render (cmpl bsrc)) ");\n"))
-;(cmd "ls")
-
-(define (crun-file filename)
-  (map crun-src (append
-                 (read-objects "overture.ss")
-                 (read-objects filename))))
-
-(define (crun-src src)
-  (display "++ ")
-  (shew src)
-  (cmd "rm -f obj.i vor")
-  (write-string-to-file "obj.i" (++ "topevl(" (render (cmpl (simplify (blunk (quote-ctors (doobie-exp src)))))) ");\n"))
-  (cmd "make vor")
-  (if (not (file-exists? "vor"))
-      (err "No exe.")
-      (cmd "./vor")))
-
 (define (quote-ctors e)
   (atom-traverse (lambda (p) (if (er-ctor? p) `(quote ,p) p)) e))
 
-;(shew (map quote-ctors '(a Nil b)))
-
 (crun-file "src.ss")
+
+;(tracefun evl evl-step evl-fully)
+;(tracefun ski)
+;(tracefun preprocess process-/./. process-/.)
+;(tracefun build-receiver fuck)
+;(tracefun vote vote-step)
+;(tracefun vote-fully vote-completely)
+;(tracefun doobie doobie-exp doobie-arglist);(tracefun simplify simplify-env simplify-trivial-app)
+;(tracefun blunk blunk-/./. blunk-/.)
+;(tracefun simplify simplify-env simplify-trivial-app)
+;(tracefun ->/.)
