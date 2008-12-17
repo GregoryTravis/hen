@@ -13,7 +13,7 @@
 (define (run-src forms)
   (mtch (forms->defs-n-tlfs forms)
         (defs tlfs)
-        (begin (map define-def (map preprocess (map doobie defs)))
+        (begin (map define-def (map preprocess (map quote-ctors (map doobie defs))))
                ;(shew global-env)
                (map evl-top tlfs (map preprocess (map quote-ctors (map doobie tlfs)))))))
 
