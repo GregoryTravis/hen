@@ -27,7 +27,7 @@
 (define (crun-src tlfs)
   (cmd "rm -f obj.i vor")
   (write-string-to-file "obj.i" (apply ++ (map cmpl-top tlfs)))
-  (cmd "make -s vor")
+  (cmd "make vor")
   (if (not (file-exists? "vor"))
       (err "No exe.")
       (cmd "./vor")))
