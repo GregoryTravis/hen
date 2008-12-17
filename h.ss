@@ -29,8 +29,12 @@
 
 (define (cmpl-top src-e e)
   (++ (render `(topevl ,(sdisplay src-e) ,(cmpl e))) ";\n"))
-(define (crun-src tlfs)
-  (crun-obj (apply ++ (map cmpl-top tlfs (map preprocess tlfs)))))
+
+(define (crun-src forms)
+  (mtch (preprocess-program forms)
+        (src-tlfs tlfs)
+        (crun-obj (apply ++ (map cmpl-top src-tlfs tlfs)))))
+
 (define (crun-obj tlfs)
   (cmd "rm -f obj.i vor")
   (write-string-to-file "obj.i" tlfs)
