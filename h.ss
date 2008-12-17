@@ -228,9 +228,7 @@
 
       (let ((ee (vote e)))
         (display "=> ") (lshew ee) (display "\n")
-        (let ((se (simplify ee)))
-                                        ;(display "\n")
-          ee))))
+        ee)))
 
 (define (simplify-ski-step e)
   (mtch
