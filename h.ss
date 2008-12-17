@@ -13,9 +13,9 @@
 (define (run-src forms)
   (mtch (forms->defs-n-tlfs forms)
         (defs tlfs)
-        (begin (map define-def (map preprocess (map quote-ctors (map doobie defs))))
+        (begin (map define-def (map preprocess defs))
                ;(shew global-env)
-               (map evl-top tlfs (map preprocess (map quote-ctors (map doobie tlfs)))))))
+               (map evl-top tlfs (map preprocess tlfs)))))
 
 (define (run-file filename)
   (run-src (append
@@ -53,7 +53,7 @@
 (define (preprocess e)
   (mtch e
    ('def name e) `(def ,name ,(preprocess e))
-   e (simplify (blunk e))))
+   e (simplify (blunk (quote-ctors (doobie e))))))
 
 (define global-env '())
 (define (define-def e)
