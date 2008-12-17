@@ -1,3 +1,3 @@
 (load "h.ss")
 
-(crun-file "src.ss")
+(run-file "src.ss")
