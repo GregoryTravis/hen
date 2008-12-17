@@ -15,7 +15,7 @@
         (defs tlfs)
         (begin (map define-def (map preprocess-def (map doobie defs)))
                ;(shew global-env)
-               (map evl-top tlfs (map preprocess (map quote-ctors (map doobie-exp tlfs)))))))
+               (map evl-top tlfs (map preprocess (map quote-ctors (map doobie tlfs)))))))
 
 (define (run-file filename)
   (run-src (append
@@ -23,7 +23,7 @@
             (read-objects filename))))
 
 (define (cmpl-top e)
-  (++ (render `(topevl ,(sdisplay e) ,(cmpl (simplify (blunk (quote-ctors (doobie-exp e))))))) ";\n"))
+  (++ (render `(topevl ,(sdisplay e) ,(cmpl (simplify (blunk (quote-ctors (doobie e))))))) ";\n"))
 (define (crun-src tlfs)
   (cmd "rm -f obj.i vor")
   (write-string-to-file "obj.i" (apply ++ (map cmpl-top tlfs)))
@@ -378,11 +378,6 @@
 (define (vote e)
   (vote-completely e '()))
 
-(define (doobie def)
-  (mtch
-   def
-   ('def name val) `(def ,name ,(doobie-exp val))))
-
 (define (doobie-arglist args)
   (mtch
    args
@@ -391,28 +386,29 @@
    () 'Nil
    x x))
 
-(define (doobie-exp e)
+(define (doobie e)
   (mtch
    e
 
+   ('def name val) `(def ,name ,(doobie val))
    ('quote x) e
-   ('P a b) `(P ,(doobie-exp a) ,(doobie-exp b))
-   (('+ a) b)  `((+ ,(doobie-exp a)) ,(doobie-exp b))
-   (('cons a) b) `((cons ,(doobie-exp a)) ,(doobie-exp b))
-   ('car a) `(car ,(doobie-exp a))
-   ('cdr a) `(cdr ,(doobie-exp a))
+   ('P a b) `(P ,(doobie a) ,(doobie b))
+   (('+ a) b)  `((+ ,(doobie a)) ,(doobie b))
+   (('cons a) b) `((cons ,(doobie a)) ,(doobie b))
+   ('car a) `(car ,(doobie a))
+   ('cdr a) `(cdr ,(doobie a))
 
-   (('+ a) b) `((+ ,(doobie-exp a)) ,(doobie-exp b))
-   (('- a) b) `((- ,(doobie-exp a)) ,(doobie-exp b))
-   (('* a) b) `((* ,(doobie-exp a)) ,(doobie-exp b))
-   ((('if a) b) c) `(((if ,(doobie-exp a)) ,(doobie-exp b)) ,(doobie-exp c))
-   (('cons a) b) `((cons ,(doobie-exp a)) ,(doobie-exp b))
+   (('+ a) b) `((+ ,(doobie a)) ,(doobie b))
+   (('- a) b) `((- ,(doobie a)) ,(doobie b))
+   (('* a) b) `((* ,(doobie a)) ,(doobie b))
+   ((('if a) b) c) `(((if ,(doobie a)) ,(doobie b)) ,(doobie c))
+   (('cons a) b) `((cons ,(doobie a)) ,(doobie b))
 
-   ('/. args body) `(/. ,(doobie-arglist args) ,(doobie-exp body))
+   ('/. args body) `(/. ,(doobie-arglist args) ,(doobie body))
 
-   ('/./. . lams) `(/./. . ,(map doobie-exp lams))
+   ('/./. . lams) `(/./. . ,(map doobie lams))
 
-   (f . args) `(,(doobie-exp f) ,(doobie-arglist (map-improper doobie-exp args)))
+   (f . args) `(,(doobie f) ,(doobie-arglist (map-improper doobie args)))
    () 'Nil
 
    x (if (or (symbol? x) (number? x) (string? x)) x (err 'ski e))))
@@ -621,7 +617,7 @@
 ;(tracefun build-receiver fuck)
 ;(tracefun vote vote-step)
 ;(tracefun vote-fully vote-completely)
-;(tracefun doobie doobie-exp doobie-arglist);(tracefun simplify simplify-env simplify-trivial-app)
+;(tracefun doobie doobie doobie-arglist);(tracefun simplify simplify-env simplify-trivial-app)
 ;(tracefun blunk blunk-/./. blunk-/.)
 ;(tracefun simplify simplify-env simplify-trivial-app)
 ;(tracefun ->/.)
