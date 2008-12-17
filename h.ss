@@ -27,7 +27,7 @@
             (read-objects "overture.ss")
             (read-objects filename))))
 
-(define (cmpl-global def)
+(define (cmpl-def def)
   "")
 
 (define (cmpl-top src-e e)
@@ -38,7 +38,7 @@
         (src-tlfs tlfs)
         (crun-obj (apply ++ (append
                              (map cmpl-top src-tlfs tlfs)
-                             (map cmpl-global global-env))))))
+                             (map cmpl-def global-env))))))
 
 (define (crun-obj tlfs)
   (cmd "rm -f obj.i vor")
