@@ -219,20 +219,18 @@
 
 (define (evl-top src e)
   (display "+ ") (lshew src) (display "\n")
-  (let ((pe (preprocess e)))
-
-    (if use-ski
-        (let ((ce (ski pe)))
-          (display "- ") (lshew ce) (display "\n")
-          (let ((ee (evl-fully ce)))
-            (display "=> ") (lshew ee) (display "\n")
-            ee))
-
-        (let ((ee (vote pe)))
+  (if use-ski
+      (let ((ce (ski e)))
+        (display "- ") (lshew ce) (display "\n")
+        (let ((ee (evl-fully ce)))
           (display "=> ") (lshew ee) (display "\n")
-          (let ((se (simplify ee)))
-            ;(display "\n")
-            ee)))))
+          ee))
+
+      (let ((ee (vote e)))
+        (display "=> ") (lshew ee) (display "\n")
+        (let ((se (simplify ee)))
+                                        ;(display "\n")
+          ee))))
 
 (define (simplify-ski-step e)
   (mtch
