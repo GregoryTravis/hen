@@ -125,6 +125,13 @@
 ((/. ('Nil) 1) 'Nil)
 ((/. (Nil) Nil) Nil)
 
+((/. 'joe 1) . 'joe)
+((/. ('joe) 1) 'joe)
+((/. (joe) joe) 1)
+
+; Shouldn't work, but does, because (@ joee) is never evaluated.
+((/. (joe) 1) joee)
+
 ((/. (1 2) 40) 1 2)
 ((/. (a b) ((+ a) b)) 1 2)
 
