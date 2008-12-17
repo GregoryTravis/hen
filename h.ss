@@ -10,12 +10,17 @@
         (let ((defs (map fun->def defs-n-funs)))
           (list defs tlfs))))
 
-(define (run-src forms)
+(define (preprocess-program forms)
   (mtch (forms->defs-n-tlfs forms)
-        (defs tlfs)
+        (defs src-tlfs)
         (begin (map define-def (map preprocess defs))
                ;(shew global-env)
-               (map evl-top tlfs (map preprocess tlfs)))))
+               (list src-tlfs (map preprocess src-tlfs)))))
+
+(define (run-src forms)
+  (mtch (preprocess-program forms)
+        (src-tlfs tlfs)
+        (map evl-top src-tlfs tlfs)))
 
 (define (run-file filename)
   (run-src (append
