@@ -130,9 +130,6 @@
 (define (done? e)
   (or (number? e) (ctor? e)))
 
-(define (er-ctor? e)
-  (and (ctor? e) (not (eq? e 'P))))
-
 (define (prim== a b)
   (mtch (list a b)
         (('quote a) ('quote b)) (eq? a b)
@@ -610,7 +607,7 @@
    (#t (err 'render e))))
 
 (define (quote-ctors e)
-  (atom-traverse (lambda (p) (if (er-ctor? p) `(quote ,p) p)) e))
+  (atom-traverse (lambda (p) (if (ctor? p) `(quote ,p) p)) e))
 
 ;(crun-file "src.ss")
 
