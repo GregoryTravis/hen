@@ -15,7 +15,7 @@
         (defs tlfs)
         (begin (map define-def (map preprocess-def (map doobie defs)))
                ;(shew global-env)
-               (map evl-top tlfs (map preprocess (map doobie-exp tlfs))))))
+               (map evl-top tlfs (map preprocess (map quote-ctors (map doobie-exp tlfs)))))))
 
 (define (run-file filename)
   (run-src (append
@@ -128,7 +128,7 @@
      )))
 
 (define (done? e)
-  (or (number? e) (ctor? e)))
+  (or (number? e) (quoted-symbol? e)))
 
 (define (prim== a b)
   (mtch (list a b)
@@ -274,7 +274,7 @@
   (mtch e
         ('P a b) #t
         ('$ lam env) #t
-        x (or (number? e) (string? e))))
+        x (or (number? e) (string? e) (symbol? e))))
 
 (define (freeze e env)
   (mtch e
@@ -315,7 +315,7 @@
    'False e
    'Nil e
 
-   ('quote s) e
+   ('quote s) s
 
    'car e
    ('car p) (mtch (vote-fully p env) ('P a b) a x (err 'not-pair e))
@@ -423,7 +423,7 @@
 
    ('P a b) (build-receiver a (build-receiver b body))
 
-   x (cond ((or (ctor? pat) (number? pat) (quoted-symbol? pat)) body)
+   x (cond ((or (number? pat) (quoted-symbol? pat)) body)
            ((symbol? pat) `(/. ,x ,body))
            (#t (err 'build-receiver pat body)))))
 
@@ -438,7 +438,7 @@
      (let ((lefter (fuck a failure))
            (righter (fuck b failure)))
        `(/. ,k (/. ,v (/. ,rv (((if (pair? ,v)) (((,lefter ((,righter ,k) (cdr ,v))) (car ,v)) ,rv)) ,failure)))))
-     x (cond ((or (ctor? pat) (number? pat) (quoted-symbol? pat))
+     x (cond ((or (number? pat) (quoted-symbol? pat))
               `(/. ,k (/. ,v (/. ,rv (((if ((== ,v) ,pat)) (,k ,rv)) ,failure)))))
              ((symbol? pat)
               `(/. ,k (/. ,v (/. ,rv (,k (,rv ,v))))))
@@ -607,7 +607,11 @@
    (#t (err 'render e))))
 
 (define (quote-ctors e)
-  (atom-traverse (lambda (p) (if (ctor? p) `(quote ,p) p)) e))
+  (atom-traverse (lambda (p) (if (and (ctor? p) (not (eq? p 'P))) `(quote ,p) p)) e))
+
+(define (quote-ctors-def e)
+  (mtch e
+        ('def name e) `(def name ,(quote-ctors e))))
 
 ;(crun-file "src.ss")
 

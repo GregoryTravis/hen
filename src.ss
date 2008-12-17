@@ -1,9 +1,3 @@
-;; ((/. 'Nil 1) . 'Nil)
-;; ((/. ('Nil) 1) 'Nil)
-;; ((/. (Nil) 1) Nil)
+;(((if True) 100) 200)
 
-((/. 'joe 1) . 'joe)
 ((/. ('joe) 1) 'joe)
-((/. (joe) joe) 1)
-
-((/. (joe) 1) joee)
