@@ -279,7 +279,18 @@ bool equal(yeah* a, yeah* b) {
   A(0);
 }
 
-#define ISSYM(e) ((e)->t == SYMBOL && !strcmp((e)->u.symbol.s, (_s)))
+#define ISTAG(_e, _t) ((_e)->t == (_t))
+#define ISLAMBDA(_e) ISTAG((_e), LAMBDA)
+#define ISCLOSURE(_e) ISTAG((_e), CLOSURE)
+#define ISTHUNK(_e) ISTAG((_e), THUNK)
+#define ISINTEGER(_e) ISTAG((_e), INTEGER)
+#define ISSYMBOL(_e) ISTAG((_e), SYMBOL)
+#define ISPAIR(_e) ISTAG((_e), PAIR)
+#define ISAPP(_e) ISTAG((_e), APP)
+#define ISCSYMBOL(_e) ISTAG((_e), CSYMBOL)
+
+#define CAR(_p) (A(ISPAIR(_p)), (_p)->u.pair.car)
+#define CDR(_p) (A(ISPAIR(_p)), (_p)->u.pair.cdr)
 
 #define APPF(e) ((e)->u.app.f)
 #define APPARG(e) ((e)->u.app.arg)
@@ -306,7 +317,7 @@ count++;
     } else {
       //err(("Unknown primitive %s\n", f));
       //evl_step_(app(e->u.app.f, evl_step(a, env)), env);
-      return evl_step_(app(lookup(f, env), a), env);
+      return evl_step_(app(lookup(f, env), freeze(a, env)), env);
     }
   } if (e->t == APP && e->u.app.f->t == APP && e->u.app.f->u.app.f->t == SYMBOL) {
     char* f = e->u.app.f->u.app.f->u.symbol.s;
@@ -441,9 +452,18 @@ yeah* evl_fully(yeah* e, yeah* env) {
   }
 }
 
+yeah* evl_completely(yeah* e, yeah* env) {
+  yeah* ee = evl_fully(e, env);
+  if (ISPAIR(ee)) {
+    return pair(evl_completely(CAR(ee), env), evl_completely(CDR(ee), env));
+  } else {
+    return ee;
+  }
+}
+
 void topevl(char* src, yeah* obj) {
   printf("+ %s\n", src);
-  yeah* value = evl_fully(obj, symbol("Nil"));
+  yeah* value = evl_completely(obj, symbol("Nil"));
   printf("=> ");
   dumpn(value);
 }
