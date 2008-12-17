@@ -13,7 +13,7 @@
 (define (run-src forms)
   (mtch (forms->defs-n-tlfs forms)
         (defs tlfs)
-        (begin (map define-def (map preprocess-def (map doobie defs)))
+        (begin (map define-def (map preprocess (map doobie defs)))
                ;(shew global-env)
                (map evl-top tlfs (map preprocess (map quote-ctors (map doobie tlfs)))))))
 
@@ -50,15 +50,10 @@
 
         x x))
 
-(define (preprocess-def e)
-  (mtch e
-        ('def name e)
-        `(def ,name ,(if use-ski
-                         (sski (preprocess e))
-                         (preprocess e)))))
-
 (define (preprocess e)
-  (simplify (blunk e)))
+  (mtch e
+   ('def name e) `(def ,name ,(preprocess e))
+   e (simplify (blunk e))))
 
 (define global-env '())
 (define (define-def e)
