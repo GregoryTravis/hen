@@ -28,7 +28,9 @@
             (read-objects filename))))
 
 (define (cmpl-def def)
-  "")
+  (mtch def
+        (name . e)
+        (++ (render `(store_global ,name ,(cmpl e))) ";\n")))
 
 (define (cmpl-top src-e e)
   (++ (render `(topevl ,(sdisplay src-e) ,(cmpl e))) ";\n"))
@@ -37,8 +39,8 @@
   (mtch (preprocess-program forms)
         (src-tlfs tlfs)
         (crun-obj (apply ++ (append
-                             (map cmpl-top src-tlfs tlfs)
-                             (map cmpl-def global-env))))))
+                             (map cmpl-def global-env)
+                             (map cmpl-top src-tlfs tlfs))))))
 
 (define (crun-obj tlfs)
   (cmd "rm -f obj.i vor")
@@ -587,11 +589,15 @@
   (mtch
    e
 
+   () '(nil)
+
    ('quote x) `(csymbol ,x)
 
    ('P a b) `(pair ,(cmpl a) ,(cmpl b))
 
    ('/. arg body) `(lambda ,(cmpl arg) ,(cmpl body))
+
+   ('$ lam env) `(closure ,(cmpl lam) ,(cmpl env))
 
    (a b) `(app ,(cmpl a) ,(cmpl b))
 
@@ -628,3 +634,5 @@
 ;(tracefun blunk blunk-/./. blunk-/.)
 ;(tracefun simplify simplify-env simplify-trivial-app)
 ;(tracefun ->/.)
+;(tracefun render)
+;(tracefun cmpl cmpl-def)

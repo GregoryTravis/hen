@@ -28,6 +28,7 @@ typedef enum {
 typedef struct yeah yeah;
 
 yeah *Nil, *True, *False;
+yeah* globals;
 
 struct yeah {
   tag t;
@@ -144,13 +145,11 @@ yeah* app(yeah* f, yeah* arg) {
   return y;
 }
 
-/*
 yeah* nil(void) {
-  yeah* y = newyeah();
-  y->t = NIL;
-  return y;
+  return Nil;
 }
 
+/*
 yeah* ntrue(void) {
   yeah* y = newyeah();
   y->t = TRUE;
@@ -219,9 +218,13 @@ void dumpn(yeah* y) {
   putchar('\n');
 }
 
-yeah* lookup(char* s, yeah* env) {
+yeah* store_global(char *s, yeah* v) {
+  globals = pair(pair(symbol(s), v), globals);
+}
+
+yeah* lookup_in_env(char* s, yeah* env) {
   if (nilp(env)) {
-    err(("No such variable %s\n", s));
+    return NULL;
   } else {
     A(env->t == PAIR);
     A(env->u.pair.car->t == PAIR);
@@ -229,8 +232,18 @@ yeah* lookup(char* s, yeah* env) {
     if (!strcmp(s, env->u.pair.car->u.pair.car->u.symbol.s)) {
       return env->u.pair.car->u.pair.cdr;
     } else {
-      return lookup(s, env->u.pair.cdr);
+      return lookup_in_env(s, env->u.pair.cdr);
     }
+  }
+}
+
+yeah* lookup(char *s, yeah* local_env) {
+  yeah* v = lookup_in_env(s, local_env);
+  if (v == NULL) {
+    v = lookup_in_env(s, globals);
+  }
+  if (v == NULL) {
+    err(("No such variable %s\n", s));
   }
 }
 
@@ -266,7 +279,7 @@ bool equal(yeah* a, yeah* b) {
   A(0);
 }
 
-#define ISSYM(e, _s) ((e)->t == SYMBOL && !strcmp((e)->u.symbol.s, (_s)))
+#define ISSYM(e) ((e)->t == SYMBOL && !strcmp((e)->u.symbol.s, (_s)))
 
 #define APPF(e) ((e)->u.app.f)
 #define APPARG(e) ((e)->u.app.arg)
@@ -439,6 +452,7 @@ void init() {
   Nil = symbol("Nil");
   True = symbol("True");
   False = symbol("False");
+  globals = symbol("Nil");
 }
 
 int main(int argc, char** argv) {
