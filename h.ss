@@ -27,13 +27,18 @@
             (read-objects "overture.ss")
             (read-objects filename))))
 
+(define (cmpl-global def)
+  "")
+
 (define (cmpl-top src-e e)
   (++ (render `(topevl ,(sdisplay src-e) ,(cmpl e))) ";\n"))
 
 (define (crun-src forms)
   (mtch (preprocess-program forms)
         (src-tlfs tlfs)
-        (crun-obj (apply ++ (map cmpl-top src-tlfs tlfs)))))
+        (crun-obj (apply ++ (append
+                             (map cmpl-top src-tlfs tlfs)
+                             (map cmpl-global global-env))))))
 
 (define (crun-obj tlfs)
   (cmd "rm -f obj.i vor")
