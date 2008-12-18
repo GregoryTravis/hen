@@ -414,19 +414,19 @@ yeah* evl_step_(yeah* e, yeah* env) {
       dumpn(arg0);
       err((""));
     }
-  } else if (e->t == APP) {
+  } else if (ISAPP(e)) {
     return evl_step(app(evl_step(e->u.app.f,env), freeze(e->u.app.arg, env)), env);
-  } else if (e->t == THUNK) {
+  } else if (ISTHUNK(e)) {
     return evl_step(e->u.thunk.exp, e->u.thunk.env);
-  } else if (e->t == LAMBDA) {
+  } else if (ISLAMBDA(e)) {
     return closure(e, env);
-  } else if (e->t == SYMBOL) {
+  } else if (ISSYMBOL(e)) {
     return lookup(e->u.symbol.s, env);
-  } else if (e->t == CSYMBOL) {
+  } else if (ISCSYMBOL(e)) {
     return symbol(e->u.csymbol.s);
-  } else if (e->t == PAIR) {
+  } else if (ISPAIR(e)) {
     return pair(thunk(e->u.pair.car, env), thunk(e->u.pair.cdr, env));
-  } else if (e->t == INTEGER || e->t == CLOSURE) {
+  } else if (ISINTEGER(e) || ISCLOSURE(e)) {
     return e;
   } else {
     warn(("Can't eval "));
