@@ -342,8 +342,8 @@ yeah* lambdabody(yeah* lambda) {
 #define TF(_b) ((_b) ? True : False)
 
 bool isprim1(yeah* e, char* s, yeah** arg0) {
-  if (ISAPP(e) && isthissymbol(car(e), s)) {
-    *arg0 = cdr(e);
+  if (ISAPP(e) && isthissymbol(appfun(e), s)) {
+    *arg0 = apparg(e);
     return true;
   } else {
     return false;
@@ -351,8 +351,8 @@ bool isprim1(yeah* e, char* s, yeah** arg0) {
 }
 
 bool isprim2(yeah* e, char* s, yeah** arg0, yeah** arg1) {
-  if (ISAPP(e) && isprim1(car(e), s, arg0)) {
-    *arg1 = cdr(cdr(e));
+  if (ISAPP(e) && isprim1(appfun(e), s, arg0)) {
+    *arg1 = apparg(apparg(e));
     return true;
   } else {
     return false;
@@ -360,8 +360,8 @@ bool isprim2(yeah* e, char* s, yeah** arg0, yeah** arg1) {
 }
 
 bool isprim3(yeah* e, char* s, yeah** arg0, yeah** arg1, yeah** arg2) {
-  if (ISAPP(e) && isprim2(car(e), s, arg0, arg1)) {
-    *arg2 = cdr(cdr(cdr(e)));
+  if (ISAPP(e) && isprim2(appfun(e), s, arg0, arg1)) {
+    *arg2 = apparg(apparg(apparg(e)));
     return true;
   } else {
     return false;
@@ -372,13 +372,16 @@ yeah* evl_step(yeah* e, yeah* env);
 yeah* evl_fully(yeah* e, yeah* env);
 
 yeah* evl_step_(yeah* e, yeah* env) {
-  if (e->t == APP && e->u.app.f->t == SYMBOL) {
+  yeah *arg0, *arg1, *arg2;
+  if (isprim1(e, "pair?", &arg0)) {
+    return TF(ISPAIR(evl_fully(arg0, env)));
+  } else if (e->t == APP && e->u.app.f->t == SYMBOL) {
     char* f = e->u.app.f->u.symbol.s;
     yeah* a = e->u.app.arg;
-    if (!strcmp(f, "pair?")) {
+/*    if (!strcmp(f, "pair?")) {
       yeah* aa = evl_fully(a, env);
       return aa->t == PAIR ? True : False;
-    } else if (!strcmp(f, "car")) {
+    } else */ if (!strcmp(f, "car")) {
       yeah* aa = evl_fully(a, env);
       A(aa->t == PAIR);
       return aa->u.pair.car;
