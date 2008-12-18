@@ -287,8 +287,13 @@ bool equal(yeah* a, yeah* b) {
 #define ISAPP(_e) ISTAG((_e), APP)
 #define ISCSYMBOL(_e) ISTAG((_e), CSYMBOL)
 
+char* symstring(yeah* e) {
+  A(ISSYMBOL(e));
+  return e->u.symbol.s;
+}
+
 bool isthissymbol(yeah* e, char* s) {
-  return ISSYMBOL(e) && !strcmp(e->u.symbol.s, s);
+  return ISSYMBOL(e) && !strcmp(symstring(e), s);
 }
 
 yeah* car(yeah* e) {
@@ -375,26 +380,13 @@ yeah* evl_step_(yeah* e, yeah* env) {
   yeah *arg0, *arg1, *arg2;
   if (isprim1(e, "pair?", &arg0)) {
     return TF(ISPAIR(evl_fully(arg0, env)));
-  } else if (e->t == APP && e->u.app.f->t == SYMBOL) {
-    char* f = e->u.app.f->u.symbol.s;
-    yeah* a = e->u.app.arg;
-/*    if (!strcmp(f, "pair?")) {
-      yeah* aa = evl_fully(a, env);
-      return aa->t == PAIR ? True : False;
-    } else */ if (!strcmp(f, "car")) {
-      yeah* aa = evl_fully(a, env);
-      A(aa->t == PAIR);
-      return aa->u.pair.car;
-    } else if (!strcmp(f, "cdr")) {
-      yeah* aa = evl_fully(a, env);
-      A(aa->t == PAIR);
-      return aa->u.pair.cdr;
-    } else {
-      //err(("Unknown primitive %s\n", f));
-      //evl_step_(app(e->u.app.f, evl_step(a, env)), env);
-      return evl_step_(app(lookup(f, env), freeze(a, env)), env);
-    }
-  } if (e->t == APP && e->u.app.f->t == APP && e->u.app.f->u.app.f->t == SYMBOL) {
+  } else if (isprim1(e, "car", &arg0)) {
+    return car(evl_fully(arg0, env));
+  } else if (isprim1(e, "cdr", &arg0)) {
+    return cdr(evl_fully(arg0, env));
+  } else if (ISAPP(e) && ISSYMBOL(appfun(e))) {
+    return evl_step_(app(lookup(symstring(appfun(e)), env), freeze(apparg(e), env)), env);
+  } else if (e->t == APP && e->u.app.f->t == APP && e->u.app.f->u.app.f->t == SYMBOL) {
     char* f = e->u.app.f->u.app.f->u.symbol.s;
     yeah* a = e->u.app.f->u.app.arg;
     yeah* b = e->u.app.arg;
@@ -419,7 +411,7 @@ yeah* evl_step_(yeah* e, yeah* env) {
       return equal(evl_fully(a, env), evl_fully(b, env)) ? True : False;
     } else {
       //err(("Unknown primitive %s\n", f));
-      return evl_step_(app(app(lookup(f, env), a), b), env);
+      return evl_step(app(app(lookup(f, env), a), b), env);
     }
   } else if (e->t == APP && e->u.app.f->t == CLOSURE) {
     //printf("BIND %s\n", e->u.app.f->u.closure.lambda->u.lambda.arg->u.symbol.s); dumpn(e->u.app.arg);
