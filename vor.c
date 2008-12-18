@@ -18,9 +18,6 @@ typedef enum {
   PAIR,
   APP,
   CSYMBOL,
-//  NIL,
-//  TRUE,
-//  FALSE,
 } tag;
 
 typedef struct yeah yeah;
@@ -235,12 +232,12 @@ yeah* car(yeah* e) {
   A(ISPAIR(e));
   return e->u.pair.car;
 }
-//#define cdr(_p) (A(ISPAIR(_p)), (_p)->u.pair.cdr)
+
 yeah* cdr(yeah* e) {
   A(ISPAIR(e));
   return e->u.pair.cdr;
 }
-//#define GETINT(_e) (A(ISINTEGER(_e)), (_e
+
 int getint(yeah* e) {
   A(ISINTEGER(e));
   return e->u.integer.i;
@@ -354,9 +351,6 @@ void dump(yeah* y) {
     dump(y->u.app.arg);
     printf( ")");
     break;
-//  case NIL: printf("Nil"); break;
-//  case TRUE: printf("True"); break;
-//  case FALSE: printf("False"); break;
   default: err(("%d\n", y->t)); break;
   }
 }
