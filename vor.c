@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 
-static int count=0;
-
 #include "a.h"
 #include "mem.h"
 #include "spew.h"
@@ -374,7 +372,6 @@ yeah* evl_step(yeah* e, yeah* env);
 yeah* evl_fully(yeah* e, yeah* env);
 
 yeah* evl_step_(yeah* e, yeah* env) {
-count++;
   if (e->t == APP && e->u.app.f->t == SYMBOL) {
     char* f = e->u.app.f->u.symbol.s;
     yeah* a = e->u.app.arg;
@@ -559,8 +556,6 @@ int main(int argc, char** argv) {
 /*   topevl(app(app(symbol("+"), integer(1)), integer(2))); */
 
 #include "obj.i"
-
-  //printf("steps %d\n", count);
 
   return 0;
 }
