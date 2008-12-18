@@ -357,7 +357,7 @@ bool isprim1(yeah* e, char* s, yeah** arg0) {
 
 bool isprim2(yeah* e, char* s, yeah** arg0, yeah** arg1) {
   if (ISAPP(e) && isprim1(appfun(e), s, arg0)) {
-    *arg1 = apparg(apparg(e));
+    *arg1 = apparg(e);
     return true;
   } else {
     return false;
@@ -366,7 +366,7 @@ bool isprim2(yeah* e, char* s, yeah** arg0, yeah** arg1) {
 
 bool isprim3(yeah* e, char* s, yeah** arg0, yeah** arg1, yeah** arg2) {
   if (ISAPP(e) && isprim2(appfun(e), s, arg0, arg1)) {
-    *arg2 = apparg(apparg(apparg(e)));
+    *arg2 = apparg(e);
     return true;
   } else {
     return false;
@@ -375,6 +375,7 @@ bool isprim3(yeah* e, char* s, yeah** arg0, yeah** arg1, yeah** arg2) {
 
 yeah* evl_step(yeah* e, yeah* env);
 yeah* evl_fully(yeah* e, yeah* env);
+yeah* evl_completely(yeah* e, yeah* env);
 
 yeah* evl_step_(yeah* e, yeah* env) {
   yeah *arg0, *arg1, *arg2;
@@ -386,16 +387,19 @@ yeah* evl_step_(yeah* e, yeah* env) {
     return cdr(evl_fully(arg0, env));
   } else if (ISAPP(e) && ISSYMBOL(appfun(e))) {
     return evl_step_(app(lookup(symstring(appfun(e)), env), freeze(apparg(e), env)), env);
+  } else if (isprim2(e, "+", &arg0, &arg1)) {
+    return integer(getint(evl_completely(arg0, env)) + getint(evl_completely(arg1, env)));
+
   } else if (e->t == APP && e->u.app.f->t == APP && e->u.app.f->u.app.f->t == SYMBOL) {
     char* f = e->u.app.f->u.app.f->u.symbol.s;
     yeah* a = e->u.app.f->u.app.arg;
     yeah* b = e->u.app.arg;
-    if (!strcmp(f, "+")) {
+/*    if (!strcmp(f, "+")) {
       a = evl_fully(a, env);
       b = evl_fully(b, env);
       A(a->t == INTEGER && b->t == INTEGER);
       return integer(a->u.integer.i + b->u.integer.i);
-    } else if (!strcmp(f, "-")) {
+    } else */ if (!strcmp(f, "-")) {
       a = evl_fully(a, env);
       b = evl_fully(b, env);
       A(a->t == INTEGER && b->t == INTEGER);
