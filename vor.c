@@ -401,13 +401,8 @@ yeah* evl_step_(yeah* e, yeah* env) {
     return evl_step(app(app(lookup(symstring(appfun(appfun(e))), env), apparg(appfun(e))), apparg(e)), env);
   } else if (e->t == APP && e->u.app.f->t == CLOSURE) {
     //printf("BIND %s\n", e->u.app.f->u.closure.lambda->u.lambda.arg->u.symbol.s); dumpn(e->u.app.arg);
-    return evl_step(
-      e->u.app.f->u.closure.lambda->u.lambda.body,
-      pair(
-        pair(
-          e->u.app.f->u.closure.lambda->u.lambda.arg,
-          e->u.app.arg),
-        e->u.app.f->u.closure.env));
+    return evl_step(lambdabody(closurelam(appfun(e))),
+      pair(pair(lambdaarg(closurelam(appfun(e))), apparg(e)), closureenv(appfun(e))));
   } else if (e->t == APP && APPF(e)->t == APP && APPF(APPF(e))->t == APP && APPF(APPF(APPF(e)))->t == SYMBOL
     && !strcmp(APPF(APPF(APPF(e)))->u.symbol.s, "if")) {
     yeah* b = apparg(APPF(APPF(e)));
