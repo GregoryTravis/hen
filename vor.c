@@ -165,57 +165,6 @@ bool nilp(yeah* e) {
   return (e->t == CSYMBOL || e->t == SYMBOL) && !strcmp(e->u.csymbol.s, "Nil");
 }
 
-void dump(yeah* y) {
-  switch (y->t) {
-  case INTEGER: printf( "%d", y->u.integer.i ); break;
-  case SYMBOL: printf( "%s", y->u.symbol.s ); break;
-  case CSYMBOL: printf( "'%s", y->u.symbol.s ); break;
-  case PAIR:
-    printf( "(P " );
-    dump(y->u.pair.car);
-    printf( " " );
-    dump(y->u.pair.cdr);
-    printf( ")" );
-    break;
-  case THUNK:
-    printf( "(@ ");
-    dump(y->u.thunk.exp);
-    printf(")");
-    //dump(y->u.thunk.env);
-    break;
-  case CLOSURE:
-    printf( "($ ");
-    dump(y->u.closure.lambda);
-    printf( " ");
-    dump(y->u.closure.env);
-    printf( ")");
-    break;
-  case LAMBDA:
-    printf( "(/. ");
-    dump(y->u.lambda.arg);
-    printf( " ");
-    dump(y->u.lambda.body);
-    printf( ")");
-    break;
-  case APP:
-    printf( "(");
-    dump(y->u.app.f);
-    printf( " ");
-    dump(y->u.app.arg);
-    printf( ")");
-    break;
-//  case NIL: printf("Nil"); break;
-//  case TRUE: printf("True"); break;
-//  case FALSE: printf("False"); break;
-  default: err(("%d\n", y->t)); break;
-  }
-}
-
-void dumpn(yeah* y) {
-  dump(y);
-  putchar('\n');
-}
-
 yeah* store_global(char *s, yeah* v) {
   globals = pair(pair(symbol(s), v), globals);
 }
@@ -345,6 +294,91 @@ yeah* lambdabody(yeah* lambda) {
 #define apparg(e) ((e)->u.app.arg)
 
 #define TF(_b) ((_b) ? True : False)
+
+bool is_ctor(yeah* y) {
+  if (ISSYMBOL(y)) {
+    char c = symstring(y)[0];
+    return c >= 'A' &&c <= 'Z';
+  } else {
+    return false;
+  }
+}
+
+bool is_cton(yeah* y) {
+  return ISPAIR(y) && is_ctor(car(y));
+}
+
+void dump(yeah* y);
+
+void dump_cton(yeah* y) {
+  printf("(");
+
+  yeah* here = y;
+  while (!nilp(here)) {
+    dump(car(here));
+    here = cdr(here);
+    if (!nilp(here)) {
+      printf(" ");
+    }
+  }
+
+  printf(")");
+}
+
+void dump(yeah* y) {
+  switch (y->t) {
+  case INTEGER: printf( "%d", y->u.integer.i ); break;
+  case SYMBOL: printf( "%s", y->u.symbol.s ); break;
+  case CSYMBOL: printf( "'%s", y->u.symbol.s ); break;
+  case PAIR:
+    if (is_cton(y)) {
+      dump_cton(y);
+    } else {
+      printf( "(P " );
+      dump(y->u.pair.car);
+      printf( " " );
+      dump(y->u.pair.cdr);
+      printf( ")" );
+    }
+    break;
+  case THUNK:
+    printf( "(@ ");
+    dump(y->u.thunk.exp);
+    printf(")");
+    //dump(y->u.thunk.env);
+    break;
+  case CLOSURE:
+    printf( "($ ");
+    dump(y->u.closure.lambda);
+    printf( " ");
+    dump(y->u.closure.env);
+    printf( ")");
+    break;
+  case LAMBDA:
+    printf( "(/. ");
+    dump(y->u.lambda.arg);
+    printf( " ");
+    dump(y->u.lambda.body);
+    printf( ")");
+    break;
+  case APP:
+    printf( "(");
+    dump(y->u.app.f);
+    printf( " ");
+    dump(y->u.app.arg);
+    printf( ")");
+    break;
+//  case NIL: printf("Nil"); break;
+//  case TRUE: printf("True"); break;
+//  case FALSE: printf("False"); break;
+  default: err(("%d\n", y->t)); break;
+  }
+}
+
+void dumpn(yeah* y) {
+  dump(y);
+  putchar('\n');
+}
 
 bool isprim1(yeah* e, char* s, yeah** arg0) {
   if (ISAPP(e) && isthissymbol(appfun(e), s)) {
