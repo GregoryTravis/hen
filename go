@@ -1,2 +1,1 @@
-mzscheme -r main.ss | tee jj
-diff -q j jj
+mzscheme -r main.ss
