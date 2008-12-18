@@ -72,7 +72,7 @@
 (define (preprocess e)
   (mtch e
    ('def name e) `(def ,name ,(preprocess e))
-   e (simplify (blunk (quote-ctors (doobie e))))))
+   e (simplify (blunk (quote-ctors (doobie (preprocess-ctons e)))))))
 
 (define global-env '())
 (define (define-def e)
@@ -623,11 +623,20 @@
   (mtch e
         ('def name e) `(def name ,(quote-ctors e))))
 
-;(crun-file "src.ss")
+(define (p-ify e)
+  (if (null? e)
+      'Nil
+      `(P ,(car e) ,(p-ify (cdr e)))))
+
+(define (preprocess-ctons e)
+  (cond
+   ((cton? e) (p-ify (map-improper preprocess-ctons e)))
+   ((pair? e) (map-improper preprocess-ctons e))
+   (#t e)))
 
 ;(tracefun evl evl-step evl-fully)
 ;(tracefun ski)
-;(tracefun preprocess process-/./. process-/.)
+;(tracefun preprocess)
 ;(tracefun build-receiver fuck)
 ;(tracefun vote vote-step)
 ;(tracefun vote-fully vote-completely)
@@ -637,3 +646,4 @@
 ;(tracefun ->/.)
 ;(tracefun render)
 ;(tracefun cmpl cmpl-def)
+;(tracefun preprocess-ctons p-ify)
