@@ -6,6 +6,7 @@
 #include "spew.h"
 
 static int trace = 0;
+static int show_bindings = 0;
 static int trace_env_too = 0;
 static int max_trace_show = 6;
 
@@ -414,7 +415,7 @@ yeah* evl_step_(yeah* e, yeah* env) {
   } else if (ISAPP(e) && ISAPP(appfun(e)) && ISSYMBOL(appfun(appfun(e)))) {
     return app(app(lookup(symstring(appfun(appfun(e))), env), freeze(apparg(appfun(e)), env)), freeze(apparg(e), env));
   } else if (e->t == APP && e->u.app.f->t == CLOSURE) {
-    //printf("BIND %s\n", e->u.app.f->u.closure.lambda->u.lambda.arg->u.symbol.s); dumpn(e->u.app.arg);
+    if (show_bindings) { printf("BIND %s\n", e->u.app.f->u.closure.lambda->u.lambda.arg->u.symbol.s); dumpn(e->u.app.arg); }
     return freeze(lambdabody(closurelam(appfun(e))),
       pair(pair(lambdaarg(closurelam(appfun(e))), apparg(e)), closureenv(appfun(e))));
   } else if (isprim3(e, "if", &arg0, &arg1, &arg2)) {
