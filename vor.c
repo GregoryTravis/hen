@@ -403,25 +403,15 @@ yeah* evl_step_(yeah* e, yeah* env) {
     //printf("BIND %s\n", e->u.app.f->u.closure.lambda->u.lambda.arg->u.symbol.s); dumpn(e->u.app.arg);
     return evl_step(lambdabody(closurelam(appfun(e))),
       pair(pair(lambdaarg(closurelam(appfun(e))), apparg(e)), closureenv(appfun(e))));
-  } else if (e->t == APP && APPF(e)->t == APP && APPF(APPF(e))->t == APP && APPF(APPF(APPF(e)))->t == SYMBOL
-    && !strcmp(APPF(APPF(APPF(e)))->u.symbol.s, "if")) {
-    yeah* b = apparg(APPF(APPF(e)));
-    yeah* th = apparg(APPF(e));
-    yeah* el = apparg(e);
-    /*printf("IF\n");
-    dumpn(e);
-    dumpn(b);
-    dumpn(th);
-    dumpn(el);*/
-    yeah* bb = evl_fully(b, env);
-    //dumpn(bb);
-    if (equal(bb, True)) {
-      return freeze(th, env);
-    } else if (equal(bb, False)) {
-      return freeze(el, env);
+  } else if (isprim3(e, "if", &arg0, &arg1, &arg2)) {
+    arg0 = evl_completely(arg0, env);
+    if (equal(arg0, True)) {
+      return freeze(arg1, env);
+    } else if (equal(arg0, False)) {
+      return freeze(arg2, env);
     } else {
       spew(("Not a bool: "));
-      dumpn(bb);
+      dumpn(arg0);
       err((""));
     }
   } else if (e->t == APP) {
