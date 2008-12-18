@@ -289,11 +289,86 @@ bool equal(yeah* a, yeah* b) {
 #define ISAPP(_e) ISTAG((_e), APP)
 #define ISCSYMBOL(_e) ISTAG((_e), CSYMBOL)
 
-#define CAR(_p) (A(ISPAIR(_p)), (_p)->u.pair.car)
-#define CDR(_p) (A(ISPAIR(_p)), (_p)->u.pair.cdr)
+bool isthissymbol(yeah* e, char* s) {
+  return ISSYMBOL(e) && !strcmp(e->u.symbol.s, s);
+}
+
+yeah* car(yeah* e) {
+  A(ISPAIR(e));
+  return e->u.pair.car;
+}
+//#define cdr(_p) (A(ISPAIR(_p)), (_p)->u.pair.cdr)
+yeah* cdr(yeah* e) {
+  A(ISPAIR(e));
+  return e->u.pair.cdr;
+}
+//#define GETINT(_e) (A(ISINTEGER(_e)), (_e
+int getint(yeah* e) {
+  A(ISINTEGER(e));
+  return e->u.integer.i;
+}
+
+yeah* appfun(yeah* app) {
+  A(ISAPP(app));
+  return app->u.app.f;
+}
+
+yeah* apparg(yeah* app) {
+  A(ISAPP(app));
+  return app->u.app.arg;
+}
+
+yeah* closurelam(yeah* closure) {
+  A(ISCLOSURE(closure));
+  return closure->u.closure.lambda;
+}
+
+yeah* closureenv(yeah* closure) {
+  A(ISCLOSURE(closure));
+  return closure->u.closure.env;
+}
+
+yeah* lambdaarg(yeah* lambda) {
+  A(ISLAMBDA(lambda));
+  return lambda->u.lambda.arg;
+}
+
+yeah* lambdabody(yeah* lambda) {
+  A(ISLAMBDA(lambda));
+  return lambda->u.lambda.body;
+}
 
 #define APPF(e) ((e)->u.app.f)
-#define APPARG(e) ((e)->u.app.arg)
+#define apparg(e) ((e)->u.app.arg)
+
+#define TF(_b) ((_b) ? True : False)
+
+bool isprim1(yeah* e, char* s, yeah** arg0) {
+  if (ISAPP(e) && isthissymbol(car(e), s)) {
+    *arg0 = cdr(e);
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool isprim2(yeah* e, char* s, yeah** arg0, yeah** arg1) {
+  if (ISAPP(e) && isprim1(car(e), s, arg0)) {
+    *arg1 = cdr(cdr(e));
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool isprim3(yeah* e, char* s, yeah** arg0, yeah** arg1, yeah** arg2) {
+  if (ISAPP(e) && isprim2(car(e), s, arg0, arg1)) {
+    *arg2 = cdr(cdr(cdr(e)));
+    return true;
+  } else {
+    return false;
+  }
+}
 
 yeah* evl_step(yeah* e, yeah* env);
 yeah* evl_fully(yeah* e, yeah* env);
@@ -357,9 +432,9 @@ count++;
         e->u.app.f->u.closure.env));
   } else if (e->t == APP && APPF(e)->t == APP && APPF(APPF(e))->t == APP && APPF(APPF(APPF(e)))->t == SYMBOL
     && !strcmp(APPF(APPF(APPF(e)))->u.symbol.s, "if")) {
-    yeah* b = APPARG(APPF(APPF(e)));
-    yeah* th = APPARG(APPF(e));
-    yeah* el = APPARG(e);
+    yeah* b = apparg(APPF(APPF(e)));
+    yeah* th = apparg(APPF(e));
+    yeah* el = apparg(e);
     /*printf("IF\n");
     dumpn(e);
     dumpn(b);
@@ -455,7 +530,7 @@ yeah* evl_fully(yeah* e, yeah* env) {
 yeah* evl_completely(yeah* e, yeah* env) {
   yeah* ee = evl_fully(e, env);
   if (ISPAIR(ee)) {
-    return pair(evl_completely(CAR(ee), env), evl_completely(CDR(ee), env));
+    return pair(evl_completely(car(ee), env), evl_completely(cdr(ee), env));
   } else {
     return ee;
   }
