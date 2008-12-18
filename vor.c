@@ -397,34 +397,8 @@ yeah* evl_step_(yeah* e, yeah* env) {
     return pair(freeze(arg0, env), freeze(arg1, env));
   } else if (isprim2(e, "==", &arg0, &arg1)) {
     return TF(equal(evl_fully(arg0, env), evl_fully(arg1, env)));
-
-  } else if (e->t == APP && e->u.app.f->t == APP && e->u.app.f->u.app.f->t == SYMBOL) {
-    char* f = e->u.app.f->u.app.f->u.symbol.s;
-    yeah* a = e->u.app.f->u.app.arg;
-    yeah* b = e->u.app.arg;
-/*    if (!strcmp(f, "+")) {
-      a = evl_fully(a, env);
-      b = evl_fully(b, env);
-      A(a->t == INTEGER && b->t == INTEGER);
-      return integer(a->u.integer.i + b->u.integer.i);
-    } else if (!strcmp(f, "-")) {
-      a = evl_fully(a, env);
-      b = evl_fully(b, env);
-      A(a->t == INTEGER && b->t == INTEGER);
-      return integer(a->u.integer.i - b->u.integer.i);
-    } else if (!strcmp(f, "*")) {
-      a = evl_fully(a, env);
-      b = evl_fully(b, env);
-      A(a->t == INTEGER && b->t == INTEGER);
-      return integer(a->u.integer.i * b->u.integer.i);
-    } else if (!strcmp(f, "cons")) {
-      return pair(freeze(a, env), freeze(b, env));
-    } else if (!strcmp(f, "==")) {
-      return equal(evl_fully(a, env), evl_fully(b, env)) ? True : False;
-    } else */ {
-      //err(("Unknown primitive %s\n", f));
-      return evl_step(app(app(lookup(f, env), a), b), env);
-    }
+  } else if (ISAPP(e) && ISAPP(appfun(e)) && ISSYMBOL(appfun(appfun(e)))) {
+    return evl_step(app(app(lookup(symstring(appfun(appfun(e))), env), apparg(appfun(e))), apparg(e)), env);
   } else if (e->t == APP && e->u.app.f->t == CLOSURE) {
     //printf("BIND %s\n", e->u.app.f->u.closure.lambda->u.lambda.arg->u.symbol.s); dumpn(e->u.app.arg);
     return evl_step(
