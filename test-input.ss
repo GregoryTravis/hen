@@ -66,7 +66,7 @@
 (def map
      (/. (f)
          (/./.
-          (/. ((P a d)) ((cons (f a)) ((map f) d)))
+          (/. ((P a d)) (P (f a) ((map f) d)))
           (/. (x) x))))
 
 ((map double) (P 1 (P 2 (P 3 Nil))))
@@ -106,9 +106,7 @@
 
 (def map2
      (/./.
-      ;(/. (f a . b) ((cons (f a)) (map2 f . b)))
-      (/. (f (P a b)) ((cons (f a)) (map2 f b)))
-      ;(/. (f . x) x)
+      (/. (f (P a b)) (P (f a) (map2 f b)))
       (/. (f Nil) Nil)))
 
 (map2 double (P 1 (P 2 (P 3 Nil))))

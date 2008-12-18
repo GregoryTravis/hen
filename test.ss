@@ -53,3 +53,4 @@
 ;; ;; ;;        ))
 
 (run-file "test-input.ss")
+(crun-file "test-input.ss")

@@ -43,6 +43,7 @@
                              (map cmpl-top src-tlfs tlfs))))))
 
 (define (crun-obj tlfs)
+  (flush-output)
   (cmd "rm -f obj.i vor")
   (write-string-to-file "obj.i" tlfs)
   (cmd "make vor")
