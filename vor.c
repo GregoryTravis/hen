@@ -386,7 +386,7 @@ yeah* evl_step_(yeah* e, yeah* env) {
   } else if (isprim1(e, "cdr", &arg0)) {
     return cdr(evl_fully(arg0, env));
   } else if (ISAPP(e) && ISSYMBOL(appfun(e))) {
-    return evl_step_(app(lookup(symstring(appfun(e)), env), freeze(apparg(e), env)), env);
+    return app(lookup(symstring(appfun(e)), env), freeze(apparg(e), env));
   } else if (isprim2(e, "+", &arg0, &arg1)) {
     return integer(getint(evl_completely(arg0, env)) + getint(evl_completely(arg1, env)));
   } else if (isprim2(e, "-", &arg0, &arg1)) {
@@ -398,10 +398,10 @@ yeah* evl_step_(yeah* e, yeah* env) {
   } else if (isprim2(e, "==", &arg0, &arg1)) {
     return TF(equal(evl_fully(arg0, env), evl_fully(arg1, env)));
   } else if (ISAPP(e) && ISAPP(appfun(e)) && ISSYMBOL(appfun(appfun(e)))) {
-    return evl_step(app(app(lookup(symstring(appfun(appfun(e))), env), apparg(appfun(e))), apparg(e)), env);
+    return app(app(lookup(symstring(appfun(appfun(e))), env), freeze(apparg(appfun(e)), env)), freeze(apparg(e), env));
   } else if (e->t == APP && e->u.app.f->t == CLOSURE) {
     //printf("BIND %s\n", e->u.app.f->u.closure.lambda->u.lambda.arg->u.symbol.s); dumpn(e->u.app.arg);
-    return evl_step(lambdabody(closurelam(appfun(e))),
+    return freeze(lambdabody(closurelam(appfun(e))),
       pair(pair(lambdaarg(closurelam(appfun(e))), apparg(e)), closureenv(appfun(e))));
   } else if (isprim3(e, "if", &arg0, &arg1, &arg2)) {
     arg0 = evl_completely(arg0, env);
@@ -415,7 +415,7 @@ yeah* evl_step_(yeah* e, yeah* env) {
       err((""));
     }
   } else if (ISAPP(e)) {
-    return evl_step(app(evl_step(e->u.app.f,env), freeze(e->u.app.arg, env)), env);
+    return app(evl_step(e->u.app.f,env), freeze(e->u.app.arg, env));
   } else if (ISTHUNK(e)) {
     return evl_step(e->u.thunk.exp, e->u.thunk.env);
   } else if (ISLAMBDA(e)) {
