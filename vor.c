@@ -393,6 +393,10 @@ yeah* evl_step_(yeah* e, yeah* env) {
     return integer(getint(evl_completely(arg0, env)) - getint(evl_completely(arg1, env)));
   } else if (isprim2(e, "*", &arg0, &arg1)) {
     return integer(getint(evl_completely(arg0, env)) * getint(evl_completely(arg1, env)));
+  } else if (isprim2(e, "cons", &arg0, &arg1)) {
+    return pair(freeze(arg0, env), freeze(arg1, env));
+  } else if (isprim2(e, "==", &arg0, &arg1)) {
+    return TF(equal(evl_fully(arg0, env), evl_fully(arg1, env)));
 
   } else if (e->t == APP && e->u.app.f->t == APP && e->u.app.f->u.app.f->t == SYMBOL) {
     char* f = e->u.app.f->u.app.f->u.symbol.s;
@@ -413,11 +417,11 @@ yeah* evl_step_(yeah* e, yeah* env) {
       b = evl_fully(b, env);
       A(a->t == INTEGER && b->t == INTEGER);
       return integer(a->u.integer.i * b->u.integer.i);
-    } else */ if (!strcmp(f, "cons")) {
+    } else if (!strcmp(f, "cons")) {
       return pair(freeze(a, env), freeze(b, env));
     } else if (!strcmp(f, "==")) {
       return equal(evl_fully(a, env), evl_fully(b, env)) ? True : False;
-    } else {
+    } else */ {
       //err(("Unknown primitive %s\n", f));
       return evl_step(app(app(lookup(f, env), a), b), env);
     }
