@@ -1065,3 +1065,10 @@
 (define (cmd . stuff)
   ;(display "+ ") (display (join-things " " stuff)) (display "\n")
   (apply system stuff))
+
+(define (check . stuff)
+  (let ((bools (rdc stuff))
+        (value (rac stuff)))
+    (if (all? bools)
+        value
+        (err 'check value))))
