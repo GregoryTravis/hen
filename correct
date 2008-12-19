@@ -28,8 +28,6 @@
 => 1
 + ((/. (x) (x 2)) (/. (x) x))
 => 2
-+ (/. (r) r)
-=> ($ (/. b1134 (((if (PAIR? b1134)) (((if ((== (CDR b1134)) (quote Nil))) (CAR b1134)) TOPFAIL)) TOPFAIL)) ())
 + ((/. (r) r) 3)
 => 3
 + ((+ 10) 20)
@@ -199,8 +197,6 @@ gcc -std=c99 -g -o vor vor.c a.c spew.c mem.c
 => 1
 + ((/. (x) (x 2)) (/. (x) x))
 => 2
-+ (/. (r) r)
-=> ($ (/. b2780 (((if (PAIR? b2780)) (((if ((== (CDR b2780)) 'Nil)) (CAR b2780)) TOPFAIL)) TOPFAIL)) Nil)
 + ((/. (r) r) 3)
 => 3
 + ((+ 10) 20)
