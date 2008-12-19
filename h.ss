@@ -38,9 +38,14 @@
         (map evl-top src-tlfs tlfs)))
 
 (define (run-file filename)
-  (run-src (append
-            (read-objects "overture.ss")
-            (read-objects filename))))
+  (run-src (read-src filename)))
+
+(define (read-src filename)
+;  (pretty-ugly
+(append
+                (read-objects "overture.ss")
+                (read-objects filename)))
+;)
 
 (define (cmpl-def def)
   (mtch def
@@ -67,9 +72,7 @@
       (cmd "./vor")))
 
 (define (crun-file filename)
-  (crun-src (append
-             (read-objects "overture.ss")
-             (read-objects filename))))
+  (crun-src (read-src filename)))
 
 (define (fun? e)
   (and (pair? e) (eq? (car e) 'fun)))
@@ -422,15 +425,49 @@
   (atom-traverse (lambda (p) (if (and (ctor? p) (not (eq? p 'P))) `(quote ,p) p)) e))
 
 (define (p-ify e)
-  (if (null? e)
-      'Nil
-      `(P ,(car e) ,(p-ify (cdr e)))))
+  (mtch e
+        '() 'Nil
+        (a . b) `(P ,a ,(p-ify b))
+        x x))
+
+(define (cons-ify e)
+  (mtch e
+        '() 'Nil
+        (a . b) `((cons ,a) ,(cons-ify b))
+        x x))
+
+(define (un-p-ify e)
+  (cons '$ (un-p-ify-1 e)))
+(define (un-p-ify-1 e)
+  (mtch e
+        ('P a 'Nil) (list a)
+        ('P a b) (cons a (un-p-ify-1 b))
+        x x))
 
 (define (preprocess-ctons e)
   (cond
    ((cton? e) (p-ify (map-improper preprocess-ctons e)))
    ((pair? e) (map-improper preprocess-ctons e))
    (#t e)))
+
+(define (pretty-ugly e) ($->P e))
+(define (ugly-pretty e) (P->$ e))
+
+(define ($->P e)
+  (mtch e
+        ('$ . stuff) (map-improper $->P (cons-ify stuff))
+        (a . b) (map-improper $->P e)
+        x x))
+(define (P->$ e)
+  (mtch e
+        ('P a b) (P->$ (un-p-ify e))
+        (a . b) (map-improper P->$ e)
+        x x))
+
+(define (pshew . args)
+  (apply shew (map ugly-pretty args)))
+(define (plshew . args)
+  (apply lshew (map pretty-ugly args)))
 
 ;(tracefun preprocess)
 ;(tracefun build-receiver build-traverser)
@@ -442,3 +479,9 @@
 ;(tracefun render)
 ;(tracefun cmpl cmpl-def)
 ;(tracefun preprocess-ctons p-ify)
+;(tracefun pretty-ugly ugly-pretty $->P P->$ p-ify un-p-ify un-p-ify-1)
+
+;; (pshew '(P 1 (P 2 (P 3 Nil))))
+;; (pshew '(P 1 (P 2 (P 3 4))))
+;; (shew (pretty-ugly '($ 10 20 30)))
+;; (shew (pretty-ugly '($ 10 20 30 . 40)))
