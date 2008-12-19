@@ -46,23 +46,25 @@
 (((if ((== 3) 0)) ((* 10) 20)) ((* 30) 40))
 ((/. (n) (((if ((== n) 0)) 1) ((* n) ((- n) 1)))) 3)
 
-((cons 1) 2)
-(car ((cons 1) 2))
-(cdr ((cons 1) 2))
-(pair? ((cons 1) 2))
-(pair? (car ((cons 1) 2)))
-(pair? (cdr ((cons 1) 2)))
+; Uncomment when cons means Cons
+;; ((cons 1) 2)
+;; (car ((cons 1) 2))
+;; (cdr ((cons 1) 2))
+;; (pair? ((cons 1) 2))
+;; (pair? (car ((cons 1) 2)))
+;; (pair? (cdr ((cons 1) 2)))
 
 (def double (/. (x) ((+ x) x)))
 (double 10)
 
-(def ones
-  (/./.
-   (/. ((PP aaa d)) ((cons (PP 1 aaa)) (ones d)))
-   (/. (x) x)))
-(ones Nil)
-(ones (PP 1 Nil))
-(ones (PP 1 (PP 2 (PP 3 Nil))))
+; Uncomment when cons means Cons
+;; (def ones
+;;   (/./.
+;;    (/. ((PP aaa d)) ((cons (PP 1 aaa)) (ones d)))
+;;    (/. (x) x)))
+;; (ones Nil)
+;; (ones (PP 1 Nil))
+;; (ones (PP 1 (PP 2 (PP 3 Nil))))
 
 (def map3
      (/. (f)
@@ -94,15 +96,16 @@
 ;; ((/. (a . b) b) 10 . 20)
 ;; ((/. (a . b) ((+ a) b)) 10 . 20)
 
-(def voo2
-     (/./.
-;      (/. (PP f (PP a b)) ((cons 20) (voo2 (PP f b))))
-      (/. (f a . b) ((cons 20) (voo2 (PP f b))))
-;      (/. (PP f x) x)
-      (/. (f . x) x)))
+; Uncomment when cons means Cons
+;; (def voo2
+;;      (/./.
+;;      (/. (PP f (PP a b)) ((cons 20) (voo2 (PP f b))))
+;;       (/. (f a . b) ((cons 20) (voo2 (PP f b))))
+;;      (/. (PP f x) x)
+;;       (/. (f . x) x)))
 
-(voo2 double 1 . Nil)
-(voo2 double . Nil)
+;; (voo2 double 1 . Nil)
+;; (voo2 double . Nil)
 
 ((/. (f a . b) b) 1000 1 . 2)
 ((/. (a . b) a) 1 . 2)
@@ -151,11 +154,12 @@
 ((/. ((Foo a b)) a) (Foo (Bar 10) 20))
 ((/. ((Foo a b)) b) (Foo (Bar 10) 20))
 
-(fun (ones2 (PP aaa d)) ((cons (PP 1 aaa)) (ones2 d)))
-(fun (ones2 x) x)
-(ones2 Nil)
-(ones2 (PP 1 Nil))
-(ones2 (PP 1 (PP 2 (PP 3 Nil))))
+; Uncomment when cons means Cons
+;; (fun (ones2 (PP aaa d)) ((cons (PP 1 aaa)) (ones2 d)))
+;; (fun (ones2 x) x)
+;; (ones2 Nil)
+;; (ones2 (PP 1 Nil))
+;; (ones2 (PP 1 (PP 2 (PP 3 Nil))))
 
 (fun (voo20 a b . c) ((+ b) c))
 (fun (voo20 a . b) b)
@@ -163,11 +167,12 @@
 (voo20 1 2 . 3)
 (voo20 1 . 10)
 
-(fun (voo22 f a . b) ((cons 20) (voo22 (PP f b))))
-(fun (voo22 f . x) x)
+; Uncomment when cons means Cons
+;; (fun (voo22 f a . b) ((cons 20) (voo22 (PP f b))))
+;; (fun (voo22 f . x) x)
 
-(voo22 double 1 . Nil)
-(voo22 double . Nil)
+;; (voo22 double 1 . Nil)
+;; (voo22 double . Nil)
 
 (fun (map22 f (PP a b)) (PP (f a) (map22 f b)))
 (fun (map22 f Nil) Nil)
