@@ -2,6 +2,7 @@
 
 (define show-tsgs #f)
 (define show-bindings #f)
+(define pretty-output #f)
 
 (define (fun-name fun)
   (mtch fun
@@ -106,9 +107,9 @@
         x (smart== a b)))
 
 (define (evl-top src e)
-  (display "+ ") (lshew src) (display "\n")
+  (display "+ ") (plshew src) (display "\n")
   (let ((ee (evl e)))
-    (display "=> ") (lshew ee) (display "\n")
+    (display "=> ") (plshew ee) (display "\n")
     ee))
 
 (define (data? e)
@@ -464,10 +465,11 @@
         (a . b) (map-improper P->$ e)
         x x))
 
-(define (pshew . args)
-  (apply shew (map ugly-pretty args)))
-(define (plshew . args)
-  (apply lshew (map pretty-ugly args)))
+(define (prettify-shewer shewer)
+  (lambda args (apply shewer ((if pretty-output ugly-pretty id) args))))
+
+(define pshew (prettify-shewer shew))
+(define plshew (prettify-shewer lshew))
 
 ;(tracefun preprocess)
 ;(tracefun build-receiver build-traverser)
@@ -480,8 +482,3 @@
 ;(tracefun cmpl cmpl-def)
 ;(tracefun preprocess-ctons p-ify)
 ;(tracefun pretty-ugly ugly-pretty $->P P->$ p-ify un-p-ify un-p-ify-1)
-
-;; (pshew '(P 1 (P 2 (P 3 Nil))))
-;; (pshew '(P 1 (P 2 (P 3 4))))
-;; (shew (pretty-ugly '($ 10 20 30)))
-;; (shew (pretty-ugly '($ 10 20 30 . 40)))
