@@ -1,6 +1,5 @@
 (load "lib.ss")
 
-(define use-ski #f)
 (define show-tsgs #f)
 (define show-bindings #f)
 
@@ -88,29 +87,10 @@
   (mtch e
         ('def name e)
         (set! global-env
-              (cons (cons name (if use-ski
-                                   (sski e)
-                                   (vote-step e '()))) global-env))))
+              (cons (cons name (vote-step e '())) global-env))))
+
 (define (dump-globals)
   (shew global-env))
-
-(define (ski e)
-  (mtch
-   e
-
-   ('/. x (/. y b)) (ski `(/. ,x ,(sski `(/. ,y ,b))))
-
-   ('/. x (a b)) (simplify-ski `((S ,(ski `(/. ,x ,a))) ,(ski `(/. ,x ,b))))
-
-   ('/. x y) (if (eq? x y) `I `(K ,y))
-
-   (a b) (simplify-ski (list (ski a) (ski b)))
-
-   ('P a b) `(P ,(ski a) ,(ski b))
-
-   x (if (or (symbol? x) (number? x) (string? x)) x (err 'ski e))
-
-   ))
 
 (define sg (symbol-generator-generator))
 (define tsg
@@ -120,36 +100,6 @@
         (if show-tsgs (shew `(,v ,tag . ,stuff)) '())
         v))))
 
-(define (->/. e)
-  (let ((v0 (sg))
-        (v1 (sg))
-        (v2 (sg)))
-    (mtch
-     e
-
-     'S `(/. ,v0 (/. ,v1 (/. ,v2 ((,v0 ,v2) (,v1 ,v2)))))
-     'K `(/. ,v0 (/. ,v1 ,v0))
-     'I `(/. ,v0 ,v0)
-
-     ;;; These shouldn't be necessary.
-     (('S a) b) `(/. ,v0 ((,(->/. a) ,v0) (,(->/. b) ,v0)))
-
-     ((('S a) b) c) `((,(->/. a) ,(->/. c)) (,(->/. b) ,(->/. c)))
-
-     ('K a) `(/. ,v0 ,(->/. a))
-
-     (('K a) b) (->/. a)
-
-     'I `(/. ,v0 ,v0)
-
-     ('I a) (->/. a)
-
-     (a b) `(,(->/. a) ,(->/. b))
-
-     x x
-
-     )))
-
 (define (done? e)
   (or (number? e) (quoted-symbol? e)))
 
@@ -158,136 +108,11 @@
         (('quote a) ('quote b)) (eq? a b)
         x (smart== a b)))
 
-(define (evl-step e)
-  (mtch
-   e
-
-   ('FAIL x) (err 'evl-step-FAIL e)
-
-   (('P a) b) (err 'fasdfasdf)
-   ('P a b) e
-   ('quote s) e
-
-   ((('S f) g) x)
-   `((,f ,x) (,g ,x))
-
-   (('K x) y)
-   x
-
-   ('I x)
-   x
-
-   (('S f) g) e
-   ('S f) e
-   'S e
-   ('K x) e
-   'K e
-   'I e
-   ('+ x) e
-   '+ e
-   ('- x) e
-   '- e
-   ('* x) e
-   '* e
-   ('== x) e
-   '== e
-   (('if b) t) e
-   ('if b) e
-   'if e
-
-   ('pair? p) (let ((p (evl-fully p))) (mtch p ('P a b) 'True x 'False))
-   'pair? e
-
-   (('cons a) b) `(P ,a ,b)
-
-   ('car ('P a b)) a
-   ('car x) `(car ,(evl x))
-
-   ('cdr ('P a b)) b
-   ('cdr x) `(cdr ,(evl x))
-
-   ('cons x) e
-   'cons e
-   'car e
-   'cdr e
-
-   ('dbg v)
-   (begin
-     (shew (list 'DBG v))
-     v)
-
-   'dbg e
-
-   (('+ a) b) (+ (evl a) (evl b))
-   (('- a) b) (- (evl a) (evl b))
-   (('* a) b) (* (evl a) (evl b))
-   (('== a) b) (if (prim== (evl a) (evl b)) 'True 'False)
-   ((('if b) t) e) (mtch (evl b) 'True t 'False e)
-   
-   (a b) (evl-step (list (evl a) b))
-
-   x (cond
-      ((and (symbol? x) (lookup-exists? x global-env)) (lookup x global-env))
-      (#t (err 'evl e)))
-   ))
-
-(define (evl e)
-  (if (done? e)
-      e
-      (let ((ee (evl-step e)))
-        (if (smart== e ee)
-            ee
-            (evl ee)))))
-
-(define (evl-fully e)
-  (let ((e (evl e)))
-    (mtch e
-          ('P a b) `(P ,(evl-fully a) ,(evl-fully b))
-          x x)))
-
 (define (evl-top src e)
   (display "+ ") (lshew src) (display "\n")
-  (if use-ski
-      (let ((ce (ski e)))
-        (display "- ") (lshew ce) (display "\n")
-        (let ((ee (evl-fully ce)))
-          (display "=> ") (lshew ee) (display "\n")
-          ee))
-
-      (let ((ee (vote e)))
-        (display "=> ") (lshew ee) (display "\n")
-        ee)))
-
-(define (simplify-ski-step e)
-  (mtch
-   e
-
-   (('S ('K 'I)) joe) joe
-   (('S ('K a)) ('K b)) `(K (,a ,b))
-   (('S ('S 'K)) blah) blah
-
-;;    ;(('S 'K) a) 'I
-;;    ;('I 'I) 'I
-;;    ;(S (S S) (K K))) 'K
-
-;;    ;(((a b) c) d) `((,(simplify-ski `(,a ,b)) ,c)  ,d)
-
-    (a b) (list (simplify-ski a) (simplify-ski b))
-
-   'S e
-   'K e
-   'I e
-
-   x x
-))
-
-(define (simplify-ski e)
-  (let ((ee (simplify-ski-step e)))
-    (if (equal? e ee)
-        ee
-        (simplify-ski ee))))
-
-(define (sski e) (simplify-ski (ski e)))
+  (let ((ee (vote e)))
+    (display "=> ") (lshew ee) (display "\n")
+    ee))
 
 (define (data? e)
   (mtch e
@@ -643,7 +468,6 @@
    ((pair? e) (map-improper preprocess-ctons e))
    (#t e)))
 
-;(tracefun evl evl-step evl-fully)
 ;(tracefun ski)
 ;(tracefun preprocess)
 ;(tracefun build-receiver fuck)
