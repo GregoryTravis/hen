@@ -430,6 +430,8 @@
    ((cton? e) (syntax-desugar (map-improper preprocess-ctons e)))
    ((pair? e) (map-improper preprocess-ctons e))
    (#t e)))
+
+; P isn't really sugar, since you can't use P directly, but whatever.
 (define (syntax-sugar e) (un-p-ify e))
 (define (syntax-desugar e) (p-ify e))
 
