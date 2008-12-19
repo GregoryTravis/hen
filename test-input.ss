@@ -147,3 +147,36 @@
 ((/. ((Foo (Bar a) b)) ((+ a) b)) (Foo (Bar 10) 20))
 ((/. ((Foo a b)) a) (Foo (Bar 10) 20))
 ((/. ((Foo a b)) b) (Foo (Bar 10) 20))
+
+(fun (ones2 (PP aaa d)) ((cons (PP 1 aaa)) (ones2 d)))
+(fun (ones2 x) x)
+(ones2 Nil)
+(ones2 (PP 1 Nil))
+(ones2 (PP 1 (PP 2 (PP 3 Nil))))
+
+(fun (voo20 a b . c) ((+ b) c))
+(fun (voo20 a . b) b)
+
+(voo20 1 2 . 3)
+(voo20 1 . 10)
+
+(fun (voo22 f a . b) ((cons 20) (voo22 (PP f b))))
+(fun (voo22 f . x) x)
+
+(voo22 double 1 . Nil)
+(voo22 double . Nil)
+
+(fun (map22 f (PP a b)) (PP (f a) (map22 f b)))
+(fun (map22 f Nil) Nil)
+
+(map22 double (PP 1 (PP 2 (PP 3 Nil))))
+
+(fun (boit 1) 100)
+(fun (boit 2) 200)
+(boit 1)
+(boit 2)
+
+(fun (boit2 . 1) 100)
+(fun (boit2 . 2) 200)
+(boit2 . 1)
+(boit2 . 2)

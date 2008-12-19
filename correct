@@ -31,7 +31,7 @@
 + ((/. (x) (x 2)) (/. (x) x))
 => 2
 + (/. (r) r)
-=> ($ (/. b880 (((if (pair? b880)) (((if ((== (cdr b880)) (quote Nil))) (car b880)) TOPFAIL)) TOPFAIL)) ())
+=> ($ (/. b1084 (((if (pair? b1084)) (((if ((== (cdr b1084)) (quote Nil))) (car b1084)) TOPFAIL)) TOPFAIL)) ())
 + ((/. (r) r) 3)
 => 3
 + ((+ 10) 20)
@@ -99,7 +99,7 @@
 + (voo 1 2 . 3)
 => 5
 + (/. x x)
-=> ($ (/. b960 ((/. x x) b960)) ())
+=> ($ (/. b1164 ((/. x x) b1164)) ())
 + ((/. x x) 1)
 => (P 1 Nil)
 + ((/. (a . b) 1) 10 . 20)
@@ -147,13 +147,13 @@
 + 1
 => 1
 + (/. x x)
-=> ($ (/. b1206 ((/. x x) b1206)) ())
+=> ($ (/. b1410 ((/. x x) b1410)) ())
 + ((/. x x) 1)
 => (P 1 Nil)
 + ((/. y ((/. x x) y)) 2)
 => (P (P 2 Nil) Nil)
 + (/. (a . b) a)
-=> ($ (/. b1222 (((if (pair? b1222)) ((/. b (car b1222)) (cdr b1222))) TOPFAIL)) ())
+=> ($ (/. b1426 (((if (pair? b1426)) ((/. b (car b1426)) (cdr b1426))) TOPFAIL)) ())
 + ((/. (a . b) a) 1 . 2)
 => 1
 + ((/. (a . b) b) 1 . 2)
@@ -176,6 +176,30 @@
 => (P Bar (P 10 Nil))
 + ((/. ((Foo a b)) b) (Foo (Bar 10) 20))
 => 20
++ (ones2 Nil)
+=> Nil
++ (ones2 (PP 1 Nil))
+=> (P (P PP (P 1 (P 1 Nil))) Nil)
++ (ones2 (PP 1 (PP 2 (PP 3 Nil))))
+=> (P (P PP (P 1 (P 1 Nil))) (P (P PP (P 1 (P 2 Nil))) (P (P PP (P 1 (P 3 Nil))) Nil)))
++ (voo20 1 2 . 3)
+=> 5
++ (voo20 1 . 10)
+=> 10
++ (voo22 double 1 . Nil)
+=> (P 20 Nil)
++ (voo22 double . Nil)
+=> Nil
++ (map22 double (PP 1 (PP 2 (PP 3 Nil))))
+=> (P PP (P 2 (P (P PP (P 4 (P (P PP (P 6 (P Nil Nil))) Nil))) Nil)))
++ (boit 1)
+=> 100
++ (boit 2)
+=> 200
++ (boit2 . 1)
+=> 100
++ (boit2 . 2)
+=> 200
 gcc -std=c99 -g -o vor vor.c a.c spew.c mem.c
 + ((/. (x) x) Nil)
 => Nil
@@ -210,7 +234,7 @@ gcc -std=c99 -g -o vor vor.c a.c spew.c mem.c
 + ((/. (x) (x 2)) (/. (x) x))
 => 2
 + (/. (r) r)
-=> ($ (/. b2392 (((if (pair? b2392)) (((if ((== (cdr b2392)) 'Nil)) (car b2392)) TOPFAIL)) TOPFAIL)) Nil)
+=> ($ (/. b2800 (((if (pair? b2800)) (((if ((== (cdr b2800)) 'Nil)) (car b2800)) TOPFAIL)) TOPFAIL)) Nil)
 + ((/. (r) r) 3)
 => 3
 + ((+ 10) 20)
@@ -278,7 +302,7 @@ gcc -std=c99 -g -o vor vor.c a.c spew.c mem.c
 + (voo 1 2 . 3)
 => 5
 + (/. x x)
-=> ($ (/. b2472 ((/. x x) b2472)) Nil)
+=> ($ (/. b2880 ((/. x x) b2880)) Nil)
 + ((/. x x) 1)
 => (P 1 Nil)
 + ((/. (a . b) 1) 10 . 20)
@@ -326,13 +350,13 @@ gcc -std=c99 -g -o vor vor.c a.c spew.c mem.c
 + 1
 => 1
 + (/. x x)
-=> ($ (/. b2718 ((/. x x) b2718)) Nil)
+=> ($ (/. b3126 ((/. x x) b3126)) Nil)
 + ((/. x x) 1)
 => (P 1 Nil)
 + ((/. y ((/. x x) y)) 2)
 => (P (P 2 Nil) Nil)
 + (/. (a . b) a)
-=> ($ (/. b2734 (((if (pair? b2734)) ((/. b (car b2734)) (cdr b2734))) TOPFAIL)) Nil)
+=> ($ (/. b3142 (((if (pair? b3142)) ((/. b (car b3142)) (cdr b3142))) TOPFAIL)) Nil)
 + ((/. (a . b) a) 1 . 2)
 => 1
 + ((/. (a . b) b) 1 . 2)
@@ -355,3 +379,27 @@ gcc -std=c99 -g -o vor vor.c a.c spew.c mem.c
 => (Bar 10)
 + ((/. ((Foo a b)) b) (Foo (Bar 10) 20))
 => 20
++ (ones2 Nil)
+=> Nil
++ (ones2 (PP 1 Nil))
+=> (P (PP 1 1) Nil)
++ (ones2 (PP 1 (PP 2 (PP 3 Nil))))
+=> (P (PP 1 1) (P (PP 1 2) (P (PP 1 3) Nil)))
++ (voo20 1 2 . 3)
+=> 5
++ (voo20 1 . 10)
+=> 10
++ (voo22 double 1 . Nil)
+=> (P 20 Nil)
++ (voo22 double . Nil)
+=> Nil
++ (map22 double (PP 1 (PP 2 (PP 3 Nil))))
+=> (PP 2 (PP 4 (PP 6 Nil)))
++ (boit 1)
+=> 100
++ (boit 2)
+=> 200
++ (boit2 . 1)
+=> 100
++ (boit2 . 2)
+=> 200

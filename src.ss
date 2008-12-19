@@ -1,8 +1,0 @@
-(def bog (/. (a) ((+ a) a)))
-(fun (jag a b c) b)
-(fun (foo a) a)
-(fun (foo (Buk a) c) ((* 3) c))
-(fun (foo b c) ((+ b) c))
-(foo 10)
-(foo 20 30)
-(foo (Buk 40) 100)
