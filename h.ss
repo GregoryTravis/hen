@@ -436,7 +436,7 @@
 ;(tracefun build-receiver build-traverser)
 ;(tracefun evl evl-step)
 ;(tracefun evl-fully evl-completely)
-;(tracefun doobie doobie doobie-arglist);(tracefun simplify simplify-env simplify-trivial-app)
+;(tracefun doobie doobie doobie-arglist)
 ;(tracefun blunk blunk-/./. blunk-/.)
 ;(tracefun simplify simplify-env simplify-trivial-app)
 ;(tracefun render)
