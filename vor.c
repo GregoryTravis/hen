@@ -9,6 +9,7 @@ static int trace = 0;
 static int show_bindings = 0;
 static int trace_env_too = 0;
 static int max_trace_show = 6;
+static int pretty = 1;
 
 typedef enum {
   LAMBDA,
@@ -315,7 +316,7 @@ void dump(yeah* y) {
   case SYMBOL: printf( "%s", y->u.symbol.s ); break;
   case CSYMBOL: printf( "'%s", y->u.symbol.s ); break;
   case PAIR:
-    if (is_cton(y)) {
+    if (pretty && is_cton(y)) {
       dump_cton(y);
     } else {
       printf( "(P " );
