@@ -2,7 +2,7 @@
 
 (define show-tsgs #f)
 (define show-bindings #f)
-(define pretty-output #f)
+(define pretty-output #t)
 
 (define (fun-name fun)
   (mtch fun
@@ -107,7 +107,7 @@
         x (smart== a b)))
 
 (define (evl-top src e)
-  (display "+ ") (plshew src) (display "\n")
+  (display "+ ") (lshew src) (display "\n")
   (let ((ee (evl e)))
     (display "=> ") (plshew ee) (display "\n")
     ee))
@@ -431,38 +431,18 @@
         (a . b) `(P ,a ,(p-ify b))
         x x))
 
-(define (cons-ify e)
-  (mtch e
-        '() 'Nil
-        (a . b) `((cons ,a) ,(cons-ify b))
-        x x))
-
-(define (un-p-ify e)
-  (cons '$ (un-p-ify-1 e)))
-(define (un-p-ify-1 e)
-  (mtch e
-        ('P a 'Nil) (list a)
-        ('P a b) (cons a (un-p-ify-1 b))
-        x x))
-
 (define (preprocess-ctons e)
   (cond
    ((cton? e) (p-ify (map-improper preprocess-ctons e)))
    ((pair? e) (map-improper preprocess-ctons e))
    (#t e)))
 
-(define (pretty-ugly e) ($->P e))
-(define (ugly-pretty e) (P->$ e))
-
-(define ($->P e)
+(define (ugly-pretty e) (cton-un-p e))
+(define (cton-un-p e)
   (mtch e
-        ('$ . stuff) (map-improper $->P (cons-ify stuff))
-        (a . b) (map-improper $->P e)
-        x x))
-(define (P->$ e)
-  (mtch e
-        ('P a b) (P->$ (un-p-ify e))
-        (a . b) (map-improper P->$ e)
+        ('P a 'Nil) (list (cton-un-p a))
+        ('P a b) (cons a (cton-un-p b))
+        (a . b) (map cton-un-p e)
         x x))
 
 (define (prettify-shewer shewer)
@@ -482,3 +462,4 @@
 ;(tracefun cmpl cmpl-def)
 ;(tracefun preprocess-ctons p-ify)
 ;(tracefun pretty-ugly ugly-pretty $->P P->$ p-ify un-p-ify un-p-ify-1)
+;(tracefun ugly-pretty cton-un-p)

@@ -69,7 +69,7 @@
 + (double 10)
 => 20
 + ((map3 double) (PP 1 (PP 2 (PP 3 Nil))))
-=> (P PP (P 2 (P (P PP (P 4 (P (P PP (P 6 (P Nil Nil))) Nil))) Nil)))
+=> (PP 2 (PP 4 (PP 6 Nil)))
 + ((map3 double) 1)
 => 1
 + ((/. (a . b) a) 1 . 2)
@@ -83,7 +83,7 @@
 + ((/. (a . b) a) 1 . 2)
 => 1
 + (map2 double (PP 1 (PP 2 (PP 3 Nil))))
-=> (P PP (P 2 (P (P PP (P 4 (P (P PP (P 6 (P Nil Nil))) Nil))) Nil)))
+=> (PP 2 (PP 4 (PP 6 Nil)))
 + ((/. 1 2) . 1)
 => 2
 + ((/. (1) 2) 1)
@@ -111,7 +111,7 @@
 + 1
 => 1
 + (Foo 1 2)
-=> (P Foo (P 1 (P 2 Nil)))
+=> (Foo 1 2)
 + ((/. ((Foo a b)) a) (Foo 10 20))
 => 10
 + ((/. ((Foo a b)) b) (Foo 10 20))
@@ -125,7 +125,7 @@
 + ((/. ((Foo (Bar a) b)) ((+ a) b)) (Foo (Bar 10) 20))
 => 30
 + ((/. ((Foo a b)) a) (Foo (Bar 10) 20))
-=> (P Bar (P 10 Nil))
+=> (Bar 10)
 + ((/. ((Foo a b)) b) (Foo (Bar 10) 20))
 => 20
 + (voo20 1 2 . 3)
@@ -133,7 +133,7 @@
 + (voo20 1 . 10)
 => 10
 + (map22 double (PP 1 (PP 2 (PP 3 Nil))))
-=> (P PP (P 2 (P (P PP (P 4 (P (P PP (P 6 (P Nil Nil))) Nil))) Nil)))
+=> (PP 2 (PP 4 (PP 6 Nil)))
 + (boit 1)
 => 100
 + (boit 2)
