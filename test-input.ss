@@ -63,14 +63,14 @@
 (ones (PP 1 Nil))
 (ones (PP 1 (PP 2 (PP 3 Nil))))
 
-(def map
+(def map3
      (/. (f)
          (/./.
-          (/. ((PP a d)) (PP (f a) ((map f) d)))
+          (/. ((PP a d)) (PP (f a) ((map3 f) d)))
           (/. (x) x))))
 
-((map double) (PP 1 (PP 2 (PP 3 Nil))))
-((map double) 1)
+((map3 double) (PP 1 (PP 2 (PP 3 Nil))))
+((map3 double) 1)
  
 ((/. (a . b) a) 1 . 2)
 ((/. (a . b) b) 1 . 2)

@@ -88,9 +88,9 @@
 => (P (P PP (P 1 (P 1 Nil))) Nil)
 + (ones (PP 1 (PP 2 (PP 3 Nil))))
 => (P (P PP (P 1 (P 1 Nil))) (P (P PP (P 1 (P 2 Nil))) (P (P PP (P 1 (P 3 Nil))) Nil)))
-+ ((map double) (PP 1 (PP 2 (PP 3 Nil))))
++ ((map3 double) (PP 1 (PP 2 (PP 3 Nil))))
 => (P PP (P 2 (P (P PP (P 4 (P (P PP (P 6 (P Nil Nil))) Nil))) Nil)))
-+ ((map double) 1)
++ ((map3 double) 1)
 => 1
 + ((/. (a . b) a) 1 . 2)
 => 1
@@ -291,9 +291,9 @@ gcc -std=c99 -g -o vor vor.c a.c spew.c mem.c
 => (P (PP 1 1) Nil)
 + (ones (PP 1 (PP 2 (PP 3 Nil))))
 => (P (PP 1 1) (P (PP 1 2) (P (PP 1 3) Nil)))
-+ ((map double) (PP 1 (PP 2 (PP 3 Nil))))
++ ((map3 double) (PP 1 (PP 2 (PP 3 Nil))))
 => (PP 2 (PP 4 (PP 6 Nil)))
-+ ((map double) 1)
++ ((map3 double) 1)
 => 1
 + ((/. (a . b) a) 1 . 2)
 => 1
