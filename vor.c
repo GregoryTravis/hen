@@ -293,9 +293,43 @@ bool is_cton(yeah* y) {
   return ISPAIR(y) && is_ctor(car(y));
 }
 
+bool is_high_cons(yeah* y) {
+  return ISPAIR(y) && isthissymbol(car(y), "Cons") && ISPAIR(cdr(y)) && ISPAIR(cdr(cdr(y))) && nilp(cdr(cdr(cdr(y))));
+}
+
+yeah* high_car(yeah* y) {
+  A(is_high_cons(y));
+  return car(cdr(y));
+}
+
+yeah* high_cdr(yeah* y) {
+  A(is_high_cons(y));
+  return car(cdr(cdr(y)));
+}
+
 void dump(yeah* y);
 
+void dump_list(yeah* y) {
+  printf("($");
+  yeah* here = y;
+  while (is_high_cons(here)) {
+    printf(" ");
+    dump(high_car(here));
+    here = high_cdr(here);
+  }
+  if (!nilp(here)) {
+    printf(" . ");
+    dump(here);
+  }
+  printf(")");
+}
+
 void dump_cton(yeah* y) {
+  if (is_high_cons(y)) {
+    dump_list(y);
+    return;
+  }
+
   printf("(");
 
   yeah* here = y;

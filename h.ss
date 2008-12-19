@@ -431,10 +431,6 @@
    ((pair? e) (map-improper preprocess-ctons e))
    (#t e)))
 
-; P isn't really sugar, since you can't use P directly, but whatever.
-(define (syntax-sugar e) (un-p-ify e))
-(define (syntax-desugar e) (p-ify e))
-
 (define (p-ify e)
   (mtch e
         '() 'Nil
@@ -447,6 +443,29 @@
         ('P a b) (cons (un-p-ify a) (un-p-ify b))
         (a . b) (map un-p-ify e)
         x x))
+
+(define (cons-ify e)
+  (mtch e
+        ('$) 'Nil
+        ('$ a . d) `(Cons ,(cons-ify a) ,(cons-ify `($ . ,d)))
+        (a . d) (map-improper cons-ify e)
+        x x))
+
+(define (un-cons-ify e)
+  (mtch e
+        ('Cons a b) `($ . ,(map-improper un-cons-ify (un-cons-ify-1 e)))
+        (a . b) (map-improper un-cons-ify e)
+        x x))
+
+(define (un-cons-ify-1 e)
+  (mtch e
+        ('Cons a b) (cons a (un-cons-ify-1 b))
+        'Nil '()
+        x x))
+
+; P isn't really sugar, since you can't use P directly, but whatever.
+(define (syntax-sugar e) (un-cons-ify (un-p-ify e)))
+(define (syntax-desugar e) (p-ify (cons-ify e)))
 
 (define (prettify-shewer shewer)
   (lambda args (apply shewer ((if pretty-output syntax-sugar id) args))))
@@ -465,3 +484,4 @@
 ;(tracefun cmpl cmpl-def)
 ;(tracefun preprocess-ctons syntax-desugar)
 ;(tracefun syntax-desugar syntax-sugar p-ify un-p-ify)
+(tracefun cons-ify un-cons-ify un-cons-ify-1)
