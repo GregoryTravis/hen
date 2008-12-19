@@ -425,28 +425,29 @@
 (define (quote-ctors e)
   (atom-traverse (lambda (p) (if (and (ctor? p) (not (eq? p 'P))) `(quote ,p) p)) e))
 
+(define (preprocess-ctons e)
+  (cond
+   ((cton? e) (syntax-desugar (map-improper preprocess-ctons e)))
+   ((pair? e) (map-improper preprocess-ctons e))
+   (#t e)))
+(define (syntax-sugar e) (un-p-ify e))
+(define (syntax-desugar e) (p-ify e))
+
 (define (p-ify e)
   (mtch e
         '() 'Nil
         (a . b) `(P ,a ,(p-ify b))
         x x))
 
-(define (preprocess-ctons e)
-  (cond
-   ((cton? e) (p-ify (map-improper preprocess-ctons e)))
-   ((pair? e) (map-improper preprocess-ctons e))
-   (#t e)))
-
-(define (ugly-pretty e) (cton-un-p e))
-(define (cton-un-p e)
+(define (un-p-ify e)
   (mtch e
-        ('P a 'Nil) (list (cton-un-p a))
-        ('P a b) (cons (cton-un-p a) (cton-un-p b))
-        (a . b) (map cton-un-p e)
+        ('P a 'Nil) (list (un-p-ify a))
+        ('P a b) (cons (un-p-ify a) (un-p-ify b))
+        (a . b) (map un-p-ify e)
         x x))
 
 (define (prettify-shewer shewer)
-  (lambda args (apply shewer ((if pretty-output ugly-pretty id) args))))
+  (lambda args (apply shewer ((if pretty-output syntax-sugar id) args))))
 
 (define pshew (prettify-shewer shew))
 (define plshew (prettify-shewer lshew))
@@ -460,6 +461,5 @@
 ;(tracefun simplify simplify-env simplify-trivial-app)
 ;(tracefun render)
 ;(tracefun cmpl cmpl-def)
-;(tracefun preprocess-ctons p-ify)
-;(tracefun pretty-ugly ugly-pretty $->P P->$ p-ify un-p-ify un-p-ify-1)
-;(tracefun ugly-pretty cton-un-p)
+;(tracefun preprocess-ctons syntax-desugar)
+;(tracefun syntax-desugar syntax-sugar p-ify un-p-ify)
