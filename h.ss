@@ -87,7 +87,7 @@
   (mtch e
         ('def name e)
         (set! global-env
-              (cons (cons name (vote-step e '())) global-env))))
+              (cons (cons name (evl-step e '())) global-env))))
 
 (define sg (symbol-generator-generator))
 (define tsg
@@ -104,7 +104,7 @@
 
 (define (evl-top src e)
   (display "+ ") (lshew src) (display "\n")
-  (let ((ee (vote e)))
+  (let ((ee (evl e)))
     (display "=> ") (lshew ee) (display "\n")
     ee))
 
@@ -125,14 +125,14 @@
         (a . b) (map terzie e)
         x x))
 
-(define (vote-step e env)
+(define (evl-step e env)
   (mtch
    e
 
    'FAIL (err e env)
 
    ('@ e env)
-   (vote-step e env)
+   (evl-step e env)
 
    ('FAIL x) (err 'evl-step-FAIL e)
 
@@ -144,10 +144,10 @@
    (('$ ('/. a body) env) v)
    (begin
      (if show-bindings (shew 'BIND a (terzie v)) '())
-     (vote-step body (cons (cons a v) env)))
+     (evl-step body (cons (cons a v) env)))
 
    'pair? e
-   ('pair? e) (mtch (vote-fully e env) ('P a b) 'True x 'False)
+   ('pair? e) (mtch (evl-fully e env) ('P a b) 'True x 'False)
 
    'True e
    'False e
@@ -156,37 +156,37 @@
    ('quote s) s
 
    'car e
-   ('car p) (mtch (vote-fully p env) ('P a b) a x (err 'not-pair e))
+   ('car p) (mtch (evl-fully p env) ('P a b) a x (err 'not-pair e))
 
    'cdr e
-   ('cdr p) (mtch (vote-fully p env) ('P a b) b x (err 'not-pair e))
+   ('cdr p) (mtch (evl-fully p env) ('P a b) b x (err 'not-pair e))
 
    'if e
    ('if b) e
    (('if b) t) e
-   ((('if b) th) el) (mtch (vote-fully b env) 'True (freeze th env) 'False (freeze el env))
+   ((('if b) th) el) (mtch (evl-fully b env) 'True (freeze th env) 'False (freeze el env))
 
    '+ e
    ('+ a) e
-   (('+ a) b) (+ (vote-fully a env) (vote-fully b env))
+   (('+ a) b) (+ (evl-fully a env) (evl-fully b env))
 
    '- e
    ('- a) e
-   (('- a) b) (- (vote-fully a env) (vote-fully b env))
+   (('- a) b) (- (evl-fully a env) (evl-fully b env))
 
    '* e
    ('* a) e
-   (('* a) b) (* (vote-fully a env) (vote-fully b env))
+   (('* a) b) (* (evl-fully a env) (evl-fully b env))
 
    '== e
    ('== a) e
-   (('== a) b) (mtch (prim== (vote-fully a env) (vote-fully b env)) #t 'True #f 'False)
+   (('== a) b) (mtch (prim== (evl-fully a env) (evl-fully b env)) #t 'True #f 'False)
 
    'cons e
    ('cons a) e
    (('cons a) b) `(P (@ ,a ,env) ,(freeze b env))
 
-   (a b) `(,(vote-completely a env) ,(freeze b env))
+   (a b) `(,(evl-completely a env) ,(freeze b env))
 
    x
    (cond
@@ -196,25 +196,25 @@
       ((lookup-exists? x global-env) (lookup x global-env))
       (#t (err 'unknown-variable x))))
     ((or (number? x) (string? x)) x)
-    (#t (err 'vote-step e)))))
+    (#t (err 'evl-step e)))))
 
-(define (vote-fully e env)
-  (let ((ee (vote-step e env)))
+(define (evl-fully e env)
+  (let ((ee (evl-step e env)))
     (cond
      ((or (data? ee) (equal? e ee)) ee)
-     (#t (vote-fully ee env)))))
+     (#t (evl-fully ee env)))))
 
-(define (vote-completely e env)
-  (let ((e (vote-fully e env)))
+(define (evl-completely e env)
+  (let ((e (evl-fully e env)))
     (mtch
      e
 
-     ('P a b) `(P ,(vote-completely a env) ,(vote-completely b env))
+     ('P a b) `(P ,(evl-completely a env) ,(evl-completely b env))
 
      x x)))
 
-(define (vote e)
-  (vote-completely e '()))
+(define (evl e)
+  (evl-completely e '()))
 
 (define (doobie-arglist args)
   (mtch
@@ -460,8 +460,8 @@
 
 ;(tracefun preprocess)
 ;(tracefun build-receiver fuck)
-;(tracefun vote vote-step)
-;(tracefun vote-fully vote-completely)
+;(tracefun evl evl-step)
+;(tracefun evl-fully evl-completely)
 ;(tracefun doobie doobie doobie-arglist);(tracefun simplify simplify-env simplify-trivial-app)
 ;(tracefun blunk blunk-/./. blunk-/.)
 ;(tracefun simplify simplify-env simplify-trivial-app)
