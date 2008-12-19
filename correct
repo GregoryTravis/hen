@@ -26,12 +26,10 @@
 => 20
 + ((/. (x) x) 1)
 => 1
-+ ((/. (x) (x 2)) (/. x x))
-=> (P 2 Nil)
 + ((/. (x) (x 2)) (/. (x) x))
 => 2
 + (/. (r) r)
-=> ($ (/. b1084 (((if (pair? b1084)) (((if ((== (cdr b1084)) (quote Nil))) (car b1084)) TOPFAIL)) TOPFAIL)) ())
+=> ($ (/. b1070 (((if (pair? b1070)) (((if ((== (cdr b1070)) (quote Nil))) (car b1070)) TOPFAIL)) TOPFAIL)) ())
 + ((/. (r) r) 3)
 => 3
 + ((+ 10) 20)
@@ -98,18 +96,6 @@
 => 2
 + (voo 1 2 . 3)
 => 5
-+ (/. x x)
-=> ($ (/. b1164 ((/. x x) b1164)) ())
-+ ((/. x x) 1)
-=> (P 1 Nil)
-+ ((/. (a . b) 1) 10 . 20)
-=> 1
-+ ((/. (a . b) a) 10 . 20)
-=> 10
-+ ((/. (a . b) b) 10 . 20)
-=> 20
-+ ((/. (a . b) ((+ a) b)) 10 . 20)
-=> 30
 + (voo2 double 1 . Nil)
 => (P 20 Nil)
 + (voo2 double . Nil)
@@ -146,18 +132,6 @@
 => 3
 + 1
 => 1
-+ (/. x x)
-=> ($ (/. b1410 ((/. x x) b1410)) ())
-+ ((/. x x) 1)
-=> (P 1 Nil)
-+ ((/. y ((/. x x) y)) 2)
-=> (P (P 2 Nil) Nil)
-+ (/. (a . b) a)
-=> ($ (/. b1426 (((if (pair? b1426)) ((/. b (car b1426)) (cdr b1426))) TOPFAIL)) ())
-+ ((/. (a . b) a) 1 . 2)
-=> 1
-+ ((/. (a . b) b) 1 . 2)
-=> 2
 + (Foo 1 2)
 => (P Foo (P 1 (P 2 Nil)))
 + ((/. ((Foo a b)) a) (Foo 10 20))
@@ -229,12 +203,10 @@ gcc -std=c99 -g -o vor vor.c a.c spew.c mem.c
 => 20
 + ((/. (x) x) 1)
 => 1
-+ ((/. (x) (x 2)) (/. x x))
-=> (P 2 Nil)
 + ((/. (x) (x 2)) (/. (x) x))
 => 2
 + (/. (r) r)
-=> ($ (/. b2800 (((if (pair? b2800)) (((if ((== (cdr b2800)) 'Nil)) (car b2800)) TOPFAIL)) TOPFAIL)) Nil)
+=> ($ (/. b2678 (((if (pair? b2678)) (((if ((== (cdr b2678)) 'Nil)) (car b2678)) TOPFAIL)) TOPFAIL)) Nil)
 + ((/. (r) r) 3)
 => 3
 + ((+ 10) 20)
@@ -301,18 +273,6 @@ gcc -std=c99 -g -o vor vor.c a.c spew.c mem.c
 => 2
 + (voo 1 2 . 3)
 => 5
-+ (/. x x)
-=> ($ (/. b2880 ((/. x x) b2880)) Nil)
-+ ((/. x x) 1)
-=> (P 1 Nil)
-+ ((/. (a . b) 1) 10 . 20)
-=> 1
-+ ((/. (a . b) a) 10 . 20)
-=> 10
-+ ((/. (a . b) b) 10 . 20)
-=> 20
-+ ((/. (a . b) ((+ a) b)) 10 . 20)
-=> 30
 + (voo2 double 1 . Nil)
 => (P 20 Nil)
 + (voo2 double . Nil)
@@ -349,18 +309,6 @@ gcc -std=c99 -g -o vor vor.c a.c spew.c mem.c
 => 3
 + 1
 => 1
-+ (/. x x)
-=> ($ (/. b3126 ((/. x x) b3126)) Nil)
-+ ((/. x x) 1)
-=> (P 1 Nil)
-+ ((/. y ((/. x x) y)) 2)
-=> (P (P 2 Nil) Nil)
-+ (/. (a . b) a)
-=> ($ (/. b3142 (((if (pair? b3142)) ((/. b (car b3142)) (cdr b3142))) TOPFAIL)) Nil)
-+ ((/. (a . b) a) 1 . 2)
-=> 1
-+ ((/. (a . b) b) 1 . 2)
-=> 2
 + (Foo 1 2)
 => (Foo 1 2)
 + ((/. ((Foo a b)) a) (Foo 10 20))
