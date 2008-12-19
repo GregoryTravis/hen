@@ -261,7 +261,7 @@
            ((symbol? pat) `(/. ,x ,body))
            (#t (err 'build-receiver pat body)))))
 
-(define (fuck pat failure)
+(define (build-traverser pat failure)
   (let ((rv (tsg 'rec 'receiver pat))
         (v (tsg 'd 'traverser pat))
         (k (tsg 'k 'continuation pat)))
@@ -269,19 +269,19 @@
      pat
 
      ('P a b)
-     (let ((lefter (fuck a failure))
-           (righter (fuck b failure)))
+     (let ((lefter (build-traverser a failure))
+           (righter (build-traverser b failure)))
        `(/. ,k (/. ,v (/. ,rv (((if (pair? ,v)) (((,lefter ((,righter ,k) (cdr ,v))) (car ,v)) ,rv)) ,failure)))))
      x (cond ((or (number? pat) (quoted-symbol? pat))
               `(/. ,k (/. ,v (/. ,rv (((if ((== ,v) ,pat)) (,k ,rv)) ,failure)))))
              ((symbol? pat)
               `(/. ,k (/. ,v (/. ,rv (,k (,rv ,v))))))
-             (#t (err 'fucky pat failure))))))
+             (#t (err 'build-traverser pat failure))))))
 
 (define (blunk-/. e failure)
   (let ((v (tsg 'b 'new-/. e)))
     (mtch e
-          ('/. pat body) `(/. ,v (((,(fuck pat failure) (/. x x)) ,v) ,(build-receiver pat (blunk body)))))))
+          ('/. pat body) `(/. ,v (((,(build-traverser pat failure) (/. x x)) ,v) ,(build-receiver pat (blunk body)))))))
 
 (define (blunk-/./. lams)
   (let ((v (tsg 'bb '/./. lams))
@@ -459,7 +459,7 @@
    (#t e)))
 
 ;(tracefun preprocess)
-;(tracefun build-receiver fuck)
+;(tracefun build-receiver build-traverser)
 ;(tracefun evl evl-step)
 ;(tracefun evl-fully evl-completely)
 ;(tracefun doobie doobie doobie-arglist);(tracefun simplify simplify-env simplify-trivial-app)
