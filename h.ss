@@ -441,7 +441,7 @@
 (define (cton-un-p e)
   (mtch e
         ('P a 'Nil) (list (cton-un-p a))
-        ('P a b) (cons a (cton-un-p b))
+        ('P a b) (cons (cton-un-p a) (cton-un-p b))
         (a . b) (map cton-un-p e)
         x x))
 

@@ -87,9 +87,9 @@
 + (ones Nil)
 => Nil
 + (ones (PP 1 Nil))
-=> (Cons (P PP (P 1 (P 1 Nil))) Nil)
+=> (Cons (PP 1 1) Nil)
 + (ones (PP 1 (PP 2 (PP 3 Nil))))
-=> (Cons (P PP (P 1 (P 1 Nil))) (Cons (P PP (P 1 (P 2 Nil))) (Cons (P PP (P 1 (P 3 Nil))) Nil)))
+=> (Cons (PP 1 1) (Cons (PP 1 2) (Cons (PP 1 3) Nil)))
 + ((map3 double) (PP 1 (PP 2 (PP 3 Nil))))
 => (PP 2 (PP 4 (PP 6 Nil)))
 + ((map3 double) 1)
@@ -149,9 +149,9 @@
 + (ones2 Nil)
 => Nil
 + (ones2 (PP 1 Nil))
-=> (Cons (P PP (P 1 (P 1 Nil))) Nil)
+=> (Cons (PP 1 1) Nil)
 + (ones2 (PP 1 (PP 2 (PP 3 Nil))))
-=> (Cons (P PP (P 1 (P 1 Nil))) (Cons (P PP (P 1 (P 2 Nil))) (Cons (P PP (P 1 (P 3 Nil))) Nil)))
+=> (Cons (PP 1 1) (Cons (PP 1 2) (Cons (PP 1 3) Nil)))
 + (voo20 1 2 . 3)
 => 5
 + (voo20 1 . 10)
