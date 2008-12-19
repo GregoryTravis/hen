@@ -159,11 +159,11 @@
 
    ('quote s) s
 
-   'car e
-   ('car p) (mtch (evl-fully p env) ('P a b) a x (err 'not-pair e))
+  'car e
+  ('car p) (mtch (evl-fully p env) ('P a b) a x (err 'not-pair e))
 
-   'cdr e
-   ('cdr p) (mtch (evl-fully p env) ('P a b) b x (err 'not-pair e))
+  'cdr e
+  ('cdr p) (mtch (evl-fully p env) ('P a b) b x (err 'not-pair e))
 
    'if e
    ('if b) e
@@ -186,9 +186,9 @@
    ('== a) e
    (('== a) b) (mtch (prim== (evl-fully a env) (evl-fully b env)) #t 'True #f 'False)
 
-   'cons e
-   ('cons a) e
-   (('cons a) b) `(P (@ ,a ,env) ,(freeze b env))
+;   'cons e
+;   ('cons a) e
+;   (('cons a) b) `(P (@ ,a ,env) ,(freeze b env))
 
    (a b) `(,(evl-completely a env) ,(freeze b env))
 
@@ -236,15 +236,15 @@
    ('quote x) e
    ('P a b) `(P ,(doobie a) ,(doobie b))
    (('+ a) b)  `((+ ,(doobie a)) ,(doobie b))
-   (('cons a) b) `((cons ,(doobie a)) ,(doobie b))
-   ('car a) `(car ,(doobie a))
-   ('cdr a) `(cdr ,(doobie a))
+;   (('cons a) b) `((cons ,(doobie a)) ,(doobie b))
+  ('car a) `(car ,(doobie a))
+  ('cdr a) `(cdr ,(doobie a))
 
    (('+ a) b) `((+ ,(doobie a)) ,(doobie b))
    (('- a) b) `((- ,(doobie a)) ,(doobie b))
    (('* a) b) `((* ,(doobie a)) ,(doobie b))
    ((('if a) b) c) `(((if ,(doobie a)) ,(doobie b)) ,(doobie c))
-   (('cons a) b) `((cons ,(doobie a)) ,(doobie b))
+;   (('cons a) b) `((cons ,(doobie a)) ,(doobie b))
 
    ('/. args body) `(/. ,(doobie-arglist args) ,(doobie body))
 
