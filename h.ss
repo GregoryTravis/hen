@@ -4,11 +4,27 @@
 (define show-tsgs #f)
 (define show-bindings #f)
 
+(define (fun-name fun)
+  (mtch fun
+        ('fun (name . args) body) name))
+
+(define (fun->/. fun)
+  (mtch fun
+        ('fun (name . args) body)
+        `(/. ,args ,body)))
+
+(define (funs->defs funs)
+  (let ((blap (group-by fun-name funs)))
+    (map (lambda (boo)
+           (mtch boo
+                 (name . funs)
+                 `(def ,name (/./. . ,(map fun->/. funs)))))
+         blap)))
+
 (define (forms->defs-n-tlfs tops)
-  (mtch (group-by-preds (list (for def? fun?) (fnot (for def? fun?))) tops)
-        (defs-n-funs tlfs)
-        (let ((defs (map fun->def defs-n-funs)))
-          (list defs tlfs))))
+  (mtch (group-by-preds (list def? fun? (fnot (for def? fun?))) tops)
+        (defs funs tlfs)
+        (list (append defs (funs->defs funs)) tlfs)))
 
 (define (preprocess-program forms)
   (mtch (forms->defs-n-tlfs forms)
@@ -61,13 +77,6 @@
 
 (define (def? e)
   (and (pair? e) (eq? (car e) 'def)))
-
-(define (fun->def e)
-  (mtch e
-        ('fun (name arg) body)
-        `(def ,name (/. ,arg ,body))
-
-        x x))
 
 (define (preprocess e)
   (mtch e
