@@ -255,7 +255,7 @@
    (f . args) `(,(doobie f) ,(doobie-arglist (map-improper doobie args)))
    () 'Nil
 
-   x (if (or (symbol? x) (number? x) (string? x)) x (err 'ski e))))
+   x (if (or (symbol? x) (number? x) (string? x)) x (err 'doobie e))))
 
 (define (build-receiver pat body)
   (mtch
@@ -468,7 +468,6 @@
    ((pair? e) (map-improper preprocess-ctons e))
    (#t e)))
 
-;(tracefun ski)
 ;(tracefun preprocess)
 ;(tracefun build-receiver fuck)
 ;(tracefun vote vote-step)
@@ -476,7 +475,6 @@
 ;(tracefun doobie doobie doobie-arglist);(tracefun simplify simplify-env simplify-trivial-app)
 ;(tracefun blunk blunk-/./. blunk-/.)
 ;(tracefun simplify simplify-env simplify-trivial-app)
-;(tracefun ->/.)
 ;(tracefun render)
 ;(tracefun cmpl cmpl-def)
 ;(tracefun preprocess-ctons p-ify)
