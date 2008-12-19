@@ -89,9 +89,6 @@
         (set! global-env
               (cons (cons name (vote-step e '())) global-env))))
 
-(define (dump-globals)
-  (shew global-env))
-
 (define sg (symbol-generator-generator))
 (define tsg
   (let ((sg (tagged-symbol-generator-generator)))
@@ -99,9 +96,6 @@
       (let ((v (sg tag)))
         (if show-tsgs (shew `(,v ,tag . ,stuff)) '())
         v))))
-
-(define (done? e)
-  (or (number? e) (quoted-symbol? e)))
 
 (define (prim== a b)
   (mtch (list a b)
@@ -452,10 +446,6 @@
 
 (define (quote-ctors e)
   (atom-traverse (lambda (p) (if (and (ctor? p) (not (eq? p 'P))) `(quote ,p) p)) e))
-
-(define (quote-ctors-def e)
-  (mtch e
-        ('def name e) `(def name ,(quote-ctors e))))
 
 (define (p-ify e)
   (if (null? e)
