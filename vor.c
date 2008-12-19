@@ -397,9 +397,9 @@ yeah* evl_step_(yeah* e, yeah* env) {
   yeah *arg0, *arg1, *arg2;
   if (isprim1(e, "pair?", &arg0)) {
     return TF(ISPAIR(evl_fully(arg0, env)));
-  } else if (isprim1(e, "car", &arg0)) {
+  } else if (isprim1(e, "CAR", &arg0)) {
     return car(evl_fully(arg0, env));
-  } else if (isprim1(e, "cdr", &arg0)) {
+  } else if (isprim1(e, "CDR", &arg0)) {
     return cdr(evl_fully(arg0, env));
   } else if (ISAPP(e) && ISSYMBOL(appfun(e))) {
     return app(lookup(symstring(appfun(e)), env), freeze(apparg(e), env));

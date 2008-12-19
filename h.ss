@@ -159,11 +159,11 @@
 
    ('quote s) s
 
-  'car e
-  ('car p) (mtch (evl-fully p env) ('P a b) a x (err 'not-pair e))
+  'CAR e
+  ('CAR p) (mtch (evl-fully p env) ('P a b) a x (err 'not-pair e))
 
-  'cdr e
-  ('cdr p) (mtch (evl-fully p env) ('P a b) b x (err 'not-pair e))
+  'CDR e
+  ('CDR p) (mtch (evl-fully p env) ('P a b) b x (err 'not-pair e))
 
    'if e
    ('if b) e
@@ -237,8 +237,8 @@
    ('P a b) `(P ,(doobie a) ,(doobie b))
    (('+ a) b)  `((+ ,(doobie a)) ,(doobie b))
 ;   (('cons a) b) `((cons ,(doobie a)) ,(doobie b))
-  ('car a) `(car ,(doobie a))
-  ('cdr a) `(cdr ,(doobie a))
+  ('CAR a) `(CAR ,(doobie a))
+  ('CDR a) `(CDR ,(doobie a))
 
    (('+ a) b) `((+ ,(doobie a)) ,(doobie b))
    (('- a) b) `((- ,(doobie a)) ,(doobie b))
@@ -275,7 +275,7 @@
      ('P a b)
      (let ((lefter (build-traverser a failure))
            (righter (build-traverser b failure)))
-       `(/. ,k (/. ,v (/. ,rv (((if (pair? ,v)) (((,lefter ((,righter ,k) (cdr ,v))) (car ,v)) ,rv)) ,failure)))))
+       `(/. ,k (/. ,v (/. ,rv (((if (pair? ,v)) (((,lefter ((,righter ,k) (CDR ,v))) (CAR ,v)) ,rv)) ,failure)))))
      x (cond ((or (number? pat) (quoted-symbol? pat))
               `(/. ,k (/. ,v (/. ,rv (((if ((== ,v) ,pat)) (,k ,rv)) ,failure)))))
              ((symbol? pat)
