@@ -388,32 +388,6 @@
 
    x x))
 
-;; Environment inlining: not very tested.
-;; (define (vank1 e env)
-;;   (mtch env
-;;         () e
-;;         ((x . v) . rest) (vank1 (subst x v e) rest)))
-
-;; (define (vank e)
-;;   (mtch
-;;    e
-;;    ('@ e env) (vank1 e env)
-;;    x x))
-
-;; (define (gint1 e env)
-;;   (mtch env
-;;         () e
-;;         ((x . v) . rest) `((/. ,x ,(gint1 e rest)) ,v)))
-
-;; (define (gint e)
-;;   (mtch
-;;    e
-;;    ('@ e env) (gint (gint1 e env))
-;;    ('$ lam env) (gint (gint1 lam env))
-;;    ('/. a b) `(/. ,a ,(gint b))
-;;    (a b) `(,(gint a) ,(gint b))
-;;    x x))
-
 (define (cmpl e)
   (mtch
    e
