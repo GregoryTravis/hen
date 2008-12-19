@@ -395,7 +395,7 @@ yeah* evl_completely(yeah* e, yeah* env);
 
 yeah* evl_step_(yeah* e, yeah* env) {
   yeah *arg0, *arg1, *arg2;
-  if (isprim1(e, "pair?", &arg0)) {
+  if (isprim1(e, "PAIR?", &arg0)) {
     return TF(ISPAIR(evl_fully(arg0, env)));
   } else if (isprim1(e, "CAR", &arg0)) {
     return car(evl_fully(arg0, env));

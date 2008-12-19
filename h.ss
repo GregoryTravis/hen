@@ -150,8 +150,8 @@
      (if show-bindings (shew 'BIND a (terzie v)) '())
      (evl-step body (cons (cons a v) env)))
 
-   'pair? e
-   ('pair? e) (mtch (evl-fully e env) ('P a b) 'True x 'False)
+   'PAIR? e
+   ('PAIR? e) (mtch (evl-fully e env) ('P a b) 'True x 'False)
 
    'True e
    'False e
@@ -275,7 +275,7 @@
      ('P a b)
      (let ((lefter (build-traverser a failure))
            (righter (build-traverser b failure)))
-       `(/. ,k (/. ,v (/. ,rv (((if (pair? ,v)) (((,lefter ((,righter ,k) (CDR ,v))) (CAR ,v)) ,rv)) ,failure)))))
+       `(/. ,k (/. ,v (/. ,rv (((if (PAIR? ,v)) (((,lefter ((,righter ,k) (CDR ,v))) (CAR ,v)) ,rv)) ,failure)))))
      x (cond ((or (number? pat) (quoted-symbol? pat))
               `(/. ,k (/. ,v (/. ,rv (((if ((== ,v) ,pat)) (,k ,rv)) ,failure)))))
              ((symbol? pat)
