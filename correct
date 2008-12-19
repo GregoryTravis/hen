@@ -29,7 +29,7 @@
 + ((/. (x) (x 2)) (/. (x) x))
 => 2
 + (/. (r) r)
-=> ($ (/. b918 (((if (PAIR? b918)) (((if ((== (CDR b918)) (quote Nil))) (CAR b918)) TOPFAIL)) TOPFAIL)) ())
+=> ($ (/. b1134 (((if (PAIR? b1134)) (((if ((== (CDR b1134)) (quote Nil))) (CAR b1134)) TOPFAIL)) TOPFAIL)) ())
 + ((/. (r) r) 3)
 => 3
 + ((+ 10) 20)
@@ -66,8 +66,32 @@
 => 1200
 + ((/. (n) (((if ((== n) 0)) 1) ((* n) ((- n) 1)))) 3)
 => 6
++ (cons 1 2)
+=> (Cons 1 2)
++ (car (cons 1 2))
+=> 1
++ (cdr (cons 1 2))
+=> 2
++ (pair? (cons 1 2))
+=> True
++ (pair? (car (cons 1 2)))
+=> False
++ (pair? (cdr (cons 1 2)))
+=> False
++ (pair? (Foo 10))
+=> False
++ (pair? 10)
+=> False
++ (pair? (car (cons (cons 1 2) 3)))
+=> True
 + (double 10)
 => 20
++ (ones Nil)
+=> Nil
++ (ones (PP 1 Nil))
+=> (Cons (P PP (P 1 (P 1 Nil))) Nil)
++ (ones (PP 1 (PP 2 (PP 3 Nil))))
+=> (Cons (P PP (P 1 (P 1 Nil))) (Cons (P PP (P 1 (P 2 Nil))) (Cons (P PP (P 1 (P 3 Nil))) Nil)))
 + ((map3 double) (PP 1 (PP 2 (PP 3 Nil))))
 => (PP 2 (PP 4 (PP 6 Nil)))
 + ((map3 double) 1)
@@ -78,10 +102,6 @@
 => 2
 + (voo 1 2 . 3)
 => 5
-+ ((/. (f a . b) b) 1000 1 . 2)
-=> 2
-+ ((/. (a . b) a) 1 . 2)
-=> 1
 + (map2 double (PP 1 (PP 2 (PP 3 Nil))))
 => (PP 2 (PP 4 (PP 6 Nil)))
 + ((/. 1 2) . 1)
@@ -128,6 +148,12 @@
 => (Bar 10)
 + ((/. ((Foo a b)) b) (Foo (Bar 10) 20))
 => 20
++ (ones2 Nil)
+=> Nil
++ (ones2 (PP 1 Nil))
+=> (Cons (P PP (P 1 (P 1 Nil))) Nil)
++ (ones2 (PP 1 (PP 2 (PP 3 Nil))))
+=> (Cons (P PP (P 1 (P 1 Nil))) (Cons (P PP (P 1 (P 2 Nil))) (Cons (P PP (P 1 (P 3 Nil))) Nil)))
 + (voo20 1 2 . 3)
 => 5
 + (voo20 1 . 10)
@@ -174,7 +200,7 @@ gcc -std=c99 -g -o vor vor.c a.c spew.c mem.c
 + ((/. (x) (x 2)) (/. (x) x))
 => 2
 + (/. (r) r)
-=> ($ (/. b2374 (((if (PAIR? b2374)) (((if ((== (CDR b2374)) 'Nil)) (CAR b2374)) TOPFAIL)) TOPFAIL)) Nil)
+=> ($ (/. b2780 (((if (PAIR? b2780)) (((if ((== (CDR b2780)) 'Nil)) (CAR b2780)) TOPFAIL)) TOPFAIL)) Nil)
 + ((/. (r) r) 3)
 => 3
 + ((+ 10) 20)
@@ -211,8 +237,32 @@ gcc -std=c99 -g -o vor vor.c a.c spew.c mem.c
 => 1200
 + ((/. (n) (((if ((== n) 0)) 1) ((* n) ((- n) 1)))) 3)
 => 6
++ (cons 1 2)
+=> (Cons 1 2)
++ (car (cons 1 2))
+=> 1
++ (cdr (cons 1 2))
+=> 2
++ (pair? (cons 1 2))
+=> True
++ (pair? (car (cons 1 2)))
+=> False
++ (pair? (cdr (cons 1 2)))
+=> False
++ (pair? (Foo 10))
+=> False
++ (pair? 10)
+=> False
++ (pair? (car (cons (cons 1 2) 3)))
+=> True
 + (double 10)
 => 20
++ (ones Nil)
+=> Nil
++ (ones (PP 1 Nil))
+=> (Cons (PP 1 1) Nil)
++ (ones (PP 1 (PP 2 (PP 3 Nil))))
+=> (Cons (PP 1 1) (Cons (PP 1 2) (Cons (PP 1 3) Nil)))
 + ((map3 double) (PP 1 (PP 2 (PP 3 Nil))))
 => (PP 2 (PP 4 (PP 6 Nil)))
 + ((map3 double) 1)
@@ -223,10 +273,6 @@ gcc -std=c99 -g -o vor vor.c a.c spew.c mem.c
 => 2
 + (voo 1 2 . 3)
 => 5
-+ ((/. (f a . b) b) 1000 1 . 2)
-=> 2
-+ ((/. (a . b) a) 1 . 2)
-=> 1
 + (map2 double (PP 1 (PP 2 (PP 3 Nil))))
 => (PP 2 (PP 4 (PP 6 Nil)))
 + ((/. 1 2) . 1)
@@ -273,6 +319,12 @@ gcc -std=c99 -g -o vor vor.c a.c spew.c mem.c
 => (Bar 10)
 + ((/. ((Foo a b)) b) (Foo (Bar 10) 20))
 => 20
++ (ones2 Nil)
+=> Nil
++ (ones2 (PP 1 Nil))
+=> (Cons (PP 1 1) Nil)
++ (ones2 (PP 1 (PP 2 (PP 3 Nil))))
+=> (Cons (PP 1 1) (Cons (PP 1 2) (Cons (PP 1 3) Nil)))
 + (voo20 1 2 . 3)
 => 5
 + (voo20 1 . 10)
