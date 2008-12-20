@@ -131,11 +131,11 @@
   (mtch
    e
 
-   'FAIL (err e env)
+   ; Maybe dont' need these
+   ;'FAIL (err e env)
+   ;('FAIL x) (err 'evl-step-FAIL e)
 
    ('@ e env) (evl-step e env)
-
-   ('FAIL x) (err 'evl-step-FAIL e)
 
    ('P a b) `(P ,(freeze a env) ,(freeze b env))
 
