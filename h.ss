@@ -82,7 +82,7 @@
 (define (preprocess e)
   (mtch e
    ('def name e) `(def ,name ,(preprocess e))
-   e (simplify (blunk (quote-ctors (doobie (syntax-desugar e)))))))
+   e (simplify (pattern-compile (quote-ctors (doobie (syntax-desugar e)))))))
 
 (define global-env '())
 (define (define-def e)
@@ -254,44 +254,44 @@
               `(/. ,k (/. ,v (/. ,rv (,k (,rv ,v))))))
              (#t (err 'build-traverser pat failure))))))
 
-(define (blunk-/. e failure)
+(define (pattern-compile-/. e failure)
   (let ((v (tsg 'b 'new-/. e)))
     (mtch e
-          ('/. pat body) `(/. ,v (((,(build-traverser pat failure) (/. x x)) ,v) ,(build-receiver pat (blunk body)))))))
+          ('/. pat body) `(/. ,v (((,(build-traverser pat failure) (/. x x)) ,v) ,(build-receiver pat (pattern-compile body)))))))
 
-(define (blunk-/./. lams)
+(define (pattern-compile-/./. lams)
   (let ((v (tsg 'bb '/./. lams))
         (failure-v (tsg 'f '/./.-failure)))
     (if (null? lams)
         `(/. ,v (FAIL 1))
         `(/. ,v
-             ((/. ,failure-v (,(blunk-/. (car lams) failure-v) ,v))
-              (,(blunk-/./. (cdr lams)) ,v))))))
+             ((/. ,failure-v (,(pattern-compile-/. (car lams) failure-v) ,v))
+              (,(pattern-compile-/./. (cdr lams)) ,v))))))
 
-(define (blunk e)
+(define (pattern-compile e)
   (mtch e
-        ('/. pat body) (blunk-/. e 'TOPFAIL)
-        ('/./. . lams) (blunk-/./. lams)
-        ('P a b) `(P ,(blunk a) ,(blunk b))
+        ('/. pat body) (pattern-compile-/. e 'TOPFAIL)
+        ('/./. . lams) (pattern-compile-/./. lams)
+        ('P a b) `(P ,(pattern-compile a) ,(pattern-compile b))
 
-        ('+ a) `(+ ,(blunk a))
-        (('+ a) b) `((+ ,(blunk a)) ,(blunk b))
+        ('+ a) `(+ ,(pattern-compile a))
+        (('+ a) b) `((+ ,(pattern-compile a)) ,(pattern-compile b))
 
-        ('== a) `(== ,(blunk a))
-        (('== a) b) `((== ,(blunk a)) ,(blunk b))
+        ('== a) `(== ,(pattern-compile a))
+        (('== a) b) `((== ,(pattern-compile a)) ,(pattern-compile b))
 
-        ((('if b) t) e) `(((if ,(blunk b)) ,(blunk t)) ,(blunk e))
+        ((('if b) t) e) `(((if ,(pattern-compile b)) ,(pattern-compile t)) ,(pattern-compile e))
 
         'True e
         'False e
         'Nil e
 
-        (a b) `(,(blunk a) ,(blunk b))
+        (a b) `(,(pattern-compile a) ,(pattern-compile b))
         x (cond
            ((symbol? e) e)
            ((number? e) e)
            ((quoted-symbol? e) e)
-           (#t (err 'blunk e)))))
+           (#t (err 'pattern-compile e)))))
 
 (define (subst x v e)
   (mtch
@@ -450,7 +450,7 @@
 ;(tracefun evl evl-step)
 ;(tracefun evl-fully evl-completely)
 ;(tracefun doobie doobie doobie-arglist)
-;(tracefun blunk blunk-/./. blunk-/.)
+;(tracefun pattern-compile pattern-compile-/./. pattern-compile-/.)
 ;(tracefun simplify simplify-env simplify-trivial-app)
 ;(tracefun render)
 ;(tracefun cmpl cmpl-def)
