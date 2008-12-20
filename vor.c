@@ -540,7 +540,7 @@ if (value->t == SYMBOL && !strcmp(value->u.symbol.s, "x")) {
   for (int i = 0; i < indent; ++i) {
     printf("| ");
   }
-  printf("=> ");
+  printf("-> ");
   dumpn(value);
 
   return value;
@@ -574,8 +574,8 @@ yeah* evl(yeah* e) {
 }
 
 yeah* execute_command(yeah* name, yeah* arg) {
-  A(ISCSYMBOL(name));
-  char* ns = csymstring(name);
+  A(ISSYMBOL(name));
+  char* ns = symstring(name);
   if (!strcmp(ns, "shew")) {
     printf("(SHEW ");
     dump(arg);
@@ -590,11 +590,11 @@ yeah* execute_command(yeah* name, yeah* arg) {
 
 bool iscommand(yeah* e, yeah** name, yeah** arg, yeah** k) {
   if (!ISPAIR(e)) return false;
-  if (!isthiscsymbol(car(e), "X")) return false;
+  if (!isthissymbol(car(e), "X")) return false;
   yeah* d = cdr(e);
   if (!ISPAIR(d)) return false;
   *name = car(d);
-  if (!ISCSYMBOL(*name)) return false;
+  if (!ISSYMBOL(*name)) return false;
   yeah* dd = cdr(d);
   if (!ISPAIR(dd)) return false;
   yeah* ddd = cdr(dd);
@@ -605,13 +605,15 @@ bool iscommand(yeah* e, yeah** name, yeah** arg, yeah** k) {
     err(("Bad command!"));
   }
   *k = car(ddd);
+  return true;
 }
 
 yeah* evl_driver(yeah* e) {
   yeah *name, *arg, *k;
-  if (iscommand(e, &name, &arg, &k)) {
+  yeah* ee = evl(e);
+  if (iscommand(ee, &name, &arg, &k)) {
     yeah* output = execute_command(name, arg);
-    return evl_driver(app(k, pair(output, CNil)));
+    return evl_driver(app(k, pair(output, Nil)));
   } else {
     return evl(e);
   }

@@ -186,6 +186,14 @@
 + (X (quote shew) 65 (/. (x) ($ x x)))
 (SHEW 65)
 => ($ Nil Nil)
++ (X (quote shew) 65 (/. (x) (X (quote shew) 75 (/. (x) x))))
+(SHEW 65)
+(SHEW 75)
+=> Nil
++ (X (quote shew) 65 (/. (x) (X (quote shew) 75 (/. (x) x))))
+(SHEW 65)
+(SHEW 75)
+=> Nil
 + 110
 => 110
 gcc -std=c99 -g -o vor vor.c a.c spew.c mem.c
@@ -377,5 +385,13 @@ gcc -std=c99 -g -o vor vor.c a.c spew.c mem.c
 + (X (quote shew) 65 (/. (x) ($ x x)))
 (SHEW 65)
 => ($ Nil Nil)
++ (X (quote shew) 65 (/. (x) (X (quote shew) 75 (/. (x) x))))
+(SHEW 65)
+(SHEW 75)
+=> Nil
++ (X (quote shew) 65 (/. (x) (X (quote shew) 75 (/. (x) x))))
+(SHEW 65)
+(SHEW 75)
+=> Nil
 + 110
 => 110

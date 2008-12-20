@@ -119,16 +119,17 @@
 
 (define (execute-command name arg)
   (mtch name
-        ''shew (begin (shew (list 'SHEW arg)) ''Nil)
+        'shew (begin (shew (list 'SHEW arg)) 'Nil)
         x (err "Unknown command" (list name arg))))
 
 (define (evl-driver e)
-    (mtch e
-          ('P ''X ('P name ('P arg ('P k ''Nil))))
+  (let ((ee (evl e)))
+    (mtch ee
+          ('P 'X ('P name ('P arg ('P k 'Nil))))
           (let ((output (execute-command name arg)))
             (evl-driver (list k `(P ,output 'Nil))))
           
-          x (evl x)))
+          x x)))
 
 (define (evl-top src e)
   (display "+ ") (lshew src) (display "\n")
