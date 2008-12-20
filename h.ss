@@ -84,7 +84,7 @@
 (define (preprocess e)
   (mtch e
    ('def name e) `(def ,name ,(preprocess e))
-   e (simplify (blunk (quote-ctors (doobie (preprocess-ctons (cons-ify e))))))))
+   e (simplify (blunk (quote-ctors (doobie (syntax-desugar e)))))))
 
 (define global-env '())
 (define (define-def e)
@@ -431,6 +431,12 @@
    ((pair? e) (map-improper preprocess-ctons e))
    (#t e)))
 
+(define (p-ify-ctons e)
+  (cond
+   ((cton? e) (p-ify (map p-ify-ctons e)))
+   ((pair? e) (map-improper p-ify-ctons e))
+   (#t e)))
+
 (define (p-ify e)
   (mtch e
         '() 'Nil
@@ -465,7 +471,7 @@
 
 ; P isn't really sugar, since you can't use P directly, but whatever.
 (define (syntax-sugar e) (un-cons-ify (un-p-ify e)))
-(define (syntax-desugar e) (p-ify (cons-ify e)))
+(define (syntax-desugar e) (p-ify-ctons (cons-ify e)))
 
 (define (prettify-shewer shewer)
   (lambda args (apply shewer ((if pretty-output syntax-sugar id) args))))
