@@ -210,7 +210,6 @@
    ('def name val) `(def ,name ,(doobie val))
    ('quote x) e
    ('P a b) `(P ,(doobie a) ,(doobie b))
-   (('+ a) b)  `((+ ,(doobie a)) ,(doobie b))
    ('CAR a) `(CAR ,(doobie a))
    ('CDR a) `(CDR ,(doobie a))
 
