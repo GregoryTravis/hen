@@ -42,11 +42,9 @@
   (run-src (read-src filename)))
 
 (define (read-src filename)
-;  (pretty-ugly
-(append
-                (read-objects "overture.ss")
-                (read-objects filename)))
-;)
+  (append
+   (read-objects "overture.ss")
+   (read-objects filename)))
 
 (define (cmpl-def def)
   (mtch def
