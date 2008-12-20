@@ -195,3 +195,7 @@
 (fun (fact 0) 1)
 (fun (fact n) ((* n) (fact ((- n) 1))))
 (fact 10)
+
+(X 'shew 65 (/. (x) x))
+(X 'shew 65 (/. (x) ($ x x)))
+110

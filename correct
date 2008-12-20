@@ -180,6 +180,14 @@
 => Nil
 + (fact 10)
 => 3628800
++ (X (quote shew) 65 (/. (x) x))
+(SHEW 65)
+=> Nil
++ (X (quote shew) 65 (/. (x) ($ x x)))
+(SHEW 65)
+=> ($ Nil Nil)
++ 110
+=> 110
 gcc -std=c99 -g -o vor vor.c a.c spew.c mem.c
 + ((/. (x) x) Nil)
 => Nil
@@ -363,3 +371,11 @@ gcc -std=c99 -g -o vor vor.c a.c spew.c mem.c
 => Nil
 + (fact 10)
 => 3628800
++ (X (quote shew) 65 (/. (x) x))
+(SHEW 65)
+=> Nil
++ (X (quote shew) 65 (/. (x) ($ x x)))
+(SHEW 65)
+=> ($ Nil Nil)
++ 110
+=> 110

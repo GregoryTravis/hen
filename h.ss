@@ -65,7 +65,7 @@
         (++ (render `(store_global ,name ,(cmpl e))) ";\n")))
 
 (define (cmpl-top src-e e)
-  (++ (render `(topevl ,(sdisplay src-e) ,(cmpl e))) ";\n"))
+  (++ (render `(evl_top ,(sdisplay src-e) ,(cmpl e))) ";\n"))
 
 (define (crun-src forms)
   (mtch (preprocess-program forms)
@@ -117,9 +117,22 @@
         (('quote a) ('quote b)) (eq? a b)
         x (smart== a b)))
 
+(define (execute-command name arg)
+  (mtch name
+        ''shew (begin (shew (list 'SHEW arg)) ''Nil)
+        x (err "Unknown command" (list name arg))))
+
+(define (evl-driver e)
+    (mtch e
+          ('P ''X ('P name ('P arg ('P k ''Nil))))
+          (let ((output (execute-command name arg)))
+            (evl-driver (list k `(P ,output 'Nil))))
+          
+          x (evl x)))
+
 (define (evl-top src e)
   (display "+ ") (lshew src) (display "\n")
-  (let ((ee (evl e)))
+  (let ((ee (evl-driver e)))
     (display "=> ") (plshew ee) (display "\n")
     ee))
 
@@ -470,3 +483,4 @@
 ;(tracefun cmpl cmpl-def)
 ;(tracefun syntax-desugar syntax-sugar p-ify un-p-ify)
 ;(tracefun cons-ify un-cons-ify un-cons-ify-1)
+;(tracefun evl-driver execute-command)

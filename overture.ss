@@ -3,3 +3,4 @@
 (fun (cdr (Cons a b)) b)
 (fun (pair? (Cons a b)) True)
 (fun (pair? x) False)
+(fun (id x) x)

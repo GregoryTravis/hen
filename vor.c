@@ -35,7 +35,7 @@ typedef enum {
 
 typedef struct yeah yeah;
 
-yeah *Nil, *True, *False;
+yeah *Nil, *True, *False, *CNil;
 yeah* globals;
 
 struct yeah {
@@ -237,8 +237,17 @@ char* symstring(yeah* e) {
   return e->u.symbol.s;
 }
 
+char* csymstring(yeah* e) {
+  A(ISCSYMBOL(e));
+  return e->u.symbol.s;
+}
+
 bool isthissymbol(yeah* e, char* s) {
   return ISSYMBOL(e) && !strcmp(symstring(e), s);
+}
+
+bool isthiscsymbol(yeah* e, char* s) {
+  return ISCSYMBOL(e) && !strcmp(csymstring(e), s);
 }
 
 yeah* car(yeah* e) {
@@ -560,9 +569,57 @@ yeah* evl_completely(yeah* e, yeah* env) {
   }
 }
 
-void topevl(char* src, yeah* obj) {
+yeah* evl(yeah* e) {
+  return evl_completely(e, Nil);
+}
+
+yeah* execute_command(yeah* name, yeah* arg) {
+  A(ISCSYMBOL(name));
+  char* ns = csymstring(name);
+  if (!strcmp(ns, "shew")) {
+    printf("(SHEW ");
+    dump(arg);
+    printf(")\n");
+    return CNil;
+  } else {
+    dumpn(name);
+    dumpn(arg);
+    err(("Unknown command!"));
+  }
+}
+
+bool iscommand(yeah* e, yeah** name, yeah** arg, yeah** k) {
+  if (!ISPAIR(e)) return false;
+  if (!isthiscsymbol(car(e), "X")) return false;
+  yeah* d = cdr(e);
+  if (!ISPAIR(d)) return false;
+  *name = car(d);
+  if (!ISCSYMBOL(*name)) return false;
+  yeah* dd = cdr(d);
+  if (!ISPAIR(dd)) return false;
+  yeah* ddd = cdr(dd);
+  if (!ISPAIR(ddd)) return false;
+  *arg = car(dd);
+  if (!nilp(cdr(ddd))) {
+    dump(e);
+    err(("Bad command!"));
+  }
+  *k = car(ddd);
+}
+
+yeah* evl_driver(yeah* e) {
+  yeah *name, *arg, *k;
+  if (iscommand(e, &name, &arg, &k)) {
+    yeah* output = execute_command(name, arg);
+    return evl_driver(app(k, pair(output, CNil)));
+  } else {
+    return evl(e);
+  }
+}
+
+void evl_top(char* src, yeah* e) {
   printf("+ %s\n", src);
-  yeah* value = evl_completely(obj, symbol("Nil"));
+  yeah* value = evl_driver(e);
   printf("=> ");
   dumpn(value);
 }
@@ -571,6 +628,7 @@ void init() {
   Nil = symbol("Nil");
   True = symbol("True");
   False = symbol("False");
+  CNil = csymbol("Nil");
   globals = symbol("Nil");
 }
 
