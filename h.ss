@@ -452,7 +452,7 @@
 (define (un-cons-ify e)
   (mtch e
         ('Cons a b) `($ . ,(map-improper un-cons-ify (un-cons-ify-1 e)))
-        (a . b) (map-improper un-cons-ify e)
+        (a . b) (map un-cons-ify e)
         x x))
 
 (define (un-cons-ify-1 e)
