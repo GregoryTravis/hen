@@ -211,15 +211,13 @@
    ('quote x) e
    ('P a b) `(P ,(doobie a) ,(doobie b))
    (('+ a) b)  `((+ ,(doobie a)) ,(doobie b))
-;   (('cons a) b) `((cons ,(doobie a)) ,(doobie b))
-  ('CAR a) `(CAR ,(doobie a))
-  ('CDR a) `(CDR ,(doobie a))
+   ('CAR a) `(CAR ,(doobie a))
+   ('CDR a) `(CDR ,(doobie a))
 
    (('+ a) b) `((+ ,(doobie a)) ,(doobie b))
    (('- a) b) `((- ,(doobie a)) ,(doobie b))
    (('* a) b) `((* ,(doobie a)) ,(doobie b))
    ((('if a) b) c) `(((if ,(doobie a)) ,(doobie b)) ,(doobie c))
-;   (('cons a) b) `((cons ,(doobie a)) ,(doobie b))
 
    ('/. args body) `(/. ,(doobie-arglist args) ,(doobie body))
 
