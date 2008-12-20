@@ -1,8 +1,19 @@
 (load "lib.ss")
 
+(define count-reductions #f)
 (define show-tsgs #f)
 (define show-bindings #f)
 (define pretty-output #t)
+
+(define n-reductions 0)
+(define (count-reductions-start)
+  (set! n-reductions 0))
+(define (count-reductions-end)
+  (if count-reductions
+      (begin
+        (display n-reductions)
+        (display " reductions.\n"))
+      '()))
 
 (define (fun-name fun)
   (mtch fun
@@ -34,9 +45,11 @@
                (list src-tlfs (map preprocess src-tlfs)))))
 
 (define (run-src forms)
+  (count-reductions-start)
   (mtch (preprocess-program forms)
         (src-tlfs tlfs)
-        (map evl-top src-tlfs tlfs)))
+        (map evl-top src-tlfs tlfs))
+  (count-reductions-end))
 
 (define (run-file filename)
   (run-src (read-src filename)))
@@ -128,6 +141,7 @@
         x x))
 
 (define (evl-step e env)
+  (set! n-reductions (+ n-reductions 1))
   (mtch
    e
 

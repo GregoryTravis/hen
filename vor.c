@@ -6,10 +6,21 @@
 #include "spew.h"
 
 static int trace = 0;
+static int count_reductions = 0;
 static int show_bindings = 0;
 static int trace_env_too = 0;
 static int max_trace_show = 6;
 static int pretty = 1;
+
+static int n_reductions = 0;
+void count_reductions_start() {
+  n_reductions = 0;
+}
+void count_reductions_end() {
+  if (count_reductions) {
+    printf("%d reductions.\n");
+  }
+}
 
 typedef enum {
   LAMBDA,
@@ -566,7 +577,9 @@ void init() {
 int main(int argc, char** argv) {
   init();
 
+  count_reductions_start();
 #include "obj.i"
+  count_reductions_end();
 
   return 0;
 }
