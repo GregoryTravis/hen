@@ -35,9 +35,6 @@
 ((- 40) 15)
 ((* 10) 20)
 
-;; (fun (fact1 n) (((if ((== n) 0)) 1) ((* n) (fact1 ((- n) 1)))))
-;; (fact1 10)
-
 (((if ((== 0) 3)) True) False)
 (((if ((== 0) 0)) True) False)
 ((/. (n) (((if ((== n) 3)) True) False)) 3)
@@ -194,3 +191,7 @@
 (cdr ($ 1 2))
 (car (cdr ($ 1 2)))
 (cdr (cdr ($ 1 2)))
+
+(fun (fact 0) 1)
+(fun (fact n) ((* n) (fact ((- n) 1))))
+(fact 10)

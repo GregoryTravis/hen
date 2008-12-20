@@ -166,6 +166,20 @@
 => 100
 + (boit2 . 2)
 => 200
++ (Cons 1 (Cons 2 Nil))
+=> ($ 1 2)
++ ($ 1 2)
+=> ($ 1 2)
++ (car ($ 1 2))
+=> 1
++ (cdr ($ 1 2))
+=> ($ 2)
++ (car (cdr ($ 1 2)))
+=> 2
++ (cdr (cdr ($ 1 2)))
+=> Nil
++ (fact 10)
+=> 3628800
 gcc -std=c99 -g -o vor vor.c a.c spew.c mem.c
 + ((/. (x) x) Nil)
 => Nil
@@ -335,3 +349,17 @@ gcc -std=c99 -g -o vor vor.c a.c spew.c mem.c
 => 100
 + (boit2 . 2)
 => 200
++ (Cons 1 (Cons 2 Nil))
+=> ($ 1 2)
++ ($ 1 2)
+=> ($ 1 2)
++ (car ($ 1 2))
+=> 1
++ (cdr ($ 1 2))
+=> ($ 2)
++ (car (cdr ($ 1 2)))
+=> 2
++ (cdr (cdr ($ 1 2)))
+=> Nil
++ (fact 10)
+=> 3628800
