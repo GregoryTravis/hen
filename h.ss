@@ -133,8 +133,7 @@
 
    'FAIL (err e env)
 
-   ('@ e env)
-   (evl-step e env)
+   ('@ e env) (evl-step e env)
 
    ('FAIL x) (err 'evl-step-FAIL e)
 
@@ -148,12 +147,7 @@
      (if show-bindings (shew 'BIND a (terzie v)) '())
      (evl-step body (cons (cons a v) env)))
 
-   'PAIR? e
    ('PAIR? e) (mtch (evl-fully e env) ('P a b) 'True x 'False)
-
-   'True e
-   'False e
-   'Nil e
 
    ('quote s) s
 
