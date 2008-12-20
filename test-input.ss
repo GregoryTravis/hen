@@ -187,3 +187,10 @@
 (fun (boit2 . 2) 200)
 (boit2 . 1)
 (boit2 . 2)
+
+(Cons 1 (Cons 2 Nil))
+($ 1 2)
+(car ($ 1 2))
+(cdr ($ 1 2))
+(car (cdr ($ 1 2)))
+(cdr (cdr ($ 1 2)))
