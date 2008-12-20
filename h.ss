@@ -425,12 +425,6 @@
 (define (quote-ctors e)
   (atom-traverse (lambda (p) (if (and (ctor? p) (not (eq? p 'P))) `(quote ,p) p)) e))
 
-(define (preprocess-ctons e)
-  (cond
-   ((cton? e) (syntax-desugar (map-improper preprocess-ctons e)))
-   ((pair? e) (map-improper preprocess-ctons e))
-   (#t e)))
-
 (define (p-ify-ctons e)
   (cond
    ((cton? e) (p-ify (map p-ify-ctons e)))
@@ -488,5 +482,5 @@
 ;(tracefun simplify simplify-env simplify-trivial-app)
 ;(tracefun render)
 ;(tracefun cmpl cmpl-def)
-;(tracefun preprocess-ctons syntax-desugar syntax-sugar p-ify un-p-ify)
+;(tracefun syntax-desugar syntax-sugar p-ify un-p-ify)
 ;(tracefun cons-ify un-cons-ify un-cons-ify-1)
