@@ -157,36 +157,19 @@
 
    ('quote s) s
 
-  'CAR e
-  ('CAR p) (mtch (evl-fully p env) ('P a b) a x (err 'not-pair e))
+   ('CAR p) (mtch (evl-fully p env) ('P a b) a x (err 'not-pair e))
 
-  'CDR e
-  ('CDR p) (mtch (evl-fully p env) ('P a b) b x (err 'not-pair e))
+   ('CDR p) (mtch (evl-fully p env) ('P a b) b x (err 'not-pair e))
 
-   'if e
-   ('if b) e
-   (('if b) t) e
    ((('if b) th) el) (mtch (evl-fully b env) 'True (freeze th env) 'False (freeze el env))
 
-   '+ e
-   ('+ a) e
    (('+ a) b) (+ (evl-fully a env) (evl-fully b env))
 
-   '- e
-   ('- a) e
    (('- a) b) (- (evl-fully a env) (evl-fully b env))
 
-   '* e
-   ('* a) e
    (('* a) b) (* (evl-fully a env) (evl-fully b env))
 
-   '== e
-   ('== a) e
    (('== a) b) (mtch (prim== (evl-fully a env) (evl-fully b env)) #t 'True #f 'False)
-
-;   'cons e
-;   ('cons a) e
-;   (('cons a) b) `(P (@ ,a ,env) ,(freeze b env))
 
    (a b) `(,(evl-completely a env) ,(freeze b env))
 
