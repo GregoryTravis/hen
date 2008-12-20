@@ -1,7 +1,6 @@
-(def ones
-  (/./.
-   (/. ((PP aaa d)) (cons (PP 1 aaa) (ones d)))
-   (/. (x) x)))
-(ones Nil)
-(ones (PP 1 Nil))
-(ones (PP 1 (PP 2 (PP 3 Nil))))
+;(Cons 1 (Cons 2 Nil))
+($ 1 2)
+(car ($ 1 2))
+(cdr ($ 1 2))
+(car (cdr ($ 1 2)))
+(cdr (cdr ($ 1 2)))

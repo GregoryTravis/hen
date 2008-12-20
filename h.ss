@@ -84,7 +84,7 @@
 (define (preprocess e)
   (mtch e
    ('def name e) `(def ,name ,(preprocess e))
-   e (simplify (blunk (quote-ctors (doobie (preprocess-ctons e)))))))
+   e (simplify (blunk (quote-ctors (doobie (preprocess-ctons (cons-ify e))))))))
 
 (define global-env '())
 (define (define-def e)
@@ -482,6 +482,5 @@
 ;(tracefun simplify simplify-env simplify-trivial-app)
 ;(tracefun render)
 ;(tracefun cmpl cmpl-def)
-;(tracefun preprocess-ctons syntax-desugar)
-;(tracefun syntax-desugar syntax-sugar p-ify un-p-ify)
-(tracefun cons-ify un-cons-ify un-cons-ify-1)
+;(tracefun preprocess-ctons syntax-desugar syntax-sugar p-ify un-p-ify)
+;(tracefun cons-ify un-cons-ify un-cons-ify-1)
