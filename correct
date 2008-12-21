@@ -181,21 +181,53 @@
 + (fact 10)
 => 3628800
 + (X (quote shew) 65 (/. (x) x))
+Command: shew 65
 (SHEW 65)
 => Nil
 + (X (quote shew) 65 (/. (x) ($ x x)))
+Command: shew 65
 (SHEW 65)
 => ($ Nil Nil)
 + (X (quote shew) 65 (/. (x) (X (quote shew) 75 (/. (x) x))))
+Command: shew 65
 (SHEW 65)
+Command: shew 75
 (SHEW 75)
 => Nil
 + (X (quote shew) 65 (/. (x) (X (quote shew) 75 (/. (x) x))))
+Command: shew 65
 (SHEW 65)
+Command: shew 75
 (SHEW 75)
 => Nil
 + 110
 => 110
++ (X (quote create-ref) 10 id)
+Command: create-ref 10
+=> (Q #&10)
++ (X (quote create-ref) 10 (/. (r) (X (quote read-ref) r id)))
+Command: create-ref 10
+Command: read-ref (Q #&10)
+=> 10
++ (X (quote create-ref) 10 (/. (r) (X (quote read-ref) r (/. (x) (X (quote write-ref) ($ r 20) id)))))
+Command: create-ref 10
+Command: read-ref (Q #&10)
+Command: write-ref ($ (Q #&10) 20)
+=> Nil
++ (X (quote create-ref) 10 (/. (r) (X (quote read-ref) r (/. (x) (X (quote write-ref) ($ r 20) (/. (x) (X (quote read-ref) r id)))))))
+Command: create-ref 10
+Command: read-ref (Q #&10)
+Command: write-ref ($ (Q #&10) 20)
+Command: read-ref (Q #&20)
+=> 20
++ (X (quote create-ref) 10 (/. (r) (X (quote read-ref) r (/. (x) (X (quote shew) x (/. (x) (X (quote write-ref) ($ r 20) (/. (x) (X (quote read-ref) r id)))))))))
+Command: create-ref 10
+Command: read-ref (Q #&10)
+Command: shew 10
+(SHEW 10)
+Command: write-ref ($ (Q #&10) 20)
+Command: read-ref (Q #&20)
+=> 20
 gcc -std=c99 -g -o vor vor.c a.c spew.c mem.c
 + ((/. (x) x) Nil)
 => Nil
@@ -380,18 +412,50 @@ gcc -std=c99 -g -o vor vor.c a.c spew.c mem.c
 + (fact 10)
 => 3628800
 + (X (quote shew) 65 (/. (x) x))
+Command: shew 65
 (SHEW 65)
 => Nil
 + (X (quote shew) 65 (/. (x) ($ x x)))
+Command: shew 65
 (SHEW 65)
 => ($ Nil Nil)
 + (X (quote shew) 65 (/. (x) (X (quote shew) 75 (/. (x) x))))
+Command: shew 65
 (SHEW 65)
+Command: shew 75
 (SHEW 75)
 => Nil
 + (X (quote shew) 65 (/. (x) (X (quote shew) 75 (/. (x) x))))
+Command: shew 65
 (SHEW 65)
+Command: shew 75
 (SHEW 75)
 => Nil
 + 110
 => 110
++ (X (quote create-ref) 10 id)
+Command: create-ref 10
+=> (Q 0xa)
++ (X (quote create-ref) 10 (/. (r) (X (quote read-ref) r id)))
+Command: create-ref 10
+Command: read-ref (Q 0xa)
+=> 10
++ (X (quote create-ref) 10 (/. (r) (X (quote read-ref) r (/. (x) (X (quote write-ref) ($ r 20) id)))))
+Command: create-ref 10
+Command: read-ref (Q 0xa)
+Command: write-ref ($ (Q 0xa) 20)
+=> Nil
++ (X (quote create-ref) 10 (/. (r) (X (quote read-ref) r (/. (x) (X (quote write-ref) ($ r 20) (/. (x) (X (quote read-ref) r id)))))))
+Command: create-ref 10
+Command: read-ref (Q 0xa)
+Command: write-ref ($ (Q 0xa) 20)
+Command: read-ref (Q 0x14)
+=> 20
++ (X (quote create-ref) 10 (/. (r) (X (quote read-ref) r (/. (x) (X (quote shew) x (/. (x) (X (quote write-ref) ($ r 20) (/. (x) (X (quote read-ref) r id)))))))))
+Command: create-ref 10
+Command: read-ref (Q 0xa)
+Command: shew 10
+(SHEW 10)
+Command: write-ref ($ (Q 0xa) 20)
+Command: read-ref (Q 0x14)
+=> 20

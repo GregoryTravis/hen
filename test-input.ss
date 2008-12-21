@@ -201,3 +201,19 @@
 (X 'shew 65 (/. (x) (X 'shew 75 (/. (x) x))))
 (X 'shew 65 (/. (x) (X 'shew 75 (/. (x) x))))
 110
+
+(X 'create-ref 10 id)
+(X 'create-ref 10
+   (/. (r) (X 'read-ref r id)))
+(X 'create-ref 10
+   (/. (r) (X 'read-ref r
+              (/. (x) (X 'write-ref ($ r 20) id)))))
+(X 'create-ref 10
+   (/. (r) (X 'read-ref r
+              (/. (x) (X 'write-ref ($ r 20)
+                         (/. (x) (X 'read-ref r id)))))))
+(X 'create-ref 10
+   (/. (r) (X 'read-ref r
+              (/. (x) (X 'shew  x
+                         (/. (x) (X 'write-ref ($ r 20)
+                                    (/. (x) (X 'read-ref r id)))))))))

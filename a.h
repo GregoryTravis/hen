@@ -44,4 +44,6 @@ typedef unsigned char uchar;
 #define AA(expr) _A(expr)
 #define RAA(expr,rept) _RA(expr,rept)
 
+#define say(_x) printf("%s\n",#_x)
+
 #endif /* _a_h_ */

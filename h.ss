@@ -92,6 +92,16 @@
 (define (def? e)
   (and (pair? e) (eq? (car e) 'def)))
 
+(define (opaque v) `(Q ,v))
+(define (opaque-val q)
+  (assert (opaque? q))
+  (cadr q))
+
+(define (opaque? e)
+  (mtch e
+        ('Q q) #t
+        x #f))
+
 (define (preprocess e)
   (mtch e
    ('def name e) `(def ,name ,(preprocess e))
@@ -117,9 +127,27 @@
         (('quote a) ('quote b)) (eq? a b)
         x (smart== a b)))
 
+(define (hcar e) (mtch e ('P 'Cons ('P a ('P d 'Nil))) a))
+(define (hcdr e) (mtch e ('P 'Cons ('P a ('P d 'Nil))) d))
+(define (hcadr e) (hcar (hcdr e)))
+
+(define (create-ref v) (opaque (box v)))
+(define (read-ref r) (unbox (opaque-val r)))
+(define (write-ref rv) (begin (set-box! (opaque-val (hcar rv)) (hcadr rv)) 'Nil))
+(define (destroy-ref r) ''Nil)
+
 (define (execute-command name arg)
+  (display "Command: ")
+  (display name)
+  (display " ")
+  (plshew arg)
+  (display "\n")
   (mtch name
         'shew (begin (shew (list 'SHEW arg)) 'Nil)
+        'create-ref (create-ref arg)
+        'read-ref (read-ref arg)
+        'write-ref (write-ref arg)
+        'destroy-ref (destroy-ref arg)
         x (err "Unknown command" (list name arg))))
 
 (define (evl-driver e)
@@ -139,6 +167,7 @@
 
 (define (data? e)
   (mtch e
+        ('Q q) #t
         ('P a b) #t
         ('$ lam env) #t
         x (or (number? e) (string? e) (symbol? e))))
@@ -164,6 +193,8 @@
    ;('FAIL x) (err 'evl-step-FAIL e)
 
    ('@ e env) (evl-step e env)
+
+   ('Q q) e
 
    ('P a b) `(P ,(freeze a env) ,(freeze b env))
 
@@ -336,8 +367,7 @@
 
    xx (cond
        ((eq? x xx) v)
-       ((symbol? e) e)
-       ((or (number? e) (quoted-symbol? e)) e)
+       ((or (symbol? e) (number? e) (quoted-symbol? e)) e)
        (#t (err 'subst x v e)))))
 
 (define (occurs x body)

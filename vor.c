@@ -31,6 +31,7 @@ typedef enum {
   PAIR,
   APP,
   CSYMBOL,
+  OPAQUE,
 } tag;
 
 typedef struct yeah yeah;
@@ -80,6 +81,10 @@ struct yeah {
     } csymbol;
 
     struct {
+      void* q;
+    } opaque;
+
+    struct {
       yeah* a;
       yeah* b;
     } generic_pointer_pair;
@@ -127,6 +132,13 @@ yeah* csymbol(char* s) {
   yeah* y = newyeah();
   y->t = CSYMBOL;
   y->u.symbol.s = s;
+  return y;
+}
+
+yeah* opaque(void* q) {
+  yeah* y = newyeah();
+  y->t = OPAQUE;
+  y->u.opaque.q = q;
   return y;
 }
 
@@ -210,6 +222,8 @@ bool equal(yeah* a, yeah* b) {
  break;
   case CSYMBOL: return !strcmp(a->u.csymbol.s, b->u.csymbol.s);
  break;
+  case OPAQUE: err(("Comparison of opaque 0x%x\n", a->u.opaque.q));
+ break;
   NIL: return true;
  break;
   case LAMBDA: case CLOSURE: case THUNK: case PAIR: case APP:
@@ -231,6 +245,7 @@ bool equal(yeah* a, yeah* b) {
 #define ISPAIR(_e) ISTAG((_e), PAIR)
 #define ISAPP(_e) ISTAG((_e), APP)
 #define ISCSYMBOL(_e) ISTAG((_e), CSYMBOL)
+#define ISOPAQUE(_e) ISTAG((_e), OPAQUE)
 
 char* symstring(yeah* e) {
   A(ISSYMBOL(e));
@@ -240,6 +255,11 @@ char* symstring(yeah* e) {
 char* csymstring(yeah* e) {
   A(ISCSYMBOL(e));
   return e->u.symbol.s;
+}
+
+void* opaqueval(yeah* e) {
+  A(ISOPAQUE(e));
+  return e->u.opaque.q;
 }
 
 bool isthissymbol(yeah* e, char* s) {
@@ -295,6 +315,16 @@ yeah* lambdabody(yeah* lambda) {
   return lambda->u.lambda.body;
 }
 
+void* opaque_val(yeah* y) {
+  A(ISOPAQUE(y));
+  return y->u.opaque.q;
+}
+
+void* opaque_set(yeah* y, void* v) {
+  A(ISOPAQUE(y));
+  y->u.opaque.q = v;
+}
+
 #define APPF(e) ((e)->u.app.f)
 #define apparg(e) ((e)->u.app.arg)
 
@@ -317,15 +347,17 @@ bool is_high_cons(yeah* y) {
   return ISPAIR(y) && isthissymbol(car(y), "Cons") && ISPAIR(cdr(y)) && ISPAIR(cdr(cdr(y))) && nilp(cdr(cdr(cdr(y))));
 }
 
-yeah* high_car(yeah* y) {
+yeah* hcar(yeah* y) {
   A(is_high_cons(y));
   return car(cdr(y));
 }
 
-yeah* high_cdr(yeah* y) {
+yeah* hcdr(yeah* y) {
   A(is_high_cons(y));
   return car(cdr(cdr(y)));
 }
+
+yeah* hcadr(yeah* y) { return hcar(hcdr(y)); }
 
 void dump(yeah* y);
 
@@ -334,8 +366,8 @@ void dump_list(yeah* y) {
   yeah* here = y;
   while (is_high_cons(here)) {
     printf(" ");
-    dump(high_car(here));
-    here = high_cdr(here);
+    dump(hcar(here));
+    here = hcdr(here);
   }
   if (!nilp(here)) {
     printf(" . ");
@@ -369,6 +401,7 @@ void dump(yeah* y) {
   case INTEGER: printf( "%d", y->u.integer.i ); break;
   case SYMBOL: printf( "%s", y->u.symbol.s ); break;
   case CSYMBOL: printf( "'%s", y->u.symbol.s ); break;
+  case OPAQUE: printf("(Q 0x%x)", y->u.opaque.q); break;
   case PAIR:
     if (pretty && is_cton(y)) {
       dump_cton(y);
@@ -384,7 +417,7 @@ void dump(yeah* y) {
     printf( "(@ ");
     dump(y->u.thunk.exp);
     printf(")");
-    //dump(y->u.thunk.env);
+    dump(y->u.thunk.env);
     break;
   case CLOSURE:
     printf( "($ ");
@@ -496,7 +529,7 @@ yeah* evl_step_(yeah* e, yeah* env) {
     return symbol(e->u.csymbol.s);
   } else if (ISPAIR(e)) {
     return pair(thunk(e->u.pair.car, env), thunk(e->u.pair.cdr, env));
-  } else if (ISINTEGER(e) || ISCLOSURE(e)) {
+  } else if (ISINTEGER(e) || ISCLOSURE(e) || ISOPAQUE(e)) {
     return e;
   } else {
     warn(("Can't eval "));
@@ -548,7 +581,7 @@ if (value->t == SYMBOL && !strcmp(value->u.symbol.s, "x")) {
 
 bool is_data(yeah* e) {
   int t = e->t;
-  return t == INTEGER | t == SYMBOL || t == PAIR;
+  return t == INTEGER | t == SYMBOL || t == PAIR || t == OPAQUE || t == CLOSURE;
 }
 
 yeah* evl_fully(yeah* e, yeah* env) {
@@ -573,7 +606,35 @@ yeah* evl(yeah* e) {
   return evl_completely(e, Nil);
 }
 
+yeah* create_ref(yeah* arg) {
+  yeah* r = opaque(NEW(int));
+  opaque_set(r, (void*)getint(arg));
+  return r;
+}
+
+yeah* read_ref(yeah* arg) {
+  A(opaque_val(arg) != NULL);
+  return integer((int)opaque_val(arg));
+}
+
+yeah* write_ref(yeah* arg) {
+  yeah* box = hcar(arg);
+  A(opaque_val(box) != NULL);
+  yeah* value = hcadr(arg);
+  opaque_set(box, (void*)getint(value));
+  return Nil;
+}
+
+yeah* destroy_ref(yeah* arg) {
+  A(opaque_val(arg) != NULL);
+  fri(opaque_val(arg));
+  opaque_set(arg, (void*)NULL);
+}
+
 yeah* execute_command(yeah* name, yeah* arg) {
+  printf("Command: %s ", symstring(name));
+  dumpn(arg);
+
   A(ISSYMBOL(name));
   char* ns = symstring(name);
   if (!strcmp(ns, "shew")) {
@@ -581,6 +642,14 @@ yeah* execute_command(yeah* name, yeah* arg) {
     dump(arg);
     printf(")\n");
     return CNil;
+  } else if (!strcmp(ns, "create-ref")) {
+    return create_ref(arg);
+  } else if (!strcmp(ns, "read-ref")) {
+    return read_ref(arg);
+  } else if (!strcmp(ns, "write-ref")) {
+    return write_ref(arg);
+  } else if (!strcmp(ns, "destroy-ref")) {
+    return destroy_ref(arg);
   } else {
     dumpn(name);
     dumpn(arg);
