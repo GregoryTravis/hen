@@ -1,1 +1,2 @@
-mzscheme -r main.ss
+#mzscheme -r main.ss
+make
