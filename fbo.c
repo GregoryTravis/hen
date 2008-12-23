@@ -7,7 +7,7 @@
 
 #include "glee.h"
 #include <glut.h>
-#include <cstdlib>
+#include <stdlib.h>
 
 GLuint fbo;                                     // Our handle to the FBO
 GLuint depthBuffer;                     // Our handle to the depth render buffer
@@ -21,14 +21,6 @@ GLfloat xrot = 0;                       // X Rotation
 GLfloat yrot = 0;                       // Y Rotation
 GLfloat xspeed = 0.2f;          // X Rotation Speed
 GLfloat yspeed = 0.1f;          // Y Rotation Speed
-
-void cpp_fbo_main();
-
-extern "C" {
-  void fbo_main() {
-    cpp_fbo_main();
-  }
-}
 
 void init(GLvoid)     
 {
@@ -243,10 +235,11 @@ void display(void)
         // Swap The Buffers To Not Be Left With A Clear Screen
 }
 
-void cpp_fbo_main()
-{
-  char* argv_dummy[1];
-  glutInit(0, (char**)&argv_dummy);
+void fbo_main() {
+  int dummy_argc = 0;
+  char* dummy_argv[1];
+  
+  glutInit(&dummy_argc, (char**)&dummy_argv);
         glutInitDisplayMode ( GLUT_RGB | GLUT_DOUBLE );         // Display Mode
         glutInitWindowSize(800,600);
         glutCreateWindow( "FrameBuffer Object Example - Press ESC to exit" );
@@ -265,3 +258,4 @@ void cpp_fbo_main()
         glutMainLoop        ( );                        // Run the main GLUT loop for rendering
 }
 
+//int main() { fbo_main(); return 0; }

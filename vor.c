@@ -5,6 +5,9 @@
 #include "mem.h"
 #include "spew.h"
 
+void fbo_main();
+
+
 static int trace = 0;
 static int count_reductions = 0;
 static int show_bindings = 0;
@@ -650,6 +653,8 @@ yeah* execute_command(yeah* name, yeah* arg) {
     return write_ref(arg);
   } else if (!strcmp(ns, "destroy-ref")) {
     return destroy_ref(arg);
+  } else if (!strcmp(ns, "fbo")) {
+    fbo_main();
   } else {
     dumpn(name);
     dumpn(arg);
@@ -695,7 +700,7 @@ void evl_top(char* src, yeah* e) {
   dumpn(value);
 }
 
-void init() {
+void init_constants() {
   Nil = symbol("Nil");
   True = symbol("True");
   False = symbol("False");
@@ -704,7 +709,7 @@ void init() {
 }
 
 int main(int argc, char** argv) {
-  init();
+  init_constants();
 
   count_reductions_start();
 #include "obj.i"

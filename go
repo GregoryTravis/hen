@@ -1,2 +1,2 @@
-#mzscheme -r main.ss
-make
+mzscheme -r main.ss
+#make fbo
