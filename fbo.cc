@@ -5,7 +5,6 @@
 // Note: This isn't meant to indicate good programming style, just act as an example
 //
 
-#include "stdafx.h"
 #include "glee.h"
 #include <glut.h>
 #include <cstdlib>
