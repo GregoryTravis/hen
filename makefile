@@ -3,10 +3,7 @@ all: vor fbo
 clean:
 	rm -f *.o fbo vor
 
-vor: vor.o spew.o mem.o obj.i fbo.o GLee.o
-	g++ -std=c99 -g -o vor vor.o spew.o mem.o fbo.o GLee.o -framework GLUT -framework OpenGL -framework CoreFoundation
-
-vor.o: vor.c a.h spew.h mem.h obj.i
+vor.o: vor.c a.h spew.h mem.h
 	gcc -std=c99 -c -g vor.c
 
 spew.o: spew.c spew.h a.h

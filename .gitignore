@@ -1,6 +1,7 @@
 misc
 vor
-obj.i
 vor.dSYM
+*.ho
 *.o
 fbo
+*.ss.c

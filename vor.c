@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "vor.h"
+
 #include "a.h"
 #include "mem.h"
 #include "spew.h"
 
 void fbo_main();
-
+void hen_main();
 
 static int trace = 0;
 static int count_reductions = 0;
@@ -25,74 +27,8 @@ void count_reductions_end() {
   }
 }
 
-typedef enum {
-  LAMBDA,
-  CLOSURE,
-  THUNK,
-  INTEGER,
-  SYMBOL,
-  PAIR,
-  APP,
-  CSYMBOL,
-  OPAQUE,
-} tag;
-
-typedef struct yeah yeah;
-
 yeah *Nil, *True, *False, *CNil;
 yeah* globals;
-
-struct yeah {
-  tag t;
-  union {
-
-    struct {
-      yeah* arg;
-      yeah* body;
-    } lambda;
-
-    struct {
-      yeah* lambda;
-      yeah* env;
-    } closure;
-
-    struct {
-      yeah* exp;
-      yeah* env;
-    } thunk;
-
-    struct {
-      int i;
-    } integer;
-
-    struct {
-      char* s;
-    } symbol;
-
-    struct {
-      yeah* car;
-      yeah* cdr;
-    } pair;
-
-    struct {
-      yeah* f;
-      yeah* arg;
-    } app;
-
-    struct {
-      char* s;
-    } csymbol;
-
-    struct {
-      void* q;
-    } opaque;
-
-    struct {
-      yeah* a;
-      yeah* b;
-    } generic_pointer_pair;
-  } u;
-};
 
 yeah* newyeah(void) {
   yeah* y = NEW(yeah);
@@ -712,7 +648,7 @@ int main(int argc, char** argv) {
   init_constants();
 
   count_reductions_start();
-#include "obj.i"
+  hen_main();
   count_reductions_end();
 
   return 0;

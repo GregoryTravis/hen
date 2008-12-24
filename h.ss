@@ -67,24 +67,31 @@
 (define (cmpl-top src-e e)
   (++ (render `(evl_top ,(sdisplay src-e) ,(cmpl e))) ";\n"))
 
-(define (crun-src forms)
+
+(define (csrc->obj forms)
   (mtch (preprocess-program forms)
         (src-tlfs tlfs)
-        (crun-obj (apply ++ (append
-                             (map cmpl-def global-env)
-                             (map cmpl-top src-tlfs tlfs))))))
+        (++ "#include \"vor.h\"\n"
+            "void hen_main() { "
+            (apply ++ (append
+                       (map cmpl-def global-env)
+                       (map cmpl-top src-tlfs tlfs)))
+            "}")))
 
-(define (crun-obj tlfs)
-  (flush-output)
-  (cmd "rm -f obj.i vor")
-  (write-string-to-file "obj.i" tlfs)
-  (cmd "make vor")
-  (if (not (file-exists? "vor"))
-      (err "No exe.")
-      (cmd "./vor")))
+(define (cbuild-exe stub objcfile objfile exefile)
+  (cmd (++ "chen-build " objcfile " " objfile " " exefile)))
 
-(define (crun-file filename)
-  (crun-src (read-src filename)))
+(define (crun-file stub)
+  (let* ((srcfile (++ stub ".ss"))
+         (objcfile (++ stub ".ss.c"))
+         (objfile (++ stub ".ss.o"))
+         (exefile stub))
+    (cmd (++ "rm -f " objcfile " " exefile))
+    (write-string-to-file objcfile (csrc->obj (read-src srcfile)))
+    (cbuild-exe stub objcfile objfile exefile)
+    (if (not (file-exists? exefile))
+        (err "No exe.")
+        (cmd (++ "./" exefile)))))
 
 (define (fun? e)
   (and (pair? e) (eq? (car e) 'fun)))

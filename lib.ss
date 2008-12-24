@@ -1,6 +1,5 @@
 (require scheme/system)
 (require (lib "ports-6.ss" "rnrs/io"))
-;(require (lib "simple-6.ss" "rnrs/io")) ; bad one
 (require (lib "32.ss" "srfi"))
 (require (lib "13.ss" "srfi"))
 (require (lib "35.ss" "srfi"))
@@ -9,6 +8,7 @@
 (require (lib "process.ss"))
 (require (lib "compat.ss"))
 (require (for-syntax (lib "pretty.ss")))
+(require (lib "pretty.ss"))
 ;(require (lib "../errortrace/errortrace.ss"))
 ;(require-for-syntax (lib "list.ss"))
 (load "mtch.ss")
@@ -1072,3 +1072,15 @@
     (if (all? bools)
         value
         (err 'check value))))
+
+(define (split-into-base-and-extension filename)
+  (let* ((last-dot (string-rindex filename #\.)))
+    (if (eq? last-dot #f)
+        (list filename #f)
+        (let ((base (substring filename 0 last-dot))
+              (extension (substring filename (1+ last-dot))))
+          (list base extension)))))
+
+(define (remove-extension filename)
+  (mtch (split-into-base-and-extension filename)
+         (base extension) base))
