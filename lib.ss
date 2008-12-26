@@ -1062,8 +1062,11 @@
 (define (join-things glue things)
   (apply ++ (join-things-list glue things)))
 
-(define (cmd . stuff)
-  ;(display "+ ") (display (join-things " " stuff)) (display "\n")
+(define (cmd . stuff) (cmd1 #f stuff))
+(define (scmd . stuff) (cmd1 #t stuff))
+
+(define (cmd1 show-p stuff)
+  (if show-p (begin (display "+ ") (display (join-things " " stuff)) (display "\n")) '())
   (apply system stuff))
 
 (define (check . stuff)
