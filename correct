@@ -228,7 +228,6 @@ Command: shew 10
 Command: write-ref ($ (Q #&10) 20)
 Command: read-ref (Q #&20)
 => 20
-gcc -std=c99 -g -o test-input vor.o test-input.ss.c spew.o mem.o fbo.o GLee.o -framework GLUT -framework OpenGL -framework CoreFoundation
 + ((/. (x) x) Nil)
 => Nil
 + ((/. ((PP j k)) j) (PP 10 20))
@@ -459,7 +458,6 @@ Command: shew 10
 Command: write-ref ($ (Q 0xa) 20)
 Command: read-ref (Q 0x14)
 => 20
-gcc -std=c99 -g -o another-program vor.o another-program.ss.c spew.o mem.o fbo.o GLee.o -framework GLUT -framework OpenGL -framework CoreFoundation
 + (X (quote create-ref) 10 (/. (r) (X (quote read-ref) r (/. (x) (X (quote shew) x (/. (x) (X (quote write-ref) ($ r 20) (/. (x) (X (quote read-ref) r id)))))))))
 Command: create-ref 10
 Command: read-ref (Q 0xa)
@@ -468,3 +466,5 @@ Command: shew 10
 Command: write-ref ($ (Q 0xa) 20)
 Command: read-ref (Q 0x14)
 => 20
++ gcc -std=c99 -g -o test-input vor.o test-input.ss.c spew.o mem.o fbo.o GLee.o -framework GLUT -framework OpenGL -framework CoreFoundation
++ gcc -std=c99 -g -o another-program vor.o another-program.ss.c spew.o mem.o fbo.o GLee.o -framework GLUT -framework OpenGL -framework CoreFoundation
