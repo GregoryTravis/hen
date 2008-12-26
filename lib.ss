@@ -1073,14 +1073,9 @@
         value
         (err 'check value))))
 
-(define (split-into-base-and-extension filename)
-  (let* ((last-dot (string-rindex filename #\.)))
-    (if (eq? last-dot #f)
-        (list filename #f)
-        (let ((base (substring filename 0 last-dot))
-              (extension (substring filename (1+ last-dot))))
-          (list base extension)))))
-
-(define (remove-extension filename)
-  (mtch (split-into-base-and-extension filename)
-         (base extension) base))
+(define (remove-extension s) (list->string (reverse (remove-extension-1 (reverse (string->list s))))))
+(define (remove-extension-1 lyst)
+  (cond
+   ((null? lyst) (err))
+   ((eq? (car lyst) #\.) (cdr lyst))
+   (#t (remove-extension-1 (cdr lyst)))))
