@@ -89,6 +89,10 @@
   (cmd (++ "make -s vor.o " stdobjs " " moreobjs))
   (scmd (++ "gcc -std=c99 -g -o " exefile " vor.o " objcfile " " stdobjs " " moreobjs " " libs)))
 
+(define (compile filename) (crun-file filename #f #f))
+(define (crun filename) (crun-file filename #t #t))
+(define (interpret filename) (run-file filename))
+
 (define (crun-file srcfile run-p delete-p)
   (let* ((objcfile (++ srcfile ".c"))
          (objfile (++ srcfile ".o"))
@@ -552,6 +556,6 @@
 (define (hen args)
   (mtch args
         () (usage)
-        ("interpret" filename) (run-file filename)
-        ("compile" filename) (crun-file filename #f #f)
-        (filename) (crun-file filename #t #t)))
+        ("interpret" filename) (interpret filename)
+        ("compile" filename) (compile filename)
+        (filename) (crun filename)))
