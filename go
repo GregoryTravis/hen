@@ -1,2 +1,1 @@
-mzscheme -r main.ss
-#make fbo
+hen src.ss

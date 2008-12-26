@@ -1,5 +1,7 @@
 (load "lib.ss")
 
+(define hen-version "* hen v. 0.01")
+
 (define count-reductions #f)
 (define show-tsgs #f)
 (define show-bindings #f)
@@ -87,7 +89,9 @@
   (cmd (++ "make -s vor.o " stdobjs " " moreobjs))
   (scmd (++ "gcc -std=c99 -g -o " exefile " vor.o " objcfile " " stdobjs " " moreobjs " " libs)))
 
-(define (crun-file srcfile)
+(define (crun-file srcfile run-p delete-p)
+  (shew 'run run-p)
+  (shew 'delete-p delete-p)
   (let* ((objcfile (++ srcfile ".c"))
          (objfile (++ srcfile ".o"))
          (stub (remove-extension srcfile))
@@ -97,7 +101,13 @@
     (cbuild-exe stub objcfile objfile exefile)
     (if (not (file-exists? exefile))
         (err "No exe.")
-        (cmd (++ "./" exefile)))))
+        (begin
+          (if run-p
+              (cmd (++ "./" exefile))
+              '())
+          (if delete-p
+              (cmd (++ "rm " exefile))
+              '())))))
 
 (define (fun? e)
   (and (pair? e) (eq? (car e) 'fun)))
@@ -528,3 +538,22 @@
 ;(tracefun syntax-desugar syntax-sugar p-ify un-p-ify)
 ;(tracefun cons-ify un-cons-ify un-cons-ify-1)
 ;(tracefun evl-driver execute-command)
+
+(define (usage)
+  (display (++
+            hen-version "\n"
+            "Usage:\n"
+            "  hen [file]           : compile and run (and delete exe)\n"
+            "  hen interpret [file] : run interpreter on file\n"
+            "  hen compile [file]   : compile but don't run file\n")))
+
+;;             "Usage: hen options src [src...]\n"
+;;             "  -n: use interpreter\n"
+;;             "  -c: just generate exe (otherwise run and delete)\n")))
+
+(define (hen args)
+  (mtch args
+        () (usage)
+        ("interpret" filename) (run-file filename)
+        ("compile" filename) (crun-file filename #f #f)
+        (filename) (crun-file filename #t #t)))
