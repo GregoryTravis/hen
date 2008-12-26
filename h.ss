@@ -90,8 +90,6 @@
   (scmd (++ "gcc -std=c99 -g -o " exefile " vor.o " objcfile " " stdobjs " " moreobjs " " libs)))
 
 (define (crun-file srcfile run-p delete-p)
-  (shew 'run run-p)
-  (shew 'delete-p delete-p)
   (let* ((objcfile (++ srcfile ".c"))
          (objfile (++ srcfile ".o"))
          (stub (remove-extension srcfile))
