@@ -406,7 +406,7 @@
 + 110
 => 110
 + (X (quote create-int-ref) 10 id)
-=> (Q 0x1e6bf0)
+=> (Q)
 + (X (quote create-int-ref) 10 (/. (r) (X (quote read-int-ref) r id)))
 => 10
 + (X (quote create-int-ref) 10 (/. (r) (X (quote read-int-ref) r (/. (x) (X (quote write-int-ref) ($ r 20) id)))))
