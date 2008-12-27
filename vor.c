@@ -337,47 +337,47 @@ void dump_cton(yeah* y) {
 
 void dump(yeah* y) {
   switch (y->t) {
-  case INTEGER: printf( "%d", y->u.integer.i ); break;
-  case SYMBOL: printf( "%s", y->u.symbol.s ); break;
-  case CSYMBOL: printf( "'%s", y->u.symbol.s ); break;
+  case INTEGER: printf("%d", y->u.integer.i); break;
+  case SYMBOL: printf("%s", y->u.symbol.s); break;
+  case CSYMBOL: printf("'%s", y->u.symbol.s); break;
   case OPAQUE: printf("(Q 0x%x)", y->u.opaque.q); break;
   case PAIR:
     if (pretty && is_cton(y)) {
       dump_cton(y);
     } else {
-      printf( "(P " );
+      printf("(P ");
       dump(y->u.pair.car);
-      printf( " " );
+      printf(" ");
       dump(y->u.pair.cdr);
-      printf( ")" );
+      printf(")");
     }
     break;
   case THUNK:
-    printf( "(@ ");
+    printf("(@ ");
     dump(y->u.thunk.exp);
     printf(")");
     dump(y->u.thunk.env);
     break;
   case CLOSURE:
-    printf( "($ ");
+    printf("($ ");
     dump(y->u.closure.lambda);
-    printf( " ");
+    printf(" ");
     dump(y->u.closure.env);
-    printf( ")");
+    printf(")");
     break;
   case LAMBDA:
-    printf( "(/. ");
+    printf("(/. ");
     dump(y->u.lambda.arg);
-    printf( " ");
+    printf(" ");
     dump(y->u.lambda.body);
-    printf( ")");
+    printf(")");
     break;
   case APP:
-    printf( "(");
+    printf("(");
     dump(y->u.app.f);
-    printf( " ");
+    printf(" ");
     dump(y->u.app.arg);
-    printf( ")");
+    printf(")");
     break;
   default: err(("%d\n", y->t)); break;
   }
