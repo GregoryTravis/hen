@@ -108,7 +108,7 @@ yeah* nil(void) {
   return Nil;
 }
 
-bool nilp(yeah* e) {
+bool isnil(yeah* e) {
   return (e->t == CSYMBOL || e->t == SYMBOL) && !strcmp(e->u.csymbol.s, "Nil");
 }
 
@@ -117,7 +117,7 @@ yeah* store_global(char *s, yeah* v) {
 }
 
 yeah* lookup_in_env(char* s, yeah* env) {
-  if (nilp(env)) {
+  if (isnil(env)) {
     return NULL;
   } else {
     A(env->t == PAIR);
@@ -283,7 +283,7 @@ bool is_cton(yeah* y) {
 }
 
 bool is_high_cons(yeah* y) {
-  return ISPAIR(y) && isthissymbol(car(y), "Cons") && ISPAIR(cdr(y)) && ISPAIR(cdr(cdr(y))) && nilp(cdr(cdr(cdr(y))));
+  return ISPAIR(y) && isthissymbol(car(y), "Cons") && ISPAIR(cdr(y)) && ISPAIR(cdr(cdr(y))) && isnil(cdr(cdr(cdr(y))));
 }
 
 yeah* hcar(yeah* y) {
@@ -308,7 +308,7 @@ void dump_list(yeah* y) {
     dump(hcar(here));
     here = hcdr(here);
   }
-  if (!nilp(here)) {
+  if (!isnil(here)) {
     printf(" . ");
     dump(here);
   }
@@ -324,10 +324,10 @@ void dump_cton(yeah* y) {
   printf("(");
 
   yeah* here = y;
-  while (!nilp(here)) {
+  while (!isnil(here)) {
     dump(car(here));
     here = cdr(here);
-    if (!nilp(here)) {
+    if (!isnil(here)) {
       printf(" ");
     }
   }
@@ -610,7 +610,7 @@ bool iscommand(yeah* e, yeah** name, yeah** arg, yeah** k) {
   yeah* ddd = cdr(dd);
   if (!ISPAIR(ddd)) return false;
   *arg = car(dd);
-  if (!nilp(cdr(ddd))) {
+  if (!isnil(cdr(ddd))) {
     dump(e);
     err(("Bad command!"));
   }
