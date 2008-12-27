@@ -583,6 +583,7 @@ yeah* execute_command(yeah* name, yeah* arg) {
     return destroy_ref(arg);
   } else if (!strcmp(ns, "fbo")) {
     fbo_main();
+    return Nil;
   } else {
     dumpn(name);
     dumpn(arg);
