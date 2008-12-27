@@ -53,6 +53,5 @@
 ;; ;; ;;        ))
 
 (run-file "test-input.ss")
-(flush-output)
 (crun "test-input.ss")
 (crun "another-program.ss")

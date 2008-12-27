@@ -51,7 +51,8 @@
   (mtch (preprocess-program forms)
         (src-tlfs tlfs)
         (map evl-top src-tlfs tlfs))
-  (count-reductions-end))
+  (count-reductions-end)
+  (flush-output))
 
 (define (run-file filename)
   (run-src (read-src filename)))
