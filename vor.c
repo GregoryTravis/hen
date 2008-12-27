@@ -16,6 +16,7 @@ static int show_bindings = 0;
 static int trace_env_too = 0;
 static int max_trace_show = 6;
 static int pretty = 1;
+static int show_commands = 0;
 
 static int n_reductions = 0;
 void count_reductions_start() {
@@ -537,18 +538,18 @@ yeah* evl(yeah* e) {
   return evl_completely(e, Nil);
 }
 
-yeah* create_ref(yeah* arg) {
+yeah* create_int_ref(yeah* arg) {
   yeah* r = opaque(NEW(int));
   opaque_set(r, (void*)getint(arg));
   return r;
 }
 
-yeah* read_ref(yeah* arg) {
+yeah* read_int_ref(yeah* arg) {
   A(opaque_val(arg) != NULL);
   return integer((int)opaque_val(arg));
 }
 
-yeah* write_ref(yeah* arg) {
+yeah* write_int_ref(yeah* arg) {
   yeah* box = hcar(arg);
   A(opaque_val(box) != NULL);
   yeah* value = hcadr(arg);
@@ -556,15 +557,17 @@ yeah* write_ref(yeah* arg) {
   return Nil;
 }
 
-yeah* destroy_ref(yeah* arg) {
+yeah* destroy_int_ref(yeah* arg) {
   A(opaque_val(arg) != NULL);
   fri(opaque_val(arg));
   opaque_set(arg, (void*)NULL);
 }
 
 yeah* execute_command(yeah* name, yeah* arg) {
-  printf("Command: %s ", symstring(name));
-  dumpn(arg);
+  if (show_commands) {
+    printf("Command: %s ", symstring(name));
+    dumpn(arg);
+  }
 
   A(ISSYMBOL(name));
   char* ns = symstring(name);
@@ -573,14 +576,14 @@ yeah* execute_command(yeah* name, yeah* arg) {
     dump(arg);
     printf(")\n");
     return CNil;
-  } else if (!strcmp(ns, "create-ref")) {
-    return create_ref(arg);
-  } else if (!strcmp(ns, "read-ref")) {
-    return read_ref(arg);
-  } else if (!strcmp(ns, "write-ref")) {
-    return write_ref(arg);
-  } else if (!strcmp(ns, "destroy-ref")) {
-    return destroy_ref(arg);
+  } else if (!strcmp(ns, "create-int-ref")) {
+    return create_int_ref(arg);
+  } else if (!strcmp(ns, "read-int-ref")) {
+    return read_int_ref(arg);
+  } else if (!strcmp(ns, "write-int-ref")) {
+    return write_int_ref(arg);
+  } else if (!strcmp(ns, "destroy-int-ref")) {
+    return destroy_int_ref(arg);
   } else if (!strcmp(ns, "fbo")) {
     fbo_main();
     return Nil;

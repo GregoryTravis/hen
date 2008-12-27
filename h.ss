@@ -6,6 +6,7 @@
 (define show-tsgs #f)
 (define show-bindings #f)
 (define pretty-output #t)
+(define show-commands #f)
 
 (define (reset-everything)
   (clear-global-env))
@@ -165,23 +166,27 @@
 (define (hcdr e) (mtch e ('P 'Cons ('P a ('P d 'Nil))) d))
 (define (hcadr e) (hcar (hcdr e)))
 
-(define (create-ref v) (opaque (box v)))
-(define (read-ref r) (unbox (opaque-val r)))
-(define (write-ref rv) (begin (set-box! (opaque-val (hcar rv)) (hcadr rv)) 'Nil))
-(define (destroy-ref r) ''Nil)
+(define (create-int-ref v) (opaque (box v)))
+(define (read-int-ref r) (unbox (opaque-val r)))
+(define (write-int-ref rv) (begin (set-box! (opaque-val (hcar rv)) (hcadr rv)) 'Nil))
+(define (destroy-int-ref r) ''Nil)
 
 (define (execute-command name arg)
-  (display "Command: ")
-  (display name)
-  (display " ")
-  (plshew arg)
-  (display "\n")
+  (if show-commands
+      (begin
+        (display "Command: ")
+        (display name)
+        (display " ")
+        (plshew arg)
+        (display "\n"))
+      '())
+
   (mtch name
         'shew (begin (shew (list 'SHEW arg)) 'Nil)
-        'create-ref (create-ref arg)
-        'read-ref (read-ref arg)
-        'write-ref (write-ref arg)
-        'destroy-ref (destroy-ref arg)
+        'create-int-ref (create-int-ref arg)
+        'read-int-ref (read-int-ref arg)
+        'write-int-ref (write-int-ref arg)
+        'destroy-int-ref (destroy-int-ref arg)
         x (err "Unknown command" (list name arg))))
 
 (define (evl-driver e)
