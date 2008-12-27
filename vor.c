@@ -481,15 +481,7 @@ yeah* evl_step(yeah* e, yeah* env) {
   static int indent = 0;
 
   if (!trace || indent > max_trace_show) {
-    yeah* value = evl_step_(e, env);
-#if 0
-if (value->t == SYMBOL && !strcmp(value->u.symbol.s, "x")) {
-  dumpn(e);
-  dumpn(env);
-  err((""));
-}
-#endif
- return value;
+    return evl_step_(e, env);
   }
 
   for (int i = 0; i < indent; ++i) {
