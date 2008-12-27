@@ -260,11 +260,6 @@ void* opaque_val(yeah* y) {
   return y->u.opaque.q;
 }
 
-void* opaque_set(yeah* y, void* v) {
-  A(ISOPAQUE(y));
-  y->u.opaque.q = v;
-}
-
 #define APPF(e) ((e)->u.app.f)
 #define apparg(e) ((e)->u.app.arg)
 
@@ -380,7 +375,7 @@ void dump(yeah* y) {
     dump(y->u.app.arg);
     printf(")");
     break;
-  default: err(("%d\n", y->t)); break;
+  default: err(("%d (ptr %d)\n", y->t, y)); break;
   }
 }
 
@@ -539,28 +534,28 @@ yeah* evl(yeah* e) {
 }
 
 yeah* create_int_ref(yeah* arg) {
-  yeah* r = opaque(NEW(int));
-  opaque_set(r, (void*)getint(arg));
-  return r;
+  int* ip = NEW(int);
+  *ip = getint(arg);
+  return opaque(ip);
 }
 
 yeah* read_int_ref(yeah* arg) {
-  A(opaque_val(arg) != NULL);
-  return integer((int)opaque_val(arg));
+  int* ip = (int*)opaque_val(arg);
+  A(ip);
+  return integer(*ip);
 }
 
 yeah* write_int_ref(yeah* arg) {
-  yeah* box = hcar(arg);
-  A(opaque_val(box) != NULL);
-  yeah* value = hcadr(arg);
-  opaque_set(box, (void*)getint(value));
+  int* ip = (int*)opaque_val(hcar(arg));
+  A(ip);
+  int i = getint(hcadr(arg));
+  *ip = i;
   return Nil;
 }
 
 yeah* destroy_int_ref(yeah* arg) {
-  A(opaque_val(arg) != NULL);
   fri(opaque_val(arg));
-  opaque_set(arg, (void*)NULL);
+  return Nil;
 }
 
 yeah* execute_command(yeah* name, yeah* arg) {

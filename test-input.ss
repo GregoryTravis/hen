@@ -202,18 +202,18 @@
 (X 'shew 65 (/. (x) (X 'shew 75 (/. (x) x))))
 110
 
-(X 'create-ref 10 id)
-(X 'create-ref 10
-   (/. (r) (X 'read-ref r id)))
-(X 'create-ref 10
-   (/. (r) (X 'read-ref r
-              (/. (x) (X 'write-ref ($ r 20) id)))))
-(X 'create-ref 10
-   (/. (r) (X 'read-ref r
-              (/. (x) (X 'write-ref ($ r 20)
-                         (/. (x) (X 'read-ref r id)))))))
-(X 'create-ref 10
-   (/. (r) (X 'read-ref r
+(X 'create-int-ref 10 id)
+(X 'create-int-ref 10
+   (/. (r) (X 'read-int-ref r id)))
+(X 'create-int-ref 10
+   (/. (r) (X 'read-int-ref r
+              (/. (x) (X 'write-int-ref ($ r 20) id)))))
+(X 'create-int-ref 10
+   (/. (r) (X 'read-int-ref r
+              (/. (x) (X 'write-int-ref ($ r 20)
+                         (/. (x) (X 'read-int-ref r id)))))))
+(X 'create-int-ref 10
+   (/. (r) (X 'read-int-ref r
               (/. (x) (X 'shew  x
-                         (/. (x) (X 'write-ref ($ r 20)
-                                    (/. (x) (X 'read-ref r id)))))))))
+                         (/. (x) (X 'write-int-ref ($ r 20)
+                                    (/. (x) (X 'read-int-ref r id)))))))))
