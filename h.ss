@@ -102,6 +102,7 @@
     (cmd (++ "rm -f " objcfile " " exefile))
     (write-string-to-file objcfile (csrc->obj (read-src srcfile)))
     (cbuild-exe stub objcfile objfile exefile)
+    (cmd (++ "rm " objcfile))
     (if (not (file-exists? exefile))
         (err "No exe.")
         (begin
