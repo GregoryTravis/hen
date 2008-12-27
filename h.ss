@@ -7,6 +7,9 @@
 (define show-bindings #f)
 (define pretty-output #t)
 
+(define (reset-everything)
+  (clear-global-env))
+
 (define n-reductions 0)
 (define (count-reductions-start)
   (set! n-reductions 0))
@@ -47,6 +50,7 @@
                (list src-tlfs (map preprocess src-tlfs)))))
 
 (define (run-src forms)
+  (reset-everything)
   (count-reductions-start)
   (mtch (preprocess-program forms)
         (src-tlfs tlfs)
@@ -94,6 +98,7 @@
 (define (interpret filename) (run-file filename))
 
 (define (crun-file srcfile run-p delete-p)
+  (reset-everything)
   (let* ((objcfile (++ srcfile ".c"))
          (objfile (++ srcfile ".o"))
          (stub (remove-extension srcfile))
@@ -135,6 +140,7 @@
    e (simplify (pattern-compile (quote-ctors (doobie (syntax-desugar e)))))))
 
 (define global-env '())
+(define (clear-global-env) (set! global-env '()))
 (define (define-def e)
   (mtch e
         ('def name e)
