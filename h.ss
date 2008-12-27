@@ -81,14 +81,13 @@
                        (map cmpl-top src-tlfs tlfs)))
             "}")))
 
-(define stdobjs "spew.o mem.o")
-(define moreobjs "fbo.o GLee.o")
+(define objs "vor.o spew.o mem.o fbo.o GLee.o")
 (define libs "-framework GLUT -framework OpenGL -framework CoreFoundation")
 
 (define (cbuild-exe objcfile objfile exefile)
   (cmd (++ "rm -f " objfile exefile))
-  (cmd (++ "make -s vor.o " stdobjs " " moreobjs))
-  (scmd (++ "gcc -std=c99 -g -o " exefile " vor.o " objcfile " " stdobjs " " moreobjs " " libs)))
+  (cmd (++ "make -s " objs))
+  (scmd (++ "gcc -std=c99 -g -o " exefile " " objcfile " " objs " " libs)))
 
 (define (compile filename) (crun-file filename #f #f))
 (define (crun filename) (crun-file filename #t #t))
