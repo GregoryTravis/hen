@@ -96,6 +96,7 @@
 (define (compile filename) (crun-file filename #f #f))
 (define (crun filename) (crun-file filename #t #t))
 (define (interpret filename) (run-file filename))
+(define run run-file)
 
 (define (crun-file srcfile run-p delete-p)
   (reset-everything)
