@@ -336,7 +336,7 @@ void dump(yeah* y) {
   case INTEGER: printf("%d", y->u.integer.i); break;
   case SYMBOL: printf("%s", y->u.symbol.s); break;
   case CSYMBOL: printf("'%s", y->u.symbol.s); break;
-  case OPAQUE: printf("(Q 0x%x)", y->u.opaque.q); break;
+  case OPAQUE: printf("(Q)"); break;
   case PAIR:
     if (pretty && is_cton(y)) {
       dump_cton(y);
