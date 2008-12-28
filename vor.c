@@ -18,7 +18,7 @@ static int show_bindings = 0;
 static int trace_env_too = 0;
 static int max_trace_show = 6;
 static int pretty = 1;
-static int show_commands = 1;
+static int show_commands = 0;
 
 static int n_reductions = 0;
 void count_reductions_start() {
