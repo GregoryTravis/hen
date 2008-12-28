@@ -244,7 +244,8 @@ void fbo_main0() {
 }
 
 void fbo_main1() {
-        glutInitDisplayMode ( GLUT_RGB | GLUT_DOUBLE );         // Display Mode
+  // HEN glutInitDisplayMode ( GLUT_RGB | GLUT_DOUBLE );         // Display Mode
+
         glutInitWindowSize(800,600);
         glutCreateWindow( "FrameBuffer Object Example - Press ESC to exit" );
 

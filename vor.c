@@ -587,6 +587,9 @@ yeah* execute_command(yeah* name, yeah* arg) {
   } else if (!strcmp(ns, "fbo_main1")) {
     fbo_main1();
     return Nil;
+  } else if (!strcmp(ns, "glutInitDisplayMode")) {
+    glutInitDisplayMode(getint(arg));
+    return Nil;
   } else {
     dumpn(name);
     dumpn(arg);
