@@ -1,13 +1,15 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <glut.h>
+
+#include "fbo.h"
 #include "vor.h"
 
 #include "a.h"
 #include "mem.h"
 #include "spew.h"
 
-void fbo_main();
 void hen_main();
 
 static int trace = 0;
@@ -16,7 +18,7 @@ static int show_bindings = 0;
 static int trace_env_too = 0;
 static int max_trace_show = 6;
 static int pretty = 1;
-static int show_commands = 0;
+static int show_commands = 1;
 
 static int n_reductions = 0;
 void count_reductions_start() {
@@ -579,8 +581,11 @@ yeah* execute_command(yeah* name, yeah* arg) {
     return write_int_ref(arg);
   } else if (!strcmp(ns, "destroy-int-ref")) {
     return destroy_int_ref(arg);
-  } else if (!strcmp(ns, "fbo")) {
-    fbo_main();
+  } else if (!strcmp(ns, "fbo_main0")) {
+    fbo_main0();
+    return Nil;
+  } else if (!strcmp(ns, "fbo_main1")) {
+    fbo_main1();
     return Nil;
   } else {
     dumpn(name);

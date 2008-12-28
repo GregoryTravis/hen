@@ -5,9 +5,10 @@
 // Note: This isn't meant to indicate good programming style, just act as an example
 //
 
+#include <stdlib.h>
+
 #include "glee.h"
 #include <glut.h>
-#include <stdlib.h>
 
 GLuint fbo;                                     // Our handle to the FBO
 GLuint depthBuffer;                     // Our handle to the depth render buffer
@@ -235,11 +236,14 @@ void display(void)
         // Swap The Buffers To Not Be Left With A Clear Screen
 }
 
-void fbo_main() {
+void fbo_main0() {
   int dummy_argc = 0;
   char* dummy_argv[1];
   
   glutInit(&dummy_argc, (char**)&dummy_argv);
+}
+
+void fbo_main1() {
         glutInitDisplayMode ( GLUT_RGB | GLUT_DOUBLE );         // Display Mode
         glutInitWindowSize(800,600);
         glutCreateWindow( "FrameBuffer Object Example - Press ESC to exit" );
@@ -256,4 +260,9 @@ void fbo_main() {
         glutKeyboardFunc    ( keyboard );
         glutIdleFunc            ( idle );
         glutMainLoop        ( );                        // Run the main GLUT loop for rendering
+}
+
+void fbo_main() {
+  fbo_main0();
+  fbo_main1();
 }
