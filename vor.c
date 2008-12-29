@@ -11,6 +11,8 @@
 #include "spew.h"
 
 void hen_main();
+yeah* evl_fully(yeah* e, yeah* env);
+yeah* evl_completely(yeah* e, yeah* env);
 
 static int trace = 0;
 static int count_reductions = 0;
@@ -413,49 +415,73 @@ bool isprim3(yeah* e, char* s, yeah** arg0, yeah** arg1, yeah** arg2) {
   }
 }
 
-yeah* evl_step(yeah* e, yeah* env);
-yeah* evl_fully(yeah* e, yeah* env);
-yeah* evl_completely(yeah* e, yeah* env);
-
-yeah* evl_step_(yeah* e, yeah* env) {
+bool try_prim(yeah* e, yeah* env, yeah** result) {
   yeah *arg0, *arg1, *arg2;
   if (isprim1(e, "PAIR?", &arg0)) {
-    return TF(ISPAIR(evl_fully(arg0, env)));
+    *result = TF(ISPAIR(evl_fully(arg0, env)));
+    return true;
   } else if (isprim1(e, "CAR", &arg0)) {
-    return car(evl_fully(arg0, env));
+    *result = car(evl_fully(arg0, env));
+    return true;
   } else if (isprim1(e, "CDR", &arg0)) {
-    return cdr(evl_fully(arg0, env));
+    *result = cdr(evl_fully(arg0, env));
+    return true;
   } else if (ISAPP(e) && ISSYMBOL(appfun(e))) {
-    return app(lookup(symstring(appfun(e)), env), freeze(apparg(e), env));
+    *result = app(lookup(symstring(appfun(e)), env), freeze(apparg(e), env));
+    return true;
   } else if (isprim2(e, "+", &arg0, &arg1)) {
-    return integer(getint(evl_completely(arg0, env)) + getint(evl_completely(arg1, env)));
+    *result = integer(getint(evl_completely(arg0, env)) + getint(evl_completely(arg1, env)));
+    return true;
   } else if (isprim2(e, "-", &arg0, &arg1)) {
-    return integer(getint(evl_completely(arg0, env)) - getint(evl_completely(arg1, env)));
+    *result = integer(getint(evl_completely(arg0, env)) - getint(evl_completely(arg1, env)));
+    return true;
   } else if (isprim2(e, "*", &arg0, &arg1)) {
-    return integer(getint(evl_completely(arg0, env)) * getint(evl_completely(arg1, env)));
+    *result = integer(getint(evl_completely(arg0, env)) * getint(evl_completely(arg1, env)));
+    return true;
   } else if (isprim2(e, "cons", &arg0, &arg1)) {
-    return pair(freeze(arg0, env), freeze(arg1, env));
+    *result = pair(freeze(arg0, env), freeze(arg1, env));
+    return true;
   } else if (isprim2(e, "==", &arg0, &arg1)) {
-    return TF(equal(evl_fully(arg0, env), evl_fully(arg1, env)));
+    *result = TF(equal(evl_fully(arg0, env), evl_fully(arg1, env)));
+    return true;
   } else if (ISAPP(e) && ISAPP(appfun(e)) && ISSYMBOL(appfun(appfun(e)))) {
-    return app(app(lookup(symstring(appfun(appfun(e))), env), freeze(apparg(appfun(e)), env)), freeze(apparg(e), env));
+    *result = app(app(lookup(symstring(appfun(appfun(e))), env), freeze(apparg(appfun(e)), env)), freeze(apparg(e), env));
+    return true;
   } else if (e->t == APP && e->u.app.f->t == CLOSURE) {
     if (show_bindings) { printf("BIND %s\n", e->u.app.f->u.closure.lambda->u.lambda.arg->u.symbol.s); dumpn(e->u.app.arg); }
-    return freeze(lambdabody(closurelam(appfun(e))),
+    *result = freeze(lambdabody(closurelam(appfun(e))),
       pair(pair(lambdaarg(closurelam(appfun(e))), apparg(e)), closureenv(appfun(e))));
+    return true;
   } else if (isprim3(e, "if", &arg0, &arg1, &arg2)) {
     arg0 = evl_completely(arg0, env);
     if (equal(arg0, True)) {
-      return freeze(arg1, env);
+      *result = freeze(arg1, env);
+      return true;
     } else if (equal(arg0, False)) {
-      return freeze(arg2, env);
+      *result = freeze(arg2, env);
+      return true;
     } else {
       spew(("Not a bool: "));
       dumpn(arg0);
       err((""));
     }
-  } else if (ISAPP(e)) {
-    return app(evl_step(e->u.app.f,env), freeze(e->u.app.arg, env));
+  } else {
+    return false;
+  }
+}
+
+yeah* evl_step(yeah* e, yeah* env);
+yeah* evl_fully(yeah* e, yeah* env);
+yeah* evl_completely(yeah* e, yeah* env);
+
+yeah* evl_step_(yeah* e, yeah* env) {
+  if (ISAPP(e)) {
+    yeah* result;
+    if (try_prim(e, env, &result)) {
+      return result;
+    } else {
+      return app(evl_step(e->u.app.f,env), freeze(e->u.app.arg, env));
+    }
   } else if (ISTHUNK(e)) {
     return evl_step(e->u.thunk.exp, e->u.thunk.env);
   } else if (ISLAMBDA(e)) {

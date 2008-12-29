@@ -90,9 +90,9 @@
 (define libs "-framework GLUT -framework OpenGL -framework CoreFoundation")
 
 (define (cbuild-exe objcfile objfile exefile)
-  (cmd (++ "rm -f " objfile exefile))
-  (cmd (++ "make -s " objs))
-  (scmd (++ "gcc -std=c99 -g -o " exefile " " objcfile " " objs " " libs)))
+  (rcmd (++ "rm -f " objfile exefile))
+  (rcmd (++ "make -s " objs))
+  (srcmd (++ "gcc -std=c99 -g -o " exefile " " objcfile " " objs " " libs)))
 
 (define (compile filename) (crun-file filename #f #f))
 (define (crun filename) (crun-file filename #t #t))
