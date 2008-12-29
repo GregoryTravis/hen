@@ -341,6 +341,7 @@
 (define (id x) x)
 
 (define (err . args)
+  (flush-output)
   (display "Error!\n")
   (shew (map show-shorten args))
 (car '()))
@@ -1062,12 +1063,17 @@
 (define (join-things glue things)
   (apply ++ (join-things-list glue things)))
 
-(define (cmd . stuff) (cmd1 #f stuff))
-(define (scmd . stuff) (cmd1 #t stuff))
+(define (cmd . stuff) (cmd1 #f #f stuff))
+(define (scmd . stuff) (cmd1 #t #f stuff))
+(define (rcmd . stuff) (cmd1 #f #t stuff))
+(define (srcmd . stuff) (cmd1 #t #t stuff))
 
-(define (cmd1 show-p stuff)
+(define (cmd1 show-p die-p stuff)
   (if show-p (begin (display "+ ") (display (join-things " " stuff)) (display "\n")) '())
-  (apply system stuff))
+  (let ((retval (apply system stuff)))
+    (if (and die-p (not retval))
+        (err "Command error:" stuff)
+        retval)))
 
 (define (check . stuff)
   (let ((bools (rdc stuff))
