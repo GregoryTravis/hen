@@ -22,6 +22,7 @@ static int count_reductions = 0;
 static int show_bindings = 0;
 static int trace_env_too = 0;
 static int max_trace_show = 6;
+static int max_dump_level = 6;
 static int pretty = 1;
 static int show_commands = 0;
 
@@ -336,7 +337,15 @@ void dump_cton(yeah* y) {
   printf(")");
 }
 
+int dump_level = 0;
+
 void dump(yeah* y) {
+  if (dump_level > max_dump_level) {
+    printf("...");
+    return;
+  }
+
+  dump_level++;
   switch (y->t) {
   case INTEGER: printf("%d", y->u.integer.i); break;
   case SYMBOL: printf("%s", y->u.symbol.s); break;
@@ -382,6 +391,7 @@ void dump(yeah* y) {
     break;
   default: err(("%d (ptr %d)\n", y->t, y)); break;
   }
+  dump_level--;
 }
 
 void dumpn(yeah* y) {
@@ -583,7 +593,12 @@ yeah* execute_command(yeah* name, yeah* arg) {
   }
 
   foreign_function f = (foreign_function)opaque_val(v);
-  return (*f)(arg);
+  yeah* ret = (*f)(arg);
+  if (show_commands) {
+    printf("Command %s returns ", symstring(name));
+    dumpn(ret);
+  }
+  return ret;
 
 #if 0
   if (!strcmp(ns, "shew")) {
