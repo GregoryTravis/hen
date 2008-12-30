@@ -1,3 +1,5 @@
+#include "a.h"
+
 typedef enum {
   LAMBDA,
   CLOSURE,
@@ -64,6 +66,8 @@ struct yeah {
   } u;
 };
 
+typedef yeah* (*foreign_function)(yeah* arg);
+
 yeah* store_global(char *s, yeah* v);
 yeah* closure(yeah* lambda, yeah* env);
 yeah* lambda(yeah* arg, yeah* body);
@@ -75,4 +79,19 @@ yeah* pair(yeah* car, yeah* cdr);
 yeah* integer(int i);
 yeah* app(yeah* f, yeah* arg);
 yeah* nil(void);
+int getint(yeah* e);
 void evl_top(char* src, yeah* e);
+yeah* opaque(void* q);
+void* opaque_val(yeah* y);
+yeah* hcar(yeah* y);
+yeah* hcdr(yeah* y);
+yeah* hcadr(yeah* y);
+void dump(yeah* y);
+bool isnil(yeah* e);
+yeah* car(yeah* e);
+yeah* cdr(yeah* e);
+
+extern yeah *Nil, *CNil;
+
+void register_command(char *name, foreign_function f);
+

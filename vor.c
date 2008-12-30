@@ -1,14 +1,17 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <glut.h>
-
 #include "fbo.h"
 #include "vor.h"
 
 #include "a.h"
 #include "mem.h"
 #include "spew.h"
+
+// HEY
+#include "fbo.impl.h"
+#include "ref.impl.h"
+#include "shew.impl.h"
 
 void hen_main();
 yeah* evl_fully(yeah* e, yeah* env);
@@ -298,8 +301,6 @@ yeah* hcdr(yeah* y) {
 
 yeah* hcadr(yeah* y) { return hcar(hcdr(y)); }
 
-void dump(yeah* y);
-
 void dump_list(yeah* y) {
   printf("($");
   yeah* here = y;
@@ -561,29 +562,9 @@ yeah* evl(yeah* e) {
   return evl_completely(e, Nil);
 }
 
-yeah* create_int_ref(yeah* arg) {
-  int* ip = NEW(int);
-  *ip = getint(arg);
-  return opaque(ip);
-}
-
-yeah* read_int_ref(yeah* arg) {
-  int* ip = (int*)opaque_val(arg);
-  A(ip);
-  return integer(*ip);
-}
-
-yeah* write_int_ref(yeah* arg) {
-  int* ip = (int*)opaque_val(hcar(arg));
-  A(ip);
-  int i = getint(hcadr(arg));
-  *ip = i;
-  return Nil;
-}
-
-yeah* destroy_int_ref(yeah* arg) {
-  fri(opaque_val(arg));
-  return Nil;
+yeah* foreign_functions;
+void register_command(char *name, foreign_function f) {
+  foreign_functions = pair(pair(symbol(name), opaque(f)), foreign_functions);
 }
 
 yeah* execute_command(yeah* name, yeah* arg) {
@@ -593,7 +574,18 @@ yeah* execute_command(yeah* name, yeah* arg) {
   }
 
   A(ISSYMBOL(name));
-  char* ns = symstring(name);
+  yeah* v = lookup_in_env(symstring(name), foreign_functions);
+
+  if (v == NULL) {
+    dumpn(name);
+    dumpn(arg);
+    err(("Unknown command!"));
+  }
+
+  foreign_function f = (foreign_function)opaque_val(v);
+  return (*f)(arg);
+
+#if 0
   if (!strcmp(ns, "shew")) {
     printf("(SHEW ");
     dump(arg);
@@ -621,6 +613,7 @@ yeah* execute_command(yeah* name, yeah* arg) {
     dumpn(arg);
     err(("Unknown command!"));
   }
+#endif
 }
 
 bool iscommand(yeah* e, yeah** name, yeah** arg, yeah** k) {
@@ -667,6 +660,12 @@ void init_constants() {
   False = symbol("False");
   CNil = csymbol("Nil");
   globals = symbol("Nil");
+  foreign_functions = symbol("Nil");
+
+  // HEY rid
+  fbo_impl_register();
+  ref_impl_register();
+  shew_impl_register();
 }
 
 int main(int argc, char** argv) {

@@ -65,6 +65,9 @@
 (define (read-src filename)
   (append
    (read-objects "overture.ss")
+   (read-objects "fbo.stub.ss")
+   (read-objects "ref.stub.ss")
+   (read-objects "shew.stub.ss")
    (read-objects filename)))
 
 (define (cmpl-def def)
@@ -86,7 +89,7 @@
                        (map cmpl-top src-tlfs tlfs)))
             "}")))
 
-(define objs "vor.o spew.o mem.o fbo.o GLee.o")
+(define objs "vor.o spew.o mem.o fbo.o GLee.o fbo.impl.o ref.impl.o shew.impl.o")
 (define libs "-framework GLUT -framework OpenGL -framework CoreFoundation")
 
 (define (cbuild-exe objcfile objfile exefile)
@@ -166,10 +169,13 @@
 (define (hcdr e) (mtch e ('P 'Cons ('P a ('P d 'Nil))) d))
 (define (hcadr e) (hcar (hcdr e)))
 
-(define (create-int-ref v) (opaque (box v)))
-(define (read-int-ref r) (unbox (opaque-val r)))
-(define (write-int-ref rv) (begin (set-box! (opaque-val (hcar rv)) (hcadr rv)) 'Nil))
-(define (destroy-int-ref r) ''Nil)
+(define commands '())
+(define (register-command name f) (set! commands (cons (cons name f) commands)))
+
+;; HEY rid
+;(load "fbo.impl.ss")
+(load "ref.impl.ss")
+(load "shew.impl.ss")
 
 (define (execute-command name arg)
   (if show-commands
@@ -181,13 +187,17 @@
         (display "\n"))
       '())
 
-  (mtch name
-        'shew (begin (shew (list 'SHEW arg)) 'Nil)
-        'create-int-ref (create-int-ref arg)
-        'read-int-ref (read-int-ref arg)
-        'write-int-ref (write-int-ref arg)
-        'destroy-int-ref (destroy-int-ref arg)
-        x (err "Unknown command" (list name arg))))
+  (if (lookup-exists? name commands)
+      ((lookup name commands) arg)
+      (err "Unknown command" (list name arg))))
+
+  ;; (mtch name
+;;         'shew (begin (shew (list 'SHEW arg)) 'Nil)
+;;         'create-int-ref (create-int-ref arg)
+;;         'read-int-ref (read-int-ref arg)
+;;         'write-int-ref (write-int-ref arg)
+;;         'destroy-int-ref (destroy-int-ref arg)
+;;         x (err "Unknown command" (list name arg)))
 
 (define (evl-driver e)
   (let ((ee (evl e)))

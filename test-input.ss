@@ -196,24 +196,42 @@
 (fun (fact n) ((* n) (fact ((- n) 1))))
 (fact 10)
 
-(X 'shew 65 (/. (x) x))
-(X 'shew 65 (/. (x) ($ x x)))
-(X 'shew 65 (/. (x) (X 'shew 75 (/. (x) x))))
-(X 'shew 65 (/. (x) (X 'shew 75 (/. (x) x))))
+(shew 65 (/. (x) x))
+(shew 65 (/. (x) ($ x x)))
+(shew 65 (/. (x) (shew 75 (/. (x) x))))
+(shew 65 (/. (x) (shew 75 (/. (x) x))))
 110
 
-(X 'create-int-ref 10 id)
-(X 'create-int-ref 10
-   (/. (r) (X 'read-int-ref r id)))
-(X 'create-int-ref 10
-   (/. (r) (X 'read-int-ref r
-              (/. (x) (X 'write-int-ref ($ r 20) id)))))
-(X 'create-int-ref 10
-   (/. (r) (X 'read-int-ref r
-              (/. (x) (X 'write-int-ref ($ r 20)
-                         (/. (x) (X 'read-int-ref r id)))))))
-(X 'create-int-ref 10
-   (/. (r) (X 'read-int-ref r
-              (/. (x) (X 'shew  x
-                         (/. (x) (X 'write-int-ref ($ r 20)
-                                    (/. (x) (X 'read-int-ref r id)))))))))
+;; (X 'create-int-ref 10 id)
+;; (X 'create-int-ref 10
+;;    (/. (r) (X 'read-int-ref r id)))
+;; (X 'create-int-ref 10
+;;    (/. (r) (X 'read-int-ref r
+;;               (/. (x) (X 'write-int-ref ($ r 20) id)))))
+;; (X 'create-int-ref 10
+;;    (/. (r) (X 'read-int-ref r
+;;               (/. (x) (X 'write-int-ref ($ r 20)
+;;                          (/. (x) (X 'read-int-ref r id)))))))
+;; (X 'create-int-ref 10
+;;    (/. (r) (X 'read-int-ref r
+;;               (/. (x) (X 'shew  x
+;;                          (/. (x) (X 'write-int-ref ($ r 20)
+;;                                     (/. (x) (X 'read-int-ref r id)))))))))
+
+(create-int-ref 10 id)
+(create-int-ref 10
+                (/. (r) (read-int-ref r id)))
+(create-int-ref 10
+                (/. (r) (read-int-ref r
+                                      (/. (dummy) (write-int-ref ($ r 20) id)))))
+(create-int-ref 10
+                (/. (r) (read-int-ref r
+                                      (/. (dummy) (write-int-ref ($ r 20)
+                                                                 (/. (dummy) (read-int-ref r id)))))))
+(create-int-ref 10
+                (/. (r) (read-int-ref r
+                                      (/. (x) (shew x
+                                                    (/. (dummy) (write-int-ref ($ r 20)
+                                                                               (/. (dummy) (read-int-ref r
+                                                                                                         (/. (x) (shew x
+                                                                                                                       (/. (dummy) (destroy-int-ref r id)))))))))))))

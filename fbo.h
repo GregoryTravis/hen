@@ -1,2 +1,2 @@
-void fbo_main0();
-void fbo_main1();
+void fbo_main0_();
+void fbo_main1_();

@@ -11,6 +11,15 @@ vor.o: vor.c a.h spew.h mem.h
 spew.o: spew.c spew.h a.h
 	gcc -std=c99 -c -g spew.c
 
+ref.impl.o: ref.impl.c ref.impl.h vor.h
+	gcc -std=c99 -c -g ref.impl.c
+
+shew.impl.o: shew.impl.c shew.impl.h vor.h
+	gcc -std=c99 -c -g shew.impl.c
+
+fbo.impl.o: fbo.impl.c fbo.impl.h vor.h
+	gcc -std=c99 -c -g fbo.impl.c $(libs)
+
 mem.o: mem.c mem.h a.h
 	gcc -std=c99 -c -g mem.c
 
