@@ -47,7 +47,7 @@
   (mtch (forms->defs-n-tlfs forms)
         (defs src-tlfs)
         (begin (map define-def (map preprocess defs))
-               ;(shew global-env)
+               ;(shew< global-env)
                (list src-tlfs (map preprocess src-tlfs)))))
 
 (define (run-src forms)
@@ -142,7 +142,7 @@
 (define (preprocess e)
   (mtch e
    ('def name e) `(def ,name ,(preprocess e))
-   e (simplify (pattern-compile (quote-ctors (doobie (syntax-desugar e)))))))
+   e (simplify (pattern-compile (quote-ctors (doobie (syntax-desugar (expand-do e))))))))
 
 (define global-env '())
 (define (clear-global-env) (set! global-env '()))
@@ -168,6 +168,14 @@
 (define (hcar e) (mtch e ('P 'Cons ('P a ('P d 'Nil))) a))
 (define (hcdr e) (mtch e ('P 'Cons ('P a ('P d 'Nil))) d))
 (define (hcadr e) (hcar (hcdr e)))
+(define (hpair? e) (mtch e ('P 'Cons ('P a ('P d 'Nil))) #t x #f))
+(define (hnull? e) (eq? e 'Nil))
+
+(define (high-list->low-list e)
+  (cond
+   ((hpair? e) (cons (hcar e) (high-list->low-list (hcdr e))))
+   ((hnull? e) '())
+   (#t (err))))
 
 (define commands '())
 (define (register-command name f) (set! commands (cons (cons name f) commands)))
@@ -177,7 +185,7 @@
 (load "ref.impl.ss")
 (load "shew.impl.ss")
 
-(define (execute-command name arg)
+(define (execute-command name args)
   (if show-commands
       (begin
         (display "Command: ")
@@ -188,7 +196,7 @@
       '())
 
   (if (lookup-exists? name commands)
-      ((lookup name commands) arg)
+      (apply (lookup name commands) (high-list->low-list args))
       (err "Unknown command" (list name arg))))
 
   ;; (mtch name
@@ -202,10 +210,12 @@
 (define (evl-driver e)
   (let ((ee (evl e)))
     (mtch ee
-          ('P 'X ('P name ('P arg ('P k 'Nil))))
-          (let ((output (execute-command name arg)))
-            (evl-driver (list k `(P ,output 'Nil))))
-          
+          ('P 'CommandSeq ('P ('P 'Command ('P name ('P args 'Nil))) ('P k 'Nil)))
+          (begin ;(shew 'yeah name args)
+                 (let ((output (execute-command name args)))
+                   ;(shew 'command-output output)
+                   (evl-driver (list k `(P ,output 'Nil)))))
+
           x x)))
 
 (define (evl-top src e)
@@ -552,19 +562,6 @@
 (define pshew (prettify-shewer shew))
 (define plshew (prettify-shewer lshew))
 
-;(tracefun preprocess)
-;(tracefun build-receiver build-traverser)
-;(tracefun evl evl-step)
-;(tracefun evl-fully evl-completely)
-;(tracefun doobie doobie doobie-arglist)
-;(tracefun pattern-compile pattern-compile-/./. pattern-compile-/.)
-;(tracefun simplify simplify-env simplify-trivial-app)
-;(tracefun render)
-;(tracefun cmpl cmpl-def)
-;(tracefun syntax-desugar syntax-sugar p-ify un-p-ify)
-;(tracefun cons-ify un-cons-ify un-cons-ify-1)
-;(tracefun evl-driver execute-command)
-
 (define (usage)
   (display (++
             hen-version "\n"
@@ -583,3 +580,52 @@
         ("interpret" filename) (interpret filename)
         ("compile" filename) (compile filename)
         (filename) (crun filename)))
+
+(define (exp-map f e)
+  (mtch
+   e
+
+   ('def name val) `(def ,name ,(exp-map f val))
+   ('quote x) e
+   ('P a b) `(P ,(exp-map f a) ,(exp-map f b))
+   ('CAR a) `(CAR ,(exp-map f a))
+   ('CDR a) `(CDR ,(exp-map f a))
+
+   (('+ a) b) `((+ ,(exp-map f a)) ,(exp-map f b))
+   (('- a) b) `((- ,(exp-map f a)) ,(exp-map f b))
+   (('* a) b) `((* ,(exp-map f a)) ,(exp-map f b))
+   ((('if a) b) c) `(((if ,(exp-map f a)) ,(exp-map f b)) ,(exp-map f c))
+
+   ('/. args body) `(/. ,args ,(exp-map f body))
+
+   ('/./. . lams) `(/./. . ,(map (lambda (e) (exp-map f e)) lams))
+
+   (fn . args) (map-improper (lambda (e) (exp-map f e)) (f e))
+
+   x (f x)))
+
+(define (goulash stuff)
+  (mtch stuff
+        ('doo v command) `(CommandSeq ,command (/. (,v) ,v))
+        ('doo v command . rest) `(CommandSeq ,command (/. (,v) ,(goulash `(doo . ,rest))))))
+
+(define (expand-do-1 e)
+  (mtch e
+        ('doo .  stuff) (goulash e)
+        x x))
+
+(define (expand-do e) (exp-map expand-do-1 e))
+;(tracefun preprocess)
+;(tracefun build-receiver build-traverser)
+;(tracefun evl evl-step)
+;(tracefun evl-fully evl-completely)
+;(tracefun doobie doobie doobie-arglist)
+;(tracefun pattern-compile pattern-compile-/./. pattern-compile-/.)
+;(tracefun simplify simplify-env simplify-trivial-app)
+;(tracefun render)
+;(tracefun cmpl cmpl-def)
+;(tracefun syntax-desugar syntax-sugar p-ify un-p-ify)
+;(tracefun cons-ify un-cons-ify un-cons-ify-1)
+;(tracefun evl-driver execute-command)
+;(tracefun expand-do expand-do-1 goulash)
+;(tracefun goulash)

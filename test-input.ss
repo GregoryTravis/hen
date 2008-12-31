@@ -196,42 +196,29 @@
 (fun (fact n) ((* n) (fact ((- n) 1))))
 (fact 10)
 
-(shew 65 (/. (x) x))
-(shew 65 (/. (x) ($ x x)))
-(shew 65 (/. (x) (shew 75 (/. (x) x))))
-(shew 65 (/. (x) (shew 75 (/. (x) x))))
+(doo _ (shew 65))
+(doo _ (shew 65) _ (shew 75))
 110
 
-;; (X 'create-int-ref 10 id)
-;; (X 'create-int-ref 10
-;;    (/. (r) (X 'read-int-ref r id)))
-;; (X 'create-int-ref 10
-;;    (/. (r) (X 'read-int-ref r
-;;               (/. (x) (X 'write-int-ref ($ r 20) id)))))
-;; (X 'create-int-ref 10
-;;    (/. (r) (X 'read-int-ref r
-;;               (/. (x) (X 'write-int-ref ($ r 20)
-;;                          (/. (x) (X 'read-int-ref r id)))))))
-;; (X 'create-int-ref 10
-;;    (/. (r) (X 'read-int-ref r
-;;               (/. (x) (X 'shew  x
-;;                          (/. (x) (X 'write-int-ref ($ r 20)
-;;                                     (/. (x) (X 'read-int-ref r id)))))))))
-
-(create-int-ref 10 id)
-(create-int-ref 10
-                (/. (r) (read-int-ref r id)))
-(create-int-ref 10
-                (/. (r) (read-int-ref r
-                                      (/. (dummy) (write-int-ref ($ r 20) id)))))
-(create-int-ref 10
-                (/. (r) (read-int-ref r
-                                      (/. (dummy) (write-int-ref ($ r 20)
-                                                                 (/. (dummy) (read-int-ref r id)))))))
-(create-int-ref 10
-                (/. (r) (read-int-ref r
-                                      (/. (x) (shew x
-                                                    (/. (dummy) (write-int-ref ($ r 20)
-                                                                               (/. (dummy) (read-int-ref r
-                                                                                                         (/. (x) (shew x
-                                                                                                                       (/. (dummy) (destroy-int-ref r id)))))))))))))
+(doo
+ _ (create-int-ref 10))
+(doo
+ ref (create-int-ref 10)
+ _ (read-int-ref ref))
+(doo
+ ref (create-int-ref 10)
+ val (read-int-ref ref)
+ _ (write-int-ref ref 20))
+(doo
+ ref (create-int-ref 10)
+ val (read-int-ref ref)
+ _ (write-int-ref ref 20)
+ val (read-int-ref ref))
+(doo
+ ref (create-int-ref 10)
+ val (read-int-ref ref)
+ _ (shew val)
+ _ (write-int-ref ref 20)
+ val (read-int-ref ref)
+ _ (shew val)
+ _ (destroy-int-ref ref))

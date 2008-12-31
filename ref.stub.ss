@@ -1,4 +1,4 @@
-(fun (create-int-ref value k) (X 'create-int-ref-impl value k))
-(fun (read-int-ref ref k) (X 'read-int-ref-impl ref k))
-(fun (write-int-ref arg k) (X 'write-int-ref-impl arg k))
-(fun (destroy-int-ref ref k) (X 'destroy-int-ref-impl ref k))
+(fun (create-int-ref value) (Command 'create-int-ref-impl ($ value)))
+(fun (read-int-ref ref) (Command 'read-int-ref-impl ($ ref)))
+(fun (write-int-ref ref value) (Command 'write-int-ref-impl ($ ref value)))
+(fun (destroy-int-ref ref) (Command 'destroy-int-ref-impl ($ ref)))

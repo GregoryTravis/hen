@@ -1,1 +1,1 @@
-(fun (shew value k) (X 'shew value k))
+(fun (shew value) (Command 'shew ($ value)))

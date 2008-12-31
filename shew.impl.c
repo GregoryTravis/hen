@@ -5,7 +5,7 @@
 #include "shew.impl.h"
 
 yeah* shew(yeah* arg) {
-  dump(arg);
+  dump(hcar(arg));
   printf("\n");
   return CNil;
 }

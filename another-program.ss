@@ -1,7 +1,8 @@
-(create-int-ref 10
-                (/. (r) (read-int-ref r
-                                      (/. (x) (shew x
-                                                    (/. (dummy) (write-int-ref ($ r 20)
-                                                                               (/. (dummy) (read-int-ref r
-                                                                                                         (/. (x) (shew x
-                                                                                                                       (/. (dummy) (destroy-int-ref r id)))))))))))))
+(doo
+ ref (create-int-ref 10)
+ val (read-int-ref ref)
+ _ (shew val)
+ _ (write-int-ref ref 20)
+ val (read-int-ref ref)
+ _ (shew val)
+ _ (destroy-int-ref ref))

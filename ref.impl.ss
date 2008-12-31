@@ -1,6 +1,6 @@
 (define (create-int-ref-impl v) (opaque (box v)))
 (define (read-int-ref-impl r) (unbox (opaque-val r)))
-(define (write-int-ref-impl rv) (begin (set-box! (opaque-val (hcar rv)) (hcadr rv)) 'Nil))
+(define (write-int-ref-impl ref value) (begin (set-box! (opaque-val ref) value) 'Nil))
 (define (destroy-int-ref-impl r) ''Nil)
 
 (register-command 'create-int-ref-impl create-int-ref-impl)

@@ -399,6 +399,11 @@ void dumpn(yeah* y) {
   putchar('\n');
 }
 
+void tdumpn(char* s, yeah* y) {
+  printf("%s ", s);
+  dumpn(y);
+}
+
 bool isprim1(yeah* e, char* s, yeah** arg0) {
   if (ISAPP(e) && isthissymbol(appfun(e), s)) {
     *arg0 = apparg(e);
@@ -631,7 +636,15 @@ yeah* execute_command(yeah* name, yeah* arg) {
 #endif
 }
 
-bool iscommand(yeah* e, yeah** name, yeah** arg, yeah** k) {
+bool iscommand(yeah* e, yeah** name, yeah** args, yeah** k) {
+  if (!ISPAIR(e) || !isthissymbol(car(e), "CommandSeq")) return false;
+  yeah* command = car(cdr(e));
+  *k = car(cdr(cdr(e)));
+  A(isthissymbol(car(command), "Command"));
+  *name = car(cdr(command));
+  *args = car(cdr(cdr(command)));
+  return true;
+#if 0
   if (!ISPAIR(e)) return false;
   if (!isthissymbol(car(e), "X")) return false;
   yeah* d = cdr(e);
@@ -649,15 +662,25 @@ bool iscommand(yeah* e, yeah** name, yeah** arg, yeah** k) {
   }
   *k = car(ddd);
   return true;
+#endif
 }
 
 yeah* evl_driver(yeah* e) {
-  yeah *name, *arg, *k;
+  yeah *name, *args, *k;
   yeah* ee = evl(e);
-  if (iscommand(ee, &name, &arg, &k)) {
-    yeah* output = execute_command(name, arg);
+
+  if (ISPAIR(ee) && isthissymbol(car(ee), "CommandSeq")) {
+    yeah* command = car(cdr(ee));
+    yeah* k = car(cdr(cdr(ee)));
+    A(isthissymbol(car(command), "Command"));
+    yeah* name = car(cdr(command));
+    yeah* args = car(cdr(cdr(command)));
+    yeah* output = execute_command(name, args);
     return evl_driver(app(k, pair(output, Nil)));
+//  } else if (isthissymbol(ee, "EndCommand")) {
+//    return Nil;
   } else {
+    // HEY um, just return ee?
     return evl(e);
   }
 }

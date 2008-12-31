@@ -15,7 +15,8 @@ yeah* fbo_main0(yeah* arg) {
 }
 
 yeah* glutInitDisplayMode0(yeah* arg) {
-  int mode = getint(arg);
+  A(isnil(hcdr(arg)));
+  int mode = getint(hcar(arg));
   glutInitDisplayMode(mode);
   return Nil;
 }

@@ -8,12 +8,12 @@
 // HEY naming convention
 yeah* create_int_ref(yeah* arg) {
   int* ip = NEW(int);
-  *ip = getint(arg);
+  *ip = getint(hcar(arg));
   return opaque(ip);
 }
 
 yeah* read_int_ref(yeah* arg) {
-  int* ip = (int*)opaque_val(arg);
+  int* ip = (int*)opaque_val(hcar(arg));
   A(ip);
   return integer(*ip);
 }
@@ -27,7 +27,7 @@ yeah* write_int_ref(yeah* arg) {
 }
 
 yeah* destroy_int_ref(yeah* arg) {
-  fri(opaque_val(arg));
+  fri(opaque_val(hcar(arg)));
   return Nil;
 }
 

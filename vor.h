@@ -87,6 +87,8 @@ yeah* hcar(yeah* y);
 yeah* hcdr(yeah* y);
 yeah* hcadr(yeah* y);
 void dump(yeah* y);
+void dumpn(yeah* y);
+void tdumpn(char* s, yeah* y);
 bool isnil(yeah* e);
 yeah* car(yeah* e);
 yeah* cdr(yeah* e);

@@ -180,31 +180,24 @@
 => Nil
 + (fact 10)
 => 3628800
-+ (shew 65 (/. (x) x))
++ (doo _ (shew 65))
 65
 => Nil
-+ (shew 65 (/. (x) ($ x x)))
-65
-=> ($ Nil Nil)
-+ (shew 65 (/. (x) (shew 75 (/. (x) x))))
-65
-75
-=> Nil
-+ (shew 65 (/. (x) (shew 75 (/. (x) x))))
++ (doo _ (shew 65) _ (shew 75))
 65
 75
 => Nil
 + 110
 => 110
-+ (create-int-ref 10 id)
++ (doo _ (create-int-ref 10))
 => (Q #&10)
-+ (create-int-ref 10 (/. (r) (read-int-ref r id)))
++ (doo ref (create-int-ref 10) _ (read-int-ref ref))
 => 10
-+ (create-int-ref 10 (/. (r) (read-int-ref r (/. (dummy) (write-int-ref ($ r 20) id)))))
++ (doo ref (create-int-ref 10) val (read-int-ref ref) _ (write-int-ref ref 20))
 => Nil
-+ (create-int-ref 10 (/. (r) (read-int-ref r (/. (dummy) (write-int-ref ($ r 20) (/. (dummy) (read-int-ref r id)))))))
++ (doo ref (create-int-ref 10) val (read-int-ref ref) _ (write-int-ref ref 20) val (read-int-ref ref))
 => 20
-+ (create-int-ref 10 (/. (r) (read-int-ref r (/. (x) (shew x (/. (dummy) (write-int-ref ($ r 20) (/. (dummy) (read-int-ref r (/. (x) (shew x (/. (dummy) (destroy-int-ref r id)))))))))))))
++ (doo ref (create-int-ref 10) val (read-int-ref ref) _ (shew val) _ (write-int-ref ref 20) val (read-int-ref ref) _ (shew val) _ (destroy-int-ref ref))
 10
 20
 => Nil
@@ -390,35 +383,28 @@
 => Nil
 + (fact 10)
 => 3628800
-+ (shew 65 (/. (x) x))
++ (doo _ (shew 65))
 65
 => Nil
-+ (shew 65 (/. (x) ($ x x)))
-65
-=> ($ Nil Nil)
-+ (shew 65 (/. (x) (shew 75 (/. (x) x))))
-65
-75
-=> Nil
-+ (shew 65 (/. (x) (shew 75 (/. (x) x))))
++ (doo _ (shew 65) _ (shew 75))
 65
 75
 => Nil
 + 110
 => 110
-+ (create-int-ref 10 id)
++ (doo _ (create-int-ref 10))
 => (Q)
-+ (create-int-ref 10 (/. (r) (read-int-ref r id)))
++ (doo ref (create-int-ref 10) _ (read-int-ref ref))
 => 10
-+ (create-int-ref 10 (/. (r) (read-int-ref r (/. (dummy) (write-int-ref ($ r 20) id)))))
++ (doo ref (create-int-ref 10) val (read-int-ref ref) _ (write-int-ref ref 20))
 => Nil
-+ (create-int-ref 10 (/. (r) (read-int-ref r (/. (dummy) (write-int-ref ($ r 20) (/. (dummy) (read-int-ref r id)))))))
++ (doo ref (create-int-ref 10) val (read-int-ref ref) _ (write-int-ref ref 20) val (read-int-ref ref))
 => 20
-+ (create-int-ref 10 (/. (r) (read-int-ref r (/. (x) (shew x (/. (dummy) (write-int-ref ($ r 20) (/. (dummy) (read-int-ref r (/. (x) (shew x (/. (dummy) (destroy-int-ref r id)))))))))))))
++ (doo ref (create-int-ref 10) val (read-int-ref ref) _ (shew val) _ (write-int-ref ref 20) val (read-int-ref ref) _ (shew val) _ (destroy-int-ref ref))
 10
 20
 => Nil
-+ (create-int-ref 10 (/. (r) (read-int-ref r (/. (x) (shew x (/. (dummy) (write-int-ref ($ r 20) (/. (dummy) (read-int-ref r (/. (x) (shew x (/. (dummy) (destroy-int-ref r id)))))))))))))
++ (doo ref (create-int-ref 10) val (read-int-ref ref) _ (shew val) _ (write-int-ref ref 20) val (read-int-ref ref) _ (shew val) _ (destroy-int-ref ref))
 10
 20
 => Nil
