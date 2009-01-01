@@ -67,7 +67,6 @@
 
         (x . rest)
         (cons x (expand-imports rest))))
-(tracefun remove-extension)
 
 (define (preprocess-program forms)
   (mtch (forms->defs-n-tlfs forms)
