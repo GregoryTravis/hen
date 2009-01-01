@@ -2,6 +2,8 @@
 
 use strict;
 
+use Shew;
+
 my @funs = ();
 
 my %typedefs;
@@ -53,4 +55,14 @@ while (<>)
   print "+ $fun_name -> $return_type\n";
   my @args = split(/\s*,\s*/, $args);
   print("  " . join("\n  ", @args) . "\n");
+
+  my @nargs = ();
+  foreach my $arg (@args) {
+    my @argwords = split(/\s+/, $arg);
+    # Last word is name, rest is type.
+    my $arg_name = pop(@argwords);
+    my $type = join(" ", @argwords);
+    push(@nargs, [$arg_name, $type];
+  }
+  Shew::shew(\@nargs);
 }

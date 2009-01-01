@@ -262,8 +262,3 @@ void fbo_main1_() {
         glutIdleFunc            ( idle );
         glutMainLoop        ( );                        // Run the main GLUT loop for rendering
 }
-
-void fbo_main() {
-  fbo_main0();
-  fbo_main1();
-}

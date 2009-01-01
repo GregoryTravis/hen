@@ -1,8 +1,8 @@
+(def _GLUT_RGB 0)
+(def _GLUT_DOUBLE 2)
+(def or-em 2)
+
 (doo
- ref (create-int-ref 10)
- val (read-int-ref ref)
- _ (shew val)
- _ (write-int-ref ref 20)
- val (read-int-ref ref)
- _ (shew val)
- _ (destroy-int-ref ref))
+ dummy (fbo_main0)
+ dummy (glutInitDisplayMode or-em)
+ dummy (fbo_main1))

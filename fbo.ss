@@ -4,5 +4,5 @@
 
 (doo
  dummy (fbo_main0)
- dummy (glutInitDisplayMode0 or-em)
+ dummy (glutInitDisplayMode or-em)
  dummy (fbo_main1))
