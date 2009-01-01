@@ -62,7 +62,7 @@ while (<>)
     # Last word is name, rest is type.
     my $arg_name = pop(@argwords);
     my $type = join(" ", @argwords);
-    push(@nargs, [$arg_name, $type];
+    push(@nargs, [$arg_name, $type]);
   }
   Shew::shew(\@nargs);
 }
