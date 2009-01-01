@@ -604,36 +604,6 @@ yeah* execute_command(yeah* name, yeah* arg) {
     dumpn(ret);
   }
   return ret;
-
-#if 0
-  if (!strcmp(ns, "shew")) {
-    printf("(SHEW ");
-    dump(arg);
-    printf(")\n");
-    return CNil;
-  } else if (!strcmp(ns, "create-int-ref")) {
-    return create_int_ref(arg);
-  } else if (!strcmp(ns, "read-int-ref")) {
-    return read_int_ref(arg);
-  } else if (!strcmp(ns, "write-int-ref")) {
-    return write_int_ref(arg);
-  } else if (!strcmp(ns, "destroy-int-ref")) {
-    return destroy_int_ref(arg);
-  } else if (!strcmp(ns, "fbo_main0")) {
-    fbo_main0();
-    return Nil;
-  } else if (!strcmp(ns, "fbo_main1")) {
-    fbo_main1();
-    return Nil;
-  } else if (!strcmp(ns, "glutInitDisplayMode")) {
-    glutInitDisplayMode(getint(arg));
-    return Nil;
-  } else {
-    dumpn(name);
-    dumpn(arg);
-    err(("Unknown command!"));
-  }
-#endif
 }
 
 bool iscommand(yeah* e, yeah** name, yeah** args, yeah** k) {
@@ -644,25 +614,6 @@ bool iscommand(yeah* e, yeah** name, yeah** args, yeah** k) {
   *name = car(cdr(command));
   *args = car(cdr(cdr(command)));
   return true;
-#if 0
-  if (!ISPAIR(e)) return false;
-  if (!isthissymbol(car(e), "X")) return false;
-  yeah* d = cdr(e);
-  if (!ISPAIR(d)) return false;
-  *name = car(d);
-  if (!ISSYMBOL(*name)) return false;
-  yeah* dd = cdr(d);
-  if (!ISPAIR(dd)) return false;
-  yeah* ddd = cdr(dd);
-  if (!ISPAIR(ddd)) return false;
-  *arg = car(dd);
-  if (!isnil(cdr(ddd))) {
-    dump(e);
-    err(("Bad command!"));
-  }
-  *k = car(ddd);
-  return true;
-#endif
 }
 
 yeah* evl_driver(yeah* e) {
