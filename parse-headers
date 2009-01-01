@@ -91,6 +91,8 @@ foreach my $hfile (@hfiles) {
 
     push(@funs, [$fun_name, $return_type, \@nargs]);
   }
+
+  Cmd::cmd("rm $ifile");
 }
 
 while (my ($k, $v) = each %defines) {
