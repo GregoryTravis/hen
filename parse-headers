@@ -34,6 +34,15 @@ my @hfiles = @ARGV;
 my %defines = ();
 my @funs = ();
 
+sub add_underscore_if_capitalized($) {
+  my ($s) = @_;
+  my $c = substr($s, 0, 1);
+  if ($c >= 'A' && $c <= 'Z') {
+    $s = "_$s";
+  }
+  return $s;
+}
+
 foreach my $hfile (@hfiles) {
   my $ifile = $hfile;
   $ifile =~ s/\.h$/.i/;
@@ -47,7 +56,10 @@ foreach my $hfile (@hfiles) {
   foreach my $line (@$hlines) {
   #print $line;
     if ($line =~ /^.define\s+(\S+)\s*(.*)$/) {
-      $defines{$1} = $2;
+      my $k = $1;
+      my $v = $2;
+      $k = add_underscore_if_capitalized($k);
+      $defines{$k} = $v;
     }
   }
 

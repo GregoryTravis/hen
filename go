@@ -1,2 +1,2 @@
-#gen > fbo.stub.ss
+gen > fbo.stub.ss
 hen src.ss

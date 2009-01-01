@@ -1,3 +1,3 @@
-#define _GLUT_RGB			0
-#define _GLUT_DOUBLE			2
+#define GLUT_RGB			0
+#define GLUT_DOUBLE			2
 extern void glutInitDisplayMode(unsigned int mode);
