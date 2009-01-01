@@ -43,6 +43,27 @@
         (defs funs tlfs)
         (list (append defs (funs->defs funs)) tlfs)))
 
+(define modules '())
+(define objses '())
+(define libses '())
+
+;; TODO doesn't handle recursive
+(define (expand-imports forms)
+  (mtch forms
+        ()
+        '()
+
+        (('foreign module objs libs) . rest)
+        (begin
+          (set! modules (cons module modules))
+          (set! objses (cons objs objses))
+          (set! libses (cons libs libses))
+          (append (read-objects (++ module ".stub.ss"))
+                  (expand-imports rest)))
+
+        (x . rest)
+        (cons x (expand-imports rest))))
+
 (define (preprocess-program forms)
   (mtch (forms->defs-n-tlfs forms)
         (defs src-tlfs)
@@ -63,12 +84,12 @@
   (run-src (read-src filename)))
 
 (define (read-src filename)
-  (append
-   (read-objects "overture.ss")
-   (read-objects "fbo.stub.ss")
-   (read-objects "ref.stub.ss")
-   (read-objects "shew.stub.ss")
-   (read-objects filename)))
+  (expand-imports
+   (append
+    (read-objects "overture.ss")
+    (read-objects "ref.stub.ss")
+    (read-objects "shew.stub.ss")
+    (read-objects filename))))
 
 (define (cmpl-def def)
   (mtch def
@@ -89,13 +110,16 @@
                        (map cmpl-top src-tlfs tlfs)))
             "}")))
 
-(define objs "vor.o spew.o mem.o fbo.o GLee.o fbo.impl.o ref.impl.o shew.impl.o")
 (define libs "-framework GLUT -framework OpenGL -framework CoreFoundation")
 
 (define (cbuild-exe objcfile objfile exefile)
-  (rcmd (++ "rm -f " objfile exefile))
-  (rcmd (++ "make -s " objs))
-  (srcmd (++ "gcc -std=c99 -g -o " exefile " " objcfile " " objs " " libs)))
+  (let ((objs (join-things " "
+                           (append '("vor.o" "spew.o" "mem.o" "GLee.o" "ref.impl.o" "shew.impl.o")
+                                   objses)))
+        (libs (join-things " " libses)))
+    (rcmd (++ "rm -f " objfile exefile))
+    (rcmd (++ "make -s " objs))
+    (srcmd (++ "gcc -std=c99 -g -o " exefile " " objcfile " " objs " " libs))))
 
 (define (compile filename) (crun-file filename #f #f))
 (define (crun filename) (crun-file filename #t #t))
@@ -113,6 +137,7 @@
     (cbuild-exe objcfile objfile exefile)
     (cmd (++ "rm " objcfile))
     (cmd (++ "rm -r " stub ".dSYM"))
+    (cmd (join-things " " (cons 'rm (map (lambda (f) (++ f ".stub.ss")) modules))))
     (if (not (file-exists? exefile))
         (err "No exe.")
         (begin
@@ -181,7 +206,6 @@
 (define (register-command name f) (set! commands (cons (cons name f) commands)))
 
 ;; HEY rid
-;(load "fbo.impl.ss")
 (load "ref.impl.ss")
 (load "shew.impl.ss")
 
@@ -615,7 +639,7 @@
         x x))
 
 (define (expand-do e) (exp-map expand-do-1 e))
-;(tracefun preprocess)
+;(tracefun preprocess preprocess-program)
 ;(tracefun build-receiver build-traverser)
 ;(tracefun evl evl-step)
 ;(tracefun evl-fully evl-completely)
