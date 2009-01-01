@@ -10,7 +10,7 @@
 
 yeah* fbo_impl_fbo_main0(yeah* arg) {
   A(isnil(arg));
-  fbo_main0_();
+  fbo_main0();
   return Nil;
 }
 
@@ -23,7 +23,7 @@ yeah* fbo_impl_glutInitDisplayMode(yeah* arg) {
 
 yeah* fbo_impl_fbo_main1(yeah* arg) {
   A(isnil(arg));
-  fbo_main1_();
+  fbo_main1();
   return Nil;
 }
 

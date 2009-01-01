@@ -236,14 +236,14 @@ void display(void)
         // Swap The Buffers To Not Be Left With A Clear Screen
 }
 
-void fbo_main0_() {
+void fbo_main0() {
   int dummy_argc = 0;
   char* dummy_argv[1];
   
   glutInit(&dummy_argc, (char**)&dummy_argv);
 }
 
-void fbo_main1_() {
+void fbo_main1() {
   // HEN glutInitDisplayMode ( GLUT_RGB | GLUT_DOUBLE );         // Display Mode
 
         glutInitWindowSize(800,600);
