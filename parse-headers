@@ -1,0 +1,183 @@
+#!/usr/bin/env perl
+
+use strict;
+
+my @funs = ();
+
+my %typedefs;
+$typedefs{"GLbitfield"} = "unsigned int";
+$typedefs{"GLclampd"} = "double";
+$typedefs{"GLclampf"} = "float";
+$typedefs{"GLdouble"} = "double";
+$typedefs{"GLenum"} = "unsigned int";
+$typedefs{"GLfloat"} = "float";
+$typedefs{"GLint"} = "int";
+$typedefs{"GLintptr"} = "long";
+$typedefs{"GLintptrARB"} = "long";
+$typedefs{"GLsizei"} = "int";
+$typedefs{"GLsizeiptr"} = "long";
+$typedefs{"GLsizeiptrARB"} = "long";
+$typedefs{"GLuint"} = "unsigned int";
+
+=a
+my %types;
+$types{"void"} = "_void";
+$types{"float"} = "_float";
+$types{"const float *"} = "_gl-floatv";
+$types{"int"} = "_int";
+$types{"GLint"} = "_long";
+$types{"unsigned int"} = "_uint";
+$types{"CGbool"} = 1;
+$types{"CGprofile"} = 1;
+$types{"CGenum"} = 1;
+$types{"CGtype"} = 1;
+$types{"CGcontext"} = 1;
+$types{"CGprogram"} = 1;
+$types{"CGparameter"} = 1;
+$types{"CGerror"} = 1;
+$types{"GLvoid"} = 1;
+$types{"void *"} = "_cvector";
+$types{"GLfloat"} = 1;
+$types{"GLuint"} = 1;
+$types{"CGGLenum"} = 1;
+$types{"GLenum"} = 1;
+$types{"char *"} = "_string";
+$types{"const char *"} = "_string";
+$types{"const char **"} = "(_list i _string)";
+$types{"GLsizei"} = "_long";
+=cut
+
+my $debug_this="";
+#$debug_this = "cgGLSetDebugMode";
+
+my @omit_these = ( "free", "glutCreateMenu" );
+my %omit_these = map { $_=>1 } @omit_these;
+
+while (<>)
+{
+  my $line = $_;
+
+  # Comments
+  next if ($line =~ /^s*\/\//);
+
+  $line =~ s/^\s*//;
+  $line =~ s/\s*$//;
+  $line =~ s/^\s*static\s*//;
+  $line =~ s/^\s*extern\s*//;
+  next if ($line =~ /^return/);
+  $line =~ /^\s*(\S+)\s+(\w+)\s*\((.*)\)\s*;\s*$/ ||
+      $line =~ /^\s*(const\s+\S+\s*\**)\s+(\w+)\s*\((.*)\)\s*;\s*$/
+      || next;
+  my $return_type = $1;
+  my $fun_name = $2;
+  my $args = $3;
+
+  if (defined( $omit_these{$fun_name} )) {
+    next;
+  }
+
+  my $ok = 1;
+
+  print "+ $fun_name -> $return_type\n";
+  my @args = split(/\s*,\s*/, $args);
+  print("  " . join("\n  ", @args) . "\n");
+
+=a
+  if (!defined( $types{$return_type} )) {
+    $ok = 0;
+    next;
+  }
+
+  my @args;
+
+  my $joe = "CreateProgram";
+
+  if ($args =~ /^\s*void\s*$/) {
+    @args = ();
+  } else {
+    @args = split( /\s*,\s*/, $args );
+    my @nargs = ();
+    print( "- $fun_name -> $return_type
+    foreach my $arg (@args) {
+      $arg =~ s/(\*+)(\w)/$1 $2/g;
+      $arg =~ s/^\s*//;
+      $arg =~ s/\s*$//;
+
+      print "+ $fun_name arg \"$arg\"\n" if ($fun_name eq $debug_this);
+
+      my @arg = split( /\s+/, $arg );
+      #@arg = map { $_ =~ s/ +/ /g; $_ } @arg;
+
+      my $arg_all = join( " ", @arg );
+      my @allbut = (@arg);
+      pop( @allbut );
+      my $arg_allbut = join( " ", @allbut );
+
+      #print qq[ARG $fun_name "$arg" all "$arg_all" allbut "$arg_allbut"\n];
+
+      if (defined( $types{$arg_all} ) && defined( $types{$arg_allbut} )) {
+        die "??!?";
+      }
+
+      my ($type, $name, $realtype);
+      if (defined( $types{$arg_all} )) {
+        $type = $arg_all;
+        $name = "";
+      } elsif (defined( $types{$arg_allbut} )) {
+        $type = $arg_allbut;
+        $name = @arg[@arg-1];
+      } else {
+        $ok = 0;
+      }
+
+      $realtype = $types{$type} == 1 ? $type : $types{$type};
+
+      if ($fun_name eq $debug_this) {
+         if ($ok) {
+           print "  - type $type name $name realtype $realtype\n"
+         } else {
+           print "  -  bad arg\n";
+           print "  -  arg_all \"$arg_all\"\n";
+           print "  -  arg_allbut \"$arg_allbut\"\n";
+         }
+      }
+
+      last if !$ok;
+
+      push @nargs, [ $type, $name, $realtype ];
+
+    }
+    @args = @nargs;
+  }
+
+  $return_type = $types{$return_type} == 1 ? $return_type : $types{$return_type};
+
+  if ($ok) {
+    push @funs, [ $fun_name, \@args, $return_type, $line ];
+  }
+=cut
+}
+
+=a
+print "  ;;;; GENERATED ;;;;\n";
+foreach my $fun (@funs)
+{
+  my ($fun_name, $args, $return_type, $line) = @$fun;
+  my @args = @$args;
+
+  my $args;
+  if (@args==0) {
+    $args = "";
+  } else {
+    @args = map { ($_->[1] eq "" ? $_->[2] : ( "(" . $_->[1] . " : " . $_->[2] . ")" ) ) } @args;
+    $args = join( " ", @args );
+  }
+
+  my $fun_and_args = $fun_name;
+  $fun_and_args .= " $args" if ($args ne "");
+
+  print "  ;; $line\n";
+  print "  (define-foreign $fun_and_args -> $return_type)\n";
+}
+print "  ;;;; GENERATED ;;;;\n";
+=cut

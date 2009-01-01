@@ -1,0 +1,3 @@
+#gcc -E /Developer/SDKs/MacOSX10.4u.sdk/System/Library/Frameworks/GLUT.framework/Versions/A/Headers/glut.h > glut.i
+#parse-headers glut.i
+parse-headers needed-functions
