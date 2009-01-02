@@ -125,7 +125,7 @@
 
 (define (cbuild-exe objcfile objfile exefile)
   (let ((objs (join-things " "
-                           (append '("vor.o" "spew.o" "mem.o" "GLee.o" "ref.impl.o" "shew.impl.o")
+                           (append '("vor.o" "spew.o" "mem.o" "ref.impl.o" "shew.impl.o")
                                    objses)))
         (libs (join-things " " libses)))
     (rcmd (++ "rm -f " objfile exefile))
@@ -148,7 +148,9 @@
     (cbuild-exe objcfile objfile exefile)
     (cmd (++ "rm " objcfile))
     (cmd (++ "rm -r " stub ".dSYM"))
-    (cmd (join-things " " (cons 'rm (map (lambda (f) (++ f ".stub.ss")) modules))))
+    (if (not (null? modules))
+        (cmd (join-things " " (cons 'rm (map (lambda (f) (++ f ".stub.ss")) modules))))
+        '())
     (if (not (file-exists? exefile))
         (err "No exe.")
         (begin

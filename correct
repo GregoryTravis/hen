@@ -408,5 +408,5 @@
 10
 20
 => Nil
-+ gcc -std=c99 -g -o test-input test-input.ss.c vor.o spew.o mem.o fbo.o GLee.o fbo.impl.o ref.impl.o shew.impl.o -framework GLUT -framework OpenGL -framework CoreFoundation
-+ gcc -std=c99 -g -o another-program another-program.ss.c vor.o spew.o mem.o fbo.o GLee.o fbo.impl.o ref.impl.o shew.impl.o -framework GLUT -framework OpenGL -framework CoreFoundation
++ gcc -std=c99 -g -o test-input test-input.ss.c vor.o spew.o mem.o ref.impl.o shew.impl.o 
++ gcc -std=c99 -g -o another-program another-program.ss.c vor.o spew.o mem.o ref.impl.o shew.impl.o 

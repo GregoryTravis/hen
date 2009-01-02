@@ -29,8 +29,8 @@ mem.o: mem.c mem.h a.h
 fbo.o: fbo.c
 	gcc -g -c fbo.c $(libs)
 
-GLee.o: GLee.c GLee.h
-	gcc -g -c GLee.c $(libs)
+# GLee.o: GLee.c GLee.h
+# 	gcc -g -c GLee.c $(libs)
 
-fbo: fbo.o GLee.o
-	gcc -o fbo -g fbo.o GLee.o -framework GLUT -framework OpenGL -framework CoreFoundation
+# fbo: fbo.o GLee.o
+# 	gcc -o fbo -g fbo.o GLee.o -framework GLUT -framework OpenGL -framework CoreFoundation
