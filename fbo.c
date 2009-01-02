@@ -244,10 +244,10 @@ void fbo_main0() {
 }
 
 void fbo_main1() {
-  // HEN glutInitDisplayMode ( GLUT_RGB | GLUT_DOUBLE );         // Display Mode
-
-        glutInitWindowSize(800,600);
-        glutCreateWindow( "FrameBuffer Object Example - Press ESC to exit" );
+  // HEN
+  //glutInitDisplayMode ( GLUT_RGB | GLUT_DOUBLE );         // Display Mode
+  //glutInitWindowSize(800,600);
+  //glutCreateWindow( "FrameBuffer Object Example - Press ESC to exit" );
 
         // GLee is used to setup all the extensions available
         if(!GLeeInit())

@@ -8,26 +8,24 @@ use Shew;
 
 my $debug = 0;
 
-my %typedefs;
-$typedefs{"GLbitfield"} = "unsigned int";
-$typedefs{"GLclampd"} = "double";
-$typedefs{"GLclampf"} = "float";
-$typedefs{"GLdouble"} = "double";
-$typedefs{"GLenum"} = "unsigned int";
-$typedefs{"GLfloat"} = "float";
-$typedefs{"GLint"} = "int";
-$typedefs{"GLintptr"} = "long";
-$typedefs{"GLintptrARB"} = "long";
-$typedefs{"GLsizei"} = "int";
-$typedefs{"GLsizeiptr"} = "long";
-$typedefs{"GLsizeiptrARB"} = "long";
-$typedefs{"GLuint"} = "unsigned int";
+my %aliases;
+$aliases{"GLbitfield"} = "unsigned int";
+$aliases{"GLclampd"} = "double";
+$aliases{"GLclampf"} = "float";
+$aliases{"GLdouble"} = "double";
+$aliases{"GLenum"} = "unsigned int";
+$aliases{"GLfloat"} = "float";
+$aliases{"GLint"} = "int";
+$aliases{"GLintptr"} = "long";
+$aliases{"GLintptrARB"} = "long";
+$aliases{"GLsizei"} = "int";
+$aliases{"GLsizeiptr"} = "long";
+$aliases{"GLsizeiptrARB"} = "long";
+$aliases{"GLuint"} = "unsigned int";
+$aliases{"const char *"} = "char *";
 
 my $debug_this="";
 #$debug_this = "cgGLSetDebugMode";
-
-my @omit_these = ( "free", "glutCreateMenu" );
-my %omit_these = map { $_=>1 } @omit_these;
 
 my $hfile = $ARGV[0];
 #my $headers = $ARGV[1];
@@ -70,8 +68,10 @@ foreach my $line (@$ilines) {
   # Comments
   next if ($line =~ /^s*\/\//);
 
+  $line =~ s/\*/ \* /g;
   $line =~ s/^\s*//;
   $line =~ s/\s*$//;
+  $line =~ s/\s+/ /g;
   $line =~ s/^\s*static\s*//;
   $line =~ s/^\s*extern\s*//;
   next if ($line =~ /^return/);
@@ -81,10 +81,6 @@ foreach my $line (@$ilines) {
   my $return_type = $1;
   my $fun_name = $2;
   my $args = $3;
-
-  if (defined( $omit_these{$fun_name} )) {
-    next;
-  }
 
   my $ok = 1;
 
@@ -98,6 +94,7 @@ foreach my $line (@$ilines) {
     # Last word is name, rest is type.
     my $arg_name = pop(@argwords);
     my $type = join(" ", @argwords);
+    $type = $aliases{$type} if (exists($aliases{$type}));
     push(@nargs, [$arg_name, $type]);
   }
   Shew::shew(\@nargs) if ($debug);
@@ -157,6 +154,9 @@ foreach my $fun (@funs) {
     if ($type eq "int" || $type eq "unsigned int") {
       $arg_converters .=
         "  $type $name = getint(${name}_);\n";
+    } elsif ($type eq "char *") {
+      $arg_converters .=
+        "  $type $name = stringval(${name}_);\n";
     } else {
       die "type $type?";
     }
@@ -172,6 +172,8 @@ foreach my $fun (@funs) {
     $returner = "  return Nil;\n";
   } elsif ($return_type eq "int" || $return_type eq "unsigned int") {
     $returner = "  return integer(__ret);\n";
+  } elsif ($return_type eq "char *") {
+    $returner = "  return string(__ret);\n";
   } else {
     die "type $return_type?";
   }

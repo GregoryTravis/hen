@@ -87,7 +87,7 @@ yeah* app(yeah* f, yeah* arg);
 yeah* nil(void);
 int getint(yeah* e);
 void evl_top(char* src, yeah* e);
-yeah* opaque(void* q);
+char* stringval(yeah* e);
 void* opaque_val(yeah* y);
 yeah* hcar(yeah* y);
 yeah* hcdr(yeah* y);

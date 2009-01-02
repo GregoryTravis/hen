@@ -2,6 +2,9 @@
 (foreign "fakey" "fakey.impl.o GLee.o" "-framework GLUT -framework OpenGL -framework CoreFoundation")
 
 (doo
- dummy (fbo_main0)
- dummy (glutInitDisplayMode _GLUT_DOUBLE)
- dummy (fbo_main1))
+ _ (fbo_main0)
+ _ (glutInitDisplayMode _GLUT_DOUBLE)
+ _ (glutInitWindowSize 800 600)
+ ret (glutCreateWindow "holy cow")
+ _ (shew ret)
+ _ (fbo_main1))
