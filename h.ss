@@ -452,6 +452,7 @@
            ((symbol? e) e)
            ((number? e) e)
            ((quoted-symbol? e) e)
+           ((string? e) e)
            (#t (err 'pattern-compile e)))))
 
 (define (subst x v e)
@@ -544,6 +545,7 @@
       ;((quoted-symbol? x) `(csymbol ,x))
       ((symbol? x) `(symbol ,x))
       ((integer? x) `(integer ,x))
+      ((string? x) `(string ,x))
       (#t (err 'cmpl x)))))
 
 (define (render e)

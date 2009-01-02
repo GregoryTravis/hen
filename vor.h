@@ -9,6 +9,7 @@ typedef enum {
   PAIR,
   APP,
   CSYMBOL,
+  STRING,
   OPAQUE,
 } tag;
 
@@ -56,6 +57,10 @@ struct yeah {
     } csymbol;
 
     struct {
+      char* s;
+    } string;
+
+    struct {
       void* q;
     } opaque;
 
@@ -74,6 +79,7 @@ yeah* lambda(yeah* arg, yeah* body);
 yeah* thunk(yeah* exp, yeah* env);
 yeah* symbol(char* s);
 yeah* csymbol(char* s);
+yeah* string(char* s);
 yeah* opaque(void* q);
 yeah* pair(yeah* car, yeah* cdr);
 yeah* integer(int i);

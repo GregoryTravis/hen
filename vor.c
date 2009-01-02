@@ -81,6 +81,13 @@ yeah* csymbol(char* s) {
   return y;
 }
 
+yeah* string(char* s) {
+  yeah* y = newyeah();
+  y->t = STRING;
+  y->u.string.s = s;
+  return y;
+}
+
 yeah* opaque(void* q) {
   yeah* y = newyeah();
   y->t = OPAQUE;
@@ -163,19 +170,20 @@ bool equal(yeah* a, yeah* b) {
 
   switch (a->t) {
   case INTEGER: return a->u.integer.i == b->u.integer.i;
- break;
+    break;
   case SYMBOL: return !strcmp(a->u.symbol.s, b->u.symbol.s);
- break;
+    break;
   case CSYMBOL: return !strcmp(a->u.csymbol.s, b->u.csymbol.s);
- break;
+    break;
   case OPAQUE: err(("Comparison of opaque 0x%x\n", a->u.opaque.q));
- break;
-  NIL: return true;
- break;
+    break;
   case LAMBDA: case CLOSURE: case THUNK: case PAIR: case APP:
     return
       equal(a->u.generic_pointer_pair.a, b->u.generic_pointer_pair.a) &&
       equal(a->u.generic_pointer_pair.b, b->u.generic_pointer_pair.b);
+    break;
+  case STRING:
+    return !strcmp(a->u.string.s, b->u.string.s);
     break;
   default: printf("DIE %d\n", a->t); A(0); break;
   }
@@ -191,6 +199,7 @@ bool equal(yeah* a, yeah* b) {
 #define ISPAIR(_e) ISTAG((_e), PAIR)
 #define ISAPP(_e) ISTAG((_e), APP)
 #define ISCSYMBOL(_e) ISTAG((_e), CSYMBOL)
+#define ISSTRING(_e) ISTAG((_e), STRING)
 #define ISOPAQUE(_e) ISTAG((_e), OPAQUE)
 
 char* symstring(yeah* e) {
@@ -201,6 +210,11 @@ char* symstring(yeah* e) {
 char* csymstring(yeah* e) {
   A(ISCSYMBOL(e));
   return e->u.symbol.s;
+}
+
+char* stringval(yeah* e) {
+  A(ISSTRING(e));
+  return e->u.string.s;
 }
 
 void* opaqueval(yeah* e) {
@@ -348,6 +362,7 @@ void dump(yeah* y) {
   case INTEGER: printf("%d", y->u.integer.i); break;
   case SYMBOL: printf("%s", y->u.symbol.s); break;
   case CSYMBOL: printf("'%s", y->u.symbol.s); break;
+  case STRING: printf("\"%s\"", y->u.string.s); break;
   case OPAQUE: printf("(Q)"); break;
   case PAIR:
     if (pretty && is_cton(y)) {
@@ -506,7 +521,7 @@ yeah* evl_step_(yeah* e, yeah* env) {
     return symbol(e->u.csymbol.s);
   } else if (ISPAIR(e)) {
     return pair(thunk(e->u.pair.car, env), thunk(e->u.pair.cdr, env));
-  } else if (ISINTEGER(e) || ISCLOSURE(e) || ISOPAQUE(e)) {
+  } else if (ISINTEGER(e) || ISCLOSURE(e) || ISOPAQUE(e) || ISSTRING(e)) {
     return e;
   } else {
     warn(("Can't eval "));
