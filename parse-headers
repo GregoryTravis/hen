@@ -112,6 +112,7 @@ Cmd::cmd("rm $ifile");
 Shew::shew(\@funs) if ($debug);
 
 open(STUB, ">$stub.stub.ss") || die $!;
+open(IMPL_H, ">$stub.impl.h") || die $!;
 open(IMPL_C, ">$stub.impl.c") || die $!;
 
 # Defines.
@@ -194,5 +195,10 @@ $registerers
 }
 EOF
 
+print IMPL_H <<EOF;
+extern void ${stub}_impl_register();
+EOF
+
 close(IMPL_C);
+close(IMPL_H);
 close(STUB);
