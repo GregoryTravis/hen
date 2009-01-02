@@ -1,1 +1,1 @@
-void fbo_impl_register();
+extern void fbo_impl_register(void);

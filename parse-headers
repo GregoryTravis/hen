@@ -44,8 +44,9 @@ sub add_underscore_if_capitalized($) {
 }
 
 foreach my $hfile (@hfiles) {
-  my $ifile = $hfile;
-  $ifile =~ s/\.h$/.i/;
+  my $stub = $hfile;
+  $stub =~ s/\.h$// || die;
+  my $ifile = "$stub.i";
   Cmd::cmd("rm -f $ifile");
   Cmd::cmd("gcc -E $hfile > $ifile");
   (-e $ifile) || die $!;
@@ -101,7 +102,9 @@ foreach my $hfile (@hfiles) {
     }
     Shew::shew(\@nargs) if ($debug);
 
-    push(@funs, [$fun_name, $return_type, \@nargs]);
+    my $command_name = $stub . "_impl_" . $fun_name;
+
+    push(@funs, [$fun_name, $command_name, $return_type, \@nargs]);
   }
 
   Cmd::cmd("rm $ifile");
@@ -112,10 +115,9 @@ while (my ($k, $v) = each %defines) {
 }
 
 foreach my $fun (@funs) {
-  my ($fun_name, $return_type, $args) = @$fun;
+  my ($fun_name, $command_name, $return_type, $args) = @$fun;
   my @names = map { $_->[0] } @$args;
   Shew::shew(\@names) if ($debug);
   my $names = join(" ", @names);
-  # HEY hard-coded fbo_impl.
-  print("(fun ($fun_name $names) (Command \'fbo_impl_$fun_name (\$ $names)))\n");
+  print("(fun ($fun_name $names) (Command \'$command_name (\$ $names)))\n");
 }

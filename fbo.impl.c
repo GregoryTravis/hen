@@ -1,5 +1,3 @@
-#include <glut.h>
-
 #include "a.h"
 #include "mem.h"
 
@@ -14,13 +12,6 @@ yeah* fbo_impl_fbo_main0(yeah* arg) {
   return Nil;
 }
 
-yeah* fbo_impl_glutInitDisplayMode(yeah* arg) {
-  A(isnil(hcdr(arg)));
-  int mode = getint(hcar(arg));
-  glutInitDisplayMode(mode);
-  return Nil;
-}
-
 yeah* fbo_impl_fbo_main1(yeah* arg) {
   A(isnil(arg));
   fbo_main1();
@@ -29,6 +20,5 @@ yeah* fbo_impl_fbo_main1(yeah* arg) {
 
 void fbo_impl_register() {
   register_command("fbo_impl_fbo_main0", &fbo_impl_fbo_main0);
-  register_command("fbo_impl_glutInitDisplayMode", &fbo_impl_glutInitDisplayMode);
   register_command("fbo_impl_fbo_main1", &fbo_impl_fbo_main1);
 }

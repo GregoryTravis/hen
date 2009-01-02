@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "fbo.h"
 #include "vor.h"
 
 #include "a.h"
@@ -9,7 +8,6 @@
 #include "spew.h"
 
 // HEY
-#include "fbo.impl.h"
 #include "ref.impl.h"
 #include "shew.impl.h"
 
@@ -652,7 +650,6 @@ void init_constants() {
   foreign_functions = symbol("Nil");
 
   // HEY rid
-  fbo_impl_register();
   ref_impl_register();
   shew_impl_register();
 }

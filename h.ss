@@ -103,12 +103,19 @@
 (define (cmpl-top src-e e)
   (++ (render `(evl_top ,(sdisplay src-e) ,(cmpl e))) ";\n"))
 
+(define (generate-registration-includes)
+  (map (lambda (module) (++ "#include \"" module ".impl.h\"\n")) modules))
+
+(define (generate-registration-calls)
+  (map (lambda (module) (++ module "_impl_register();\n")) modules))
 
 (define (csrc->obj forms)
   (mtch (preprocess-program forms)
         (src-tlfs tlfs)
         (++ "#include \"vor.h\"\n"
+            (apply ++ (generate-registration-includes))
             "void hen_main() { "
+            (apply ++ (generate-registration-calls))
             (apply ++ (append
                        (map cmpl-def global-env)
                        (map cmpl-top src-tlfs tlfs)))

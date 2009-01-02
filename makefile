@@ -20,6 +20,9 @@ shew.impl.o: shew.impl.c shew.impl.h vor.h
 fbo.impl.o: fbo.impl.c fbo.impl.h vor.h
 	gcc -std=c99 -c -g fbo.impl.c $(libs)
 
+fakey.impl.o: fakey.impl.c fakey.impl.h vor.h
+	gcc -std=c99 -c -g fakey.impl.c $(libs)
+
 mem.o: mem.c mem.h a.h
 	gcc -std=c99 -c -g mem.c
 
