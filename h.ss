@@ -123,6 +123,11 @@
 
 (define libs "-framework GLUT -framework OpenGL -framework CoreFoundation")
 
+(define (cleanup-module-stuff)
+  (map (lambda (module)
+         (rcmd (++ "rm " module ".impl.c " module ".impl.h")))
+       modules))
+
 (define (cbuild-exe objcfile objfile exefile)
   (let ((objs (join-things " "
                            (append '("vor.o" "spew.o" "mem.o" "ref.impl.o" "shew.impl.o")
@@ -130,7 +135,8 @@
         (libs (join-things " " libses)))
     (rcmd (++ "rm -f " objfile exefile))
     (rcmd (++ "make -s " objs))
-    (srcmd (++ "gcc -std=c99 -g -o " exefile " " objcfile " " objs " " libs))))
+    (srcmd (++ "gcc -std=c99 -g -o " exefile " " objcfile " " objs " " libs))
+    (cleanup-module-stuff)))
 
 (define (compile filename) (crun-file filename #f #f))
 (define (crun filename) (crun-file filename #t #t))
