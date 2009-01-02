@@ -7,4 +7,6 @@
  _ (glutInitWindowSize 800 600)
  ret (glutCreateWindow "holy cow")
  _ (shew ret)
+ ret (_GLeeInit)
+ _ (shew ret)
  _ (fbo_main1))

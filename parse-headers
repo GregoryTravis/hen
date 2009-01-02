@@ -22,6 +22,7 @@ $aliases{"GLsizei"} = "int";
 $aliases{"GLsizeiptr"} = "long";
 $aliases{"GLsizeiptrARB"} = "long";
 $aliases{"GLuint"} = "unsigned int";
+$aliases{"GLboolean"} = "unsigned char";
 $aliases{"const char *"} = "char *";
 
 my $debug_this="";
@@ -35,8 +36,7 @@ my @funs = ();
 
 sub add_underscore_if_capitalized($) {
   my ($s) = @_;
-  my $c = substr($s, 0, 1);
-  if ($c >= 'A' && $c <= 'Z') {
+  if ($s =~ /^_*[A-Z]/) {
     $s = "_$s";
   }
   return $s;
@@ -82,6 +82,8 @@ foreach my $line (@$ilines) {
   my $fun_name = $2;
   my $args = $3;
 
+  $return_type = $aliases{$return_type} if (exists($aliases{$return_type}));
+
   my $ok = 1;
 
   print "+ $fun_name -> $return_type\n" if ($debug);
@@ -114,6 +116,7 @@ open(IMPL_C, ">$stub.impl.c") || die $!;
 
 # Defines.
 while (my ($k, $v) = each %defines) {
+  #$k = add_underscore_if_capitalized($k);
   print STUB "(def $k $v)\n";
 }
 
@@ -123,6 +126,7 @@ foreach my $fun (@funs) {
   my @names = map { $_->[0] } @$args;
   Shew::shew(\@names) if ($debug);
   my $names = join(" ", @names);
+  $fun_name = add_underscore_if_capitalized($fun_name);
   print STUB "(fun ($fun_name $names) (Command \'$command_name (\$ $names)))\n";
 }
 
@@ -151,7 +155,7 @@ foreach my $fun (@funs) {
   my $arg_converters = "";
   foreach my $arg (@$args) {
     my ($name, $type) = @$arg;
-    if ($type eq "int" || $type eq "unsigned int") {
+    if ($type eq "int" || $type eq "unsigned int" || $type eq "unsigned char") {
       $arg_converters .=
         "  $type $name = getint(${name}_);\n";
     } elsif ($type eq "char *") {
@@ -170,7 +174,7 @@ foreach my $fun (@funs) {
   my $returner;
   if ($return_type eq "void") {
     $returner = "  return Nil;\n";
-  } elsif ($return_type eq "int" || $return_type eq "unsigned int") {
+  } elsif ($return_type eq "int" || $return_type eq "unsigned int" || $return_type eq "unsigned char") {
     $returner = "  return integer(__ret);\n";
   } elsif ($return_type eq "char *") {
     $returner = "  return string(__ret);\n";

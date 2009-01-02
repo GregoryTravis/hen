@@ -248,11 +248,10 @@ void fbo_main1() {
   //glutInitDisplayMode ( GLUT_RGB | GLUT_DOUBLE );         // Display Mode
   //glutInitWindowSize(800,600);
   //glutCreateWindow( "FrameBuffer Object Example - Press ESC to exit" );
-
-        // GLee is used to setup all the extensions available
-        if(!GLeeInit())
-                exit(2);
-
+  // GLee is used to setup all the extensions available
+/*   if(!GLeeInit()) */
+/*     exit(2); */
+  
         init();
         
         // Setup the various call back functions GLUT requires

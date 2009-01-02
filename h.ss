@@ -125,7 +125,8 @@
 
 (define (cleanup-module-stuff)
   (map (lambda (module)
-         (rcmd (++ "rm " module ".impl.c " module ".impl.h")))
+         ;(rcmd (++ "rm " module ".impl.c " module ".impl.h"))
+         '())
        modules))
 
 (define (cbuild-exe objcfile objfile exefile)
@@ -155,7 +156,7 @@
     (cmd (++ "rm " objcfile))
     (cmd (++ "rm -r " stub ".dSYM"))
     (if (not (null? modules))
-        (cmd (join-things " " (cons 'rm (map (lambda (f) (++ f ".stub.ss")) modules))))
+'();        (cmd (join-things " " (cons 'rm (map (lambda (f) (++ f ".stub.ss")) modules))))
         '())
     (if (not (file-exists? exefile))
         (err "No exe.")
