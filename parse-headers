@@ -29,7 +29,8 @@ my $debug_this="";
 my @omit_these = ( "free", "glutCreateMenu" );
 my %omit_these = map { $_=>1 } @omit_these;
 
-my @hfiles = @ARGV;
+my $hfile = $ARGV[0];
+#my $headers = $ARGV[1];
 
 my %defines = ();
 my @funs = ();
@@ -43,7 +44,6 @@ sub add_underscore_if_capitalized($) {
   return $s;
 }
 
-foreach my $hfile (@hfiles) {
   my $stub = $hfile;
   $stub =~ s/\.h$// || die;
   my $ifile = "$stub.i";
@@ -64,60 +64,135 @@ foreach my $hfile (@hfiles) {
     }
   }
 
-  #Shew::shew(\%defines);
+  Shew::shew(\%defines) if ($debug);
 
-  foreach my $line (@$ilines) {
-    # Comments
-    next if ($line =~ /^s*\/\//);
+foreach my $line (@$ilines) {
+  # Comments
+  next if ($line =~ /^s*\/\//);
 
-    $line =~ s/^\s*//;
-    $line =~ s/\s*$//;
-    $line =~ s/^\s*static\s*//;
-    $line =~ s/^\s*extern\s*//;
-    next if ($line =~ /^return/);
-    $line =~ /^\s*(\S+)\s+(\w+)\s*\((.*)\)\s*;\s*$/ ||
-        $line =~ /^\s*(const\s+\S+\s*\**)\s+(\w+)\s*\((.*)\)\s*;\s*$/
-        || next;
-    my $return_type = $1;
-    my $fun_name = $2;
-    my $args = $3;
+  $line =~ s/^\s*//;
+  $line =~ s/\s*$//;
+  $line =~ s/^\s*static\s*//;
+  $line =~ s/^\s*extern\s*//;
+  next if ($line =~ /^return/);
+  $line =~ /^\s*(\S+)\s+(\w+)\s*\((.*)\)\s*;\s*$/ ||
+      $line =~ /^\s*(const\s+\S+\s*\**)\s+(\w+)\s*\((.*)\)\s*;\s*$/
+      || next;
+  my $return_type = $1;
+  my $fun_name = $2;
+  my $args = $3;
 
-    if (defined( $omit_these{$fun_name} )) {
-      next;
-    }
-
-    my $ok = 1;
-
-    print "+ $fun_name -> $return_type\n" if ($debug);
-    my @args = split(/\s*,\s*/, $args);
-    print("  " . join("\n  ", @args) . "\n") if ($debug);
-
-    my @nargs = ();
-    foreach my $arg (@args) {
-      my @argwords = split(/\s+/, $arg);
-      # Last word is name, rest is type.
-      my $arg_name = pop(@argwords);
-      my $type = join(" ", @argwords);
-      push(@nargs, [$arg_name, $type]);
-    }
-    Shew::shew(\@nargs) if ($debug);
-
-    my $command_name = $stub . "_impl_" . $fun_name;
-
-    push(@funs, [$fun_name, $command_name, $return_type, \@nargs]);
+  if (defined( $omit_these{$fun_name} )) {
+    next;
   }
 
-  Cmd::cmd("rm $ifile");
+  my $ok = 1;
+
+  print "+ $fun_name -> $return_type\n" if ($debug);
+  my @args = split(/\s*,\s*/, $args);
+  print "  " . join("\n  ", @args) . "\n" if ($debug);
+
+  my @nargs = ();
+  foreach my $arg (@args) {
+    my @argwords = split(/\s+/, $arg);
+    # Last word is name, rest is type.
+    my $arg_name = pop(@argwords);
+    my $type = join(" ", @argwords);
+    push(@nargs, [$arg_name, $type]);
+  }
+  Shew::shew(\@nargs) if ($debug);
+
+  my $command_name = $stub . "_impl_" . $fun_name;
+
+  push(@funs, [$fun_name, $command_name, $return_type, \@nargs]);
 }
 
+Cmd::cmd("rm $ifile");
+
+Shew::shew(\@funs) if ($debug);
+
+open(STUB, ">$stub.stub.ss") || die $!;
+open(IMPL_C, ">$stub.impl.c") || die $!;
+
+# Defines.
 while (my ($k, $v) = each %defines) {
-  print("(def $k $v)\n");
+  print STUB "(def $k $v)\n";
 }
 
+# Stubs.
 foreach my $fun (@funs) {
   my ($fun_name, $command_name, $return_type, $args) = @$fun;
   my @names = map { $_->[0] } @$args;
   Shew::shew(\@names) if ($debug);
   my $names = join(" ", @names);
-  print("(fun ($fun_name $names) (Command \'$command_name (\$ $names)))\n");
+  print STUB "(fun ($fun_name $names) (Command \'$command_name (\$ $names)))\n";
 }
+
+my @headers = map { "\"$_.h\"" } ("a", "mem", "vor", $stub, "$stub.impl");
+@headers = map { "#include $_\n" } @headers;
+my $headers = join('', @headers);
+
+print IMPL_C $headers;
+
+# Impls.
+my $registerers = "";
+foreach my $fun (@funs) {
+  my ($fun_name, $command_name, $return_type, $args) = @$fun;
+
+  my @names = map { $_->[0] } @$args;
+
+  my $arg_getters = "";
+  $arg_getters .= "  yeah* __here = __arg;\n";
+  foreach my $arg (@$args) {
+    my ($name, $type) = @$arg;
+    $name .= "_";
+    $arg_getters .= "  yeah* $name = hcar(__here);\n  __here = hcdr(__here);\n";
+  }
+  $arg_getters .= "  A(isnil(__here));\n";
+
+  my $arg_converters = "";
+  foreach my $arg (@$args) {
+    my ($name, $type) = @$arg;
+    if ($type eq "int" || $type eq "unsigned int") {
+      $arg_converters .=
+        "  $type $name = getint(${name}_);\n";
+    } else {
+      die "type $type?";
+    }
+  }
+
+  my $call =
+    ($return_type eq "void")
+      ? "  $fun_name(" . join(", ", @names) . ");\n"
+        : "  $return_type __ret = $fun_name(" . join(", ", @names) . ");\n";
+
+  my $returner;
+  if ($return_type eq "void") {
+    $returner = "  return Nil;\n";
+  } elsif ($return_type eq "int" || $return_type eq "unsigned int") {
+    $returner = "  return integer(__ret);\n";
+  } else {
+    die "type $return_type?";
+  }
+
+  my $all = "yeah* $command_name(yeah* __arg) {\n";
+  $all .= $arg_getters;
+  $all .= $arg_converters;
+  $all .= $call;
+  $all .= $returner;
+  $all .= "}\n";
+
+  $registerers .=
+    qq[  register_command("$command_name", \&$command_name);\n];
+
+  print IMPL_C "$all\n";
+}
+
+print IMPL_C <<EOF;
+void ${stub}_impl_register() {
+$registerers
+}
+EOF
+
+close(IMPL_C);
+close(STUB);

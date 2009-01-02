@@ -48,7 +48,7 @@
 (define libses '())
 
 (define (generate-stubs module)
-  (cmd (++ "parse-headers " module ".h > " module ".stub.ss")))
+  (cmd (++ "parse-headers " module ".h")))
 
 ;; TODO doesn't handle recursive
 (define (expand-imports forms)
