@@ -10,8 +10,10 @@
 (define show-commands #f)
 
 (define (rmtemps . files)
-  (if remove-temporaries
-      (rcmd (join-things " " (cons 'rm files)))
+  (if (not (null? files))
+      (if remove-temporaries
+          (rcmd (join-things " " (cons 'rm files)))
+          '())
       '()))
 (define (rm-rtemps . files)
   (if remove-temporaries
