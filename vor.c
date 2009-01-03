@@ -110,6 +110,13 @@ yeah* integer(int i) {
   return y;
 }
 
+yeah* flote(float f) {
+  yeah* y = newyeah();
+  y->t = FLOAT;
+  y->u.flote.f = f;
+  return y;
+}
+
 yeah* app(yeah* f, yeah* arg) {
   yeah* y = newyeah();
   y->t = APP;
@@ -171,6 +178,8 @@ bool equal(yeah* a, yeah* b) {
   switch (a->t) {
   case INTEGER: return a->u.integer.i == b->u.integer.i;
     break;
+  case FLOAT: return a->u.flote.f == b->u.flote.f;
+    break;
   case SYMBOL: return !strcmp(a->u.symbol.s, b->u.symbol.s);
     break;
   case CSYMBOL: return !strcmp(a->u.csymbol.s, b->u.csymbol.s);
@@ -195,6 +204,7 @@ bool equal(yeah* a, yeah* b) {
 #define ISCLOSURE(_e) ISTAG((_e), CLOSURE)
 #define ISTHUNK(_e) ISTAG((_e), THUNK)
 #define ISINTEGER(_e) ISTAG((_e), INTEGER)
+#define ISFLOAT(_e) ISTAG((_e), FLOAT)
 #define ISSYMBOL(_e) ISTAG((_e), SYMBOL)
 #define ISPAIR(_e) ISTAG((_e), PAIR)
 #define ISAPP(_e) ISTAG((_e), APP)
@@ -243,6 +253,11 @@ yeah* cdr(yeah* e) {
 int getint(yeah* e) {
   A(ISINTEGER(e));
   return e->u.integer.i;
+}
+
+int getfloat(yeah* e) {
+  A(ISFLOAT(e));
+  return e->u.flote.f;
 }
 
 yeah* appfun(yeah* app) {
@@ -360,6 +375,7 @@ void dump(yeah* y) {
   dump_level++;
   switch (y->t) {
   case INTEGER: printf("%d", y->u.integer.i); break;
+  case FLOAT: printf("%f", y->u.flote.f); break;
   case SYMBOL: printf("%s", y->u.symbol.s); break;
   case CSYMBOL: printf("'%s", y->u.symbol.s); break;
   case STRING: printf("\"%s\"", y->u.string.s); break;
@@ -521,7 +537,7 @@ yeah* evl_step_(yeah* e, yeah* env) {
     return symbol(e->u.csymbol.s);
   } else if (ISPAIR(e)) {
     return pair(thunk(e->u.pair.car, env), thunk(e->u.pair.cdr, env));
-  } else if (ISINTEGER(e) || ISCLOSURE(e) || ISOPAQUE(e) || ISSTRING(e)) {
+  } else if (ISINTEGER(e) || ISFLOAT(e) || ISCLOSURE(e) || ISOPAQUE(e) || ISSTRING(e)) {
     return e;
   } else {
     warn(("Can't eval "));
@@ -565,7 +581,7 @@ yeah* evl_step(yeah* e, yeah* env) {
 
 bool is_data(yeah* e) {
   int t = e->t;
-  return t == INTEGER | t == SYMBOL || t == PAIR || t == OPAQUE || t == CLOSURE;
+  return t == INTEGER || t == FLOAT || t == SYMBOL || t == PAIR || t == OPAQUE || t == CLOSURE;
 }
 
 yeah* evl_fully(yeah* e, yeah* env) {

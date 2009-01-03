@@ -5,6 +5,7 @@ typedef enum {
   CLOSURE,
   THUNK,
   INTEGER,
+  FLOAT,
   SYMBOL,
   PAIR,
   APP,
@@ -37,6 +38,10 @@ struct yeah {
     struct {
       int i;
     } integer;
+
+    struct {
+      float f;
+    } flote;
 
     struct {
       char* s;
@@ -83,6 +88,7 @@ yeah* string(char* s);
 yeah* opaque(void* q);
 yeah* pair(yeah* car, yeah* cdr);
 yeah* integer(int i);
+yeah* flote(float f);
 yeah* app(yeah* f, yeah* arg);
 yeah* nil(void);
 int getint(yeah* e);

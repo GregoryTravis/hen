@@ -568,6 +568,7 @@
       ;((quoted-symbol? x) `(csymbol ,x))
       ((symbol? x) `(symbol ,x))
       ((integer? x) `(integer ,x))
+      ((real? x) `(flote ,x))
       ((string? x) `(string ,x))
       (#t (err 'cmpl x)))))
 
