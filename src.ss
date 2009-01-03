@@ -1,34 +1,15 @@
-(foreign "fbo" "fbo.o fbo.impl.o" "")
-(foreign "fakey" "fakey.impl.o GLee.o" "-framework GLUT -framework OpenGL -framework CoreFoundation")
-
-(fun (hendisplay) (doo
-                   ;_ (shew 'display-callback)
-                   _ (display)))
-
-(fun (henidle) (doo
-                ;_ (shew 'idle-callback)
-                _ (idle)))
-
-;; (fun (myinit)
-;;      (doo
-;; ;      _ (shew (glShadeModel _GL_SMOOTH))
-;; ;      _ (glShadeModel _GL_SMOOTH)
-;;       _ (init)))
+(fun (vark)
+     (doo
+      _ (shew 100)))
 
 (doo
- _ (fbo_main0)
- _ (glutInitDisplayMode _GLUT_DOUBLE)
- _ (glutInitWindowSize 800 600)
- ret (glutCreateWindow "holy cow")
- _ (shew ret)
- ret (_GLeeInit)
- _ (shew ret)
+ _ (shew 10)
+ _ (vark)
+ _ (shew 20))
 
- ; HEY group these two as myinit
- _ (shew (glShadeModel _GL_SMOOTH))
- _ (init)
+(doo _ (shew 100) _ (shew 200))
+(doo _ (shew 100) _ (doo _ (shew 3000)) _ (shew 200))
 
- _ (fbo_main1)
- _ (glutDisplayFunc hendisplay)
- _ (glutIdleFunc henidle)
- _ (glutMainLoop))
+;; ;(CommandSeq (Command 'shew ($ 100)) (/. (r) (Command 'shew ($ 200))))
+
+;; ;($ (shew 10))

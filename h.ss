@@ -248,13 +248,13 @@
         (display "Command: ")
         (display name)
         (display " ")
-        (plshew arg)
+        (plshew args)
         (display "\n"))
       '())
 
   (if (lookup-exists? name commands)
       (apply (lookup name commands) (high-list->low-list args))
-      (err "Unknown command" (list name arg))))
+      (err "Unknown command" (list name args))))
 
   ;; (mtch name
 ;;         'shew (begin (shew (list 'SHEW arg)) 'Nil)
@@ -265,19 +265,28 @@
 ;;         x (err "Unknown command" (list name arg)))
 
 (define (evl-driver e)
-  (let ((ee (evl e)))
+;  (let ((ee (evl e)))
+  (let ((ee e))
     (mtch ee
-          ('P 'CommandSeq ('P ('P 'Command ('P name ('P args 'Nil))) ('P k 'Nil)))
-          (begin ;(shew 'yeah name args)
-                 (let ((output (execute-command name args)))
-                   ;(shew 'command-output output)
-                   (evl-driver (list k `(P ,output 'Nil)))))
+          ('P 'CommandSeq ('P command ('P kcommand 'Nil)))
+          (let* ((r (evl-driver command))
+                 (next-command (evl (list kcommand `(P ,r 'Nil)))))
+            (evl-driver next-command))
+
+          ('P 'Command ('P name ('P args 'Nil)))
+          (execute-command name args)
+
+;;           ('P 'CommandSeq ('P ('P 'Command ('P name ('P args 'Nil))) ('P k 'Nil)))
+;;           (begin ;(shew 'yeah name args)
+;;                  (let ((output (execute-command name args)))
+;;                    ;(shew 'command-output output)
+;;                    (evl-driver (list k `(P ,output 'Nil)))))
 
           x x)))
 
 (define (evl-top src e)
   (display "+ ") (lshew src) (display "\n")
-  (let ((ee (evl-driver e)))
+  (let ((ee (evl-driver (evl e))))
     (display "=> ") (plshew ee) (display "\n")
     ee))
 

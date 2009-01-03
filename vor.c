@@ -632,32 +632,44 @@ bool iscommand(yeah* e, yeah** name, yeah** args, yeah** k) {
 yeah* evl_driver(yeah* e) {
   //printf("evl_driver: "); dumpn(e);
   yeah *name, *args, *k;
-  yeah* ee = evl(e);
+  yeah* ee = e; // evl(e);
 
   if (ISPAIR(ee) && isthissymbol(car(ee), "CommandSeq")) {
     yeah* command = car(cdr(ee));
     yeah* k = car(cdr(cdr(ee)));
+
+/*
     A(isthissymbol(car(command), "Command"));
     yeah* name = car(cdr(command));
     yeah* args = car(cdr(cdr(command)));
     yeah* output = execute_command(name, args);
-    return evl_driver(app(k, pair(output, Nil)));
+*/
+    yeah* output = evl_driver(command);
+    return evl_driver(evl(app(k, pair(output, Nil))));
+  } else if (ISPAIR(ee) && isthissymbol(car(ee), "Command")) {
+    yeah* command = ee;
+    A(isthissymbol(car(command), "Command"));
+    yeah* name = car(cdr(command));
+    yeah* args = car(cdr(cdr(command)));
+    yeah* output = execute_command(name, args);
+    return output;
 //  } else if (isthissymbol(ee, "EndCommand")) {
 //    return Nil;
   } else {
     // HEY um, just return ee?
-    return evl(e);
+    //return evl(e);
+    return ee;
   }
 }
 
 void evl_from_callback(yeah* e) {
-  yeah* r = evl_driver(e);
+  yeah* r = evl_driver(evl(e));
   //printf("evl_from_callback returns "); dumpn(r);
 }
 
 void evl_top(char* src, yeah* e) {
   printf("+ %s\n", src);
-  yeah* value = evl_driver(e);
+  yeah* value = evl_driver(evl(e));
   printf("=> ");
   dumpn(value);
 }

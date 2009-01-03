@@ -201,6 +201,20 @@
 10
 20
 => Nil
++ (doo _ (shew 10) _ (vark) _ (shew 20))
+10
+100
+20
+=> Nil
++ (doo _ (shew 100) _ (shew 200))
+100
+200
+=> Nil
++ (doo _ (shew 100) _ (doo _ (shew 3000)) _ (shew 200))
+100
+3000
+200
+=> Nil
 + ((/. (x) x) Nil)
 => Nil
 + ((/. ((PP j k)) j) (PP 10 20))
@@ -403,6 +417,20 @@
 + (doo ref (create-int-ref 10) val (read-int-ref ref) _ (shew val) _ (write-int-ref ref 20) val (read-int-ref ref) _ (shew val) _ (destroy-int-ref ref))
 10
 20
+=> Nil
++ (doo _ (shew 10) _ (vark) _ (shew 20))
+10
+100
+20
+=> Nil
++ (doo _ (shew 100) _ (shew 200))
+100
+200
+=> Nil
++ (doo _ (shew 100) _ (doo _ (shew 3000)) _ (shew 200))
+100
+3000
+200
 => Nil
 + (doo ref (create-int-ref 10) val (read-int-ref ref) _ (shew val) _ (write-int-ref ref 20) val (read-int-ref ref) _ (shew val) _ (destroy-int-ref ref))
 10
