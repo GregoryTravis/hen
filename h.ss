@@ -2,11 +2,24 @@
 
 (define hen-version "* hen v. 0.01")
 
+(define remove-temporaries #t)
 (define count-reductions #f)
 (define show-tsgs #f)
 (define show-bindings #f)
 (define pretty-output #t)
 (define show-commands #f)
+
+(define (rmtemps . files)
+  (if remove-temporaries
+      (rcmd (join-things " " (cons 'rm files)))
+      '()))
+(define (rm-rtemps . files)
+  (if remove-temporaries
+      (rcmd (join-things " " (cons 'rm (cons '-r files))))
+      '()))
+
+(define (preclean . files)
+  (rcmd (join-things " " (cons 'rm (cons '-f files)))))<
 
 (define (reset-everything)
   (clear-global-env))
@@ -125,8 +138,7 @@
 
 (define (cleanup-module-stuff)
   (map (lambda (module)
-         ;(rcmd (++ "rm " module ".impl.c " module ".impl.h"))
-         '())
+         (rmtemps (++ module ".impl.c") (++ module ".impl.h")))
        modules))
 
 (define (cbuild-exe objcfile objfile exefile)
@@ -134,7 +146,8 @@
                            (append '("vor.o" "spew.o" "mem.o" "ref.impl.o" "shew.impl.o")
                                    objses)))
         (libs (join-things " " libses)))
-    (rcmd (++ "rm -f " objfile exefile))
+;    (rmtemps objfile exefile)
+    (preclean objfile exefile)
     (rcmd (++ "make -s " objs))
     (srcmd (++ "gcc -std=c99 -g -o " exefile " " objcfile " " objs " " libs))
     (cleanup-module-stuff)))
@@ -150,14 +163,12 @@
          (objfile (++ srcfile ".o"))
          (stub (remove-extension srcfile))
          (exefile stub))
-    (cmd (++ "rm -f " objcfile " " exefile))
+    (preclean objcfile exefile)
     (write-string-to-file objcfile (csrc->obj (read-src srcfile)))
     (cbuild-exe objcfile objfile exefile)
-    (cmd (++ "rm " objcfile))
-    (cmd (++ "rm -r " stub ".dSYM"))
-    (if (not (null? modules))
-'();        (cmd (join-things " " (cons 'rm (map (lambda (f) (++ f ".stub.ss")) modules))))
-        '())
+    ;(rmtemps objcfile)
+    (rm-rtemps (++ stub ".dSYM"))
+    (apply rmtemps (map (lambda (f) (++ f ".stub.ss")) modules))
     (if (not (file-exists? exefile))
         (err "No exe.")
         (begin
@@ -165,7 +176,7 @@
               (cmd (++ "./" exefile))
               '())
           (if delete-p
-              (cmd (++ "rm " exefile))
+              (rmtemps exefile)
               '())))))
 
 (define (fun? e)
