@@ -7,3 +7,4 @@ typedef unsigned char GLboolean;
 extern GLboolean GLeeInit();
 extern void glutMainLoop(void);
 extern void glutDisplayFunc(void (*func)(void));
+extern void glutIdleFunc(void (*func)(void));

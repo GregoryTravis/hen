@@ -2,8 +2,12 @@
 (foreign "fakey" "fakey.impl.o GLee.o" "-framework GLUT -framework OpenGL -framework CoreFoundation")
 
 (fun (hendisplay) (doo
-             ;_ (shew 'display-callback)
-             _ (display)))
+                   ;_ (shew 'display-callback)
+                   _ (display)))
+
+(fun (henidle) (doo
+                ;_ (shew 'idle-callback)
+                _ (idle)))
 
 (doo
  _ (fbo_main0)
@@ -16,4 +20,5 @@
  _ (init)
  _ (fbo_main1)
  _ (glutDisplayFunc hendisplay)
+ _ (glutIdleFunc henidle)
  _ (glutMainLoop))
