@@ -258,5 +258,7 @@ void fbo_main1() {
         glutReshapeFunc     ( reshape );
         glutKeyboardFunc    ( keyboard );
         glutIdleFunc            ( idle );
+
+        // HEY
         glutMainLoop        ( );                        // Run the main GLUT loop for rendering
 }

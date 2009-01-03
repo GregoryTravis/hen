@@ -5,3 +5,4 @@ extern void glutInitWindowSize(int width, int height);
 extern int glutCreateWindow(const char *title);
 typedef unsigned char GLboolean;
 extern GLboolean GLeeInit();
+extern void glutMainLoop(void);

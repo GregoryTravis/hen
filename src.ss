@@ -10,4 +10,5 @@
  ret (_GLeeInit)
  _ (shew ret)
  _ (init)
- _ (fbo_main1))
+ _ (fbo_main1)
+ _ (glutMainLoop))
