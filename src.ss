@@ -9,4 +9,5 @@
  _ (shew ret)
  ret (_GLeeInit)
  _ (shew ret)
+ _ (init)
  _ (fbo_main1))

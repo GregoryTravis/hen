@@ -82,6 +82,10 @@ foreach my $line (@$ilines) {
   my $fun_name = $2;
   my $args = $3;
 
+  if ($args =~ /^void( \S+)?$/) {
+    $args = "";
+  }
+
   $return_type = $aliases{$return_type} if (exists($aliases{$return_type}));
 
   my $ok = 1;
@@ -162,7 +166,7 @@ foreach my $fun (@funs) {
       $arg_converters .=
         "  $type $name = stringval(${name}_);\n";
     } else {
-      die "type $type?";
+      die "type $type? ($fun_name)";
     }
   }
 

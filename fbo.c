@@ -23,7 +23,7 @@ GLfloat yrot = 0;                       // Y Rotation
 GLfloat xspeed = 0.2f;          // X Rotation Speed
 GLfloat yspeed = 0.1f;          // Y Rotation Speed
 
-void init(GLvoid)     
+void init(void)     
 {
 
         glShadeModel(GL_SMOOTH);
@@ -251,8 +251,7 @@ void fbo_main1() {
   // GLee is used to setup all the extensions available
 /*   if(!GLeeInit()) */
 /*     exit(2); */
-  
-        init();
+//        init();
         
         // Setup the various call back functions GLUT requires
         glutDisplayFunc     ( display );  
