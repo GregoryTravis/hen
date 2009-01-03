@@ -97,9 +97,23 @@ foreach my $line (@$ilines) {
   my @nargs = ();
   foreach my $arg (@args) {
     my @argwords = split(/\s+/, $arg);
-    # Last word is name, rest is type.
-    my $arg_name = pop(@argwords);
-    my $type = join(" ", @argwords);
+
+    my $arg_name;
+    my $type;
+
+    # Function param?  (Can't handle ptrs to functions with args, cuz
+    # of commas.
+    if ($arg =~ /^void\s+\(\s*\*\s*(\S*)\s*\)\(\s*void\s*\)/) {
+      $arg_name = $1;
+      #$type = "void (*)(void)";
+      $type = "vvfunp";
+    } else {
+      # Otherwise, assume it's like "unsigned int foo".  Last word is
+      # name, rest is type.
+      $arg_name = pop(@argwords);
+      $type = join(" ", @argwords);
+    }
+
     $type = $aliases{$type} if (exists($aliases{$type}));
     push(@nargs, [$arg_name, $type]);
   }
@@ -165,6 +179,9 @@ foreach my $fun (@funs) {
     } elsif ($type eq "char *") {
       $arg_converters .=
         "  $type $name = stringval(${name}_);\n";
+    } elsif ($type eq "vvfunp") {
+      $arg_converters .=
+        "  vvfunp $name = wrap_hen_fun(${name}_);\n";
     } else {
       die "type $type? ($fun_name)";
     }
@@ -182,6 +199,8 @@ foreach my $fun (@funs) {
     $returner = "  return integer(__ret);\n";
   } elsif ($return_type eq "char *") {
     $returner = "  return string(__ret);\n";
+  } elsif ($return_type eq "void (*)(void)") {
+    $returner = "  return opaque(__ret);\n";
   } else {
     die "type $return_type?";
   }

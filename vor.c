@@ -630,6 +630,7 @@ bool iscommand(yeah* e, yeah** name, yeah** args, yeah** k) {
 }
 
 yeah* evl_driver(yeah* e) {
+  //printf("evl_driver: "); dumpn(e);
   yeah *name, *args, *k;
   yeah* ee = evl(e);
 
@@ -647,6 +648,11 @@ yeah* evl_driver(yeah* e) {
     // HEY um, just return ee?
     return evl(e);
   }
+}
+
+void evl_from_callback(yeah* e) {
+  yeah* r = evl_driver(e);
+  //printf("evl_from_callback returns "); dumpn(r);
 }
 
 void evl_top(char* src, yeah* e) {
@@ -677,4 +683,15 @@ int main(int argc, char** argv) {
   count_reductions_end();
 
   return 0;
+}
+
+static yeah* wrapped_hen_fun;
+static void hen_fun_wrapper(void) {
+  evl_from_callback(app(wrapped_hen_fun, Nil));
+}
+
+vvfunp wrap_hen_fun(yeah* f) {
+printf("WRAP!!!\n");
+  wrapped_hen_fun = f;
+  return &hen_fun_wrapper;
 }

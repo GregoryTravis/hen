@@ -103,3 +103,7 @@ extern yeah *Nil, *CNil;
 
 void register_command(char *name, foreign_function f);
 
+void evl_from_callback(yeah* e);
+
+typedef void (*vvfunp)(void);
+vvfunp wrap_hen_fun(yeah* f);
