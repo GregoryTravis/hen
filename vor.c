@@ -685,13 +685,40 @@ int main(int argc, char** argv) {
   return 0;
 }
 
-static yeah* wrapped_hen_fun;
-static void hen_fun_wrapper(void) {
-  evl_from_callback(app(wrapped_hen_fun, Nil));
+static void invoke_hen_fun_wrapper(yeah* wfun) {
+  evl_from_callback(app(wfun, Nil));
 }
 
+/*
+static yeah* wrapped_hen_fun;
+static void hen_fun_wrapper(void) {
+  invoke_hen_fun_wrapper(wrapped_hen_fun);
+}
+*/
+
+#define DECLARE_WRAPPER_FUN(n) static void hen_fun_wrapper_##n(void) { invoke_hen_fun_wrapper(wrapped_hen_funs[(n)]); }
+
+#define NCALLBACKS 4
+static yeah *wrapped_hen_funs[NCALLBACKS];
+
+DECLARE_WRAPPER_FUN(0)
+DECLARE_WRAPPER_FUN(1)
+DECLARE_WRAPPER_FUN(2)
+DECLARE_WRAPPER_FUN(3)
+
+static vvfunp goobie[NCALLBACKS] = {
+  &hen_fun_wrapper_0,
+  &hen_fun_wrapper_1,
+  &hen_fun_wrapper_2,
+  &hen_fun_wrapper_3,
+};
+
+static int cb_cursor = 0;
+
 vvfunp wrap_hen_fun(yeah* f) {
-printf("WRAP!!!\n");
-  wrapped_hen_fun = f;
-  return &hen_fun_wrapper;
+  A(cb_cursor < NCALLBACKS);
+  int cbi = cb_cursor++;
+  printf("WRAP %d!!!\n", cbi);
+  wrapped_hen_funs[cbi] = f;
+  return goobie[cbi];
 }

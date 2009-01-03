@@ -1,7 +1,7 @@
 (foreign "fbo" "fbo.o fbo.impl.o" "")
 (foreign "fakey" "fakey.impl.o GLee.o" "-framework GLUT -framework OpenGL -framework CoreFoundation")
 
-(fun (vort) (doo
+(fun (hendisplay) (doo
              ;_ (shew 'display-callback)
              _ (display)))
 
@@ -15,5 +15,5 @@
  _ (shew ret)
  _ (init)
  _ (fbo_main1)
- _ (glutDisplayFunc vort)
+ _ (glutDisplayFunc hendisplay)
  _ (glutMainLoop))
