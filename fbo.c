@@ -26,7 +26,9 @@ GLfloat yspeed = 0.1f;          // Y Rotation Speed
 void init(void)     
 {
 
-        glShadeModel(GL_SMOOTH);
+  //HEN
+  //glShadeModel(GL_SMOOTH);
+
         glClearColor(0.0f, 0.0f, 0.2f, 0.5f);
         glClearDepth(1.0f);                                     
         glEnable(GL_DEPTH_TEST);                        

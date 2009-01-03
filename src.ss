@@ -9,6 +9,12 @@
                 ;_ (shew 'idle-callback)
                 _ (idle)))
 
+;; (fun (myinit)
+;;      (doo
+;; ;      _ (shew (glShadeModel _GL_SMOOTH))
+;; ;      _ (glShadeModel _GL_SMOOTH)
+;;       _ (init)))
+
 (doo
  _ (fbo_main0)
  _ (glutInitDisplayMode _GLUT_DOUBLE)
@@ -17,7 +23,11 @@
  _ (shew ret)
  ret (_GLeeInit)
  _ (shew ret)
+
+ ; HEY group these two as myinit
+ _ (shew (glShadeModel _GL_SMOOTH))
  _ (init)
+
  _ (fbo_main1)
  _ (glutDisplayFunc hendisplay)
  _ (glutIdleFunc henidle)
