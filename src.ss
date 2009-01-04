@@ -24,6 +24,15 @@
       _ (shew fbo)
       _ (Return fbo)))
 
+(fun (make-depth-buffer)
+     (doo
+      ref (create-int-ref 0)
+      _ (glGenRenderbuffersEXT 1 ref)
+      depthBuffer (read-int-ref ref)
+      _ (destroy-int-ref ref)
+      _ (shew depthBuffer)
+      _ (Return depthBuffer)))
+
 (fun (myinit)
      (doo
       _ (glShadeModel _GL_SMOOTH)
@@ -35,11 +44,7 @@
 
       fbo (make-fbo)
 
-      ref (create-int-ref 0)
-      _ (glGenRenderbuffersEXT 1 ref)
-      depthBuffer (read-int-ref ref)
-      _ (destroy-int-ref ref)
-      _ (shew depthBuffer)
+      depthBuffer (make-depth-buffer)
 
       _ (glBindFramebufferEXT _GL_FRAMEBUFFER_EXT fbo)
       _ (glBindRenderbufferEXT _GL_RENDERBUFFER_EXT depthBuffer)
