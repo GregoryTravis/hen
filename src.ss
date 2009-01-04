@@ -14,6 +14,16 @@
 (fun (henidle) (doo
                 ;_ (shew 'idle-callback)
                 _ (idle)))
+
+(fun (make-fbo)
+     (doo
+      ref (create-int-ref 0)
+      _ (glGenFramebuffersEXT 1 ref)
+      fbo (read-int-ref ref)
+      _ (destroy-int-ref ref)
+      _ (shew fbo)
+      _ (Return fbo)))
+
 (fun (myinit)
      (doo
       _ (glShadeModel _GL_SMOOTH)
@@ -23,11 +33,7 @@
       _ (glDepthFunc _GL_LEQUAL)
       _ (glViewport 0 0 800 600)
 
-      ref (create-int-ref 0)
-      _ (glGenFramebuffersEXT 1 ref)
-      fbo (read-int-ref ref)
-      _ (destroy-int-ref ref)
-      _ (shew fbo)
+      fbo (make-fbo)
 
       ref (create-int-ref 0)
       _ (glGenRenderbuffersEXT 1 ref)
