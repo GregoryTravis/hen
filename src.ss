@@ -23,6 +23,7 @@
       _ (destroy-int-ref ref)
       _ (shew fbo)
 
+      _ (glBindFramebufferEXT _GL_FRAMEBUFFER_EXT fbo)
       _ (init fbo)
       _ (Return fbo)))
 

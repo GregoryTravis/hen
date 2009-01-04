@@ -43,6 +43,8 @@
 #define GL_UNSIGNED_BYTE_2_3_3_REV 33634
 #define GL_VIEWPORT_BIT 2048
 
+#define GL_FRAMEBUFFER_EXT 36160
+
 typedef unsigned char GLboolean;
 typedef unsigned int GLenum;
 typedef long GLint;
@@ -65,3 +67,4 @@ extern void glEnable (GLenum cap);
 extern void glDepthFunc (GLenum func);
 extern void glViewport (GLint x, GLint y, GLsizei width, GLsizei height);
 extern void glGenFramebuffersEXT(GLsizei n, GLuint *framebuffers);
+extern void glBindFramebufferEXT(GLenum target, GLuint framebuffer);
