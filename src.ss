@@ -60,6 +60,8 @@
       _ (glBindFramebufferEXT _GL_FRAMEBUFFER_EXT fbo)
       _ (glBindRenderbufferEXT _GL_RENDERBUFFER_EXT depthBuffer)
       _ (glRenderbufferStorageEXT _GL_RENDERBUFFER_EXT _GL_DEPTH_COMPONENT 512 512)
+      _ (glBindTexture _GL_TEXTURE_2D img)
+
       _ (init fbo depthBuffer img)
 
 ;      _ (Return (Haha fbo depthBuffer))))

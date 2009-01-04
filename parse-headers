@@ -23,6 +23,7 @@ $aliases{"GLsizeiptr"} = "long";
 $aliases{"GLsizeiptrARB"} = "long";
 $aliases{"GLuint"} = "unsigned long";
 $aliases{"GLuint *"} = "unsigned long *";
+$aliases{"const GLuint *"} = "unsigned long *";
 $aliases{"GLboolean"} = "unsigned char";
 $aliases{"const char *"} = "char *";
 
