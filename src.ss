@@ -58,6 +58,12 @@
       null (create-null-ref)
       _ (glTexImage2D _GL_TEXTURE_2D 0 _GL_RGBA8  512 512 0 _GL_RGBA _GL_UNSIGNED_BYTE null)
 
+      _ (glTexParameterf _GL_TEXTURE_2D _GL_TEXTURE_WRAP_S _GL_CLAMP_TO_EDGE)
+      _ (glTexParameterf _GL_TEXTURE_2D _GL_TEXTURE_WRAP_T _GL_CLAMP_TO_EDGE)
+      _ (glTexParameterf _GL_TEXTURE_2D _GL_TEXTURE_MAG_FILTER _GL_LINEAR)
+      _ (glTexParameterf _GL_TEXTURE_2D _GL_TEXTURE_MIN_FILTER _GL_LINEAR)
+
+
       _ (init fbo depthBuffer img)
 
 ;      _ (Return (Haha fbo depthBuffer))))

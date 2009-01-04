@@ -1,6 +1,6 @@
 #define GLUT_RGB			0
 #define GLUT_DOUBLE			2
-#define GL_CLAMP_TO_EDGE 33071
+#define GL_CLAMP_TO_EDGE 33071.0
 #define GL_COLOR_BUFFER_BIT 16384
 #define GL_DEPTH_COMPONENT 6402
 #define GL_DEPTH_COMPONENT16 33189
@@ -9,7 +9,7 @@
 #define GL_DEPTH_TEST 2929
 #define GL_LEQUAL 515
 #define GL_LINEAR_ATTENUATION 4616
-#define GL_LINEAR 9729
+#define GL_LINEAR 9729.0
 #define GL_LINEAR_MIPMAP_NEAREST 9985
 #define GL_LINEAR_MIPMAP_LINEAR 9987
 #define GL_LINEAR_MIPMAP_LINEAR 9987
@@ -46,38 +46,11 @@
 #define GL_FRAMEBUFFER_EXT 36160
 #define GL_RENDERBUFFER_EXT 36161
 
-#if 0
-#define GL_CLAMP_TO_EDGE                  #x812F
-#define GL_COLOR_ATTACHMENT0_EXT           #x8CE0
-#define GL_COLOR_BUFFER_BIT               #x00004000
-#define GL_DEPTH_ATTACHMENT_EXT            #x8D00
-#define GL_DEPTH_BUFFER_BIT               #x00000100
-#define GL_DEPTH_COMPONENT                #x1902
-#define GL_DEPTH_TEST                     #x0B71
-#define GL_FRAMEBUFFER_COMPLETE_EXT                        #x8CD5
-#define GL_FRAMEBUFFER_EXT                 #x8D40
-#define GL_LEQUAL                         #x0203
-#define GL_LINEAR                         #x2601
-#define GL_LINEAR_MIPMAP_LINEAR           #x2703
-#define GL_MODELVIEW                      #x1700
-#define GL_PROJECTION                     #x1701
-#define GL_QUADS                          #x0007
-#define GL_RENDERBUFFER_EXT                #x8D41
-#define GL_RGBA                           #x1908
-#define GL_RGBA8                          #x8058
-#define GL_SMOOTH                         #x1D01
-#define GL_TEXTURE_2D                     #x0DE1
-#define GL_TEXTURE_MAG_FILTER             #x2800
-#define GL_TEXTURE_MIN_FILTER             #x2801
-#define GL_TEXTURE_WRAP_S                 #x2802
-#define GL_TEXTURE_WRAP_T                 #x2803
-#define GL_UNSIGNED_BYTE                  #x1401
-#endif
-
 typedef unsigned char GLboolean;
 typedef unsigned int GLenum;
 typedef long GLint;
 typedef float GLclampf;
+typedef float GLfloat;
 typedef double GLclampd;
 typedef long GLsizei;
 typedef unsigned long GLuint;
@@ -107,3 +80,7 @@ extern void glGenTextures (GLsizei n, GLuint *textures);
 extern void glBindTexture (GLenum target, GLuint texture);
 
 extern void glTexImage2D (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
+extern void glTexParameterf (GLenum target, GLenum pname, GLfloat param);
+extern void glTexParameterfv (GLenum target, GLenum pname, const GLfloat *params);
+extern void glTexParameteri (GLenum target, GLenum pname, GLint param);
+extern void glTexParameteriv (GLenum target, GLenum pname, const GLint *params);

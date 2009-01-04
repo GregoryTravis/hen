@@ -15,7 +15,9 @@ $aliases{"GLclampf"} = "float";
 $aliases{"GLdouble"} = "double";
 $aliases{"GLenum"} = "unsigned int";
 $aliases{"GLfloat"} = "float";
-$aliases{"GLint"} = "int";
+$aliases{"GLint"} = "long";
+$aliases{"GLint *"} = "long *";
+$aliases{"const GLint *"} = "long *";
 $aliases{"GLintptr"} = "long";
 $aliases{"GLintptrARB"} = "long";
 $aliases{"GLsizei"} = "int";
@@ -23,6 +25,8 @@ $aliases{"GLsizeiptr"} = "long";
 $aliases{"GLsizeiptrARB"} = "long";
 $aliases{"GLuint"} = "unsigned long";
 $aliases{"GLuint *"} = "unsigned long *";
+$aliases{"GLfloat *"} = "float *";
+$aliases{"const GLfloat *"} = "float *";
 $aliases{"const GLuint *"} = "unsigned long *";
 $aliases{"GLboolean"} = "unsigned char";
 $aliases{"const char *"} = "char *";
@@ -176,7 +180,7 @@ foreach my $fun (@funs) {
   my $arg_converters = "";
   foreach my $arg (@$args) {
     my ($name, $type) = @$arg;
-    if ($type eq "int" || $type eq "unsigned long" || $type eq "unsigned int" || $type eq "unsigned char") {
+    if ($type eq "int" || $type eq "unsigned long" || $type eq "unsigned int" || $type eq "unsigned char" || $type eq "long") {
       $arg_converters .=
         "  $type $name = getint(${name}_);\n";
     } elsif ($type eq "float" || $type eq "double") {
@@ -188,9 +192,18 @@ foreach my $fun (@funs) {
     } elsif ($type eq "unsigned long *") {
       $arg_converters .=
         "  $type $name = (unsigned long*)opaqueval(${name}_);\n";
+    } elsif ($type eq "long *") {
+      $arg_converters .=
+        "  $type $name = (long*)opaqueval(${name}_);\n";
     } elsif ($type eq "unsigned int *") {
       $arg_converters .=
-        "  $type $name = (unsigned int*)opaqueval(${name}_);\n";
+        "  $type $name = (unsigned int *)opaqueval(${name}_);\n";
+    } elsif ($type eq "int *") {
+      $arg_converters .=
+        "  $type $name = (int *)opaqueval(${name}_);\n";
+    } elsif ($type eq "float *") {
+      $arg_converters .=
+        "  $type $name = (float*)opaqueval(${name}_);\n";
     } elsif ($type eq "void *") {
       $arg_converters .=
         "  $type $name = opaqueval(${name}_);\n";
@@ -210,7 +223,7 @@ foreach my $fun (@funs) {
   my $returner;
   if ($return_type eq "void") {
     $returner = "  return Nil;\n";
-  } elsif ($return_type eq "int" || $return_type eq "unsigned long" || $return_type eq "unsigned int" || $return_type eq "unsigned char") {
+  } elsif ($return_type eq "int" || $return_type eq "unsigned long" || $return_type eq "unsigned int" || $return_type eq "unsigned char" || $return_type eq "long") {
     $returner = "  return integer(__ret);\n";
   } elsif ($return_type eq "float" || $return_type eq "double") {
     $returner = "  return flote(__ret);\n";
@@ -218,9 +231,15 @@ foreach my $fun (@funs) {
     $returner = "  return string(__ret);\n";
   } elsif ($return_type eq "unsigned int *") {
     $returner = "  return opaque((void*)__ret);\n";
+  } elsif ($return_type eq "int *") {
+    $returner = "  return opaque((void*)__ret);\n";
+  } elsif ($return_type eq "float *") {
+    $returner = "  return opaque((float*)__ret);\n";
   } elsif ($return_type eq "void *") {
     $returner = "  return opaque(__ret);\n";
   } elsif ($return_type eq "unsigned long *") {
+    $returner = "  return opaque((void*)__ret);\n";
+  } elsif ($return_type eq "long *") {
     $returner = "  return opaque((void*)__ret);\n";
   } elsif ($return_type eq "unsigned int *") {
     $returner = "  return opaque((void*)__ret);\n";
