@@ -62,7 +62,10 @@
       _ (glTexParameterf _GL_TEXTURE_2D _GL_TEXTURE_WRAP_T _GL_CLAMP_TO_EDGE)
       _ (glTexParameterf _GL_TEXTURE_2D _GL_TEXTURE_MAG_FILTER _GL_LINEAR)
       _ (glTexParameterf _GL_TEXTURE_2D _GL_TEXTURE_MIN_FILTER _GL_LINEAR)
-
+      _ (glFramebufferTexture2DEXT _GL_FRAMEBUFFER_EXT _GL_COLOR_ATTACHMENT0_EXT _GL_TEXTURE_2D img 0)
+      _ (glFramebufferRenderbufferEXT _GL_FRAMEBUFFER_EXT _GL_DEPTH_ATTACHMENT_EXT _GL_RENDERBUFFER_EXT depthBuffer)
+;      status (glCheckFramebufferStatusEXT GL_FRAMEBUFFER_EXT)
+;      _ (Return (if (not (== status _GL_FRAMEBUFFER_COMPLETE_EXT)) (err "glCheckFramebufferStatusEXT returned" status) '()))
 
       _ (init fbo depthBuffer img)
 

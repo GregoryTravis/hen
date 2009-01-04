@@ -45,6 +45,8 @@
 
 #define GL_FRAMEBUFFER_EXT 36160
 #define GL_RENDERBUFFER_EXT 36161
+#define GL_COLOR_ATTACHMENT0_EXT           #x8CE0
+#define GL_DEPTH_ATTACHMENT_EXT            #x8D00
 
 typedef unsigned char GLboolean;
 typedef unsigned int GLenum;
@@ -84,3 +86,7 @@ extern void glTexParameterf (GLenum target, GLenum pname, GLfloat param);
 extern void glTexParameterfv (GLenum target, GLenum pname, const GLfloat *params);
 extern void glTexParameteri (GLenum target, GLenum pname, GLint param);
 extern void glTexParameteriv (GLenum target, GLenum pname, const GLint *params);
+extern void glFramebufferTexture2DEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+extern void glFramebufferRenderbufferEXT(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
+extern GLenum glCheckFramebufferStatusEXT(GLenum target);
+//extern void glBindFramebufferEXT(GLenum target, GLuint framebuffer);

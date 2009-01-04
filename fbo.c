@@ -56,13 +56,13 @@ void init(GLuint fbo, GLuint depthBuffer, GLuint img)
 //      glGenerateMipmapEXT(GL_TEXTURE_2D);
 
         // And attach it to the FBO so we can render to it
-        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, img, 0);
+  //glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, img, 0);
 
         // Attach the depth render buffer to the FBO as it's depth attachment
-        glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depthBuffer);
+  //glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depthBuffer);
         
 
-        GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+  GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
         if(status != GL_FRAMEBUFFER_COMPLETE_EXT)
                 exit(1);
         
