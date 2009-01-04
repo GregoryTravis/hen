@@ -59,3 +59,4 @@ extern void glShadeModel(GLenum mode);
 extern void glClearColor (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
 extern void glClearDepth (GLclampd depth);
 extern void glEnable (GLenum cap);
+extern void glDepthFunc (GLenum func);

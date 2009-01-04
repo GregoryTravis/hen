@@ -15,6 +15,7 @@
       _ (glClearColor 0.0 0.0 0.2 0.5)
       _ (glClearDepth 1.0)
       _ (glEnable _GL_DEPTH_TEST)
+      _ (glDepthFunc _GL_LEQUAL)
       _ (init)))
 
 (doo
