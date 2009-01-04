@@ -1,9 +1,13 @@
 (foreign "fbo" "fbo.o fbo.impl.o" "")
 (foreign "fakey" "fakey.impl.o GLee.o" "-framework GLUT -framework OpenGL -framework CoreFoundation")
 
-(fun (hendisplay fbo img) (doo
-                   ;_ (shew 'display-callback)
-                   _ (display fbo img)))
+(fun (hendisplay fbo img)
+     (doo
+      _ (glBindFramebufferEXT _GL_FRAMEBUFFER_EXT fbo)
+      _ (glPushAttrib _GL_VIEWPORT_BIT)
+      _ (glViewport 0 0 512 512)
+
+      _ (display fbo img)))
 
 (fun (henidle) (doo
                 ;_ (shew 'idle-callback)

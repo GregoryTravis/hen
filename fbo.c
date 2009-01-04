@@ -70,11 +70,11 @@ void idle(void)
 void display(GLuint fbo, GLuint img)
 {
         // First we bind the FBO so we can render to it
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+  //glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
         
         // Save the view port and set it to the size of the texture
-        glPushAttrib(GL_VIEWPORT_BIT);
-        glViewport(0,0,width,height);
+  //glPushAttrib(GL_VIEWPORT_BIT);
+  //glViewport(0,0,width,height);
 
         // Then render as normal
         // Today's scene is a wonderful multi-coloured spinning cube ;)

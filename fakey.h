@@ -58,6 +58,7 @@ typedef double GLclampd;
 typedef long GLsizei;
 typedef unsigned long GLuint;
 typedef void GLvoid;
+typedef unsigned long GLbitfield;
 
 extern void glutInitDisplayMode(unsigned int mode);
 extern void glutInitWindowSize(int width, int height);
@@ -91,3 +92,4 @@ extern void glFramebufferTexture2DEXT(GLenum target, GLenum attachment, GLenum t
 extern void glFramebufferRenderbufferEXT(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
 extern GLenum glCheckFramebufferStatusEXT(GLenum target);
 //extern void glBindFramebufferEXT(GLenum target, GLuint framebuffer);
+extern void glPushAttrib (GLbitfield mask);
