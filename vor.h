@@ -95,7 +95,7 @@ int getint(yeah* e);
 float getfloat(yeah* e);
 void evl_top(char* src, yeah* e);
 char* stringval(yeah* e);
-void* opaque_val(yeah* y);
+void* opaqueval(yeah* y);
 yeah* hcar(yeah* y);
 yeah* hcdr(yeah* y);
 yeah* hcadr(yeah* y);

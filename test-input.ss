@@ -223,6 +223,18 @@
  _ (shew val)
  _ (destroy-int-ref ref))
 
+(fun (pah)
+     (doo
+      ref (create-int-ref 10)
+      val (read-int-ref ref)
+      _ (shew ((+ val) val))
+      _ (Return val)))
+
+(doo
+ joe (pah)
+ _ (shew joe)
+ _ (Return joe))
+
 (fun (vark)
      (doo
       _ (shew 100)))

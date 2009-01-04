@@ -290,11 +290,6 @@ yeah* lambdabody(yeah* lambda) {
   return lambda->u.lambda.body;
 }
 
-void* opaque_val(yeah* y) {
-  A(ISOPAQUE(y));
-  return y->u.opaque.q;
-}
-
 #define APPF(e) ((e)->u.app.f)
 #define apparg(e) ((e)->u.app.arg)
 
@@ -626,23 +621,13 @@ yeah* execute_command(yeah* name, yeah* arg) {
     err(("Unknown command!"));
   }
 
-  foreign_function f = (foreign_function)opaque_val(v);
+  foreign_function f = (foreign_function)opaqueval(v);
   yeah* ret = (*f)(arg);
   if (show_commands) {
     printf("Command %s returns ", symstring(name));
     dumpn(ret);
   }
   return ret;
-}
-
-bool iscommand(yeah* e, yeah** name, yeah** args, yeah** k) {
-  if (!ISPAIR(e) || !isthissymbol(car(e), "CommandSeq")) return false;
-  yeah* command = car(cdr(e));
-  *k = car(cdr(cdr(e)));
-  A(isthissymbol(car(command), "Command"));
-  *name = car(cdr(command));
-  *args = car(cdr(cdr(command)));
-  return true;
 }
 
 yeah* evl_driver(yeah* e) {
@@ -669,6 +654,8 @@ yeah* evl_driver(yeah* e) {
     yeah* args = car(cdr(cdr(command)));
     yeah* output = execute_command(name, args);
     return output;
+  } else if (ISPAIR(ee) && isthissymbol(car(ee), "Return")) {
+    return car(cdr(ee));
 //  } else if (isthissymbol(ee, "EndCommand")) {
 //    return Nil;
   } else {

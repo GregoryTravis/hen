@@ -276,6 +276,9 @@
           ('P 'Command ('P name ('P args 'Nil)))
           (execute-command name args)
 
+          ('P 'Return ('P val 'Nil))
+          val
+
 ;;           ('P 'CommandSeq ('P ('P 'Command ('P name ('P args 'Nil))) ('P k 'Nil)))
 ;;           (begin ;(shew 'yeah name args)
 ;;                  (let ((output (execute-command name args)))

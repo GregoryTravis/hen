@@ -201,6 +201,10 @@
 10
 20
 => Nil
++ (doo joe (pah) _ (shew joe) _ (Return joe))
+20
+10
+=> 10
 + (doo _ (shew 10) _ (vark) _ (shew 20))
 10
 100
@@ -418,6 +422,10 @@
 10
 20
 => Nil
++ (doo joe (pah) _ (shew joe) _ (Return joe))
+20
+10
+=> 10
 + (doo _ (shew 10) _ (vark) _ (shew 20))
 10
 100
