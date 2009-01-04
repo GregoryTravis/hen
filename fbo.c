@@ -30,7 +30,7 @@ void init(void)
   //glShadeModel(GL_SMOOTH);
   //glClearColor(0.0f, 0.0f, 0.2f, 0.5f);
   //glClearDepth(1.0f);                                     
-        glEnable(GL_DEPTH_TEST);                        
+  //glEnable(GL_DEPTH_TEST);                        
         glDepthFunc(GL_LEQUAL);                         
         glViewport(0,0,800,600);
 

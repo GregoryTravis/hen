@@ -14,6 +14,7 @@
       _ (glShadeModel _GL_SMOOTH)
       _ (glClearColor 0.0 0.0 0.2 0.5)
       _ (glClearDepth 1.0)
+      _ (glEnable _GL_DEPTH_TEST)
       _ (init)))
 
 (doo
