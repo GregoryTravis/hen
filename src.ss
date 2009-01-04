@@ -68,8 +68,9 @@
       _ (glFramebufferRenderbufferEXT _GL_FRAMEBUFFER_EXT _GL_DEPTH_ATTACHMENT_EXT _GL_RENDERBUFFER_EXT depthBuffer)
 
       status (glCheckFramebufferStatusEXT _GL_FRAMEBUFFER_EXT)
-
       _ (shew ($ 'must-be-== status _GL_FRAMEBUFFER_COMPLETE_EXT))
+
+      _ (glBindFramebufferEXT _GL_FRAMEBUFFER_EXT 0)
 
       _ (init fbo depthBuffer img)
 

@@ -66,7 +66,7 @@ void init(GLuint fbo, GLuint depthBuffer, GLuint img)
 //        if(status != GL_FRAMEBUFFER_COMPLETE_EXT)
 //                exit(1);
         
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);    // Unbind the FBO for now
+  //glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);    // Unbind the FBO for now
 }
 
 void ShutDown(GLvoid)
