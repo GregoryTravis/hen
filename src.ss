@@ -72,9 +72,6 @@
 
       _ (glBindFramebufferEXT _GL_FRAMEBUFFER_EXT 0)
 
-      _ (init fbo depthBuffer img)
-
-;      _ (Return (Haha fbo depthBuffer))))
       _ (Return (Foo fbo img))))
 
 (doo
