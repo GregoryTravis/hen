@@ -219,6 +219,9 @@
 3000
 200
 => Nil
++ (doo (Hoo a b) (Return (Hoo 10 20)) _ (shew b))
+20
+=> Nil
 + ((/. (x) x) Nil)
 => Nil
 + ((/. ((PP j k)) j) (PP 10 20))
@@ -439,6 +442,9 @@
 100
 3000
 200
+=> Nil
++ (doo (Hoo a b) (Return (Hoo 10 20)) _ (shew b))
+20
 => Nil
 + (doo ref (create-int-ref 10) val (read-int-ref ref) _ (shew val) _ (write-int-ref ref 20) val (read-int-ref ref) _ (shew val) _ (destroy-int-ref ref))
 10
