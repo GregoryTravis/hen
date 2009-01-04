@@ -44,6 +44,7 @@
 #define GL_VIEWPORT_BIT 2048
 
 #define GL_FRAMEBUFFER_EXT 36160
+#define GL_RENDERBUFFER_EXT 36161
 
 typedef unsigned char GLboolean;
 typedef unsigned int GLenum;
@@ -70,3 +71,5 @@ extern void glGenFramebuffersEXT(GLsizei n, GLuint *framebuffers);
 extern void glBindFramebufferEXT(GLenum target, GLuint framebuffer);
 extern void glGenRenderbuffersEXT(GLsizei n, GLuint *renderbuffers);
 
+extern void glBindRenderbufferEXT(GLenum target, GLuint renderbuffer);
+extern void glRenderbufferStorageEXT(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);

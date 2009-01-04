@@ -36,6 +36,8 @@
       _ (shew depthBuffer)
 
       _ (glBindFramebufferEXT _GL_FRAMEBUFFER_EXT fbo)
+      _ (glBindRenderbufferEXT _GL_RENDERBUFFER_EXT depthBuffer)
+      _ (glRenderbufferStorageEXT _GL_RENDERBUFFER_EXT _GL_DEPTH_COMPONENT 512 512)
       _ (init fbo depthBuffer)
 
 ;      _ (Return (Haha fbo depthBuffer))))
