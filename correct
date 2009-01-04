@@ -225,6 +225,9 @@
 + (doo (Hoo a b) (Hoo 100 200) _ (shew b))
 200
 => Nil
++ (doo ref (create-null-ref) _ (shew ref))
+(Q Nil)
+=> Nil
 + ((/. (x) x) Nil)
 => Nil
 + ((/. ((PP j k)) j) (PP 10 20))
@@ -451,6 +454,9 @@
 => Nil
 + (doo (Hoo a b) (Hoo 100 200) _ (shew b))
 200
+=> Nil
++ (doo ref (create-null-ref) _ (shew ref))
+(Q)
 => Nil
 + (doo ref (create-int-ref 10) val (read-int-ref ref) _ (shew val) _ (write-int-ref ref 20) val (read-int-ref ref) _ (shew val) _ (destroy-int-ref ref))
 10

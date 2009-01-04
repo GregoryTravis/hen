@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "a.h"
 #include "mem.h"
 
@@ -31,9 +33,15 @@ yeah* destroy_int_ref(yeah* arg) {
   return Nil;
 }
 
+yeah* create_null_ref(yeah* arg) {
+  A(isnil(arg));
+  return opaque(NULL);
+}
+
 void ref_impl_register() {
   register_command("create-int-ref-impl", &create_int_ref);
   register_command("read-int-ref-impl", &read_int_ref);
   register_command("write-int-ref-impl", &write_int_ref);
   register_command("destroy-int-ref-impl", &destroy_int_ref);
+  register_command("create-null-ref-impl", &create_null_ref);
 }

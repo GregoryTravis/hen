@@ -254,3 +254,7 @@
 (doo
  (Hoo a b) (Hoo 100 200)
  _ (shew b))
+
+(doo
+ ref (create-null-ref)
+ _ (shew ref))
