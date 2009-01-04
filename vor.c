@@ -746,7 +746,7 @@ static int cb_cursor = 0;
 vvfunp wrap_hen_fun(yeah* f) {
   A(cb_cursor < NCALLBACKS);
   int cbi = cb_cursor++;
-  printf("WRAP %d!!!\n", cbi);
+  //printf("WRAP %d!!!\n", cbi);
   wrapped_hen_funs[cbi] = f;
   return goobie[cbi];
 }
