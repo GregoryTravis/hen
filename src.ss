@@ -46,6 +46,8 @@
       _ (glViewport 0 0 800 600)
 
       fbo (make-fbo)
+;      vork ((== 0) 0)
+;      _ (shew ($ 'hoont vork))
 
       depthBuffer (make-depth-buffer)
 
@@ -64,8 +66,10 @@
       _ (glTexParameterf _GL_TEXTURE_2D _GL_TEXTURE_MIN_FILTER _GL_LINEAR)
       _ (glFramebufferTexture2DEXT _GL_FRAMEBUFFER_EXT _GL_COLOR_ATTACHMENT0_EXT _GL_TEXTURE_2D img 0)
       _ (glFramebufferRenderbufferEXT _GL_FRAMEBUFFER_EXT _GL_DEPTH_ATTACHMENT_EXT _GL_RENDERBUFFER_EXT depthBuffer)
-;      status (glCheckFramebufferStatusEXT GL_FRAMEBUFFER_EXT)
-;      _ (Return (if (not (== status _GL_FRAMEBUFFER_COMPLETE_EXT)) (err "glCheckFramebufferStatusEXT returned" status) '()))
+
+      status (glCheckFramebufferStatusEXT _GL_FRAMEBUFFER_EXT)
+
+      _ (shew ($ 'must-be-== status _GL_FRAMEBUFFER_COMPLETE_EXT))
 
       _ (init fbo depthBuffer img)
 
@@ -73,6 +77,7 @@
       _ (Return (Foo fbo img))))
 
 (doo
+
  _ (fbo_main0)
  _ (glutInitDisplayMode _GLUT_DOUBLE)
  _ (glutInitWindowSize 800 600)

@@ -47,6 +47,7 @@
 #define GL_RENDERBUFFER_EXT 36161
 #define GL_COLOR_ATTACHMENT0_EXT           #x8CE0
 #define GL_DEPTH_ATTACHMENT_EXT            #x8D00
+#define GL_FRAMEBUFFER_COMPLETE_EXT                        #x8CD5
 
 typedef unsigned char GLboolean;
 typedef unsigned int GLenum;

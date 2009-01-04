@@ -62,9 +62,9 @@ void init(GLuint fbo, GLuint depthBuffer, GLuint img)
   //glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depthBuffer);
         
 
-  GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-        if(status != GL_FRAMEBUFFER_COMPLETE_EXT)
-                exit(1);
+//  GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+//        if(status != GL_FRAMEBUFFER_COMPLETE_EXT)
+//                exit(1);
         
         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);    // Unbind the FBO for now
 }
