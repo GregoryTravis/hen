@@ -81,6 +81,7 @@ typedef float GLclampf;
 typedef double GLclampd;
 typedef long GLsizei;
 typedef unsigned long GLuint;
+typedef void GLvoid;
 
 extern void glutInitDisplayMode(unsigned int mode);
 extern void glutInitWindowSize(int width, int height);
@@ -105,14 +106,4 @@ extern void glGenTextures (GLsizei n, GLuint *textures);
 
 extern void glBindTexture (GLenum target, GLuint texture);
 
-//extern void glBindFramebufferEXT(GLenum target, GLuint framebuffer);
-// extern void glDeleteFramebuffersEXT(GLsizei n, const GLuint *framebuffers);
-// extern void glDeleteRenderbuffersEXT(GLsizei n, const GLuint *renderbuffers);
-// extern void glFramebufferRenderbufferEXT(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
-// extern void glFramebufferTexture2DEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
-// extern void glutIdleFunc(void (*func)(void));
-// extern void glutInit(int *argcp, char **argv);
-// extern void glutKeyboardFunc(void (*func)(unsigned char key, int x, int y));
-// extern void glutPostRedisplay(void);
-// extern void glutReshapeFunc(void (*func)(int width, int height));
-// extern void glutSwapBuffers(void);
+extern void glTexImage2D (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels);

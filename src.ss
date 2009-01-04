@@ -1,9 +1,3 @@
-;; (fun (vok) (Hoo 10 20))
-
-;; (doo
-;;  (Hoo a b) (Return (Hoo 10 20))
-;;  _ (shew b))
-
 (foreign "fbo" "fbo.o fbo.impl.o" "")
 (foreign "fakey" "fakey.impl.o GLee.o" "-framework GLUT -framework OpenGL -framework CoreFoundation")
 
@@ -61,6 +55,8 @@
       _ (glBindRenderbufferEXT _GL_RENDERBUFFER_EXT depthBuffer)
       _ (glRenderbufferStorageEXT _GL_RENDERBUFFER_EXT _GL_DEPTH_COMPONENT 512 512)
       _ (glBindTexture _GL_TEXTURE_2D img)
+      null (create-null-ref)
+      _ (glTexImage2D _GL_TEXTURE_2D 0 _GL_RGBA8  512 512 0 _GL_RGBA _GL_UNSIGNED_BYTE null)
 
       _ (init fbo depthBuffer img)
 

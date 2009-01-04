@@ -26,6 +26,7 @@ $aliases{"GLuint *"} = "unsigned long *";
 $aliases{"const GLuint *"} = "unsigned long *";
 $aliases{"GLboolean"} = "unsigned char";
 $aliases{"const char *"} = "char *";
+$aliases{"const GLvoid *"} = "void *";
 
 my $debug_this="";
 #$debug_this = "cgGLSetDebugMode";
@@ -190,6 +191,9 @@ foreach my $fun (@funs) {
     } elsif ($type eq "unsigned int *") {
       $arg_converters .=
         "  $type $name = (unsigned int*)opaqueval(${name}_);\n";
+    } elsif ($type eq "void *") {
+      $arg_converters .=
+        "  $type $name = opaqueval(${name}_);\n";
     } elsif ($type eq "vvfunp") {
       $arg_converters .=
         "  vvfunp $name = wrap_hen_fun(${name}_);\n";
@@ -214,6 +218,8 @@ foreach my $fun (@funs) {
     $returner = "  return string(__ret);\n";
   } elsif ($return_type eq "unsigned int *") {
     $returner = "  return opaque((void*)__ret);\n";
+  } elsif ($return_type eq "void *") {
+    $returner = "  return opaque(__ret);\n";
   } elsif ($return_type eq "unsigned long *") {
     $returner = "  return opaque((void*)__ret);\n";
   } elsif ($return_type eq "unsigned int *") {
