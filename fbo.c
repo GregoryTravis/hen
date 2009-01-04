@@ -32,7 +32,7 @@ void init(void)
   //glClearDepth(1.0f);                                     
   //glEnable(GL_DEPTH_TEST);                        
   //glDepthFunc(GL_LEQUAL);                         
-        glViewport(0,0,800,600);
+  //glViewport(0,0,800,600);
 
         // Setup our FBO
         glGenFramebuffersEXT(1, &fbo);

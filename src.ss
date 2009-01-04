@@ -16,6 +16,7 @@
       _ (glClearDepth 1.0)
       _ (glEnable _GL_DEPTH_TEST)
       _ (glDepthFunc _GL_LEQUAL)
+      _ (glViewport 0 0 800 600)
       _ (init)))
 
 (doo
