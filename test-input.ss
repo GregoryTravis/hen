@@ -248,7 +248,9 @@
 (doo _ (shew 100) _ (doo _ (shew 3000)) _ (shew 200))
 
 (fun (vok) (Hoo 10 20))
-
 (doo
- (Hoo a b) (Return (Hoo 10 20))
+ (Hoo a b) (Return (vok))
+ _ (shew b))
+(doo
+ (Hoo a b) (Hoo 100 200)
  _ (shew b))
