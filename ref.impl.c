@@ -33,6 +33,32 @@ yeah* destroy_int_ref(yeah* arg) {
   return Nil;
 }
 
+// HEY naming convention
+yeah* create_float_ref(yeah* arg) {
+  float* ip = NEW(float);
+  *ip = getfloat(hcar(arg));
+  return opaque(ip);
+}
+
+yeah* read_float_ref(yeah* arg) {
+  float* ip = (float*)opaqueval(hcar(arg));
+  A(ip);
+  return flote(*ip);
+}
+
+yeah* write_float_ref(yeah* arg) {
+  float* ip = (float*)opaqueval(hcar(arg));
+  A(ip);
+  float i = getfloat(hcadr(arg));
+  *ip = i;
+  return Nil;
+}
+
+yeah* destroy_float_ref(yeah* arg) {
+  fri(opaqueval(hcar(arg)));
+  return Nil;
+}
+
 yeah* create_null_ref(yeah* arg) {
   A(isnil(arg));
   return opaque(NULL);
@@ -43,5 +69,9 @@ void ref_impl_register() {
   register_command("read-int-ref-impl", &read_int_ref);
   register_command("write-int-ref-impl", &write_int_ref);
   register_command("destroy-int-ref-impl", &destroy_int_ref);
+  register_command("create-float-ref-impl", &create_float_ref);
+  register_command("read-float-ref-impl", &read_float_ref);
+  register_command("write-float-ref-impl", &write_float_ref);
+  register_command("destroy-float-ref-impl", &destroy_float_ref);
   register_command("create-null-ref-impl", &create_null_ref);
 }

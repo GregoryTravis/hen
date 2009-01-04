@@ -19,8 +19,8 @@ const int width = 512;          // The hight of the texture we'll be rendering t
 const int height = 512;         // The width of the texture we'll be rendering to
 
 // Used for drawing the 3D cube with our rendered texture on it
-GLfloat xrot = 0;                       // X Rotation
-GLfloat yrot = 0;                       // Y Rotation
+//GLfloat xrot = 0;                       // X Rotation
+//GLfloat yrot = 0;                       // Y Rotation
 GLfloat xspeed = 0.2f;          // X Rotation Speed
 GLfloat yspeed = 0.1f;          // Y Rotation Speed
 
@@ -67,7 +67,7 @@ void idle(void)
         glutPostRedisplay();
 }
 
-void display(GLuint fbo, GLuint img)
+void display(GLuint fbo, GLuint img, GLfloat xrot, GLfloat yrot)
 {
         // First we bind the FBO so we can render to it
   //glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);

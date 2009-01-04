@@ -1,7 +1,7 @@
 (foreign "fbo" "fbo.o fbo.impl.o" "")
 (foreign "fakey" "fakey.impl.o GLee.o" "-framework GLUT -framework OpenGL -framework CoreFoundation")
 
-(fun (hendisplay fbo img xrot yrot)
+(fun (hendisplay fbo img xrot-ref yrot-ref)
      (doo
       _ (glBindFramebufferEXT _GL_FRAMEBUFFER_EXT fbo)
       _ (glPushAttrib _GL_VIEWPORT_BIT)
@@ -10,6 +10,11 @@
       _ (glClear _GL_COLOR_BUFFER_BIT_or_GL_DEPTH_BUFFER_BIT)
 
       _ (glLoadIdentity)
+
+xrot (read-float-ref xrot-ref)
+yrot (read-float-ref yrot-ref)
+;_ (shew ($ 'xrot xrot))
+;_ (shew ($ 'yrot yrot))
 
 _ (glTranslatef 0.0 0.0 -2.0)
 _ (glRotatef xrot 1.0 0.0 0.0)
@@ -116,7 +121,12 @@ _ (glRotatef yrot 0.0 1.0 0.0)
 ;; _ (glDisable _GL_TEXTURE_2D)
 ;; _ (glutSwapBuffers)
 
-      _ (display fbo img)))
+      _ (display fbo img xrot yrot)
+
+      _ (write-float-ref xrot-ref ((+ xrot) 0.2))
+      _ (write-float-ref yrot-ref ((+ yrot) 0.1))
+
+))
 
 (fun (henidle) (doo
                 ;_ (shew 'idle-callback)
@@ -200,7 +210,10 @@ _ (glRotatef yrot 0.0 1.0 0.0)
  (Foo fbo img) (init)
  _ (shew fbo)
 
+ xrot-ref (create-float-ref 0.0)
+ yrot-ref (create-float-ref 0.0)
+
  _ (fbo_main1)
- _ (glutDisplayFunc (/. () (hendisplay fbo img 0.0 0.0)))
+ _ (glutDisplayFunc (/. () (hendisplay fbo img xrot-ref yrot-ref)))
  _ (glutIdleFunc henidle)
  _ (glutMainLoop))

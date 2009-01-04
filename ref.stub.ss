@@ -2,4 +2,8 @@
 (fun (read-int-ref ref) (Command 'read-int-ref-impl ($ ref)))
 (fun (write-int-ref ref value) (Command 'write-int-ref-impl ($ ref value)))
 (fun (destroy-int-ref ref) (Command 'destroy-int-ref-impl ($ ref)))
+(fun (create-float-ref value) (Command 'create-float-ref-impl ($ value)))
+(fun (read-float-ref ref) (Command 'read-float-ref-impl ($ ref)))
+(fun (write-float-ref ref value) (Command 'write-float-ref-impl ($ ref value)))
+(fun (destroy-float-ref ref) (Command 'destroy-float-ref-impl ($ ref)))
 (fun (create-null-ref) (Command 'create-null-ref-impl ($)))
