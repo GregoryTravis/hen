@@ -73,3 +73,4 @@ extern void glGenRenderbuffersEXT(GLsizei n, GLuint *renderbuffers);
 
 extern void glBindRenderbufferEXT(GLenum target, GLuint renderbuffer);
 extern void glRenderbufferStorageEXT(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
+extern void glGenTextures (GLsizei n, GLuint *textures);

@@ -7,9 +7,9 @@
 (foreign "fbo" "fbo.o fbo.impl.o" "")
 (foreign "fakey" "fakey.impl.o GLee.o" "-framework GLUT -framework OpenGL -framework CoreFoundation")
 
-(fun (hendisplay fbo) (doo
+(fun (hendisplay fbo img) (doo
                    ;_ (shew 'display-callback)
-                   _ (display fbo)))
+                   _ (display fbo img)))
 
 (fun (henidle) (doo
                 ;_ (shew 'idle-callback)
@@ -33,6 +33,15 @@
       _ (shew depthBuffer)
       _ (Return depthBuffer)))
 
+(fun (make-texture)
+     (doo
+      ref (create-int-ref 0)
+      _ (glGenTextures 1 ref)
+      img (read-int-ref ref)
+      _ (destroy-int-ref ref)
+      _ (shew img)
+      _ (Return img)))
+
 (fun (myinit)
      (doo
       _ (glShadeModel _GL_SMOOTH)
@@ -46,13 +55,15 @@
 
       depthBuffer (make-depth-buffer)
 
+      img (make-texture)
+
       _ (glBindFramebufferEXT _GL_FRAMEBUFFER_EXT fbo)
       _ (glBindRenderbufferEXT _GL_RENDERBUFFER_EXT depthBuffer)
       _ (glRenderbufferStorageEXT _GL_RENDERBUFFER_EXT _GL_DEPTH_COMPONENT 512 512)
-      _ (init fbo depthBuffer)
+      _ (init fbo depthBuffer img)
 
 ;      _ (Return (Haha fbo depthBuffer))))
-      _ (Return (Foo fbo))))
+      _ (Return (Foo fbo img))))
 
 (doo
  _ (fbo_main0)
@@ -64,11 +75,11 @@
  _ (shew ret)
 
 ; (Haha fbo depthBuffer) (myinit)
- (Foo fbo) (myinit)
+ (Foo fbo img) (myinit)
  _ (shew fbo)
 
  _ (fbo_main1)
 ; _ (glutDisplayFunc (/. () (hendisplay fbo depthBuffer)))
- _ (glutDisplayFunc (/. () (hendisplay fbo)))
+ _ (glutDisplayFunc (/. () (hendisplay fbo img)))
  _ (glutIdleFunc henidle)
  _ (glutMainLoop))

@@ -13,7 +13,7 @@
 
 //GLuint fbo;                                     // Our handle to the FBO
 //GLuint depthBuffer;                     // Our handle to the depth render buffer
-GLuint img;                                     // Our handle to a texture
+//GLuint img;                                     // Our handle to a texture
 
 const int width = 512;          // The hight of the texture we'll be rendering to
 const int height = 512;         // The width of the texture we'll be rendering to
@@ -24,7 +24,7 @@ GLfloat yrot = 0;                       // Y Rotation
 GLfloat xspeed = 0.2f;          // X Rotation Speed
 GLfloat yspeed = 0.1f;          // Y Rotation Speed
 
-void init(GLuint fbo, GLuint depthBuffer)
+void init(GLuint fbo, GLuint depthBuffer, GLuint img)
 {
 
   //HEN
@@ -41,9 +41,8 @@ void init(GLuint fbo, GLuint depthBuffer)
   //glGenRenderbuffersEXT(1, &depthBuffer);
   //glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depthBuffer);
   //glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, width, height);
-
-        // Now setup a texture to render to
-        glGenTextures(1, &img);
+  // Now setup a texture to render to
+  //glGenTextures(1, &img);
         glBindTexture(GL_TEXTURE_2D, img);
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,  width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -113,7 +112,7 @@ void idle(void)
         glutPostRedisplay();
 }
 
-void display(GLuint fbo)   
+void display(GLuint fbo, GLuint img)
 {
         // First we bind the FBO so we can render to it
         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
