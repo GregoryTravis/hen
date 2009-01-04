@@ -37,9 +37,8 @@ void init(GLuint fbo, GLuint depthBuffer)
   // Setup our FBO
   //glGenFramebuffersEXT(1, &fbo);
   //glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
-
-        // Create the render buffer for depth   
-        glGenRenderbuffersEXT(1, &depthBuffer);
+  // Create the render buffer for depth   
+  //glGenRenderbuffersEXT(1, &depthBuffer);
         glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depthBuffer);
         glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, width, height);
 
