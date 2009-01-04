@@ -36,7 +36,7 @@
       _ (shew img)
       _ (Return img)))
 
-(fun (myinit)
+(fun (init)
      (doo
       _ (glShadeModel _GL_SMOOTH)
       _ (glClearColor 0.0 0.0 0.2 0.5)
@@ -84,12 +84,10 @@
  ret (_GLeeInit)
  _ (shew ret)
 
-; (Haha fbo depthBuffer) (myinit)
- (Foo fbo img) (myinit)
+ (Foo fbo img) (init)
  _ (shew fbo)
 
  _ (fbo_main1)
-; _ (glutDisplayFunc (/. () (hendisplay fbo depthBuffer)))
  _ (glutDisplayFunc (/. () (hendisplay fbo img)))
  _ (glutIdleFunc henidle)
  _ (glutMainLoop))
