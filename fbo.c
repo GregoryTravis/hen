@@ -76,10 +76,10 @@ void display(GLuint fbo, GLuint img)
   //glPushAttrib(GL_VIEWPORT_BIT);
   //glViewport(0,0,width,height);
 
-        // Then render as normal
-        // Today's scene is a wonderful multi-coloured spinning cube ;)
-        glClearColor(0.0f, 0.0f, 0.0f, 0.5f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);     // Clear Screen And Depth Buffer
+  // Then render as normal
+  // Today's scene is a wonderful multi-coloured spinning cube ;)
+  //glClearColor(0.0f, 0.0f, 0.0f, 0.5f);
+  //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);     // Clear Screen And Depth Buffer
         glLoadIdentity();
 
         glTranslatef(0.0f,0.0f,-2.0f);

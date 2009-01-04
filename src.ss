@@ -6,6 +6,8 @@
       _ (glBindFramebufferEXT _GL_FRAMEBUFFER_EXT fbo)
       _ (glPushAttrib _GL_VIEWPORT_BIT)
       _ (glViewport 0 0 512 512)
+      _ (glClearColor 0.0 0.0 0.0 0.5)
+      _ (glClear _GL_COLOR_BUFFER_BIT_or_GL_DEPTH_BUFFER_BIT)
 
       _ (display fbo img)))
 

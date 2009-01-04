@@ -49,6 +49,9 @@
 #define GL_DEPTH_ATTACHMENT_EXT            #x8D00
 #define GL_FRAMEBUFFER_COMPLETE_EXT                        #x8CD5
 
+// TODO
+#define GL_COLOR_BUFFER_BIT_or_GL_DEPTH_BUFFER_BIT #x4100
+
 typedef unsigned char GLboolean;
 typedef unsigned int GLenum;
 typedef long GLint;
@@ -93,3 +96,4 @@ extern void glFramebufferRenderbufferEXT(GLenum target, GLenum attachment, GLenu
 extern GLenum glCheckFramebufferStatusEXT(GLenum target);
 //extern void glBindFramebufferEXT(GLenum target, GLuint framebuffer);
 extern void glPushAttrib (GLbitfield mask);
+extern void glClear (GLbitfield mask);
