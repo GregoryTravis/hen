@@ -526,6 +526,8 @@ yeah* evl_step_(yeah* e, yeah* env) {
     return evl_step(e->u.thunk.exp, e->u.thunk.env);
   } else if (ISLAMBDA(e)) {
     return closure(e, env);
+  } else if (is_ctor(e)) {
+    return e;
   } else if (ISSYMBOL(e)) {
     return lookup(e->u.symbol.s, env);
   } else if (ISCSYMBOL(e)) {

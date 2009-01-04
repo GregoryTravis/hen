@@ -41,7 +41,7 @@
       _ (init fbo depthBuffer)
 
 ;      _ (Return (Haha fbo depthBuffer))))
-      _ (Return fbo)))
+      _ (Return (Foo fbo))))
 
 (doo
  _ (fbo_main0)
@@ -53,7 +53,7 @@
  _ (shew ret)
 
 ; (Haha fbo depthBuffer) (myinit)
- fbo (myinit)
+ (Foo fbo) (myinit)
  _ (shew fbo)
 
  _ (fbo_main1)
