@@ -12,7 +12,7 @@
 #include <glut.h>
 
 //GLuint fbo;                                     // Our handle to the FBO
-GLuint depthBuffer;                     // Our handle to the depth render buffer
+//GLuint depthBuffer;                     // Our handle to the depth render buffer
 GLuint img;                                     // Our handle to a texture
 
 const int width = 512;          // The hight of the texture we'll be rendering to
@@ -24,7 +24,7 @@ GLfloat yrot = 0;                       // Y Rotation
 GLfloat xspeed = 0.2f;          // X Rotation Speed
 GLfloat yspeed = 0.1f;          // Y Rotation Speed
 
-void init(GLuint fbo)     
+void init(GLuint fbo, GLuint depthBuffer)
 {
 
   //HEN

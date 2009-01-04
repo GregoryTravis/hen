@@ -1,7 +1,13 @@
+;; (fun (vok) (Hoo 10 20))
+
+;; (doo
+;;  (Hoo a b) (Return (Hoo 10 20))
+;;  _ (shew b))
+
 (foreign "fbo" "fbo.o fbo.impl.o" "")
 (foreign "fakey" "fakey.impl.o GLee.o" "-framework GLUT -framework OpenGL -framework CoreFoundation")
 
-(fun (hendisplay fbo ) (doo
+(fun (hendisplay fbo) (doo
                    ;_ (shew 'display-callback)
                    _ (display fbo)))
 
@@ -23,8 +29,16 @@
       _ (destroy-int-ref ref)
       _ (shew fbo)
 
+      ref (create-int-ref 0)
+      _ (glGenRenderbuffersEXT 1 ref)
+      depthBuffer (read-int-ref ref)
+      _ (destroy-int-ref ref)
+      _ (shew depthBuffer)
+
       _ (glBindFramebufferEXT _GL_FRAMEBUFFER_EXT fbo)
-      _ (init fbo)
+      _ (init fbo depthBuffer)
+
+;      _ (Return (Haha fbo depthBuffer))))
       _ (Return fbo)))
 
 (doo
@@ -36,10 +50,12 @@
  ret (_GLeeInit)
  _ (shew ret)
 
+; (Haha fbo depthBuffer) (myinit)
  fbo (myinit)
  _ (shew fbo)
 
  _ (fbo_main1)
+; _ (glutDisplayFunc (/. () (hendisplay fbo depthBuffer)))
  _ (glutDisplayFunc (/. () (hendisplay fbo)))
  _ (glutIdleFunc henidle)
  _ (glutMainLoop))

@@ -68,3 +68,5 @@ extern void glDepthFunc (GLenum func);
 extern void glViewport (GLint x, GLint y, GLsizei width, GLsizei height);
 extern void glGenFramebuffersEXT(GLsizei n, GLuint *framebuffers);
 extern void glBindFramebufferEXT(GLenum target, GLuint framebuffer);
+extern void glGenRenderbuffersEXT(GLsizei n, GLuint *renderbuffers);
+
