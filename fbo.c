@@ -5,12 +5,13 @@
 // Note: This isn't meant to indicate good programming style, just act as an example
 //
 
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "glee.h"
 #include <glut.h>
 
-GLuint fbo;                                     // Our handle to the FBO
+//GLuint fbo;                                     // Our handle to the FBO
 GLuint depthBuffer;                     // Our handle to the depth render buffer
 GLuint img;                                     // Our handle to a texture
 
@@ -23,7 +24,7 @@ GLfloat yrot = 0;                       // Y Rotation
 GLfloat xspeed = 0.2f;          // X Rotation Speed
 GLfloat yspeed = 0.1f;          // Y Rotation Speed
 
-void init(void)     
+void init(GLuint fbo)     
 {
 
   //HEN
@@ -33,9 +34,9 @@ void init(void)
   //glEnable(GL_DEPTH_TEST);                        
   //glDepthFunc(GL_LEQUAL);                         
   //glViewport(0,0,800,600);
+  // Setup our FBO
+  //glGenFramebuffersEXT(1, &fbo);
 
-        // Setup our FBO
-        glGenFramebuffersEXT(1, &fbo);
         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
 
         // Create the render buffer for depth   
@@ -73,9 +74,14 @@ void init(void)
 
 void ShutDown(GLvoid)
 {
+// TODO
+fprintf(stderr, "Can't really shut down!\n");
+exit(1);
+/*
         glDeleteFramebuffersEXT(1, &fbo);
         glDeleteRenderbuffersEXT(1, &depthBuffer);
         glDeleteTextures(1,&img);
+*/
 }
 
 void reshape(int w,int h)                       
@@ -109,7 +115,7 @@ void idle(void)
         glutPostRedisplay();
 }
 
-void display(void)   
+void display(GLuint fbo)   
 {
         // First we bind the FBO so we can render to it
         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);

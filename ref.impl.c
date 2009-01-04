@@ -13,13 +13,13 @@ yeah* create_int_ref(yeah* arg) {
 }
 
 yeah* read_int_ref(yeah* arg) {
-  int* ip = (int*)opaque_val(hcar(arg));
+  int* ip = (int*)opaqueval(hcar(arg));
   A(ip);
   return integer(*ip);
 }
 
 yeah* write_int_ref(yeah* arg) {
-  int* ip = (int*)opaque_val(hcar(arg));
+  int* ip = (int*)opaqueval(hcar(arg));
   A(ip);
   int i = getint(hcadr(arg));
   *ip = i;
@@ -27,7 +27,7 @@ yeah* write_int_ref(yeah* arg) {
 }
 
 yeah* destroy_int_ref(yeah* arg) {
-  fri(opaque_val(hcar(arg)));
+  fri(opaqueval(hcar(arg)));
   return Nil;
 }
 

@@ -21,7 +21,8 @@ $aliases{"GLintptrARB"} = "long";
 $aliases{"GLsizei"} = "int";
 $aliases{"GLsizeiptr"} = "long";
 $aliases{"GLsizeiptrARB"} = "long";
-$aliases{"GLuint"} = "unsigned int";
+$aliases{"GLuint"} = "unsigned long";
+$aliases{"GLuint *"} = "unsigned long *";
 $aliases{"GLboolean"} = "unsigned char";
 $aliases{"const char *"} = "char *";
 
@@ -108,7 +109,7 @@ foreach my $line (@$ilines) {
       #$type = "void (*)(void)";
       $type = "vvfunp";
     } else {
-      # Otherwise, assume it's like "unsigned int foo".  Last word is
+      # Otherwise, assume it's like "unsigned long foo".  Last word is
       # name, rest is type.
       $arg_name = pop(@argwords);
       $type = join(" ", @argwords);
@@ -173,7 +174,7 @@ foreach my $fun (@funs) {
   my $arg_converters = "";
   foreach my $arg (@$args) {
     my ($name, $type) = @$arg;
-    if ($type eq "int" || $type eq "unsigned int" || $type eq "unsigned char") {
+    if ($type eq "int" || $type eq "unsigned long" || $type eq "unsigned int" || $type eq "unsigned char") {
       $arg_converters .=
         "  $type $name = getint(${name}_);\n";
     } elsif ($type eq "float" || $type eq "double") {
@@ -182,6 +183,12 @@ foreach my $fun (@funs) {
     } elsif ($type eq "char *") {
       $arg_converters .=
         "  $type $name = stringval(${name}_);\n";
+    } elsif ($type eq "unsigned long *") {
+      $arg_converters .=
+        "  $type $name = (unsigned long*)opaqueval(${name}_);\n";
+    } elsif ($type eq "unsigned int *") {
+      $arg_converters .=
+        "  $type $name = (unsigned int*)opaqueval(${name}_);\n";
     } elsif ($type eq "vvfunp") {
       $arg_converters .=
         "  vvfunp $name = wrap_hen_fun(${name}_);\n";
@@ -198,12 +205,18 @@ foreach my $fun (@funs) {
   my $returner;
   if ($return_type eq "void") {
     $returner = "  return Nil;\n";
-  } elsif ($return_type eq "int" || $return_type eq "unsigned int" || $return_type eq "unsigned char") {
+  } elsif ($return_type eq "int" || $return_type eq "unsigned long" || $return_type eq "unsigned int" || $return_type eq "unsigned char") {
     $returner = "  return integer(__ret);\n";
   } elsif ($return_type eq "float" || $return_type eq "double") {
     $returner = "  return flote(__ret);\n";
   } elsif ($return_type eq "char *") {
     $returner = "  return string(__ret);\n";
+  } elsif ($return_type eq "unsigned int *") {
+    $returner = "  return opaque((void*)__ret);\n";
+  } elsif ($return_type eq "unsigned long *") {
+    $returner = "  return opaque((void*)__ret);\n";
+  } elsif ($return_type eq "unsigned int *") {
+    $returner = "  return opaque((void*)__ret);\n";
   } elsif ($return_type eq "void (*)(void)") {
     $returner = "  return opaque(__ret);\n";
   } else {

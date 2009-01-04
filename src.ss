@@ -1,14 +1,13 @@
 (foreign "fbo" "fbo.o fbo.impl.o" "")
 (foreign "fakey" "fakey.impl.o GLee.o" "-framework GLUT -framework OpenGL -framework CoreFoundation")
 
-(fun (hendisplay) (doo
+(fun (hendisplay fbo ) (doo
                    ;_ (shew 'display-callback)
-                   _ (display)))
+                   _ (display fbo)))
 
 (fun (henidle) (doo
                 ;_ (shew 'idle-callback)
                 _ (idle)))
-
 (fun (myinit)
      (doo
       _ (glShadeModel _GL_SMOOTH)
@@ -17,7 +16,15 @@
       _ (glEnable _GL_DEPTH_TEST)
       _ (glDepthFunc _GL_LEQUAL)
       _ (glViewport 0 0 800 600)
-      _ (init)))
+
+      ref (create-int-ref 0)
+      _ (glGenFramebuffersEXT 1 ref)
+      fbo (read-int-ref ref)
+      _ (destroy-int-ref ref)
+      _ (shew fbo)
+
+      _ (init fbo)
+      _ (Return fbo)))
 
 (doo
  _ (fbo_main0)
@@ -28,9 +35,10 @@
  ret (_GLeeInit)
  _ (shew ret)
 
- _ (myinit)
+ fbo (myinit)
+ _ (shew fbo)
 
  _ (fbo_main1)
- _ (glutDisplayFunc hendisplay)
+ _ (glutDisplayFunc (/. () (hendisplay fbo)))
  _ (glutIdleFunc henidle)
  _ (glutMainLoop))
