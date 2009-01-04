@@ -83,9 +83,9 @@ void display(GLuint fbo, GLuint img)
 
   //glLoadIdentity();
 
-        glTranslatef(0.0f,0.0f,-2.0f);
-        glRotatef(xrot,1.0f,0.0f,0.0f);
-        glRotatef(yrot,0.0f,1.0f,0.0f);
+/*         glTranslatef(0.0f,0.0f,-2.0f); */
+/*         glRotatef(xrot,1.0f,0.0f,0.0f); */
+/*         glRotatef(yrot,0.0f,1.0f,0.0f); */
 
         glBegin(GL_QUADS);
                 // Front Face
