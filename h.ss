@@ -567,8 +567,8 @@
    x (cond
       ;((quoted-symbol? x) `(csymbol ,x))
       ((symbol? x) `(symbol ,x))
-      ((integer? x) `(integer ,x))
-      ((real? x) `(flote ,x))
+      ((and (number? x) (inexact? x) (real? x)) `(flote ,x))
+      ((and (number? x) (exact? x) (integer? x)) `(integer ,x))
       ((string? x) `(string ,x))
       (#t (err 'cmpl x)))))
 

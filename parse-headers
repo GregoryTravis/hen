@@ -176,6 +176,9 @@ foreach my $fun (@funs) {
     if ($type eq "int" || $type eq "unsigned int" || $type eq "unsigned char") {
       $arg_converters .=
         "  $type $name = getint(${name}_);\n";
+    } elsif ($type eq "float") {
+      $arg_converters .=
+        "  $type $name = getfloat(${name}_);\n";
     } elsif ($type eq "char *") {
       $arg_converters .=
         "  $type $name = stringval(${name}_);\n";
@@ -197,6 +200,8 @@ foreach my $fun (@funs) {
     $returner = "  return Nil;\n";
   } elsif ($return_type eq "int" || $return_type eq "unsigned int" || $return_type eq "unsigned char") {
     $returner = "  return integer(__ret);\n";
+  } elsif ($return_type eq "float") {
+    $returner = "  return flote(__ret);\n";
   } elsif ($return_type eq "char *") {
     $returner = "  return string(__ret);\n";
   } elsif ($return_type eq "void (*)(void)") {

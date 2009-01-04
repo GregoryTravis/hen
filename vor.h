@@ -92,6 +92,7 @@ yeah* flote(float f);
 yeah* app(yeah* f, yeah* arg);
 yeah* nil(void);
 int getint(yeah* e);
+float getfloat(yeah* e);
 void evl_top(char* src, yeah* e);
 char* stringval(yeah* e);
 void* opaque_val(yeah* y);

@@ -4,6 +4,7 @@
 
 typedef unsigned char GLboolean;
 typedef unsigned int GLenum;
+typedef float GLclampf;
 
 extern void glutInitDisplayMode(unsigned int mode);
 extern void glutInitWindowSize(int width, int height);
@@ -13,3 +14,4 @@ extern void glutMainLoop(void);
 extern void glutDisplayFunc(void (*func)(void));
 extern void glutIdleFunc(void (*func)(void));
 extern void glShadeModel(GLenum mode);
+extern void glClearColor (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);

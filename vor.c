@@ -255,7 +255,7 @@ int getint(yeah* e) {
   return e->u.integer.i;
 }
 
-int getfloat(yeah* e) {
+float getfloat(yeah* e) {
   A(ISFLOAT(e));
   return e->u.flote.f;
 }
