@@ -97,3 +97,16 @@ extern GLenum glCheckFramebufferStatusEXT(GLenum target);
 //extern void glBindFramebufferEXT(GLenum target, GLuint framebuffer);
 extern void glPushAttrib (GLbitfield mask);
 extern void glClear (GLbitfield mask);
+
+extern void glBegin (GLenum mode);
+extern void glColor4f (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
+extern void glDisable (GLenum cap);
+extern void glEnd (void);
+extern void glLoadIdentity (void);
+extern void glNormal3f (GLfloat nx, GLfloat ny, GLfloat nz);
+extern void glPopAttrib (void);
+extern void glRotatef (GLfloat angle, GLfloat x, GLfloat y, GLfloat z);
+extern void glTexCoord2f (GLfloat s, GLfloat t);
+extern void glTranslatef (GLfloat x, GLfloat y, GLfloat z);
+extern void glVertex3f (GLfloat x, GLfloat y, GLfloat z);
+extern void glutSwapBuffers(void);
