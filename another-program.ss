@@ -6,3 +6,8 @@
  val (read-int-ref ref)
  _ (shew val)
  _ (destroy-int-ref ref))
+
+(doo
+ ref (create-charp-ref "asdf")
+ s (read-charp-ref ref)
+ _ (shew s))

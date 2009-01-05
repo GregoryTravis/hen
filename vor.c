@@ -232,6 +232,7 @@ char* csymstring(yeah* e) {
   return e->u.symbol.s;
 }
 
+// getstring?  Consistency?
 char* stringval(yeah* e) {
   A(ISSTRING(e));
   return e->u.string.s;

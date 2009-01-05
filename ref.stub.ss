@@ -7,3 +7,8 @@
 (fun (write-float-ref ref value) (Command 'write-float-ref-impl ($ ref value)))
 (fun (destroy-float-ref ref) (Command 'destroy-float-ref-impl ($ ref)))
 (fun (create-null-ref) (Command 'create-null-ref-impl ($)))
+(fun (create-charp-ref value) (Command 'create-charp-ref-impl ($ value)))
+(fun (read-charp-ref ref) (Command 'read-charp-ref-impl ($ ref)))
+(fun (write-charp-ref ref value) (Command 'write-charp-ref-impl ($ ref value)))
+(fun (destroy-charp-ref ref) (Command 'destroy-charp-ref-impl ($ ref)))
+(fun (create-null-ref) (Command 'create-null-ref-impl ($)))
