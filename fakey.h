@@ -69,6 +69,9 @@ extern int glutCreateWindow(const char *title);
 extern GLboolean GLeeInit();
 extern void glutMainLoop(void);
 extern void glutDisplayFunc(void (*func)(void));
+// TODO learn to parse fun ptr params
+//extern void glutReshapeFunc(void (*func)(int width, int height));
+extern void glutReshapeFunc(viifunp func);
 extern void glutIdleFunc(void (*func)(void));
 extern void glShadeModel(GLenum mode);
 extern void glClearColor (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);

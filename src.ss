@@ -128,6 +128,11 @@
                 ;_ (shew 'idle-callback)
                 _ (idle)))
 
+(fun (henreshape w h)
+     (doo
+      _ (shew ($ 'reshape-callback w h))
+      _ (reshape w h)))
+
 (fun (make-fbo)
      (doo
       ref (create-int-ref 0)
@@ -211,5 +216,6 @@
 
  _ (fbo_main1)
  _ (glutDisplayFunc (/. () (hendisplay fbo img xrot-ref yrot-ref)))
+ _ (glutReshapeFunc henreshape)
  _ (glutIdleFunc henidle)
  _ (glutMainLoop))
