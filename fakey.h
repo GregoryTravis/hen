@@ -74,6 +74,7 @@ extern void glutDisplayFunc(void (*func)(void));
 //extern void glutReshapeFunc(void (*func)(int width, int height));
 extern void glutReshapeFunc(viifunp func);
 extern void glutIdleFunc(void (*func)(void));
+extern void glutKeyboardFunc(vuciifunp func);
 extern void glShadeModel(GLenum mode);
 extern void glClearColor (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
 extern void glClearDepth (GLclampd depth);

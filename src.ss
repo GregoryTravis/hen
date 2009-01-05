@@ -141,6 +141,11 @@
       _ (glMatrixMode _GL_MODELVIEW)
       _ (glLoadIdentity)))
 
+ (fun (henkeyboard key x y)
+     (doo
+      _ (shew ($ key x y))
+      _ (keyboard key x y)))
+
 (fun (make-fbo)
      (doo
       ref (create-int-ref 0)
@@ -225,5 +230,6 @@
  _ (fbo_main1)
  _ (glutDisplayFunc (/. () (hendisplay fbo img xrot-ref yrot-ref)))
  _ (glutReshapeFunc henreshape)
+ _ (glutKeyboardFunc henkeyboard)
  _ (glutIdleFunc henidle)
  _ (glutMainLoop))

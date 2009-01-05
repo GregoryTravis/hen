@@ -61,7 +61,7 @@ void fbo_main1() {
         // Setup the various call back functions GLUT requires
 //        glutDisplayFunc     ( display );  
 //        glutReshapeFunc     ( reshape );
-        glutKeyboardFunc    ( keyboard );
+//        glutKeyboardFunc    ( keyboard );
         glutIdleFunc            ( idle );
 
         // HEY
