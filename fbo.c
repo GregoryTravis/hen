@@ -23,21 +23,6 @@ exit(1);
 */
 }
 
-void reshape(int w,int h)                       
-{
-//        glViewport( 0, 0, w, h );
-//        glMatrixMode(GL_PROJECTION);    
-//        glLoadIdentity();                                       
-/*
-        if ( h==0 )                                                     
-                gluPerspective(80,(float)w,1.0,5000.0);
-        else
-                gluPerspective(80,(float)w/(float)h,1.0,5000.0);
-*/
-//        glMatrixMode(GL_MODELVIEW);     
-//        glLoadIdentity();                                       
-}
-
 void keyboard(unsigned char key,int x,int y)  
 {
         switch(key)
