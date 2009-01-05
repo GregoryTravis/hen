@@ -87,44 +87,44 @@ void display(GLuint fbo, GLuint img, GLfloat xrot, GLfloat yrot)
 /*         glRotatef(xrot,1.0f,0.0f,0.0f); */
 /*         glRotatef(yrot,0.0f,1.0f,0.0f); */
 
-        glBegin(GL_QUADS);
-                // Front Face
-                glColor4f(0.0f,1.0f,0.0f,1.0f);
-                glVertex3f(-0.5f, -0.5,  0.5);
-                glVertex3f( 0.5, -0.5,  0.5);
-                glVertex3f( 0.5,  0.5,  0.5);
-                glVertex3f(-0.5,  0.5,  0.5);
-                // Back Face
-                glColor4f(1.0f,0.0f,0.0f,1.0f);
-                glVertex3f(-0.5, -0.5, -0.5);
-                glVertex3f(-0.5,  0.5, -0.5);
-                glVertex3f( 0.5,  0.5, -0.5);
-                glVertex3f( 0.5, -0.5, -0.5);
-                // Top Face
-                glColor4f(0.0f,0.0f,1.0f,1.0f);
-                glVertex3f(-0.5,  0.5, -0.5);
-                glVertex3f(-0.5,  0.5,  0.5);
-                glVertex3f( 0.5,  0.5,  0.5);
-                glVertex3f( 0.5,  0.5, -0.5);
-                // Bottom Face
-                glColor4f(0.0f,1.0f,1.0f,1.0f);
-                glVertex3f(-0.5, -0.5, -0.5);
-                glVertex3f( 0.5, -0.5, -0.5);
-                glVertex3f( 0.5, -0.5,  0.5);
-                glVertex3f(-0.5, -0.5,  0.5);
-                // Right face
-                glColor4f(1.0f,1.0f,0.0f,1.0f);
-                glVertex3f( 0.5, -0.5, -0.5);
-                glVertex3f( 0.5,  0.5, -0.5);
-                glVertex3f( 0.5,  0.5,  0.5);
-                glVertex3f( 0.5, -0.5,  0.5);
-                // Left Face
-                glColor4f(1.0f,1.0f,1.0f,1.0f);
-                glVertex3f(-0.5, -0.5, -0.5);
-                glVertex3f(-0.5, -0.5,  0.5);
-                glVertex3f(-0.5,  0.5,  0.5);
-                glVertex3f(-0.5,  0.5, -0.5);
-        glEnd();
+//        glBegin(GL_QUADS);
+/*                 // Front Face */
+/*                 glColor4f(0.0f,1.0f,0.0f,1.0f); */
+/*                 glVertex3f(-0.5f, -0.5,  0.5); */
+/*                 glVertex3f( 0.5, -0.5,  0.5); */
+/*                 glVertex3f( 0.5,  0.5,  0.5); */
+/*                 glVertex3f(-0.5,  0.5,  0.5); */
+/*                 // Back Face */
+/*                 glColor4f(1.0f,0.0f,0.0f,1.0f); */
+/*                 glVertex3f(-0.5, -0.5, -0.5); */
+/*                 glVertex3f(-0.5,  0.5, -0.5); */
+/*                 glVertex3f( 0.5,  0.5, -0.5); */
+/*                 glVertex3f( 0.5, -0.5, -0.5); */
+/*                 // Top Face */
+/*                 glColor4f(0.0f,0.0f,1.0f,1.0f); */
+/*                 glVertex3f(-0.5,  0.5, -0.5); */
+/*                 glVertex3f(-0.5,  0.5,  0.5); */
+/*                 glVertex3f( 0.5,  0.5,  0.5); */
+/*                 glVertex3f( 0.5,  0.5, -0.5); */
+/*                 // Bottom Face */
+/*                 glColor4f(0.0f,1.0f,1.0f,1.0f); */
+/*                 glVertex3f(-0.5, -0.5, -0.5); */
+/*                 glVertex3f( 0.5, -0.5, -0.5); */
+/*                 glVertex3f( 0.5, -0.5,  0.5); */
+/*                 glVertex3f(-0.5, -0.5,  0.5); */
+/*                 // Right face */
+/*                 glColor4f(1.0f,1.0f,0.0f,1.0f); */
+/*                 glVertex3f( 0.5, -0.5, -0.5); */
+/*                 glVertex3f( 0.5,  0.5, -0.5); */
+/*                 glVertex3f( 0.5,  0.5,  0.5); */
+/*                 glVertex3f( 0.5, -0.5,  0.5); */
+/*                 // Left Face */
+/*                 glColor4f(1.0f,1.0f,1.0f,1.0f); */
+/*                 glVertex3f(-0.5, -0.5, -0.5); */
+/*                 glVertex3f(-0.5, -0.5,  0.5); */
+/*                 glVertex3f(-0.5,  0.5,  0.5); */
+/*                 glVertex3f(-0.5,  0.5, -0.5); */
+/*         glEnd(); */
 
         // Restore old view port and set rendering back to default frame buffer
         glPopAttrib();
