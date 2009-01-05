@@ -1,5 +1,6 @@
 (foreign "fbo" "fbo.o fbo.impl.o" "")
 (foreign "fakey" "fakey.impl.o GLee.o" "-framework GLUT -framework OpenGL -framework CoreFoundation")
+(foreign "cvt" "cvt.o cvt.impl.o" "")
 
 (fun (hendisplay fbo img xrot-ref yrot-ref)
      (doo
@@ -131,6 +132,13 @@
 (fun (henreshape w h)
      (doo
       _ (shew ($ 'reshape-callback w h))
+      _ (glViewport 0 0 w h)
+      _ (glMatrixMode _GL_PROJECTION)
+      _ (glLoadIdentity)
+      wf (int_to_float w)
+      hf (int_to_float h)
+      _ (shew ($ wf hf))
+      _ (gluPerspective 80.0 ((/ wf) hf) 1.0 5000.0);
       _ (reshape w h)))
 
 (fun (make-fbo)
