@@ -144,7 +144,10 @@
 
  (fun (henkeyboard key x y)
      (doo
-      ;; TODO exit when ESC is pressed
+      ;; TODO exit when ESC is pressed, as follows:
+      ;;       glDeleteFramebuffersEXT(1, &fbo);
+      ;;       glDeleteRenderbuffersEXT(1, &depthBuffer);
+      ;;       glDeleteTextures(1,&img);
       _ (shew ($ key x y))))
 
 (fun (make-fbo)
@@ -214,7 +217,7 @@
 
 (doo
 
- _ (fbo_main0)
+; _ (fbo_main0)
 
  char-ref (create-charp-ref "fbo")
  int-ref (create-int-ref 1)
@@ -233,7 +236,7 @@
  xrot-ref (create-float-ref 0.0)
  yrot-ref (create-float-ref 0.0)
 
- _ (fbo_main1)
+; _ (fbo_main1)
  _ (glutDisplayFunc (/. () (hendisplay fbo img xrot-ref yrot-ref)))
  _ (glutReshapeFunc henreshape)
  _ (glutKeyboardFunc henkeyboard)
