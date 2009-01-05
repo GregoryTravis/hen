@@ -127,65 +127,65 @@ void display(GLuint fbo, GLuint img, GLfloat xrot, GLfloat yrot)
 /*         glEnd(); */
 
         // Restore old view port and set rendering back to default frame buffer
-        glPopAttrib();
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+//        glPopAttrib();
+//        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
-        glClearColor(0.0f, 0.0f, 0.2f, 0.5f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);     // Clear Screen And Depth Buffer
-        glLoadIdentity();
-        // Now bind the texture to use it
-        glBindTexture(GL_TEXTURE_2D, img);
-//      If you enabled the mipmap filtering on setup earlier then you'll need to uncomment the line
-//      below so OpenGL can generate all the mipmap data for the new main image each frame
-//      glGenerateMipmapEXT(GL_TEXTURE_2D);
-        glEnable(GL_TEXTURE_2D);
+/*         glClearColor(0.0f, 0.0f, 0.2f, 0.5f); */
+/*         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);     // Clear Screen And Depth Buffer */
+/*         glLoadIdentity(); */
+/*         // Now bind the texture to use it */
+/*         glBindTexture(GL_TEXTURE_2D, img); */
+/* //      If you enabled the mipmap filtering on setup earlier then you'll need to uncomment the line */
+/* //      below so OpenGL can generate all the mipmap data for the new main image each frame */
+/* //      glGenerateMipmapEXT(GL_TEXTURE_2D); */
+/*         glEnable(GL_TEXTURE_2D); */
 
-        glTranslatef(0.0f,0.0f,-2.0f);
-        glRotatef(-xrot,1.0f,0.0f,0.0f);
-        glRotatef(-yrot,0.0f,1.0f,0.0f);
+/*         glTranslatef(0.0f,0.0f,-2.0f); */
+/*         glRotatef(-xrot,1.0f,0.0f,0.0f); */
+/*         glRotatef(-yrot,0.0f,1.0f,0.0f); */
 
-        glColor4f(1.0f,1.0f,1.0f,1.0f);
+/*         glColor4f(1.0f,1.0f,1.0f,1.0f); */
 
-        // This time it's a textured spinning cube!
-        // The texture being the scene we just rendered!
-        glBegin(GL_QUADS);
-                // Front Face
-                glNormal3f( 0.0f, 0.0f, 1.0);
-                glTexCoord2f(0.0f, 1.0f); glVertex3f(-0.5f, -0.5,  0.5);
-                glTexCoord2f(1.0f, 1.0f); glVertex3f( 0.5, -0.5,  0.5);
-                glTexCoord2f(1.0f, 0.0f); glVertex3f( 0.5,  0.5,  0.5);
-                glTexCoord2f(0.0f, 0.0f); glVertex3f(-0.5,  0.5,  0.5);
-                // Back Face
-                glNormal3f( 0.0f, 0.0f,-1.0);
-                glTexCoord2f(1.0f, 0.0f); glVertex3f(-0.5, -0.5, -0.5);
-                glTexCoord2f(1.0f, 1.0f); glVertex3f(-0.5,  0.5, -0.5);
-                glTexCoord2f(0.0f, 1.0f); glVertex3f( 0.5,  0.5, -0.5);
-                glTexCoord2f(0.0f, 0.0f); glVertex3f( 0.5, -0.5, -0.5);
-                // Top Face
-                glNormal3f( 0.0f, 1.0, 0.0f);
-                glTexCoord2f(0.0f, 1.0f); glVertex3f(-0.5,  0.5, -0.5);
-                glTexCoord2f(0.0f, 0.0f); glVertex3f(-0.5,  0.5,  0.5);
-                glTexCoord2f(1.0f, 0.0f); glVertex3f( 0.5,  0.5,  0.5);
-                glTexCoord2f(1.0f, 1.0f); glVertex3f( 0.5,  0.5, -0.5);
-                // Bottom Face
-                glNormal3f( 0.0f,-1.0, 0.0f);
-                glTexCoord2f(1.0f, 1.0f); glVertex3f(-0.5, -0.5, -0.5);
-                glTexCoord2f(0.0f, 1.0f); glVertex3f( 0.5, -0.5, -0.5);
-                glTexCoord2f(0.0f, 0.0f); glVertex3f( 0.5, -0.5,  0.5);
-                glTexCoord2f(1.0f, 0.0f); glVertex3f(-0.5, -0.5,  0.5);
-                // Right face
-                glNormal3f( 1.0, 0.0f, 0.0f);
-                glTexCoord2f(1.0f, 0.0f); glVertex3f( 0.5, -0.5, -0.5);
-                glTexCoord2f(1.0f, 1.0f); glVertex3f( 0.5,  0.5, -0.5);
-                glTexCoord2f(0.0f, 1.0f); glVertex3f( 0.5,  0.5,  0.5);
-                glTexCoord2f(0.0f, 0.0f); glVertex3f( 0.5, -0.5,  0.5);
-                // Left Face
-                glNormal3f(-1.0, 0.0f, 0.0f);
-                glTexCoord2f(0.0f, 0.0f); glVertex3f(-0.5, -0.5, -0.5);
-                glTexCoord2f(1.0f, 0.0f); glVertex3f(-0.5, -0.5,  0.5);
-                glTexCoord2f(1.0f, 1.0f); glVertex3f(-0.5,  0.5,  0.5);
-                glTexCoord2f(0.0f, 1.0f); glVertex3f(-0.5,  0.5, -0.5);
-        glEnd();
+/*         // This time it's a textured spinning cube! */
+/*         // The texture being the scene we just rendered! */
+/*         glBegin(GL_QUADS); */
+/*                 // Front Face */
+/*                 glNormal3f( 0.0f, 0.0f, 1.0); */
+/*                 glTexCoord2f(0.0f, 1.0f); glVertex3f(-0.5f, -0.5,  0.5); */
+/*                 glTexCoord2f(1.0f, 1.0f); glVertex3f( 0.5, -0.5,  0.5); */
+/*                 glTexCoord2f(1.0f, 0.0f); glVertex3f( 0.5,  0.5,  0.5); */
+/*                 glTexCoord2f(0.0f, 0.0f); glVertex3f(-0.5,  0.5,  0.5); */
+/*                 // Back Face */
+/*                 glNormal3f( 0.0f, 0.0f,-1.0); */
+/*                 glTexCoord2f(1.0f, 0.0f); glVertex3f(-0.5, -0.5, -0.5); */
+/*                 glTexCoord2f(1.0f, 1.0f); glVertex3f(-0.5,  0.5, -0.5); */
+/*                 glTexCoord2f(0.0f, 1.0f); glVertex3f( 0.5,  0.5, -0.5); */
+/*                 glTexCoord2f(0.0f, 0.0f); glVertex3f( 0.5, -0.5, -0.5); */
+/*                 // Top Face */
+/*                 glNormal3f( 0.0f, 1.0, 0.0f); */
+/*                 glTexCoord2f(0.0f, 1.0f); glVertex3f(-0.5,  0.5, -0.5); */
+/*                 glTexCoord2f(0.0f, 0.0f); glVertex3f(-0.5,  0.5,  0.5); */
+/*                 glTexCoord2f(1.0f, 0.0f); glVertex3f( 0.5,  0.5,  0.5); */
+/*                 glTexCoord2f(1.0f, 1.0f); glVertex3f( 0.5,  0.5, -0.5); */
+/*                 // Bottom Face */
+/*                 glNormal3f( 0.0f,-1.0, 0.0f); */
+/*                 glTexCoord2f(1.0f, 1.0f); glVertex3f(-0.5, -0.5, -0.5); */
+/*                 glTexCoord2f(0.0f, 1.0f); glVertex3f( 0.5, -0.5, -0.5); */
+/*                 glTexCoord2f(0.0f, 0.0f); glVertex3f( 0.5, -0.5,  0.5); */
+/*                 glTexCoord2f(1.0f, 0.0f); glVertex3f(-0.5, -0.5,  0.5); */
+/*                 // Right face */
+/*                 glNormal3f( 1.0, 0.0f, 0.0f); */
+/*                 glTexCoord2f(1.0f, 0.0f); glVertex3f( 0.5, -0.5, -0.5); */
+/*                 glTexCoord2f(1.0f, 1.0f); glVertex3f( 0.5,  0.5, -0.5); */
+/*                 glTexCoord2f(0.0f, 1.0f); glVertex3f( 0.5,  0.5,  0.5); */
+/*                 glTexCoord2f(0.0f, 0.0f); glVertex3f( 0.5, -0.5,  0.5); */
+/*                 // Left Face */
+/*                 glNormal3f(-1.0, 0.0f, 0.0f); */
+/*                 glTexCoord2f(0.0f, 0.0f); glVertex3f(-0.5, -0.5, -0.5); */
+/*                 glTexCoord2f(1.0f, 0.0f); glVertex3f(-0.5, -0.5,  0.5); */
+/*                 glTexCoord2f(1.0f, 1.0f); glVertex3f(-0.5,  0.5,  0.5); */
+/*                 glTexCoord2f(0.0f, 1.0f); glVertex3f(-0.5,  0.5, -0.5); */
+/*         glEnd(); */
 
         glDisable(GL_TEXTURE_2D);
         
