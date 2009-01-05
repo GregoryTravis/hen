@@ -1,4 +1,3 @@
-(foreign "fbo" "fbo.o fbo.impl.o" "")
 (foreign "fakey" "fakey.impl.o GLee.o" "-framework GLUT -framework OpenGL -framework CoreFoundation")
 (foreign "cvt" "cvt.o cvt.impl.o" "")
 
