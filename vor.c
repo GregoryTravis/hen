@@ -728,13 +728,6 @@ static void invoke_hen_fun_wrapper(yeah* wfun) {
   evl_from_callback(app(wfun, Nil));
 }
 
-/*
-static yeah* wrapped_hen_fun;
-static void hen_fun_wrapper(void) {
-  invoke_hen_fun_wrapper(wrapped_hen_fun);
-}
-*/
-
 #define DECLARE_WRAPPER_FUN(n) static void hen_fun_wrapper_##n(void) { invoke_hen_fun_wrapper(wrapped_hen_funs[(n)]); }
 
 #define NCALLBACKS 4
