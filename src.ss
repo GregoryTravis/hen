@@ -123,8 +123,8 @@ _ (glEnd)
 
       _ (display fbo img xrot yrot)
 
-      _ (write-float-ref xrot-ref ((+ xrot) 0.2))
-      _ (write-float-ref yrot-ref ((+ yrot) 0.1))
+      _ (write-float-ref xrot-ref ((+ xrot) 1.0))
+      _ (write-float-ref yrot-ref ((+ yrot) 0.5))
 
 ))
 
