@@ -500,6 +500,20 @@ bool try_prim(yeah* e, yeah* env, yeah** result) {
   } else if (isprim2(e, "*", &arg0, &arg1)) {
     *result = integer(getint(evl_completely(arg0, env)) * getint(evl_completely(arg1, env)));
     return true;
+  } else if (isprim2(e, "/", &arg0, &arg1)) {
+    arg0 = evl_completely(arg0, env);
+    arg1 = evl_completely(arg1, env);
+    if (ISINTEGER(arg0) && ISINTEGER(arg1)) {
+      *result = integer(getint(arg0) / getint(arg1));
+      return true;
+    } else if (ISFLOAT(arg0) && ISFLOAT(arg1)) {
+      *result = flote(getfloat(arg0) / getfloat(arg1));
+      return true;
+    } else {
+      dumpn(arg0);
+      dumpn(arg1);
+      err(("Bad /"));
+    }
   } else if (isprim2(e, "cons", &arg0, &arg1)) {
     *result = pair(freeze(arg0, env), freeze(arg1, env));
     return true;

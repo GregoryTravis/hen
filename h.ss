@@ -350,6 +350,8 @@
 
    (('* a) b) (* (evl-fully a env) (evl-fully b env))
 
+   (('/ a) b) (* (evl-fully a env) (evl-fully b env))
+
    (('== a) b) (mtch (prim== (evl-fully a env) (evl-fully b env)) #t 'True #f 'False)
 
    (a b) `(,(evl-completely a env) ,(freeze b env))
@@ -403,6 +405,7 @@
    (('+ a) b) `((+ ,(doobie a)) ,(doobie b))
    (('- a) b) `((- ,(doobie a)) ,(doobie b))
    (('* a) b) `((* ,(doobie a)) ,(doobie b))
+   (('/ a) b) `((/ ,(doobie a)) ,(doobie b))
    ((('if a) b) c) `(((if ,(doobie a)) ,(doobie b)) ,(doobie c))
 
    ('/. args body) `(/. ,(doobie-arglist args) ,(doobie body))
@@ -666,6 +669,7 @@
    (('+ a) b) `((+ ,(exp-map f a)) ,(exp-map f b))
    (('- a) b) `((- ,(exp-map f a)) ,(exp-map f b))
    (('* a) b) `((* ,(exp-map f a)) ,(exp-map f b))
+   (('/ a) b) `((/ ,(exp-map f a)) ,(exp-map f b))
    ((('if a) b) c) `(((if ,(exp-map f a)) ,(exp-map f b)) ,(exp-map f c))
 
    ('/. args body) `(/. ,args ,(exp-map f body))
