@@ -6,6 +6,7 @@ typedef enum {
   THUNK,
   INTEGER,
   FLOAT,
+  UCHAR,
   SYMBOL,
   PAIR,
   APP,
@@ -42,6 +43,10 @@ struct yeah {
     struct {
       float f;
     } flote;
+
+    struct {
+      uchar uc;
+    } uchair;
 
     struct {
       char* s;
@@ -89,10 +94,13 @@ yeah* opaque(void* q);
 yeah* pair(yeah* car, yeah* cdr);
 yeah* integer(int i);
 yeah* flote(float f);
+yeah* uchair(uchar uc);
 yeah* app(yeah* f, yeah* arg);
 yeah* nil(void);
 int getint(yeah* e);
 float getfloat(yeah* e);
+// TODO use uchar
+uchar getuchar(yeah* e);
 void evl_top(char* src, yeah* e);
 char* stringval(yeah* e);
 void* opaqueval(yeah* y);
@@ -114,7 +122,9 @@ void evl_from_callback(yeah* e);
 
 typedef void (*vvfunp)(void);
 typedef void (*viifunp)(int, int);
+typedef void (*vuciifunp)(unsigned char, int, int);
 
 // TODO generate these
 vvfunp wrap_hen_fun_vvfunp(yeah* f);
 viifunp wrap_hen_fun_viifunp(yeah* f);
+vuciifunp wrap_hen_fun_vuciifunp(yeah* f);

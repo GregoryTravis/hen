@@ -573,6 +573,7 @@
    x (cond
       ;((quoted-symbol? x) `(csymbol ,x))
       ((symbol? x) `(symbol ,x))
+      ((char? x) `(char (char->integer x)))
       ((and (number? x) (inexact? x) (real? x)) `(flote ,x))
       ((and (number? x) (exact? x) (integer? x)) `(integer ,x))
       ((string? x) `(string ,x))

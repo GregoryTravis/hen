@@ -117,6 +117,13 @@ yeah* flote(float f) {
   return y;
 }
 
+yeah* uchair(uchar uc) {
+  yeah* y = newyeah();
+  y->t = UCHAR;
+  y->u.uchair.uc = uc;
+  return y;
+}
+
 yeah* app(yeah* f, yeah* arg) {
   yeah* y = newyeah();
   y->t = APP;
@@ -180,6 +187,8 @@ bool equal(yeah* a, yeah* b) {
     break;
   case FLOAT: return a->u.flote.f == b->u.flote.f;
     break;
+  case UCHAR: return a->u.uchair.uc == b->u.uchair.uc;
+    break;
   case SYMBOL: return !strcmp(a->u.symbol.s, b->u.symbol.s);
     break;
   case CSYMBOL: return !strcmp(a->u.csymbol.s, b->u.csymbol.s);
@@ -205,6 +214,7 @@ bool equal(yeah* a, yeah* b) {
 #define ISTHUNK(_e) ISTAG((_e), THUNK)
 #define ISINTEGER(_e) ISTAG((_e), INTEGER)
 #define ISFLOAT(_e) ISTAG((_e), FLOAT)
+#define ISUCHAR(_e) ISTAG((_e), UCHAR)
 #define ISSYMBOL(_e) ISTAG((_e), SYMBOL)
 #define ISPAIR(_e) ISTAG((_e), PAIR)
 #define ISAPP(_e) ISTAG((_e), APP)
@@ -258,6 +268,11 @@ int getint(yeah* e) {
 float getfloat(yeah* e) {
   A(ISFLOAT(e));
   return e->u.flote.f;
+}
+
+uchar getuchar(yeah* e) {
+  A(ISUCHAR(e));
+  return e->u.uchair.uc;
 }
 
 yeah* appfun(yeah* app) {
@@ -371,6 +386,7 @@ void dump(yeah* y) {
   switch (y->t) {
   case INTEGER: printf("%d", y->u.integer.i); break;
   case FLOAT: printf("%f", y->u.flote.f); break;
+  case UCHAR: printf("%d", y->u.uchair.uc); break;
   case SYMBOL: printf("%s", y->u.symbol.s); break;
   case CSYMBOL: printf("'%s", y->u.symbol.s); break;
   case STRING: printf("\"%s\"", y->u.string.s); break;
@@ -570,7 +586,7 @@ yeah* evl_step_(yeah* e, yeah* env) {
     return symbol(e->u.csymbol.s);
   } else if (ISPAIR(e)) {
     return pair(thunk(e->u.pair.car, env), thunk(e->u.pair.cdr, env));
-  } else if (ISINTEGER(e) || ISFLOAT(e) || ISCLOSURE(e) || ISOPAQUE(e) || ISSTRING(e)) {
+  } else if (ISINTEGER(e) || ISFLOAT(e) || ISCLOSURE(e) || ISOPAQUE(e) || ISSTRING(e) || ISUCHAR(e)) {
     return e;
   } else {
     warn(("Can't eval "));
@@ -614,7 +630,7 @@ yeah* evl_step(yeah* e, yeah* env) {
 
 bool is_data(yeah* e) {
   int t = e->t;
-  return t == INTEGER || t == FLOAT || t == SYMBOL || t == PAIR || t == OPAQUE || t == CLOSURE;
+  return t == INTEGER || t == FLOAT || t == UCHAR || t == SYMBOL || t == PAIR || t == OPAQUE || t == CLOSURE;
 }
 
 yeah* evl_fully(yeah* e, yeah* env) {
@@ -744,6 +760,7 @@ int main(int argc, char** argv) {
 
 #define DECLARE_WRAPPER_FUN_vvfunp(_n) static void hen_fun_wrapper_vvfunp_##_n(void) { evl_from_callback(app(wrapped_hen_funs_vvfunp[(_n)], Nil)); }
 #define DECLARE_WRAPPER_FUN_viifunp(_n) static void hen_fun_wrapper_viifunp_##_n(int a, int b) { evl_from_callback(app(wrapped_hen_funs_viifunp[(_n)], pair(integer(a), pair(integer(b), Nil)))); }
+#define DECLARE_WRAPPER_FUN_vuciifunp(_n) static void hen_fun_wrapper_vuciifunp_##_n(unsigned char c, int a, int b) { evl_from_callback(app(wrapped_hen_funs_vuciifunp[(_n)], pair(uchair(c), pair(integer(a), pair(integer(b), Nil))))); }
 
 #define NCALLBACKS 4
 
@@ -770,3 +787,4 @@ int main(int argc, char** argv) {
 
 BOO(vvfunp)
 BOO(viifunp)
+BOO(vuciifunp)
