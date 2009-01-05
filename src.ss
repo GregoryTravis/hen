@@ -137,7 +137,6 @@
       _ (glLoadIdentity)
       wf (int_to_float w)
       hf (int_to_float h)
-      _ (shew ($ wf hf))
       _ (gluPerspective 80.0 ((/ wf) hf) 1.0 5000.0);
       _ (glMatrixMode _GL_MODELVIEW)
       _ (glLoadIdentity)))
