@@ -23,11 +23,6 @@ exit(1);
 */
 }
 
-void idle(void)
-{
-        glutPostRedisplay();
-}
-
 void fbo_main0() {
   int dummy_argc = 0;
   char* dummy_argv[1];
@@ -49,7 +44,7 @@ void fbo_main1() {
 //        glutDisplayFunc     ( display );  
 //        glutReshapeFunc     ( reshape );
 //        glutKeyboardFunc    ( keyboard );
-        glutIdleFunc            ( idle );
+//        glutIdleFunc            ( idle );
 
         // HEY
         //glutMainLoop        ( );                        // Run the main GLUT loop for rendering

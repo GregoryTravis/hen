@@ -125,9 +125,10 @@
 
       ))
 
-(fun (henidle) (doo
-                ;_ (shew 'idle-callback)
-                _ (idle)))
+(fun (henidle)
+     (doo
+      ;_ (shew 'idle-callback)
+      _ (glutPostRedisplay)))
 
 (fun (henreshape w h)
      (doo
