@@ -217,6 +217,9 @@ foreach my $fun (@funs) {
     } elsif ($type eq "void *") {
       $arg_converters .=
         "  $type $name = opaqueval(${name}_);\n";
+    } elsif ($type eq "char * *") {
+      $arg_converters .=
+        "  $type $name = (char**)opaqueval(${name}_);\n";
     } elsif ($type eq "vvfunp") {
       $arg_converters .=
         "  vvfunp $name = wrap_hen_fun_vvfunp(${name}_);\n";

@@ -24,10 +24,12 @@ exit(1);
 }
 
 void fbo_main0() {
+/*
   int dummy_argc = 0;
   char* dummy_argv[1];
   
   glutInit(&dummy_argc, (char**)&dummy_argv);
+*/
 }
 
 void fbo_main1() {

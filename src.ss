@@ -215,6 +215,11 @@
 (doo
 
  _ (fbo_main0)
+
+ char-ref (create-charp-ref "fbo")
+ int-ref (create-int-ref 1)
+ _ (glutInit int-ref char-ref)
+
  _ (glutInitDisplayMode _GLUT_DOUBLE)
  _ (glutInitWindowSize 800 600)
  ret (glutCreateWindow "holy cow")

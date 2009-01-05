@@ -118,3 +118,5 @@ extern void glVertex3f (GLfloat x, GLfloat y, GLfloat z);
 extern void glutSwapBuffers(void);
 extern void glMatrixMode (GLenum mode);
 extern void gluPerspective (GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
+
+extern void glutInit(int *argcp, char **argv);
