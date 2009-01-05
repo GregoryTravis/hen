@@ -11,19 +11,6 @@
 #include "glee.h"
 #include <glut.h>
 
-//GLuint fbo;                                     // Our handle to the FBO
-//GLuint depthBuffer;                     // Our handle to the depth render buffer
-//GLuint img;                                     // Our handle to a texture
-
-const int width = 512;          // The hight of the texture we'll be rendering to
-const int height = 512;         // The width of the texture we'll be rendering to
-
-// Used for drawing the 3D cube with our rendered texture on it
-//GLfloat xrot = 0;                       // X Rotation
-//GLfloat yrot = 0;                       // Y Rotation
-GLfloat xspeed = 0.2f;          // X Rotation Speed
-GLfloat yspeed = 0.1f;          // Y Rotation Speed
-
 void ShutDown(GLvoid)
 {
 // TODO
