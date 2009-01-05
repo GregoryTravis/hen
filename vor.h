@@ -113,4 +113,8 @@ void register_command(char *name, foreign_function f);
 void evl_from_callback(yeah* e);
 
 typedef void (*vvfunp)(void);
-vvfunp wrap_hen_fun(yeah* f);
+typedef void (*viifunp)(int, int);
+
+// TODO generate these
+vvfunp wrap_hen_fun_vvfunp(yeah* f);
+viifunp wrap_hen_fun_viifunp(yeah* f);

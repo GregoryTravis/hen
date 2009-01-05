@@ -114,6 +114,11 @@ foreach my $line (@$ilines) {
       $arg_name = $1;
       #$type = "void (*)(void)";
       $type = "vvfunp";
+#    } elsif ($arg =~ /^void\s+\(\s*\*\s*(\S*)\s*\)\(\s*int\s*\S+\s*,\s*int\s*\S+\s*\)/) {
+    } elsif ($arg =~ /^void\s+\(\s*\*\s*(\S*)\s*\)\(.*int.*int.*\)/) {
+      $arg_name = $1;
+      #$type = "void (*)(void)";
+      $type = "viifunp";
     } else {
       # Otherwise, assume it's like "unsigned long foo".  Last word is
       # name, rest is type.
@@ -209,7 +214,10 @@ foreach my $fun (@funs) {
         "  $type $name = opaqueval(${name}_);\n";
     } elsif ($type eq "vvfunp") {
       $arg_converters .=
-        "  vvfunp $name = wrap_hen_fun(${name}_);\n";
+        "  vvfunp $name = wrap_hen_fun_vvfunp(${name}_);\n";
+    } elsif ($type eq "viifunp") {
+      $arg_converters .=
+        "  viifunp $name = wrap_hen_fun_viifunp(${name}_);\n";
     } else {
       die "type $type? ($fun_name)";
     }
