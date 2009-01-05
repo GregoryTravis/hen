@@ -118,8 +118,8 @@ _ (glVertex3f -0.5  0.5  0.5)
 _ (glTexCoord2f 0.0 1.0)
 _ (glVertex3f -0.5  0.5 -0.5)
 _ (glEnd)
-;; _ (glDisable _GL_TEXTURE_2D)
-;; _ (glutSwapBuffers)
+_ (glDisable _GL_TEXTURE_2D)
+_ (glutSwapBuffers)
 
       _ (display fbo img xrot yrot)
 

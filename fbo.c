@@ -187,12 +187,12 @@ void display(GLuint fbo, GLuint img, GLfloat xrot, GLfloat yrot)
 /*                 glTexCoord2f(0.0f, 1.0f); glVertex3f(-0.5,  0.5, -0.5); */
 /*         glEnd(); */
 
-        glDisable(GL_TEXTURE_2D);
+//        glDisable(GL_TEXTURE_2D);
         
-        xrot+=xspeed;
-        yrot+=yspeed;
+//        xrot+=xspeed;
+//        yrot+=yspeed;
 
-        glutSwapBuffers ( );
+//        glutSwapBuffers ( );
         // Swap The Buffers To Not Be Left With A Clear Screen
 }
 
