@@ -114,11 +114,13 @@ foreach my $line (@$ilines) {
       $arg_name = $1;
       #$type = "void (*)(void)";
       $type = "vvfunp";
-#    } elsif ($arg =~ /^void\s+\(\s*\*\s*(\S*)\s*\)\(\s*int\s*\S+\s*,\s*int\s*\S+\s*\)/) {
     } elsif ($arg =~ /^void\s+\(\s*\*\s*(\S*)\s*\)\(.*int.*int.*\)/) {
       $arg_name = $1;
       #$type = "void (*)(void)";
       $type = "viifunp";
+    } elsif ($arg =~ /^void\s+\(\s*\*\s*(\S*)\s*\)\(.*unsigned char.*int.*int.*\)/) {
+      $arg_name = $1;
+      $type = "vuciifunp";
     } else {
       # Otherwise, assume it's like "unsigned long foo".  Last word is
       # name, rest is type.
@@ -185,9 +187,12 @@ foreach my $fun (@funs) {
   my $arg_converters = "";
   foreach my $arg (@$args) {
     my ($name, $type) = @$arg;
-    if ($type eq "int" || $type eq "unsigned long" || $type eq "unsigned int" || $type eq "unsigned char" || $type eq "long") {
+    if ($type eq "int" || $type eq "unsigned long" || $type eq "unsigned int" || $type eq "long") {
       $arg_converters .=
         "  $type $name = getint(${name}_);\n";
+    } elsif ($type eq "unsigned char") {
+      $arg_converters .=
+        "  $type $name = getuchar(${name}_);\n";
     } elsif ($type eq "float" || $type eq "double") {
       $arg_converters .=
         "  $type $name = getfloat(${name}_);\n";
@@ -218,6 +223,9 @@ foreach my $fun (@funs) {
     } elsif ($type eq "viifunp") {
       $arg_converters .=
         "  viifunp $name = wrap_hen_fun_viifunp(${name}_);\n";
+    } elsif ($type eq "vuciifunp") {
+      $arg_converters .=
+        "  vuciifunp $name = wrap_hen_fun_vuciifunp(${name}_);\n";
     } else {
       die "type $type? ($fun_name)";
     }
