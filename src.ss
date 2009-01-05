@@ -143,8 +143,8 @@
 
  (fun (henkeyboard key x y)
      (doo
-      _ (shew ($ key x y))
-      _ (keyboard key x y)))
+      ;; TODO exit when ESC is pressed
+      _ (shew ($ key x y))))
 
 (fun (make-fbo)
      (doo

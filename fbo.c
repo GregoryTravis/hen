@@ -23,19 +23,6 @@ exit(1);
 */
 }
 
-void keyboard(unsigned char key,int x,int y)  
-{
-        switch(key)
-        {
-        case 27:                                // When Escape Is Pressed...
-                ShutDown();
-                exit(0);                        // Exit The Program
-                break;                          
-        default:                                
-                break;
-        }
-}
-
 void idle(void)
 {
         glutPostRedisplay();
