@@ -1,7 +1,7 @@
 (foreign "fakey" "fakey.impl.o GLee.o" "-framework GLUT -framework OpenGL -framework CoreFoundation")
 (foreign "cvt" "cvt.o cvt.impl.o" "")
 
-(fun (hendisplay fbo img xrot-ref yrot-ref)
+(fun (display fbo img xrot-ref yrot-ref)
      (doo
       _ (glBindFramebufferEXT _GL_FRAMEBUFFER_EXT fbo)
       _ (glPushAttrib _GL_VIEWPORT_BIT)
@@ -124,12 +124,12 @@
 
       ))
 
-(fun (henidle)
+(fun (idle)
      (doo
       ;_ (shew 'idle-callback)
       _ (glutPostRedisplay)))
 
-(fun (henreshape w h)
+(fun (reshape w h)
      (doo
       _ (shew ($ 'reshape-callback w h))
       _ (glViewport 0 0 w h)
@@ -141,7 +141,7 @@
       _ (glMatrixMode _GL_MODELVIEW)
       _ (glLoadIdentity)))
 
- (fun (henkeyboard key x y)
+ (fun (keyboard key x y)
      (doo
       ;; TODO exit when ESC is pressed, as follows:
       ;;       glDeleteFramebuffersEXT(1, &fbo);
@@ -236,8 +236,8 @@
  yrot-ref (create-float-ref 0.0)
 
 ; _ (fbo_main1)
- _ (glutDisplayFunc (/. () (hendisplay fbo img xrot-ref yrot-ref)))
- _ (glutReshapeFunc henreshape)
- _ (glutKeyboardFunc henkeyboard)
- _ (glutIdleFunc henidle)
+ _ (glutDisplayFunc (/. () (display fbo img xrot-ref yrot-ref)))
+ _ (glutReshapeFunc reshape)
+ _ (glutKeyboardFunc keyboard)
+ _ (glutIdleFunc idle)
  _ (glutMainLoop))
