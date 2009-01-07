@@ -178,6 +178,10 @@ yeah* freeze(yeah* e, yeah* env) {
 }
 
 bool equal(yeah* a, yeah* b) {
+  if (a == b) {
+    return true;
+  }
+
   if (a->t != b->t) {
     return false;
   }
