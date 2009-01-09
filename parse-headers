@@ -6,7 +6,7 @@ use Cmd;
 use File;
 use Shew;
 
-my $debug = 0;
+my $debug = 1;
 
 my %aliases;
 $aliases{"GLbitfield"} = "unsigned int";
@@ -41,6 +41,12 @@ my $hfile = $ARGV[0];
 my %defines = ();
 my @funs = ();
 
+sub fixup_value($) {
+  my ($v) = @_;
+  $v =~ s/^0x([0-9a-fA-F]+)$/\#x$1/;
+  return $v;
+}
+
 sub add_underscore_if_capitalized($) {
   my ($s) = @_;
   if ($s =~ /^_*[A-Z]/) {
@@ -61,7 +67,7 @@ sub add_underscore_if_capitalized($) {
 
   foreach my $line (@$hlines) {
   #print $line;
-    if ($line =~ /^.define\s+(\S+)\s*(.*)$/) {
+    if ($line =~ /^.define\s+(\S+)\s+(\S+)\s*$/) {
       my $k = $1;
       my $v = $2;
       $k = add_underscore_if_capitalized($k);
@@ -69,7 +75,7 @@ sub add_underscore_if_capitalized($) {
     }
   }
 
-  Shew::shew(\%defines) if ($debug);
+  #Shew::shew(\%defines) if ($debug);
 
 foreach my $line (@$ilines) {
   # Comments
@@ -131,7 +137,7 @@ foreach my $line (@$ilines) {
     $type = $aliases{$type} if (exists($aliases{$type}));
     push(@nargs, [$arg_name, $type]);
   }
-  Shew::shew(\@nargs) if ($debug);
+  #Shew::shew(\@nargs) if ($debug);
 
   my $command_name = $stub . "_impl_" . $fun_name;
 
@@ -149,6 +155,7 @@ open(IMPL_C, ">$stub.impl.c") || die $!;
 # Defines.
 while (my ($k, $v) = each %defines) {
   #$k = add_underscore_if_capitalized($k);
+  $v = fixup_value($v);
   print STUB "(def $k $v)\n";
 }
 
@@ -172,6 +179,9 @@ print IMPL_C $headers;
 my $registerers = "";
 foreach my $fun (@funs) {
   my ($fun_name, $command_name, $return_type, $args) = @$fun;
+
+  # If we fine something we don't understand, just punt.
+  my $skip = 0;
 
   my @names = map { $_->[0] } @$args;
 
@@ -230,9 +240,12 @@ foreach my $fun (@funs) {
       $arg_converters .=
         "  vuciifunp $name = wrap_hen_fun_vuciifunp(${name}_);\n";
     } else {
-      die "type $type? ($fun_name)";
+      print "Don't know type '$type' ($fun_name)" if ($debug);
+      $skip = 1;
     }
   }
+
+  next if ($skip);
 
   my $call =
     ($return_type eq "void")
@@ -265,8 +278,11 @@ foreach my $fun (@funs) {
   } elsif ($return_type eq "void (*)(void)") {
     $returner = "  return opaque(__ret);\n";
   } else {
-    die "type $return_type?";
+    print "type $return_type?" if ($debug);
+    $skip = 1;
   }
+
+  next if ($skip);
 
   my $all = "yeah* $command_name(yeah* __arg) {\n";
   $all .= $arg_getters;
