@@ -1,3 +1,7 @@
+; Not quite yet.
+;(foreign "gl" "gl.impl.o GLee.o" "-framework GLUT -framework OpenGL -framework CoreFoundation")
+;(foreign "glut" "glut.impl.o" "-framework GLUT -framework OpenGL -framework CoreFoundation")
+
 (foreign "fakey" "fakey.impl.o GLee.o" "-framework GLUT -framework OpenGL -framework CoreFoundation")
 (foreign "cvt" "cvt.o cvt.impl.o" "")
 
