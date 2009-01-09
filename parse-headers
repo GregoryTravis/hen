@@ -6,7 +6,7 @@ use Cmd;
 use File;
 use Shew;
 
-my $debug = 1;
+my $debug = 0;
 
 my %aliases;
 $aliases{"GLbitfield"} = "unsigned int";
