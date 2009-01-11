@@ -8,6 +8,9 @@ clean:
 vor.o: vor.c a.h spew.h mem.h
 	gcc -std=c99 -c -g vor.c $(libs)
 
+primcalls.o: primcalls.c vor.h a.h spew.h mem.h
+	gcc -std=c99 -c -g primcalls.c $(libs)
+
 spew.o: spew.c spew.h a.h
 	gcc -std=c99 -c -g spew.c
 

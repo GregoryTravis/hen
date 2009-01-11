@@ -114,6 +114,16 @@ bool isnil(yeah* e);
 yeah* car(yeah* e);
 yeah* cdr(yeah* e);
 
+bool match_list0(yeah* e);
+bool match_list1(yeah* e, yeah** a);
+bool match_list2(yeah* e, yeah** a, yeah** b);
+bool match_list3(yeah* e, yeah** a, yeah** b, yeah** c);
+
+bool hmatch_list0(yeah* e);
+bool hmatch_list1(yeah* e, yeah** a);
+bool hmatch_list2(yeah* e, yeah** a, yeah** b);
+bool hmatch_list3(yeah* e, yeah** a, yeah** b, yeah** c);
+
 extern yeah *Nil, *CNil;
 
 void register_command(char *name, foreign_function f);
@@ -123,6 +133,8 @@ void evl_from_callback(yeah* e);
 typedef void (*vvfunp)(void);
 typedef void (*viifunp)(int, int);
 typedef void (*vuciifunp)(unsigned char, int, int);
+
+void add_primcall(char* name, yeah* (*f)(yeah* e));
 
 // TODO generate these
 vvfunp wrap_hen_fun_vvfunp(yeah* f);

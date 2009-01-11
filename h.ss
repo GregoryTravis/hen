@@ -145,7 +145,7 @@
 
 (define (cbuild-exe objcfile objfile exefile)
   (let ((objs (join-things " "
-                           (append '("vor.o" "spew.o" "mem.o" "ref.impl.o" "shew.impl.o")
+                           (append '("vor.o" "primcalls.o" "spew.o" "mem.o" "ref.impl.o" "shew.impl.o")
                                    objses)))
         (libs (join-things " " libses)))
 ;    (rmtemps objfile exefile)

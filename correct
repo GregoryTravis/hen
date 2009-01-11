@@ -228,6 +228,14 @@
 + (doo ref (create-null-ref) _ (shew ref))
 (Q Nil)
 => Nil
++ ((+ 10) 20)
+=> 30
++ (gigigigigplus 10 20)
+=> (Primcall plus ($ 10 20))
++ ((+ 10) 20)
+=> 30
++ (gigigigigplus 10 20)
+=> (Primcall plus ($ 10 20))
 + ((/. (x) x) Nil)
 => Nil
 + ((/. ((PP j k)) j) (PP 10 20))
@@ -458,6 +466,14 @@
 + (doo ref (create-null-ref) _ (shew ref))
 (Q)
 => Nil
++ ((+ 10) 20)
+=> 30
++ (gigigigigplus 10 20)
+=> 30
++ ((+ 10) 20)
+=> 30
++ (gigigigigplus 10 20)
+=> 30
 + (doo ref (create-int-ref 10) val (read-int-ref ref) _ (shew val) _ (write-int-ref ref 20) val (read-int-ref ref) _ (shew val) _ (destroy-int-ref ref))
 10
 20
@@ -465,5 +481,5 @@
 + (doo ref (create-charp-ref asdf) s (read-charp-ref ref) _ (shew s))
 "asdf"
 => Nil
-+ gcc -std=c99 -g -o test-input test-input.ss.c vor.o spew.o mem.o ref.impl.o shew.impl.o 
-+ gcc -std=c99 -g -o another-program another-program.ss.c vor.o spew.o mem.o ref.impl.o shew.impl.o 
++ gcc -std=c99 -g -o test-input test-input.ss.c vor.o primcalls.o spew.o mem.o ref.impl.o shew.impl.o 
++ gcc -std=c99 -g -o another-program another-program.ss.c vor.o primcalls.o spew.o mem.o ref.impl.o shew.impl.o 

@@ -258,3 +258,10 @@
 (doo
  ref (create-null-ref)
  _ (shew ref))
+
+(fun (gigigigigplus a b) (Primcall 'plus ($ a b)))
+
+((+ 10) 20)
+(gigigigigplus 10 20)
+((+ 10) 20)
+(gigigigigplus 10 20)

@@ -476,6 +476,102 @@ bool isprim3(yeah* e, char* s, yeah** arg0, yeah** arg1, yeah** arg2) {
   }
 }
 
+bool match_list0(yeah* e) {
+  return isnil(e);
+}
+
+bool match_list1(yeah* e, yeah** a) {
+  if (ISPAIR(e) && match_list0(cdr(e))) {
+    *a = car(e);
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool match_list2(yeah* e, yeah** a, yeah** b) {
+  if (ISPAIR(e) && match_list1(cdr(e), b)) {
+    *a = car(e);
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool match_list3(yeah* e, yeah** a, yeah** b, yeah** c) {
+  if (ISPAIR(e) && match_list2(cdr(e), b, c)) {
+    *a = car(e);
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool hmatch_list0(yeah* e) {
+  return isnil(e);
+}
+
+bool hmatch_list1(yeah* e, yeah** a) {
+  if (is_high_cons(e) && hmatch_list0(hcdr(e))) {
+    *a = hcar(e);
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool hmatch_list2(yeah* e, yeah** a, yeah** b) {
+  if (is_high_cons(e) && hmatch_list1(hcdr(e), b)) {
+    *a = hcar(e);
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool hmatch_list3(yeah* e, yeah** a, yeah** b, yeah** c) {
+  if (is_high_cons(e) && hmatch_list2(hcdr(e), b, c)) {
+    *a = hcar(e);
+    return true;
+  } else {
+    return false;
+  }
+}
+
+yeah* evl_completely_list(yeah* e, yeah* env) {
+  if (ISPAIR(e)) {
+    pair(
+      evl_completely(car(e), env),
+      evl_completely_list(cdr(e), env));
+  } else if (isnil(e)) {
+    return e;
+  } else {
+    err((""));
+  }
+}
+
+yeah* primcalls;
+
+void add_primcall(char* name, yeah* (*f)(yeah* e)) {
+  primcalls = pair(pair(symbol(name), opaque(f)), primcalls);
+}
+
+bool try_primcall(yeah* e, yeah* env, yeah** result) {
+  yeah* primcall, *fun, *args;
+  if (match_list3(e, &primcall, &fun, &args) && isthissymbol(primcall, "Primcall")) {
+    yeah* f = lookup_in_env(symstring(fun), primcalls);
+    if (f == NULL) {
+      return false;
+    } else {
+      args = evl_completely_list(args, env);
+      *result = (*((yeah* (*)(yeah*))opaqueval(f)))(args);
+      return true;
+    }
+  } else {
+    return false;
+  }
+}
+
 bool try_prim(yeah* e, yeah* env, yeah** result) {
   yeah *arg0, *arg1, *arg2;
   if (isprim1(e, "PAIR?", &arg0)) {
@@ -640,7 +736,10 @@ bool is_data(yeah* e) {
 
 yeah* evl_fully(yeah* e, yeah* env) {
   yeah* ee = evl_step(e, env);
-  if (is_data(ee) || equal(e, ee)) {
+  yeah* result;
+  if (try_primcall(e, env, &result)) {
+    return result;
+  } else if (is_data(ee) || equal(e, ee)) {
     return ee;
   } else {
     return evl_fully(ee, env);
@@ -694,7 +793,10 @@ yeah* evl_driver(yeah* e) {
   yeah *name, *args, *k;
   yeah* ee = e; // evl(e);
 
-  if (ISPAIR(ee) && isthissymbol(car(ee), "CommandSeq")) {
+  yeah* result;
+  if (try_primcall(e, Nil, &result)) {
+    return result;
+  } else if (ISPAIR(ee) && isthissymbol(car(ee), "CommandSeq")) {
     yeah* command = car(cdr(ee));
     yeah* k = car(cdr(cdr(ee)));
 
@@ -742,6 +844,7 @@ void init_constants() {
   False = symbol("False");
   CNil = csymbol("Nil");
   globals = symbol("Nil");
+  primcalls = symbol("Nil");
   foreign_functions = symbol("Nil");
 
   // HEY rid
@@ -751,6 +854,8 @@ void init_constants() {
 
 int main(int argc, char** argv) {
   init_constants();
+
+  install_primcalls();
 
   count_reductions_start();
   hen_main();
