@@ -3,6 +3,8 @@
 
 #include "vor.h"
 
+#include "primcalls.h"
+
 #include "a.h"
 #include "mem.h"
 #include "spew.h"
