@@ -737,9 +737,7 @@ bool is_data(yeah* e) {
 yeah* evl_fully(yeah* e, yeah* env) {
   yeah* ee = evl_step(e, env);
   yeah* result;
-  if (try_primcall(e, env, &result)) {
-    return result;
-  } else if (is_data(ee) || equal(e, ee)) {
+  if (is_data(ee) || equal(e, ee)) {
     return ee;
   } else {
     return evl_fully(ee, env);
