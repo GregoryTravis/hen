@@ -38,3 +38,7 @@
 => True
 + (id False)
 => False
++ (if True Ten Twenty)
+=> Ten
++ (if False Ten Twenty)
+=> Twenty
