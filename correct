@@ -14,3 +14,27 @@
 => (Yap Twenty Ten)
 + (foo One Two)
 => (Boot (Bar One) (Bar Two))
++ (and True True)
+=> True
++ (and True False)
+=> False
++ (and False True)
+=> False
++ (and False False)
+=> False
++ (or True True)
+=> True
++ (or False True)
+=> True
++ (or True False)
+=> True
++ (or False False)
+=> False
++ (not True)
+=> False
++ (not False)
+=> True
++ (id True)
+=> True
++ (id False)
+=> False

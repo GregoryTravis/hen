@@ -10,10 +10,10 @@
 
 (define (try-match rules pat e)
   (cond
-   ((ctor? pat) (eq? e pat))
+   ((ctor? pat) (if (eq? e pat) '() '(no-match)))
    ((pair? pat)
     (if (and (pair? pat) (eq? (car e) (car pat)) (= (length e) (length pat)))
-        (map-append (lambda (e p) (try-match rules p (if (cton? p) (drive rules e) e))) (cdr e) (cdr pat))
+        (apply append (map (lambda (e p) (try-match rules p (if (cton? p) (drive rules e) e))) (cdr e) (cdr pat)))
         '(no-match)))
   ((symbol? pat) (list (cons pat e)))
   (#t (err 'try-match e pat))))
@@ -34,8 +34,17 @@
             (try-rewrite all-rules (cdr rules) e)
             ee))))
 
+(define (primcall? pc)
+  (mtch pc ('Primcall f args) #t x #f))
+
+(define (eval-primcall pc)
+  (mtch pc
+        ('Primcall f args)
+        (apply (eval f) args)))
+
 (define (step rules e)
   (cond
+   ((primcall? e) (eval-primcall e))
    ((or (ctor? e) (cton? e)) e)
    ((pair? e) (try-rewrite rules rules e))
    (#t (err 'step e))))
@@ -56,7 +65,9 @@
      (#t (err 'wha ee)))))
 
 (define (run-file filename)
-  (let* ((forms (read-objects filename))
+  (let* ((forms (append
+                 (read-objects "overture.ss")
+                 (read-objects filename)))
          (blah (divide-by-pred (lambda (e) (and (pair? e) (eq? (car e) 'fun))) forms))
          (funs (car blah))
          (tlfs (cdr blah))

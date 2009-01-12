@@ -14,3 +14,17 @@
 (Joo (foo (Bar Ten) Seventy))
 (hat (het Ten Twenty))
 (foo One Two)
+
+(and True True)
+(and True False)
+(and False True)
+(and False False)
+(or True True)
+(or False True)
+(or True False)
+(or False False)
+(not True)
+(not False)
+
+(id True)
+(id False)
