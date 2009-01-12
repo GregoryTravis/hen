@@ -1088,3 +1088,8 @@
    ((null? lyst) (err))
    ((eq? (car lyst) #\.) (cdr lyst))
    (#t (remove-extension-1 (cdr lyst)))))
+
+;; Partial application -- where has this been all my life?
+(define ($ f . args)
+  (lambda more-args
+    (apply f (append args more-args))))
