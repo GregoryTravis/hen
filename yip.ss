@@ -52,7 +52,7 @@
   (let ((ee (drive rules e)))
     (cond
      ((ctor? ee) ee)
-     ((cton? ee) (map (lambda (e) (evl-fully rules e)) ee))
+     ((cton? ee) (map ($ evl-fully rules) ee))
      (#t (err 'wha ee)))))
 
 ;(tracefun drive step try-rewrite try-rule try-match rewrite-body)
