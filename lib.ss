@@ -193,6 +193,9 @@
 (define (lshew . args)
   (display (apply lsshew args)))
 
+(define (lshewn . args)
+  (map (lambda (s) (lshew s) (display "\n")) args))
+
 (define (lsshew . args)
   (string-collapse-spaces
    (string-one-line

@@ -1,1 +1,1 @@
-mzscheme -r yip.ss $*
+mzscheme -r main.ss $*

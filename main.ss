@@ -1,2 +1,3 @@
-(load "h.ss")
-(hen (vector->list (current-command-line-arguments)))
+(load "yip.ss")
+
+(run-file "src.ss")

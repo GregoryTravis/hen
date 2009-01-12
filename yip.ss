@@ -55,31 +55,16 @@
      ((cton? ee) (map ($ evl-fully rules) ee))
      (#t (err 'wha ee)))))
 
+(define (run-file filename)
+  (let* ((forms (read-objects filename))
+         (blah (divide-by-pred (lambda (e) (and (pair? e) (eq? (car e) 'fun))) forms))
+         (funs (car blah))
+         (tlfs (cdr blah))
+         (rules (map (lambda (fun) (list (cadr fun) (caddr fun))) funs)))
+    (map (lambda (e)
+           (display "+ ") (lshewn e)
+           (let ((ee (evl-fully rules e)))
+             (display "=> ") (lshewn ee)))
+         tlfs)))
+
 ;(tracefun drive step try-rewrite try-rule try-match rewrite-body)
-
-;; (define joot
-;;   '(
-;;     ((foo a) (Bar a))
-;;     ((foo a b) (Boot (foo a) (foo b)))
-;;     ((zek (Bar (Bar x))) (Shy x))
-;;     ((foo (Bar a) b) (Book b a))
-;;     ((het a b) (Yip a b))
-;;     ((hat (Yip a b)) (Yap b a))
-;;     ((hick a) (Vot a a))
-;;     ))
-
-;; (define terms
-;;   '(
-;;     A
-;;     (foo Ten)
-;;     (foo (Bar Ten) Seventy)
-;;     (foo (foo Ten))
-;;     (zek (foo (foo Ten)))
-;;     (hick (foo (foo Yah)))
-;;     (Joo (foo (Bar Ten) Seventy))
-;;     (hat (het Ten Twenty))
-;;     (foo One Two)
-;;     ))
-
-;; (shew (map ($ drive joot) terms))
-;; (shew (map ($ evl-fully joot) terms))
