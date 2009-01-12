@@ -10,3 +10,6 @@
 (fun (or False False) False)
 (fun (not True) False)
 (fun (not False) True)
+
+(fun (if True a b) a)
+(fun (if False a b) b)
