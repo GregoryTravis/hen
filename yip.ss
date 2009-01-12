@@ -10,7 +10,7 @@
 
 (define (try-match rules pat e)
   (cond
-   ((ctor? pat) (if (eq? e pat) '() '(no-match)))
+   ((ctor? pat) (if (eq? (drive rules e) pat) '() '(no-match)))
    ((pair? pat)
     (if (and (pair? e) (eq? (car e) (car pat)) (= (length e) (length pat)))
         (apply append (map (lambda (e p) (try-match rules p (if (cton? p) (drive rules e) e))) (cdr e) (cdr pat)))
@@ -62,7 +62,7 @@
     (cond
      ((ctor? ee) ee)
      ((cton? ee) (map ($ evl-fully rules) ee))
-     (#t (err 'wha ee)))))
+     (#t (err 'wha e ee)))))
 
 (define (run-file filename)
   (let* ((forms (append
@@ -78,4 +78,6 @@
              (display "=> ") (lshewn ee)))
          tlfs)))
 
-(tracefun evl-fully drive step try-rewrite try-rule try-match rewrite-body)
+;(tracefun rewrite-body)
+;(tracefun evl-fully drive step try-rewrite try-rule try-match)
+;(tracefun drive)
