@@ -81,5 +81,5 @@
 ;;     (foo One Two)
 ;;     ))
 
-;; (shew (map (lambda (e) (drive joot e)) terms))
-;; (shew (map (lambda (e) (evl-fully joot e)) terms))
+;; (shew (map ($ drive joot) terms))
+;; (shew (map ($ evl-fully joot) terms))
