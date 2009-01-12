@@ -68,6 +68,7 @@
   (let* ((forms (append
                  (read-objects "overture.ss")
                  (read-objects filename)))
+         (forms (unsugar forms))
          (blah (divide-by-pred (lambda (e) (and (pair? e) (eq? (car e) 'fun))) forms))
          (funs (car blah))
          (tlfs (cdr blah))
@@ -78,6 +79,25 @@
              (display "=> ") (lshewn ee)))
          tlfs)))
 
+(define (integer->bits i) (reverse (integer->bits-1 i)))
+(define (integer->bits-1 i)
+  (if (= i 0)
+      '()
+      (cons (if (= (bitwise-and i 1) 1) 'True 'False) (integer->bits-1 (arithmetic-shift i -1)))))
+
+(define (integer->ctors i)
+  `(Integer ,(consify (integer->bits i))))
+
+(define (unsugar e)
+  (cond
+   ((pair? e) (cons (unsugar (car e)) (unsugar (cdr e))))
+   ((integer? e) (integer->ctors e))
+   ((or (symbol? e) (null? e)) e)
+   (#t (err 'unsugar e))))
+
 ;(tracefun rewrite-body)
 ;(tracefun evl-fully drive step try-rewrite try-rule try-match)
 ;(tracefun drive)
+;(tracefun unsugar)
+
+;(shew (integer->ctors 3))
