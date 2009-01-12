@@ -58,7 +58,7 @@
 
 (load "yip.ss")
 
-(define rules
+(define joot
   '(
     ((foo a) (Bar a))
     ((foo a b) (Boot (foo a) (foo b)))
@@ -82,5 +82,5 @@
     (foo One Two)
     ))
 
-(shew (map drive terms))
-(shew (map evl-fully terms))
+(shew (map (lambda (e) (drive joot e)) terms))
+(shew (map (lambda (e) (evl-fully joot e)) terms))
