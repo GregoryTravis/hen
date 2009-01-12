@@ -1,1 +1,1 @@
-hen src.ss
+mzscheme -r yip.ss $*
