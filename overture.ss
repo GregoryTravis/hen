@@ -10,6 +10,7 @@
 (fun (or False False) False)
 (fun (not True) False)
 (fun (not False) True)
+(fun (xor a b) (or (and a (not b)) (and (not a) b)))
 
 (fun (if True a b) a)
 (fun (if False a b) b)

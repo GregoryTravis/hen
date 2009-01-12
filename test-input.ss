@@ -25,6 +25,10 @@
 (or False False)
 (not True)
 (not False)
+(xor True True)
+(xor False True)
+(xor True False)
+(xor False False)
 
 (id True)
 (id False)
