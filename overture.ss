@@ -13,3 +13,9 @@
 
 (fun (if True a b) a)
 (fun (if False a b) b)
+
+(fun (append (Cons a as) bs) (Cons a (append as bs)))
+(fun (append Nil bs) bs)
+
+(fun (reverse Nil) Nil)
+(fun (reverse (Cons a as)) (append (reverse as) (Cons a Nil)))

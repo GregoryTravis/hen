@@ -42,3 +42,23 @@
 => Ten
 + (if False Ten Twenty)
 => Twenty
++ (append (Cons One (Cons Two Nil)) (Cons Three (Cons Four Nil)))
+=> (Cons One (Cons Two (Cons Three (Cons Four Nil))))
++ (reverse (append (Cons One (Cons Two Nil)) (Cons Three (Cons Four Nil))))
+=> (Cons Four (Cons Three (Cons Two (Cons One Nil))))
++ (reverse (Cons One (Cons Two (Cons Three (Cons Four Nil)))))
+=> (Cons Four (Cons Three (Cons Two (Cons One Nil))))
++ (reverse (reverse (Cons One (Cons Two (Cons Three (Cons Four Nil))))))
+=> (Cons One (Cons Two (Cons Three (Cons Four Nil))))
++ (reverse Nil)
+=> Nil
++ (reverse (Cons One Nil))
+=> (Cons One Nil)
++ (append (Cons One Nil) (Cons Two Nil))
+=> (Cons One (Cons Two Nil))
++ (append Nil (Cons One (Cons Two Nil)))
+=> (Cons One (Cons Two Nil))
++ (append (Cons One (Cons Two Nil)) Nil)
+=> (Cons One (Cons Two Nil))
++ (append Nil Nil)
+=> Nil

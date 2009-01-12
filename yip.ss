@@ -10,12 +10,12 @@
 
 (define (try-match rules pat e)
   (cond
+   ((and (symbol? pat) (not (ctor? pat))) (list (cons pat e)))
    ((ctor? pat) (if (eq? (drive rules e) pat) '() '(no-match)))
    ((pair? pat)
     (if (and (pair? e) (eq? (car e) (car pat)) (= (length e) (length pat)))
         (apply append (map (lambda (e p) (try-match rules p (if (cton? p) (drive rules e) e))) (cdr e) (cdr pat)))
         '(no-match)))
-  ((symbol? pat) (list (cons pat e)))
   (#t (err 'try-match e pat))))
 
 (define (try-rule rules rule e)

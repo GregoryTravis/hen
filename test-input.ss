@@ -31,3 +31,14 @@
 
 (if True Ten Twenty)
 (if False Ten Twenty)
+
+(append (Cons One (Cons Two Nil)) (Cons Three (Cons Four Nil)))
+(reverse (append (Cons One (Cons Two Nil)) (Cons Three (Cons Four Nil))))
+(reverse (Cons One (Cons Two (Cons Three (Cons Four Nil)))))
+(reverse (reverse (Cons One (Cons Two (Cons Three (Cons Four Nil))))))
+(reverse Nil)
+(reverse (Cons One Nil))
+(append (Cons One Nil) (Cons Two Nil))
+(append Nil (Cons One (Cons Two Nil)))
+(append (Cons One (Cons Two Nil)) Nil)
+(append Nil Nil)
