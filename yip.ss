@@ -12,7 +12,7 @@
   (cond
    ((ctor? pat) (if (eq? e pat) '() '(no-match)))
    ((pair? pat)
-    (if (and (pair? pat) (eq? (car e) (car pat)) (= (length e) (length pat)))
+    (if (and (pair? e) (eq? (car e) (car pat)) (= (length e) (length pat)))
         (apply append (map (lambda (e p) (try-match rules p (if (cton? p) (drive rules e) e))) (cdr e) (cdr pat)))
         '(no-match)))
   ((symbol? pat) (list (cons pat e)))
@@ -78,4 +78,4 @@
              (display "=> ") (lshewn ee)))
          tlfs)))
 
-;(tracefun drive step try-rewrite try-rule try-match rewrite-body)
+(tracefun evl-fully drive step try-rewrite try-rule try-match rewrite-body)
