@@ -74,9 +74,9 @@
          (tlfs (cdr blah))
          (rules (map (lambda (fun) (list (cadr fun) (caddr fun))) funs)))
     (map (lambda (e)
-           (display "+ ") (lshewn e)
+           (display "+ ") (lshewn (sugar e))
            (let ((ee (evl-fully e rules)))
-             (display "=> ") (lshewn ee)))
+             (display "=> ") (lshewn (sugar ee))))
          tlfs)))
 
 (define (integer->bits i) (reverse (integer->bits-1 i)))
@@ -88,12 +88,25 @@
 (define (integer->ctors i)
   `(Integer ,(consify (integer->bits i))))
 
+(define (ctors->integer i) (ctors->integer-1 i 0))
+(define (ctors->integer-1 i a)
+  (mtch i
+        'Nil a
+        ('Cons 'True j) (ctors->integer-1 j (+ (* a 2) 1))
+        ('Cons 'False j) (ctors->integer-1 j (* a 2))))
+
 (define (unsugar e)
   (cond
    ((pair? e) (cons (unsugar (car e)) (unsugar (cdr e))))
    ((integer? e) (integer->ctors e))
    ((or (symbol? e) (null? e)) e)
    (#t (err 'unsugar e))))
+
+(define (sugar e)
+  (mtch e
+        ('Integer i) (ctors->integer i)
+        (a . b) (cons (sugar a) (sugar b))
+        x x))
 
 ;(tracefun rewrite-body)
 ;(tracefun evl-fully drive step try-rewrite try-rule try-match)
