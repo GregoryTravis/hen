@@ -1,5 +1,7 @@
 (load "lib.ss")
 
+(define run-eagerly #t)
+
 (define steps 0)
 (define (count-step) (set! steps (+ steps 1)))
 (define (report-steps) (shew 'steps steps))
@@ -46,12 +48,17 @@
         ('Primcall f args)
         (apply (eval f) args)))
 
+(define (eager-maybe e rules)
+  (if run-eagerly
+      (cons (car e) (map (lambda (e) (evl-fully e rules)) (cdr e)))
+      e))
+
 (define (step e rules)
   (count-step)
   (cond
    ((primcall? e) (eval-primcall e))
    ((or (ctor? e) (cton? e)) e)
-   ((pair? e) (try-rewrite e rules rules))
+   ((pair? e) (try-rewrite (eager-maybe e rules) rules rules))
    (#t (err 'step e))))
 
 (define (drive e rules)
