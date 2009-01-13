@@ -15,7 +15,9 @@
 (fun (strip-head-falses (Cons False as)) (strip-head-falses as))
 (fun (strip-head-falses x) x)
 
-(addy (Integer (Cons False Nil)) (Integer (Cons False Nil)))
-(addy (Integer (Cons False Nil)) (Integer (Cons True Nil)))
-(addy (Integer (Cons True Nil)) (Integer (Cons False Nil)))
-(addy (Integer (Cons True Nil)) (Integer (Cons True Nil)))
+(addy 0 0)
+(addy 0 1)
+(addy 1 0)
+(addy 1 1)
+(addy 12 23)
+(addy 120 23)
