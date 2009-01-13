@@ -1096,3 +1096,19 @@
 (define ($ f . args)
   (lambda more-args
     (apply f (append args more-args))))
+
+(define-macro (wrap-args-and-result f w)
+  `(define ,f (let ((_f ,f))
+                (lambda args
+                  (let ((result (apply _f args)))
+                    (apply ,w (append args (list result)))
+                    result)))))
+
+(define-macro (wrap-before-and-after f before after)
+  `(define ,f (let ((_f ,f))
+                (lambda args
+                  (,before)
+                  (let ((result (apply _f args)))
+                    (,after)
+                    result)))))
+
