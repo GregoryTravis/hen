@@ -25,6 +25,9 @@
 (fun (reverse Nil) Nil)
 (fun (reverse (Cons a as)) (append (reverse as) (Cons a Nil)))
 
+(fun (map f (Cons a as)) (Cons (f a) (map f as)))
+(fun (map f Nil) Nil)
+
 ;; Addition
 (fun (rbitsadd Nil Nil carry) (Cons carry Nil))
 (fun (rbitsadd Nil b carry) (rbitsadd (Cons False Nil) b carry))

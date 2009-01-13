@@ -54,3 +54,9 @@
 (+ 12 23)
 (+ 120 23)
 (+ 256 256)
+
+(fun (double x) (+ x x))
+(map id (Cons 1 (Cons 2 Nil)))
+
+(double 10)
+(map double (Cons 1 (Cons 2 Nil)))

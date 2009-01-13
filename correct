@@ -84,3 +84,9 @@
 => 143
 + (+ 256 256)
 => 512
++ (map id (Cons 1 (Cons 2 Nil)))
+=> (Cons 1 (Cons 2 Nil))
++ (double 10)
+=> 20
++ (map double (Cons 1 (Cons 2 Nil)))
+=> (Cons 2 (Cons 4 Nil))
