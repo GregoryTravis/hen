@@ -1,5 +1,9 @@
 (load "lib.ss")
 
+(define steps 0)
+(define (count-step) (set! steps (+ steps 1)))
+(define (report-steps) (shew 'steps steps))
+
 (define (rewrite-body body env)
   (cond
    ((null? body) body)
@@ -43,6 +47,7 @@
         (apply (eval f) args)))
 
 (define (step e rules)
+  (count-step)
   (cond
    ((primcall? e) (eval-primcall e))
    ((or (ctor? e) (cton? e)) e)
