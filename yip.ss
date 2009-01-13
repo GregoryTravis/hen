@@ -59,6 +59,7 @@
    ((primcall? e) (eval-primcall e))
    ((or (ctor? e) (cton? e)) e)
    ((pair? e) (try-rewrite (eager-maybe e rules) rules rules))
+   ((symbol? e) e) ; HEY
    (#t (err 'step e))))
 
 (define (drive e rules)
@@ -74,7 +75,22 @@
     (cond
      ((ctor? ee) ee)
      ((cton? ee) (map (lambda (e) (evl-fully e rules)) ee))
+     ((symbol? ee) ee) ; HEY
      (#t (err 'wha e ee)))))
+
+;; (define gip 0)
+;; (wrap-before-and-after evl-fully
+;;                        (lambda () (set! gip (+ gip 1)))
+;;                        (lambda () (set! gip (- gip 1))))
+;; (wrap-args-and-result evl-fully (lambda (e rules result)
+;;                                   (if (not (equal? e result))
+;;                                       (begin
+;;                                         (display (make-string-string gip "-"))
+;;                                         (lshew e)
+;;                                         (display " -> ")
+;;                                         (lshew result)
+;;                                         (display "\n"))
+;;                                       '())))
 
 (define (run-file filename)
   (let* ((forms (append
