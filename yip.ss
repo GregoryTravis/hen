@@ -140,5 +140,3 @@
 ;(tracefun evl-fully drive step try-rewrite try-rule try-match)
 ;(tracefun drive)
 ;(tracefun unsugar)
-
-;(shew (integer->ctors 3))
