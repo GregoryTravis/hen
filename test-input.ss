@@ -46,3 +46,11 @@
 (append Nil (Cons One (Cons Two Nil)))
 (append (Cons One (Cons Two Nil)) Nil)
 (append Nil Nil)
+
+(+ 0 0)
+(+ 0 1)
+(+ 1 0)
+(+ 1 1)
+(+ 12 23)
+(+ 120 23)
+(+ 256 256)
