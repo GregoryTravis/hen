@@ -37,3 +37,6 @@ fbo.o: fbo.c
 
 # fbo: fbo.o GLee.o
 # 	gcc -o fbo -g fbo.o GLee.o -framework GLUT -framework OpenGL -framework CoreFoundation
+
+vertex_and_fragment_program.o: vertex_and_fragment_program.c
+	gcc -Wall   -c -o vertex_and_fragment_program.o vertex_and_fragment_program.c
