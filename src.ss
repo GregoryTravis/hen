@@ -19,6 +19,7 @@
  _ (shew ($ 'myCgContext myCgContext))
 
  _ (checkForCgError "creating context")
+ _ (cgGLSetDebugMode _CG_FALSE)
 
  _ (mainby2 myCgContext)
 )

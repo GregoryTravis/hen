@@ -72,7 +72,7 @@ int mainby2(CGcontext urp_myCgContext) {
   myCgContext = urp_myCgContext;
 
   //checkForCgError("creating context");
-  cgGLSetDebugMode(CG_FALSE);
+  //cgGLSetDebugMode(CG_FALSE);
   cgSetParameterSettingMode(myCgContext, CG_DEFERRED_PARAMETER_SETTING);
 
   myCgVertexProfile = cgGLGetLatestProfile(CG_GL_VERTEX);
