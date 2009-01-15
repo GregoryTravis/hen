@@ -13,5 +13,8 @@
  _ (shew ret)
 
  _ (mainby)
+
+ _ (glClearColor .1 .3 .6 .0)
+
  _ (mainby2)
 )

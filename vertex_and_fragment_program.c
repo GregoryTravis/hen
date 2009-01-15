@@ -66,7 +66,7 @@ void mainby()
 }
 
 int mainby2() {
-  glClearColor(0.1, 0.3, 0.6, 0.0);  /* Blue background */
+//  glClearColor(0.1, 0.3, 0.6, 0.0);  /* Blue background */
 
   myCgContext = cgCreateContext();
   checkForCgError("creating context");
