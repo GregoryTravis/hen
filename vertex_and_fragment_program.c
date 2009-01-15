@@ -29,7 +29,7 @@ static const char *myProgramName = "02_vertex_and_fragment_program",
                   *myFragmentProgramFileName = "C2E2f_passthru.cg",
 /* Page 53 */     *myFragmentProgramName = "C2E2f_passthru";
 
-static void checkForCgError(const char *situation)
+void checkForCgError(char *situation)
 {
   CGerror error;
   const char *string = cgGetLastErrorString(&error);
@@ -71,7 +71,7 @@ int mainby2(CGcontext urp_myCgContext) {
   //myCgContext = cgCreateContext();
   myCgContext = urp_myCgContext;
 
-  checkForCgError("creating context");
+  //checkForCgError("creating context");
   cgGLSetDebugMode(CG_FALSE);
   cgSetParameterSettingMode(myCgContext, CG_DEFERRED_PARAMETER_SETTING);
 

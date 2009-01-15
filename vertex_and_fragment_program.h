@@ -5,3 +5,4 @@ void mainby();
 int mainby2(CGcontext _myCgContext);
 
 CGcontext cgCreateContext();
+void checkForCgError(char *situation);

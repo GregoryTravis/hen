@@ -2,7 +2,7 @@
 
 (define hen-version "* hen v. 0.01")
 
-(define remove-temporaries #f)
+(define remove-temporaries #t)
 (define count-reductions #f)
 (define show-tsgs #f)
 (define show-bindings #f)

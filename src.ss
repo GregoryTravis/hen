@@ -18,5 +18,7 @@
  myCgContext (cgCreateContext)
  _ (shew ($ 'myCgContext myCgContext))
 
+ _ (checkForCgError "creating context")
+
  _ (mainby2 myCgContext)
 )
