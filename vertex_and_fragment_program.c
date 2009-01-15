@@ -45,7 +45,7 @@ void checkForCgError(char *situation)
 }
 
 /* Forward declared GLUT callbacks registered by main. */
-static void display(void);
+//static void display(void);
 static void keyboard(unsigned char c, int x, int y);
 
 //int mainby(int argc, char **argv)
@@ -61,7 +61,10 @@ void mainby()
 //  glutInit(&argc, argv);
 
   //glutCreateWindow(myProgramName);
-  glutDisplayFunc(display);
+}
+
+void mainby3() {
+  //glutDisplayFunc(display);
   glutKeyboardFunc(keyboard);
 }
 
@@ -146,7 +149,7 @@ static void drawStars(void)
   drawStar(-0.97, -0.8,  5,      0.6,    0.2);
 }
 
-static void display(void)
+void display(void)
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

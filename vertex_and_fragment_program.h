@@ -16,6 +16,8 @@ typedef int CGerror;
 
 void mainby();
 int mainby2(CGcontext _myCgContext);
+void mainby3();
+void display(void);
 
 CGcontext cgCreateContext();
 void checkForCgError(char *situation);
