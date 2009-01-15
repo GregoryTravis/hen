@@ -37,6 +37,7 @@ $aliases{"CGbool"} = "int";
 $aliases{"CGenum"} = "int";
 $aliases{"CGerror"} = "int";
 $aliases{"CGerror *"} = "int *";
+$aliases{"CGGLenum"} = "int";
 
 my $debug_this="";
 #$debug_this = "cgGLSetDebugMode";
