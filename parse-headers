@@ -34,6 +34,7 @@ $aliases{"GLboolean"} = "unsigned char";
 $aliases{"const char *"} = "char *";
 $aliases{"const GLvoid *"} = "void *";
 $aliases{"CGbool"} = "int";
+$aliases{"CGenum"} = "int";
 
 my $debug_this="";
 #$debug_this = "cgGLSetDebugMode";

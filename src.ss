@@ -20,6 +20,7 @@
 
  _ (checkForCgError "creating context")
  _ (cgGLSetDebugMode _CG_FALSE)
+ _ (cgSetParameterSettingMode myCgContext _CG_DEFERRED_PARAMETER_SETTING)
 
  _ (mainby2 myCgContext)
 )
