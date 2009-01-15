@@ -53,8 +53,11 @@ int mainby()
 {
 int argc = 1;
 char *argv[] = { "haha", NULL };
-  glutInitWindowSize(400, 400);
-  glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+
+ // hen
+ //glutInitWindowSize(800, 800);
+ //glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+
   glutInit(&argc, argv);
 
   glutCreateWindow(myProgramName);
