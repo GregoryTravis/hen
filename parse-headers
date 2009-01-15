@@ -35,6 +35,8 @@ $aliases{"const char *"} = "char *";
 $aliases{"const GLvoid *"} = "void *";
 $aliases{"CGbool"} = "int";
 $aliases{"CGenum"} = "int";
+$aliases{"CGerror"} = "int";
+$aliases{"CGerror *"} = "int *";
 
 my $debug_this="";
 #$debug_this = "cgGLSetDebugMode";
@@ -254,7 +256,7 @@ foreach my $fun (@funs) {
     } elsif ($type eq "vuciifunp") {
       $arg_converters .=
         "  vuciifunp $name = wrap_hen_fun_vuciifunp(${name}_);\n";
-    } elsif ($type eq "CGcontext") {
+    } elsif ($type eq "CGcontext" || $type eq "CGprofile" || $type eq "CGprogram") {
       $arg_converters .=
         "  $type $name = ($type)opaqueval(${name}_);\n";
     } else {
@@ -295,7 +297,7 @@ foreach my $fun (@funs) {
     $returner = "  return opaque((void*)__ret);\n";
   } elsif ($return_type eq "void (*)(void)") {
     $returner = "  return opaque(__ret);\n";
-  } elsif ($return_type eq "CGcontext") {
+  } elsif ($return_type eq "CGcontext" || $return_type eq "CGprofile" || $return_type eq "CGprogram") {
     $returner = "  return opaque(__ret);\n";
   } else {
     problem("Return type $return_type?");

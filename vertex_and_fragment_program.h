@@ -8,13 +8,27 @@
 #define CG_GL_FRAGMENT 9
 
 typedef struct _CGcontext *CGcontext;
+typedef struct _CGprofile *CGprofile;
+typedef struct _CGprogram *CGprogram;
 typedef int CGbool;
 typedef int CGenum;
+typedef int CGerror;
 
 void mainby();
 int mainby2(CGcontext _myCgContext);
 
 CGcontext cgCreateContext();
 void checkForCgError(char *situation);
-void cgGLSetDebugMode(CGbool debug);
+
+CGprogram cgCreateProgramFromFile(CGcontext ctx, CGenum program_type, char *program_file, CGprofile profile, char *entry, char **args);
+void cgDestroyContext(CGcontext ctx); 
+void cgDestroyProgram(CGprogram program); 
+void cgGLBindProgram(CGprogram program);
+void cgGLDisableProfile(CGprofile profile);
+void cgGLEnableProfile(CGprofile profile);
+void cgGLLoadProgram(CGprogram program);
+void cgGLSetDebugMode(CGbool debug );
+void cgGLSetOptimalOptions(CGprofile profile);
+char * cgGetLastErrorString(CGerror *error);
+char * cgGetLastListing(CGcontext ctx);
 void cgSetParameterSettingMode(CGcontext ctx, CGenum parameterSettingMode);
