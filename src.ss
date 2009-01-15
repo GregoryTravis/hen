@@ -15,6 +15,8 @@
  _ (mainby)
 
  _ (glClearColor .1 .3 .6 .0)
+ myCgContext (cgCreateContext)
+ _ (shew ($ 'myCgContext myCgContext))
 
- _ (mainby2)
+ _ (mainby2 myCgContext)
 )

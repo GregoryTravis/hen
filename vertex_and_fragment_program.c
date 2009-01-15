@@ -65,10 +65,12 @@ void mainby()
   glutKeyboardFunc(keyboard);
 }
 
-int mainby2() {
+int mainby2(CGcontext urp_myCgContext) {
 //  glClearColor(0.1, 0.3, 0.6, 0.0);  /* Blue background */
 
-  myCgContext = cgCreateContext();
+  //myCgContext = cgCreateContext();
+  myCgContext = urp_myCgContext;
+
   checkForCgError("creating context");
   cgGLSetDebugMode(CG_FALSE);
   cgSetParameterSettingMode(myCgContext, CG_DEFERRED_PARAMETER_SETTING);
