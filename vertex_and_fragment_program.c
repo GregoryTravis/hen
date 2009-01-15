@@ -51,16 +51,16 @@ static void keyboard(unsigned char c, int x, int y);
 //int mainby(int argc, char **argv)
 int mainby()
 {
-int argc = 1;
-char *argv[] = { "haha", NULL };
+//int argc = 1;
+//char *argv[] = { "haha", NULL };
 
  // hen
  //glutInitWindowSize(800, 800);
  //glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 
-  glutInit(&argc, argv);
+//  glutInit(&argc, argv);
 
-  glutCreateWindow(myProgramName);
+  //glutCreateWindow(myProgramName);
   glutDisplayFunc(display);
   glutKeyboardFunc(keyboard);
 
