@@ -6,6 +6,8 @@ use Cmd;
 use File;
 use Shew;
 
+my $ignore_stuff_we_do_not_understand = 0;
+
 my $debug = 0;
 
 my %aliases;
@@ -40,6 +42,17 @@ my $hfile = $ARGV[0];
 
 my %defines = ();
 my @funs = ();
+
+sub problem($) {
+  my ($s) = @_;
+  if ($ignore_stuff_we_do_not_understand) {
+    if ($debug) {
+      print "$s\n";
+    }
+  } else {
+    die $s;
+  }
+}
 
 sub fixup_value($) {
   my ($v) = @_;
@@ -239,13 +252,16 @@ foreach my $fun (@funs) {
     } elsif ($type eq "vuciifunp") {
       $arg_converters .=
         "  vuciifunp $name = wrap_hen_fun_vuciifunp(${name}_);\n";
+    } elsif ($type eq "CGcontext") {
+      $arg_converters .=
+        "  $type $name = ($type)opaqueval(${name}_);\n";
     } else {
-      print "Don't know type '$type' ($fun_name)" if ($debug);
+      problem("Don't know type '$type' ($fun_name)");
       $skip = 1;
     }
   }
 
-  next if ($skip);
+  next if ($skip && $ignore_stuff_we_do_not_understand);
 
   my $call =
     ($return_type eq "void")
@@ -277,12 +293,14 @@ foreach my $fun (@funs) {
     $returner = "  return opaque((void*)__ret);\n";
   } elsif ($return_type eq "void (*)(void)") {
     $returner = "  return opaque(__ret);\n";
+  } elsif ($return_type eq "CGcontext") {
+    $returner = "  return opaque(__ret);\n";
   } else {
-    print "type $return_type?" if ($debug);
+    problem("Return type $return_type?");
     $skip = 1;
   }
 
-  next if ($skip);
+  next if ($skip && $ignore_stuff_we_do_not_understand);
 
   my $all = "yeah* $command_name(yeah* __arg) {\n";
   $all .= $arg_getters;
