@@ -49,7 +49,7 @@ static void display(void);
 static void keyboard(unsigned char c, int x, int y);
 
 //int mainby(int argc, char **argv)
-int mainby()
+void mainby()
 {
 //int argc = 1;
 //char *argv[] = { "haha", NULL };
@@ -63,7 +63,9 @@ int mainby()
   //glutCreateWindow(myProgramName);
   glutDisplayFunc(display);
   glutKeyboardFunc(keyboard);
+}
 
+int mainby2() {
   glClearColor(0.1, 0.3, 0.6, 0.0);  /* Blue background */
 
   myCgContext = cgCreateContext();
