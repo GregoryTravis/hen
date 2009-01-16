@@ -116,17 +116,31 @@ sub dumpit($) {
   return if ($level >= $maxlevel);
   my ($node) = @_;
   print "--" x $level;
-  print "$node->{nodetype}\n";
   $level++;
-  while (my ($k, $v) = each %$node) {
-    if (ref($v) eq "") {
-      print "--" x $level;
-      print "$k: $v\n";
-    } else {
-      print "--" x $level;
-      print "$k:\n";
-      dumpit($v);
+  if (ref $node eq "ARRAY") {
+    foreach my $v (@$node) {
+      if (ref($v) eq "") {
+        print "--" x $level;
+        print "$v\n";
+      } else {
+        print "--" x $level;
+        dumpit($v);
+      }
     }
+  } elsif (ref $node eq "HASH") {
+    print "$node->{nodetype}\n";
+    while (my ($k, $v) = each %$node) {
+      if (ref($v) eq "") {
+        print "--" x $level;
+        print "$k: $v\n";
+      } else {
+        print "--" x $level;
+        print "$k:\n";
+        dumpit($v);
+      }
+    }
+  } else {
+    die $node;
   }
   $level--;
 }
@@ -137,4 +151,28 @@ my $tree = build_tree("\@1");
 #shew($tree);
 
 #shew(lookup($tree, "dcls"));
-dumpit(lookup($tree, "dcls"));
+#dumpit(lookup($tree, "dcls"));
+my $dcls = lookup($tree, "dcls");
+
+sub chanmap($$) {
+  my ($f, $node) = @_;
+  my $here = $node;
+  my @rs = ();
+  while (1) {
+    my $r = $f->($here);
+    push @rs, $r;
+    if (ref $here eq "HASH" && defined $here->{"chan"}) {
+      $here = $here->{"chan"};
+    } else {
+      last;
+    }
+  }
+  return \@rs; 
+}
+
+sub id($) {
+  my ($v) = @_;
+  return $v;
+}
+
+dumpit(chanmap(\&id, $dcls));
