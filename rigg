@@ -1,5 +1,7 @@
 #!/usr/bin/env perl
 
+$|=1;
+
 use strict;
 
 use Data::Dumper;
@@ -31,6 +33,7 @@ sub shew( @ )
 }
 
 
+print "READING...\n";
 my @lines = <>;
 
 my $all = join('', @lines);
@@ -40,12 +43,13 @@ my @nodelines = split(/\n/, $all);
 
 my %abnodes = ();
 
+print "PARSING...\n";
 foreach my $nodeline (@nodelines) {
   my @words = split(/\s+/, $nodeline);
   #print join(":::", @words) . "\n";
   my %node = ();
-  $node{"INDEX"} = shift(@words);
-  $node{"TYPE"} = shift(@words);
+  $node{"index"} = shift(@words);
+  $node{"nodetype"} = shift(@words);
   while (@words > 0) {
     if ($words[0] =~ /:$/) {
       my $k = shift(@words);
@@ -55,15 +59,23 @@ foreach my $nodeline (@nodelines) {
 
       $node{$k} = $v;
     } else {
-      push @{$node{"EXTRA"}}, shift(@words);
+      my $k = shift(@words);
+      $node{$k} = 1;
     }
   }
 
-  $abnodes{$node{"INDEX"}} = \%node;
+  $abnodes{$node{"index"}} = \%node;
 }
 
-sub build_tree($) {
-  my ($index) = @_;
+sub build_tree_1($$) {
+  my ($index, $seen) = @_;
+
+  if (defined ($seen->{$index})) {
+    return $index;
+  } else {
+    $seen->{$index} = 1;
+  }
+
   my $node;
   if (!(defined $abnodes{$index})) {
     return "DANGLING";
@@ -71,13 +83,19 @@ sub build_tree($) {
   my $node = $abnodes{$index};
   my %node = (%$node);
   while (my ($k, $v) = each %node) {
-    next if ($k eq "INDEX");
+    next if ($k eq "index");
     if ($v =~ /^\@/) {
-      $v = build_tree($v);
+      $v = build_tree_1($v, $seen);
       $node{$k} = $v;
     }
   }
+
   return \%node;
+}
+
+sub build_tree($) {
+  my ($index) = @_;
+  return build_tree_1($index, {});
 }
 
 sub lookup($$) {
@@ -91,8 +109,32 @@ sub lookup($$) {
   return $node;
 }
 
+my $maxlevel = 3;
+my $level = 0;
+
+sub dumpit($) {
+  return if ($level >= $maxlevel);
+  my ($node) = @_;
+  print "--" x $level;
+  print "$node->{nodetype}\n";
+  $level++;
+  while (my ($k, $v) = each %$node) {
+    if (ref($v) eq "") {
+      print "--" x $level;
+      print "$k: $v\n";
+    } else {
+      print "--" x $level;
+      print "$k:\n";
+      dumpit($v);
+    }
+  }
+  $level--;
+}
+
+print "BUILDING TREE...\n";
 #shew(\%abnodes);
 my $tree = build_tree("\@1");
 #shew($tree);
 
-shew(lookup($tree, "dcls"));
+#shew(lookup($tree, "dcls"));
+dumpit(lookup($tree, "dcls"));
