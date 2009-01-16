@@ -1,0 +1,98 @@
+#!/usr/bin/env perl
+
+use strict;
+
+use Data::Dumper;
+
+sub psshew
+{
+  my @things = @_;
+  my $s = "";
+
+  foreach my $thing (@things) {
+    my $dumped;
+
+    local $Data::Dumper::Terse = 1;
+    local $Data::Dumper::Indent = 1;
+
+    $dumped = +Dumper( $thing );
+    $dumped =~ s/\n$//;
+
+    $s .= "$dumped\n";
+  }
+  return $s;
+}
+
+sub shew( @ )
+{
+  foreach (@_) {
+    print psshew($_);
+  }
+}
+
+
+my @lines = <>;
+
+my $all = join('', @lines);
+$all =~ s/\n( +)/ /gm;
+my @nodelines = split(/\n/, $all);
+#shew(\@nodelines);
+
+my %abnodes = ();
+
+foreach my $nodeline (@nodelines) {
+  my @words = split(/\s+/, $nodeline);
+  #print join(":::", @words) . "\n";
+  my %node = ();
+  $node{"INDEX"} = shift(@words);
+  $node{"TYPE"} = shift(@words);
+  while (@words > 0) {
+    if ($words[0] =~ /:$/) {
+      my $k = shift(@words);
+      my $v = shift(@words);
+
+      $k =~ s/:$// || die "\"$k\"";
+
+      $node{$k} = $v;
+    } else {
+      push @{$node{"EXTRA"}}, shift(@words);
+    }
+  }
+
+  $abnodes{$node{"INDEX"}} = \%node;
+}
+
+sub build_tree($) {
+  my ($index) = @_;
+  my $node;
+  if (!(defined $abnodes{$index})) {
+    return "DANGLING";
+  }
+  my $node = $abnodes{$index};
+  my %node = (%$node);
+  while (my ($k, $v) = each %node) {
+    next if ($k eq "INDEX");
+    if ($v =~ /^\@/) {
+      $v = build_tree($v);
+      $node{$k} = $v;
+    }
+  }
+  return \%node;
+}
+
+sub lookup($$) {
+  my ($node, $path) = @_;
+  my @path = split(/\//, $path);
+  while (@path > 0) {
+    my $k = shift(@path);
+    die "$node: $path" if (!defined $node->{$k});
+    $node = $node->{$k};
+  }
+  return $node;
+}
+
+#shew(\%abnodes);
+my $tree = build_tree("\@1");
+#shew($tree);
+
+shew(lookup($tree, "dcls"));
