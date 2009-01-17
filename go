@@ -1,4 +1,4 @@
-rigg vork
+rigg vertex_and_fragment_program.c.t00.tu | head -2000
 exit
 
 ./hum 2> errs

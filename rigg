@@ -107,20 +107,24 @@ sub lookup($$) {
   return $node;
 }
 
-my $maxlevel = 3;
+my $maxlevel = 4;
 my $level = 0;
+
+my $tabb = "| ";
 
 sub dumpit($) {
   return if ($level >= $maxlevel);
   my ($node) = @_;
   if (ref $node eq "ARRAY") {
+    print $tabb x $level;
+    print "[]\n";
     for (my $i = 0; $i < @$node; ++$i) {
       my $v = $node->[$i];
       if (ref($v) eq "") {
-        print "  " x $level;
+        print $tabb x $level;
         print "$i: $v\n";
       } else {
-        print "  " x $level;
+        print $tabb x $level;
         print "[$i]:\n";
         $level++;
         dumpit($v);
@@ -128,18 +132,24 @@ sub dumpit($) {
       }
     }
   } elsif (ref $node eq "HASH") {
-    while (my ($k, $v) = each %$node) {
+    print $tabb x $level;
+    print "[$node->{nodetype}]\n";
+    my @k = keys %$node;
+    foreach my $k (keys %$node) {
+      my $v = $node->{$k};
       if (ref($v) eq "") {
-        print "  " x $level;
+        print $tabb x $level;
         print "$k: $v\n";
       } else {
-        print "  " x $level;
+        print $tabb x $level;
         print "$k:\n";
         $level++;
         dumpit($v);
         $level--;
       }
     }
+  } elsif (ref $node eq "") {
+    print "$node\n";
   } else {
     die $node;
   }
@@ -175,4 +185,32 @@ sub id($) {
   return $v;
 }
 
-dumpit(chanmap(\&id, $dcls));
+sub gettype($) {
+  my ($n) = @_;
+  my $name = lookup($n, "name/strg");
+  my $type = lookup($n, "argt");
+  $type = lookup($type, "nodetype");
+#  my $type = 2;
+  return [$name, $type];
+}
+
+sub glimp($) {
+  my ($n) = @_;
+  my $name = lookup($n, "name/strg");
+  my $args = chanmap(\&gettype, lookup($n, "args"));
+  return [$name, $args];
+}
+
+$dcls = chanmap(\&id, $dcls);
+my $keyboard = $dcls->[6];
+#dumpit($keyboard);
+
+my $hoo = glimp($keyboard);
+#shew($hoo);
+
+#dcls/chan/chan/chan/chan/chan/chan/type/prms/valu/name/name/strg
+my $ret = lookup($tree, "dcls/chan/chan/chan/chan/chan/chan/type/retn/name/name/strg");
+print "ret $ret\n";
+my $vo = lookup($tree, "dcls/chan/chan/chan/chan/chan/chan/type/prms/valu/name/name/strg");
+# HERE should be paring this as 'strg: unsigned char'
+dumpit($vo);
