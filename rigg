@@ -126,7 +126,6 @@ sub dumpit($) {
       }
     }
   } elsif (ref $node eq "HASH") {
-    print "$node->{nodetype}\n";
     while (my ($k, $v) = each %$node) {
       if (ref($v) eq "") {
         print "  " x $level;
