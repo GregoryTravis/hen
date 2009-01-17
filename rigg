@@ -114,12 +114,14 @@ sub dumpit($) {
   return if ($level >= $maxlevel);
   my ($node) = @_;
   if (ref $node eq "ARRAY") {
-    foreach my $v (@$node) {
+    for (my $i = 0; $i < @$node; ++$i) {
+      my $v = $node->[$i];
       if (ref($v) eq "") {
         print "  " x $level;
-        print "$v\n";
+        print "$i: $v\n";
       } else {
         print "  " x $level;
+        print "[$i]:\n";
         $level++;
         dumpit($v);
         $level--;
