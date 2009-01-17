@@ -71,9 +71,7 @@ sub build_tree_1($$) {
   my ($index, $seen) = @_;
 
   if (defined ($seen->{$index})) {
-    return $index;
-  } else {
-    $seen->{$index} = 1;
+    return $seen->{$index};
   }
 
   my $node;
@@ -82,8 +80,9 @@ sub build_tree_1($$) {
   }
   my $abnode = $abnodes{$index};
   my $node = {};
+  $seen->{$index} = $node;
   while (my ($k, $v) = each %$abnode) {
-    if ($v =~ /^\@/) {
+    if ($v =~ /^\@/ && $k ne "index") {
       $v = build_tree_1($v, $seen);
     }
     $node->{$k} = $v;
