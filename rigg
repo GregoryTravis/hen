@@ -80,14 +80,13 @@ sub build_tree_1($$) {
   if (!(defined $abnodes{$index})) {
     return "DANGLING";
   }
-  my $node = $abnodes{$index};
-  my %node = (%$node);
+  my $abnode = $abnodes{$index};
+  my %node = (%$abnode);
   while (my ($k, $v) = each %node) {
-    next if ($k eq "index");
     if ($v =~ /^\@/) {
       $v = build_tree_1($v, $seen);
-      $node{$k} = $v;
     }
+    $node{$k} = $v;
   }
 
   return \%node;
