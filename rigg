@@ -115,34 +115,35 @@ my $level = 0;
 sub dumpit($) {
   return if ($level >= $maxlevel);
   my ($node) = @_;
-  print "--" x $level;
-  $level++;
   if (ref $node eq "ARRAY") {
     foreach my $v (@$node) {
       if (ref($v) eq "") {
-        print "--" x $level;
+        print "  " x $level;
         print "$v\n";
       } else {
-        print "--" x $level;
+        print "  " x $level;
+        $level++;
         dumpit($v);
+        $level--;
       }
     }
   } elsif (ref $node eq "HASH") {
     print "$node->{nodetype}\n";
     while (my ($k, $v) = each %$node) {
       if (ref($v) eq "") {
-        print "--" x $level;
+        print "  " x $level;
         print "$k: $v\n";
       } else {
-        print "--" x $level;
+        print "  " x $level;
         print "$k:\n";
+        $level++;
         dumpit($v);
+        $level--;
       }
     }
   } else {
     die $node;
   }
-  $level--;
 }
 
 print "BUILDING TREE...\n";
