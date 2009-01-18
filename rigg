@@ -36,6 +36,55 @@ sub shew( @ )
 print "READING...\n";
 my @lines = <>;
 
+#0123456789012345678901234567890123456789012345678901234567890123456789
+#@1570   const_decl       name: @1622    type: @1479    srcp: cg.h:216    
+
+sub trim($) {
+  my $s = shift;
+  $s =~ s/^\s*//;
+  $s =~ s/\s*$//;
+  return $s;
+}
+
+my %nodes;
+my $current;
+my $current_id;
+foreach my $line (@lines) {
+  chomp($line);
+  if ($line =~ /^(\@\d+)\s+(\S+)/) {
+    if ($current_id) {
+      $nodes{$current_id} = $current;
+    }
+    $current_id = $1;
+    $current = {};
+    $current->{"nodetype"} = $2;
+  } else {
+    die if (!defined($current) || !defined($current_id));
+  }
+
+  my %stuff;
+  foreach my $gark (55, 40, 25) {
+    #print "-- $line\n";
+    #print "- " . substr($line, $gark - 1) . "\n";
+    if (substr($line, ($gark - 1)) =~ /^ (\S...):(.*)$/) {
+      my $k = $1;
+      my $v = $2;
+      #print "$k=$v\n";
+      $stuff{trim($k)} = trim($v);
+      $line = substr($line, 0, $gark);
+    }
+  }
+
+  $current = {%$current, %stuff};
+}
+if ($current_id) {
+  $nodes{$current_id} = $current;
+}
+#shew(\%nodes);
+shew($nodes{"\@111"});
+
+exit;
+
 my $all = join('', @lines);
 $all =~ s/\n( +)/ /gm;
 my @nodelines = split(/\n/, $all);
