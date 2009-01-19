@@ -168,7 +168,7 @@ sub lookup($$) {
   return $node;
 }
 
-my $maxlevel = 5;
+my $maxlevel = 3;
 my $level = 0;
 
 my $tabb = "| ";
@@ -254,26 +254,22 @@ sub glimp($) {
 }
 
 print "BUILDING TREE...\n";
-#shew(\%abnodes);
 my $tree = build_tree("\@1");
 #dumpit($tree);
-#shew($tree);
-#shew(\%nodes);
 
-#shew(lookup($tree, "dcls"));
-#dumpit(lookup($tree, "dcls"));
 my $dcls = lookup($tree, "dcls");
 
 $dcls = chanmap(\&id, $dcls);
 my $keyboard = $dcls->[6];
-dumpit($keyboard);
-exit;
-
-my $hoo = glimp($keyboard);
-#shew($hoo);
+#dumpit($keyboard);
+#exit;
 
 #dcls/chan/chan/chan/chan/chan/chan/type/prms/valu/name/name/strg
-my $ret = lookup($tree, "dcls/chan/chan/chan/chan/chan/chan/type/retn/name/name/strg");
+my $fun = lookup($tree, "dcls/chan/chan/chan/chan/chan/chan");
+dumpit($fun);
+my $name = lookup($fun, "name/strg");
+print "name $name\n";
+my $ret = lookup($fun, "type/retn/name/name/strg");
 print "ret $ret\n";
-my $vo = lookup($tree, "dcls/chan/chan/chan/chan/chan/chan/type/prms/valu/name/name/strg");
+my $vo = lookup($fun, "type/prms/valu/name/name/strg");
 dumpit($vo);
