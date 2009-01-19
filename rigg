@@ -180,6 +180,19 @@ sub lookup($$) {
   return $node;
 }
 
+sub defd($$) {
+  my ($node, $path) = @_;
+  my @path = split(/\//, $path);
+  while (@path > 0) {
+    my $k = shift(@path);
+    if (!defined($node->{$k})) {
+      return 0;
+    }
+    $node = $node->{$k};
+  }
+  return 1;
+}
+
 my $maxlevel = 5;
 my $level = 0;
 
@@ -276,7 +289,7 @@ my $keyboard = $dcls->[6];
 #dumpit($keyboard);
 #exit;
 
-my $fun = lookup($tree, "dcls/chan/chan/chan/chan/chan/chan");
+my $fun = lookup($tree, "dcls/chan/chan");
 my $name = lookup($fun, "name/strg");
 print "name $name\n";
 my $ret = lookup($fun, "type/retn/name/name/strg");
@@ -288,5 +301,40 @@ dumpit(lookup($fun, "args/chan/name/strg"));
 dumpit(lookup($fun, "type/prms/chan/chan/valu/name/name/strg"));
 dumpit(lookup($fun, "args/chan/chan/name/strg"));
 dumpit(lookup($fun, "type/prms/chan/chan/chan/valu/name/name/strg"));
+dumpit(lookup($fun, "args/chan/chan/chan/name/strg"));
 dumpit(lookup($fun, "type/prms/chan/chan/chan/chan/valu/name/name/strg"));
-#dumpit(lookup($fun, "args/chan/chan/chan/name/strg"));
+dumpit(lookup($fun, "args/chan/chan/chan/chan/name/strg"));
+#dumpit(lookup($fun, "type/prms/chan/chan/chan/chan/chan/valu/name/name/strg"));
+#dumpit(lookup($fun, "args/chan/chan/chan/chan/chan/name/strg"));
+
+sub gurt($) {
+  my ($fun) = @_;
+#dumpit($fun);
+  my $stuff = {};
+  $stuff->{"name"} = lookup($fun, "name/strg");
+  $stuff->{"return_type"} = lookup($fun, "type/retn/name/name/strg");
+
+  my @params = ();
+  my $pt = lookup($fun, "type/prms");
+  my $pn = lookup($fun, "args");
+  while (1) {
+    my $type = lookup($pt, "valu/name/name/strg");
+    my $name = lookup($pn, "name/strg");
+    #print "HA $type $name\n";
+    push(@params, [$type, $name]);
+
+    if (!defd($pn, "chan")) {
+      last;
+    }
+
+    $pt = lookup($pt, "chan");
+    $pn = lookup($pn, "chan");
+  }
+
+  $stuff->{"params"} = \@params;
+
+  return $stuff;
+}
+
+#shew(gurt($fun));
+shew(gurt(lookup($tree, "dcls/chan/chan")));
