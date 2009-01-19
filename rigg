@@ -152,9 +152,10 @@ sub build_tree_1($$) {
   return $node;
 }
 
+my %tnodes = ();
 sub build_tree($) {
   my ($index) = @_;
-  return build_tree_1($index, {});
+  return build_tree_1($index, \%tnodes);
 }
 
 sub lookup($$) {
@@ -168,7 +169,7 @@ sub lookup($$) {
   return $node;
 }
 
-my $maxlevel = 3;
+my $maxlevel = 5;
 my $level = 0;
 
 my $tabb = "| ";
@@ -266,7 +267,8 @@ my $keyboard = $dcls->[6];
 
 #dcls/chan/chan/chan/chan/chan/chan/type/prms/valu/name/name/strg
 my $fun = lookup($tree, "dcls/chan/chan/chan/chan/chan/chan");
-dumpit($fun);
+dumpit(lookup($fun, "type/prms"));
+#dumpit($fun);
 my $name = lookup($fun, "name/strg");
 print "name $name\n";
 my $ret = lookup($fun, "type/retn/name/name/strg");
