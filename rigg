@@ -216,18 +216,6 @@ sub dumpit($) {
   }
 }
 
-print "BUILDING TREE...\n";
-#shew(\%abnodes);
-my $tree = build_tree("\@1");
-dumpit($tree);
-exit;
-#shew($tree);
-#shew(\%nodes);
-
-#shew(lookup($tree, "dcls"));
-#dumpit(lookup($tree, "dcls"));
-my $dcls = lookup($tree, "dcls");
-
 sub chanmap($$) {
   my ($f, $node) = @_;
   my $here = $node;
@@ -264,6 +252,17 @@ sub glimp($) {
   my $args = chanmap(\&gettype, lookup($n, "args"));
   return [$name, $args];
 }
+
+print "BUILDING TREE...\n";
+#shew(\%abnodes);
+my $tree = build_tree("\@1");
+#dumpit($tree);
+#shew($tree);
+#shew(\%nodes);
+
+#shew(lookup($tree, "dcls"));
+#dumpit(lookup($tree, "dcls"));
+my $dcls = lookup($tree, "dcls");
 
 $dcls = chanmap(\&id, $dcls);
 my $keyboard = $dcls->[6];
