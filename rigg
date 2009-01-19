@@ -46,11 +46,22 @@ sub trim($) {
   return $s;
 }
 
+# Turn "unsigned char" to "unsigned_char", e.g., to prevent 'char'
+# from seeming like it's in a different column.
+sub burp($) {
+  my ($s) = @_;
+  $s =~ s/unsigned char/unsigned_char/;
+  return $s;
+}
+
 my %nodes;
 my $current;
 my $current_id;
 foreach my $line (@lines) {
   chomp($line);
+
+  $line = burp($line);
+
   if ($line =~ /^(\@\d+)\s+(\S+)/) {
     if ($current_id) {
       $nodes{$current_id} = $current;
