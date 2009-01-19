@@ -58,6 +58,7 @@ foreach my $line (@lines) {
     $current_id = $1;
     $current = {};
     $current->{"nodetype"} = $2;
+    $current->{"index"} = $current_id;
   } else {
     die if (!defined($current) || !defined($current_id));
   }
@@ -66,11 +67,17 @@ foreach my $line (@lines) {
   foreach my $gark (55, 40, 25) {
     #print "-- $line\n";
     #print "- " . substr($line, $gark - 1) . "\n";
-    if (substr($line, ($gark - 1)) =~ /^ (\S...):(.*)$/) {
-      my $k = $1;
-      my $v = $2;
-      #print "$k=$v\n";
-      $stuff{trim($k)} = trim($v);
+    if (substr($line, ($gark - 1)) =~ /^ \S/) {
+      my $bluh = substr($line, $gark);
+      if ($bluh =~ /^(\S...): (.*)$/) {
+        my $k = $1;
+        my $v = $2;
+        #print "$k=$v\n";
+        $stuff{trim($k)} = trim($v);
+      } else {
+        $bluh = trim($bluh);
+        $stuff{$bluh} = 1;
+      }
       $line = substr($line, 0, $gark);
     }
   }
@@ -80,8 +87,10 @@ foreach my $line (@lines) {
 if ($current_id) {
   $nodes{$current_id} = $current;
 }
+
+=a
 #shew(\%nodes);
-shew($nodes{"\@111"});
+shew($nodes{"\@3692"});
 
 exit;
 
@@ -115,6 +124,9 @@ foreach my $nodeline (@nodelines) {
 
   $abnodes{$node{"index"}} = \%node;
 }
+=cut
+
+my %abnodes = %nodes;
 
 sub build_tree_1($$) {
   my ($index, $seen) = @_;
@@ -125,7 +137,7 @@ sub build_tree_1($$) {
 
   my $node;
   if (!(defined $abnodes{$index})) {
-    return "DANGLING";
+    return "DANGLING $index";
   }
   my $abnode = $abnodes{$index};
   my $node = {};
@@ -156,7 +168,7 @@ sub lookup($$) {
   return $node;
 }
 
-my $maxlevel = 4;
+my $maxlevel = 5;
 my $level = 0;
 
 my $tabb = "| ";
@@ -207,7 +219,10 @@ sub dumpit($) {
 print "BUILDING TREE...\n";
 #shew(\%abnodes);
 my $tree = build_tree("\@1");
+dumpit($tree);
+exit;
 #shew($tree);
+#shew(\%nodes);
 
 #shew(lookup($tree, "dcls"));
 #dumpit(lookup($tree, "dcls"));
@@ -252,7 +267,8 @@ sub glimp($) {
 
 $dcls = chanmap(\&id, $dcls);
 my $keyboard = $dcls->[6];
-#dumpit($keyboard);
+dumpit($keyboard);
+exit;
 
 my $hoo = glimp($keyboard);
 #shew($hoo);
@@ -261,5 +277,4 @@ my $hoo = glimp($keyboard);
 my $ret = lookup($tree, "dcls/chan/chan/chan/chan/chan/chan/type/retn/name/name/strg");
 print "ret $ret\n";
 my $vo = lookup($tree, "dcls/chan/chan/chan/chan/chan/chan/type/prms/valu/name/name/strg");
-# HERE should be paring this as 'strg: unsigned char'
 dumpit($vo);
