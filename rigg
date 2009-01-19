@@ -278,11 +278,13 @@ my $keyboard = $dcls->[6];
 
 #dcls/chan/chan/chan/chan/chan/chan/type/prms/valu/name/name/strg
 my $fun = lookup($tree, "dcls/chan/chan/chan/chan/chan/chan");
-dumpit(lookup($fun, "type/prms"));
+#dumpit(lookup($fun, "type/prms"));
 #dumpit($fun);
 my $name = lookup($fun, "name/strg");
 print "name $name\n";
 my $ret = lookup($fun, "type/retn/name/name/strg");
 print "ret $ret\n";
-my $vo = lookup($fun, "type/prms/valu/name/name/strg");
-dumpit($vo);
+my $p0type = lookup($fun, "type/prms/valu/name/name/strg");
+dumpit($p0type);
+my $p0name = lookup($fun, "args/name/strg");
+dumpit($p0name);
