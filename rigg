@@ -282,42 +282,36 @@ sub glimp($) {
   return [$name, $args];
 }
 
-print "BUILDING TREE...\n";
-my $tree = build_tree("\@1");
+sub getparam($$) {
+  my ($t, $path) = @_;
+  my $type;
+  if (defd($t, "$path/ptd/ptd/name/name/strg")) {
+    $type = lookup($t, "$path/ptd/ptd/name/name/strg");
+    $type .= "**";
+  } elsif (defd($t, "$path/ptd/name/name/strg")) {
+    $type = lookup($t, "$path/ptd/name/name/strg");
+    $type .= "*";
+  } else {
+    $type = lookup($t, "$path/name/name/strg");
+  }
+  return $type;
+}
 
 my $anon_inx = 0;
 
 sub gurt($) {
   my ($fun) = @_;
-#dumpit($fun);
   my $stuff = {};
   $stuff->{"name"} = lookup($fun, "name/strg");
-print "NAME $stuff->{name}\n";
 
-  my $return_type;
-  if (defd($fun, "type/retn/ptd/ptd/name/name/strg")) {
-    $return_type = lookup($fun, "type/retn/ptd/ptd/name/name/strg");
-  } elsif (defd($fun, "type/retn/ptd/name/name/strg")) {
-    $return_type = lookup($fun, "type/retn/ptd/name/name/strg");
-  } else {
-    $return_type = lookup($fun, "type/retn/name/name/strg");
-  }
-
-  $stuff->{"return_type"} = $return_type;
+  $stuff->{"return_type"} = getparam($fun, "type/retn");
 
   my @params = ();
   if (defd($fun, "args")) {
     my $pts = "type/prms";
     my $pns = "args";
     while (1) {
-      my $type;
-      if (defd($fun, "$pts/valu/ptd/ptd/name/name/strg")) {
-        $type = lookup($fun, "$pts/valu/ptd/ptd/name/name/strg");
-      } elsif (defd($fun, "$pts/valu/ptd/name/name/strg")) {
-        $type = lookup($fun, "$pts/valu/ptd/name/name/strg");
-      } else {
-        $type = lookup($fun, "$pts/valu/name/name/strg");
-      }
+      my $type = getparam($fun, "$pts/valu");
       my $name;
       if (defd($fun, "$pns/name/strg")) {
         $name = lookup($fun, "$pns/name/strg");
@@ -348,12 +342,13 @@ sub function_decls($) {
   return $dcls;
 }
 
+print "BUILDING TREE...\n";
+my $tree = build_tree("\@1");
+
 my $dcls = function_decls($tree);
 #$dcls = [grep { $_->{"srcp"} =~ /^vertex_and_fragment_program.c/; } @$dcls];
-for (my $i = 464; $i < @$dcls; ++$i) {
+for (my $i = 0; $i < @$dcls; ++$i) {
   my $fun = $dcls->[$i];
-#dumpit(lookup($fun, "type/prms/chan/chan/chan/chan/valu"));
-  shew($i++);
   shew($fun->{"nodetype"});
   shew(gurt($fun));
 }
