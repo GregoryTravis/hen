@@ -282,17 +282,17 @@ sub glimp($) {
   return [$name, $args];
 }
 
-sub getparam($$) {
-  my ($t, $path) = @_;
+sub getparam($) {
+  my ($t) = @_;
   my $type;
-  if (defd($t, "$path/ptd/ptd/name/name/strg")) {
-    $type = lookup($t, "$path/ptd/ptd/name/name/strg");
+  if (defd($t, "ptd/ptd/name/name/strg")) {
+    $type = lookup($t, "ptd/ptd/name/name/strg");
     $type .= "**";
-  } elsif (defd($t, "$path/ptd/name/name/strg")) {
-    $type = lookup($t, "$path/ptd/name/name/strg");
+  } elsif (defd($t, "ptd/name/name/strg")) {
+    $type = lookup($t, "ptd/name/name/strg");
     $type .= "*";
   } else {
-    $type = lookup($t, "$path/name/name/strg");
+    $type = lookup($t, "name/name/strg");
   }
   return $type;
 }
@@ -304,14 +304,14 @@ sub gurt($) {
   my $stuff = {};
   $stuff->{"name"} = lookup($fun, "name/strg");
 
-  $stuff->{"return_type"} = getparam($fun, "type/retn");
+  $stuff->{"return_type"} = getparam(lookup($fun, "type/retn"));
 
   my @params = ();
   if (defd($fun, "args")) {
     my $pts = "type/prms";
     my $pns = "args";
     while (1) {
-      my $type = getparam($fun, "$pts/valu");
+      my $type = getparam(lookup($fun, "$pts/valu"));
       my $name = defd($fun, "$pns/name/strg")
         ? lookup($fun, "$pns/name/strg")
           : "anon_" . ($anon_inx++);
