@@ -293,11 +293,17 @@ sub gurt($) {
   my $stuff = {};
   $stuff->{"name"} = lookup($fun, "name/strg");
 print "NAME $stuff->{name}\n";
-  if (defd($fun, "type/retn/name/name/strg")) {
-    $stuff->{"return_type"} = lookup($fun, "type/retn/name/name/strg");
+
+  my $return_type;
+  if (defd($fun, "type/retn/ptd/ptd/name/name/strg")) {
+    $return_type = lookup($fun, "type/retn/ptd/ptd/name/name/strg");
+  } elsif (defd($fun, "type/retn/ptd/name/name/strg")) {
+    $return_type = lookup($fun, "type/retn/ptd/name/name/strg");
   } else {
-    $stuff->{"return_type"} = lookup($fun, "type/retn/ptd/name/name/strg");
+    $return_type = lookup($fun, "type/retn/name/name/strg");
   }
+
+  $stuff->{"return_type"} = $return_type;
 
   my @params = ();
   if (defd($fun, "args")) {
@@ -305,11 +311,12 @@ print "NAME $stuff->{name}\n";
     my $pns = "args";
     while (1) {
       my $type;
-      if (defd($fun, "$pts/valu/name/name/strg")) {
-        $type = lookup($fun, "$pts/valu/name/name/strg");
-      } else {
+      if (defd($fun, "$pts/valu/ptd/ptd/name/name/strg")) {
+        $type = lookup($fun, "$pts/valu/ptd/ptd/name/name/strg");
+      } elsif (defd($fun, "$pts/valu/ptd/name/name/strg")) {
         $type = lookup($fun, "$pts/valu/ptd/name/name/strg");
-        $type .= "*";
+      } else {
+        $type = lookup($fun, "$pts/valu/name/name/strg");
       }
       my $name;
       if (defd($fun, "$pns/name/strg")) {
@@ -343,8 +350,9 @@ sub function_decls($) {
 
 my $dcls = function_decls($tree);
 #$dcls = [grep { $_->{"srcp"} =~ /^vertex_and_fragment_program.c/; } @$dcls];
-for (my $i = 0; $i < @$dcls; ++$i) {
+for (my $i = 464; $i < @$dcls; ++$i) {
   my $fun = $dcls->[$i];
+#dumpit(lookup($fun, "type/prms/chan/chan/chan/chan/valu"));
   shew($i++);
   shew($fun->{"nodetype"});
   shew(gurt($fun));
