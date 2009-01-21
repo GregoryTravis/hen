@@ -285,10 +285,11 @@ sub glimp($) {
 sub getparam($) {
   my ($t) = @_;
   my $stars = "";
-  while (defd($t, "ptd")) {
+  while (!defd($t, "name/name/strg")) {
+    defd($t, "ptd") || die;
     $stars .= "*";
     $t = lookup($t, "ptd");
-  } 
+  }
   my $type = lookup($t, "name/name/strg");
   $type .= $stars;
   return $type;
@@ -342,6 +343,7 @@ my $tree = build_tree("\@1");
 my $dcls = function_decls($tree);
 for (my $i = 0; $i < @$dcls; ++$i) {
   my $fun = $dcls->[$i];
+  #shew($i); dumpit($fun);
   shew($fun->{"nodetype"});
   shew(gurt($fun));
 }
