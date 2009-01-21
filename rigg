@@ -280,15 +280,7 @@ sub glimp($) {
 
 print "BUILDING TREE...\n";
 my $tree = build_tree("\@1");
-#dumpit($tree);
 
-my $dcls = lookup($tree, "dcls");
-
-$dcls = chanmap(\&id, $dcls);
-my $keyboard = $dcls->[6];
-#dumpit($keyboard);
-
-my $fun = lookup($tree, "dcls/chan/chan");
 sub gurt($) {
   my ($fun) = @_;
 #dumpit($fun);
@@ -297,20 +289,22 @@ sub gurt($) {
   $stuff->{"return_type"} = lookup($fun, "type/retn/name/name/strg");
 
   my @params = ();
-  my $pt = lookup($fun, "type/prms");
-  my $pn = lookup($fun, "args");
-  while (1) {
-    my $type = lookup($pt, "valu/name/name/strg");
-    my $name = lookup($pn, "name/strg");
-    #print "HA $type $name\n";
-    push(@params, [$type, $name]);
+  if (defd($fun, "args")) {
+    my $pt = lookup($fun, "type/prms");
+    my $pn = lookup($fun, "args");
+    while (1) {
+      my $type = lookup($pt, "valu/name/name/strg");
+      my $name = lookup($pn, "name/strg");
+      #print "HA $type $name\n";
+      push(@params, [$type, $name]);
 
-    if (!defd($pn, "chan")) {
-      last;
+      if (!defd($pn, "chan")) {
+        last;
+      }
+
+      $pt = lookup($pt, "chan");
+      $pn = lookup($pn, "chan");
     }
-
-    $pt = lookup($pt, "chan");
-    $pn = lookup($pn, "chan");
   }
 
   $stuff->{"params"} = \@params;
@@ -318,5 +312,17 @@ sub gurt($) {
   return $stuff;
 }
 
+my $dcls = lookup($tree, "dcls");
+$dcls = chanmap(\&id, $dcls);
+#my $keyboard = $dcls->[6];
+#dumpit($keyboard);
+
+#my $fun = lookup($tree, "dcls");
+my $fun = $dcls->[4];
+#dumpit($fun);
+
 shew(gurt($fun));
+shew(gurt(lookup($tree, "dcls")));
+shew(gurt(lookup($tree, "dcls/chan")));
+shew(gurt(lookup($tree, "dcls/chan/chan")));
 #shew(gurt(lookup($tree, "dcls/chan/chan")));

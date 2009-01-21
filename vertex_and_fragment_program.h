@@ -15,7 +15,7 @@ typedef int CGenum;
 typedef int CGerror;
 
 void mainby();
-int mainby2(CGcontext _myCgContext);
+int mainby2(CGcontext urp_myCgContext);
 void mainby3();
 void display(void);
 
