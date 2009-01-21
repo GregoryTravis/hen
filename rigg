@@ -312,17 +312,10 @@ sub gurt($) {
   return $stuff;
 }
 
-my $dcls = lookup($tree, "dcls");
-$dcls = chanmap(\&id, $dcls);
-#my $keyboard = $dcls->[6];
-#dumpit($keyboard);
-
-#my $fun = lookup($tree, "dcls");
-my $fun = $dcls->[4];
-#dumpit($fun);
-
-shew(gurt($fun));
-shew(gurt(lookup($tree, "dcls")));
-shew(gurt(lookup($tree, "dcls/chan")));
-shew(gurt(lookup($tree, "dcls/chan/chan")));
-#shew(gurt(lookup($tree, "dcls/chan/chan")));
+my $dcls = chanmap(\&id, lookup($tree, "dcls"));
+#dumpit($dcls->[7]);
+#shew(gurt($dcls->[7]));
+shew(gurt($dcls->[6]));
+# foreach my $fun (@$dcls) {
+#   shew(gurt($fun));
+# }
