@@ -290,20 +290,20 @@ sub gurt($) {
 
   my @params = ();
   if (defd($fun, "args")) {
-    my $pt = lookup($fun, "type/prms");
-    my $pn = lookup($fun, "args");
+    my $pts = "type/prms";
+    my $pns = "args";
     while (1) {
-      my $type = lookup($pt, "valu/name/name/strg");
-      my $name = lookup($pn, "name/strg");
+      my $type = lookup($fun, "$pts/valu/name/name/strg");
+      my $name = lookup($fun, "$pns/name/strg");
       #print "HA $type $name\n";
       push(@params, [$type, $name]);
 
-      if (!defd($pn, "chan")) {
+      if (!defd($fun, "$pns/chan")) {
         last;
       }
 
-      $pt = lookup($pt, "chan");
-      $pn = lookup($pn, "chan");
+      $pts .= "/chan";
+      $pns .= "/chan";
     }
   }
 
