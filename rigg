@@ -281,11 +281,14 @@ sub glimp($) {
 print "BUILDING TREE...\n";
 my $tree = build_tree("\@1");
 
+my $anon_inx = 0;
+
 sub gurt($) {
   my ($fun) = @_;
 #dumpit($fun);
   my $stuff = {};
   $stuff->{"name"} = lookup($fun, "name/strg");
+print "NAME $stuff->{name}\n";
   $stuff->{"return_type"} = lookup($fun, "type/retn/name/name/strg");
 
   my @params = ();
@@ -293,8 +296,19 @@ sub gurt($) {
     my $pts = "type/prms";
     my $pns = "args";
     while (1) {
-      my $type = lookup($fun, "$pts/valu/name/name/strg");
-      my $name = lookup($fun, "$pns/name/strg");
+      my $type;
+      if (defd($fun, "$pts/valu/name/name/strg")) {
+        $type = lookup($fun, "$pts/valu/name/name/strg");
+      } else {
+        $type = lookup($fun, "$pts/valu/ptd/name/name/strg");
+        $type .= "*";
+      }
+      my $name;
+      if (defd($fun, "$pns/name/strg")) {
+        $name = lookup($fun, "$pns/name/strg");
+      } else {
+        $name = "anon_" . ($anon_inx++);
+      }
       #print "HA $type $name\n";
       push(@params, [$type, $name]);
 
@@ -312,10 +326,18 @@ sub gurt($) {
   return $stuff;
 }
 
-my $dcls = chanmap(\&id, lookup($tree, "dcls"));
-#dumpit($dcls->[7]);
-#shew(gurt($dcls->[7]));
-#shew(gurt($dcls->[6]));
-foreach my $fun (@$dcls) {
+sub function_decls($) {
+  my ($t) = @_;
+  my $dcls = chanmap(\&id, lookup($t, "dcls"));
+  $dcls = [grep { $_->{"nodetype"} eq "function_decl"; } @$dcls];
+  return $dcls;
+}
+
+my $dcls = function_decls($tree);
+#$dcls = [grep { $_->{"srcp"} =~ /^vertex_and_fragment_program.c/; } @$dcls];
+for (my $i = 0; $i < @$dcls; ++$i) {
+  my $fun = $dcls->[$i];
+  shew($i++);
+  shew($fun->{"nodetype"});
   shew(gurt($fun));
 }
