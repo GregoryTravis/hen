@@ -315,7 +315,7 @@ sub gurt($) {
 my $dcls = chanmap(\&id, lookup($tree, "dcls"));
 #dumpit($dcls->[7]);
 #shew(gurt($dcls->[7]));
-shew(gurt($dcls->[6]));
-# foreach my $fun (@$dcls) {
-#   shew(gurt($fun));
-# }
+#shew(gurt($dcls->[6]));
+foreach my $fun (@$dcls) {
+  shew(gurt($fun));
+}
