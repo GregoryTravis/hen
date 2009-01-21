@@ -285,15 +285,13 @@ sub glimp($) {
 sub getparam($) {
   my ($t) = @_;
   my $type;
-  if (defd($t, "ptd/ptd/name/name/strg")) {
-    $type = lookup($t, "ptd/ptd/name/name/strg");
-    $type .= "**";
-  } elsif (defd($t, "ptd/name/name/strg")) {
-    $type = lookup($t, "ptd/name/name/strg");
-    $type .= "*";
-  } else {
-    $type = lookup($t, "name/name/strg");
+  my $stars = "";
+  while (defd($t, "ptd")) {
+    $stars .= "*";
+    $t = lookup($t, "ptd");
   }
+  $type = lookup($t, "name/name/strg");
+  $type .= $stars;
   return $type;
 }
 
