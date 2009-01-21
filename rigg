@@ -312,13 +312,10 @@ sub gurt($) {
     my $pns = "args";
     while (1) {
       my $type = getparam($fun, "$pts/valu");
-      my $name;
-      if (defd($fun, "$pns/name/strg")) {
-        $name = lookup($fun, "$pns/name/strg");
-      } else {
-        $name = "anon_" . ($anon_inx++);
-      }
-      #print "HA $type $name\n";
+      my $name = defd($fun, "$pns/name/strg")
+        ? lookup($fun, "$pns/name/strg")
+          : "anon_" . ($anon_inx++);
+
       push(@params, [$type, $name]);
 
       if (!defd($fun, "$pns/chan")) {
