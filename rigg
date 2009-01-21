@@ -287,26 +287,8 @@ my $dcls = lookup($tree, "dcls");
 $dcls = chanmap(\&id, $dcls);
 my $keyboard = $dcls->[6];
 #dumpit($keyboard);
-#exit;
 
 my $fun = lookup($tree, "dcls/chan/chan");
-my $name = lookup($fun, "name/strg");
-print "name $name\n";
-my $ret = lookup($fun, "type/retn/name/name/strg");
-print "ret $ret\n";
-dumpit(lookup($fun, "type/prms/valu/name/name/strg"));
-dumpit(lookup($fun, "args/name/strg"));
-dumpit(lookup($fun, "type/prms/chan/valu/name/name/strg"));
-dumpit(lookup($fun, "args/chan/name/strg"));
-dumpit(lookup($fun, "type/prms/chan/chan/valu/name/name/strg"));
-dumpit(lookup($fun, "args/chan/chan/name/strg"));
-dumpit(lookup($fun, "type/prms/chan/chan/chan/valu/name/name/strg"));
-dumpit(lookup($fun, "args/chan/chan/chan/name/strg"));
-dumpit(lookup($fun, "type/prms/chan/chan/chan/chan/valu/name/name/strg"));
-dumpit(lookup($fun, "args/chan/chan/chan/chan/name/strg"));
-#dumpit(lookup($fun, "type/prms/chan/chan/chan/chan/chan/valu/name/name/strg"));
-#dumpit(lookup($fun, "args/chan/chan/chan/chan/chan/name/strg"));
-
 sub gurt($) {
   my ($fun) = @_;
 #dumpit($fun);
@@ -336,5 +318,5 @@ sub gurt($) {
   return $stuff;
 }
 
-#shew(gurt($fun));
-shew(gurt(lookup($tree, "dcls/chan/chan")));
+shew(gurt($fun));
+#shew(gurt(lookup($tree, "dcls/chan/chan")));
