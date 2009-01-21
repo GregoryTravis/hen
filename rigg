@@ -346,7 +346,6 @@ print "BUILDING TREE...\n";
 my $tree = build_tree("\@1");
 
 my $dcls = function_decls($tree);
-#$dcls = [grep { $_->{"srcp"} =~ /^vertex_and_fragment_program.c/; } @$dcls];
 for (my $i = 0; $i < @$dcls; ++$i) {
   my $fun = $dcls->[$i];
   shew($fun->{"nodetype"});
