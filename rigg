@@ -174,7 +174,11 @@ sub lookup($$) {
   my @path = split(/\//, $path);
   while (@path > 0) {
     my $k = shift(@path);
-    die "$node: $path" if (!defined $node->{$k});
+    if (!defined $node->{$k}) {
+      print "==============\n";
+      dumpit($node);
+      die "$node: $path" 
+    }
     $node = $node->{$k};
   }
   return $node;
@@ -289,7 +293,11 @@ sub gurt($) {
   my $stuff = {};
   $stuff->{"name"} = lookup($fun, "name/strg");
 print "NAME $stuff->{name}\n";
-  $stuff->{"return_type"} = lookup($fun, "type/retn/name/name/strg");
+  if (defd($fun, "type/retn/name/name/strg")) {
+    $stuff->{"return_type"} = lookup($fun, "type/retn/name/name/strg");
+  } else {
+    $stuff->{"return_type"} = lookup($fun, "type/retn/ptd/name/name/strg");
+  }
 
   my @params = ();
   if (defd($fun, "args")) {
