@@ -301,6 +301,7 @@ sub gurt($) {
   my ($fun) = @_;
   my $stuff = {};
   $stuff->{"name"} = lookup($fun, "name/strg");
+  print "NAME $stuff->{name}\n";
 
   $stuff->{"return_type"} = getparam(lookup($fun, "type/retn"));
 
@@ -341,9 +342,10 @@ print "BUILDING TREE...\n";
 my $tree = build_tree("\@1");
 
 my $dcls = function_decls($tree);
-for (my $i = 0; $i < @$dcls; ++$i) {
+for (my $i = 464; $i < @$dcls; ++$i) {
   my $fun = $dcls->[$i];
-  #shew($i); dumpit($fun);
+  #shew($i);
+  #dumpit($fun);
   shew($fun->{"nodetype"});
   shew(gurt($fun));
 }
