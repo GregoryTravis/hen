@@ -266,22 +266,6 @@ sub id($) {
   return $v;
 }
 
-sub gettype($) {
-  my ($n) = @_;
-  my $name = lookup($n, "name/strg");
-  my $type = lookup($n, "argt");
-  $type = lookup($type, "nodetype");
-#  my $type = 2;
-  return [$name, $type];
-}
-
-sub glimp($) {
-  my ($n) = @_;
-  my $name = lookup($n, "name/strg");
-  my $args = chanmap(\&gettype, lookup($n, "args"));
-  return [$name, $args];
-}
-
 sub getparam($) {
   my ($t) = @_;
   my $stars = "";
@@ -342,7 +326,7 @@ print "BUILDING TREE...\n";
 my $tree = build_tree("\@1");
 
 my $dcls = function_decls($tree);
-for (my $i = 464; $i < @$dcls; ++$i) {
+for (my $i = 463; $i < @$dcls; ++$i) {
   my $fun = $dcls->[$i];
   #shew($i);
   #dumpit($fun);
