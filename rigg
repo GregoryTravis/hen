@@ -245,13 +245,12 @@ sub dumpit($) {
   }
 }
 
-sub chanmap($$) {
-  my ($f, $node) = @_;
+sub chanwalk($) {
+  my ($node) = @_;
   my $here = $node;
   my @rs = ();
   while (1) {
-    my $r = $f->($here);
-    push @rs, $r;
+    push @rs, $here;
     if (ref $here eq "HASH" && defined $here->{"chan"}) {
       $here = $here->{"chan"};
     } else {
@@ -317,7 +316,7 @@ sub gurt($) {
 
 sub function_decls($) {
   my ($t) = @_;
-  my $dcls = chanmap(\&id, lookup($t, "dcls"));
+  my $dcls = chanwalk(lookup($t, "dcls"));
   $dcls = [grep { $_->{"nodetype"} eq "function_decl"; } @$dcls];
   return $dcls;
 }
