@@ -7,7 +7,7 @@ use strict;
 use Data::Dumper;
 use File;
 
-my @integer_types = ("unsigned", "int");
+my @integer_types = ("unsigned", "int", "unsigned char");
 
 my $c_header = <<EOF;
 #include "a.h"
@@ -93,6 +93,12 @@ sub trim($) {
 sub burp($) {
   my ($s) = @_;
   $s =~ s/unsigned char/unsigned_char/;
+  return $s;
+}
+
+sub unburp($) {
+  my ($s) = @_;
+  $s =~ s/unsigned_char/unsigned char/;
   return $s;
 }
 
@@ -344,6 +350,7 @@ sub readem() {
         if ($bluh =~ /^(\S...): (.*)$/) {
           my $k = $1;
           my $v = $2;
+          $v = unburp($v);
           #print "$k=$v\n";
           $stuff{trim($k)} = trim($v);
         } else {
@@ -375,7 +382,7 @@ sub go() {
   my $dcls = function_decls($tree);
 
 my @dcls = @$dcls;
-@dcls = @dcls[0..4];
+@dcls = @dcls[0..50];
 $dcls = \@dcls;
 
   my @funs = ();
