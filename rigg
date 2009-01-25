@@ -16,6 +16,8 @@ sub psshew
 
     local $Data::Dumper::Terse = 1;
     local $Data::Dumper::Indent = 1;
+    local $Data::Dumper::Maxdepth = 2;
+    local $Data::Dumper::Sortkeys = 1;
 
     $dumped = +Dumper( $thing );
     $dumped =~ s/\n$//;
@@ -32,6 +34,15 @@ sub shew( @ )
   }
 }
 
+sub zip($$) {
+  my ($a, $b) = @_;
+  die unless (@$a == @$b);
+  my @z = ();
+  for (my $i = 0; $i < @$a; ++$i) {
+    $z[$i] = [ $a->[$i], $a->[$i] ];
+  }
+  return \@z;
+}
 
 print "READING...\n";
 my @lines = <>;
@@ -171,13 +182,22 @@ sub build_tree($) {
 
 sub lookup($$) {
   my ($node, $path) = @_;
+  my $v = mlookup($node, $path);
+  if (!defined($v)) {
+    print "==============\n";
+    shew($node);
+    die "lookup $path" 
+  }
+  return $v;
+}
+
+sub mlookup($$) {
+  my ($node, $path) = @_;
   my @path = split(/\//, $path);
   while (@path > 0) {
     my $k = shift(@path);
     if (!defined $node->{$k}) {
-      print "==============\n";
-      dumpit($node);
-      die "$node: $path" 
+      return undef;
     }
     $node = $node->{$k};
   }
@@ -265,6 +285,16 @@ sub id($) {
   return $v;
 }
 
+my $undef_unique_serial = 0;
+sub undef_unique($) {
+  my ($v) = @_;
+  if (!defined($v)) {
+    return "haha" . ($undef_unique_serial++);
+  } else {
+    return $v;
+  }
+}
+
 sub getparam($) {
   my ($t) = @_;
   my $stars = "";
@@ -288,6 +318,19 @@ sub gurt($) {
 
   $stuff->{"return_type"} = getparam(lookup($fun, "type/retn"));
 
+  if (defd($fun, "args")) {
+    my @paramtypes = map { getparam($_); } (map { lookup($_, "valu"); } @{chanwalk(lookup($fun, "type/prms"))});
+    # Is the trailing void a delimiter, or the return type?
+    @paramtypes = @paramtypes[0..$#paramtypes-1];
+    my @paramnames = map { undef_unique($_) } (map { mlookup($_, "name/strg"); } (@{chanwalk(lookup($fun, "args"))}));
+    my @params = zip(\@paramtypes, \@paramnames);
+    $stuff->{"params"} = \@params;
+    #shew(\@params);
+  } else {
+    $stuff->{"params"} = [];
+  }
+
+=a
   my @params = ();
   if (defd($fun, "args")) {
     my $pts = "type/prms";
@@ -310,6 +353,7 @@ sub gurt($) {
   }
 
   $stuff->{"params"} = \@params;
+=cut
 
   return $stuff;
 }
@@ -317,6 +361,7 @@ sub gurt($) {
 sub function_decls($) {
   my ($t) = @_;
   my $dcls = chanwalk(lookup($t, "dcls"));
+#shew($dcls);
   $dcls = [grep { $_->{"nodetype"} eq "function_decl"; } @$dcls];
   return $dcls;
 }
@@ -325,10 +370,10 @@ print "BUILDING TREE...\n";
 my $tree = build_tree("\@1");
 
 my $dcls = function_decls($tree);
-for (my $i = 463; $i < @$dcls; ++$i) {
+for (my $i = 0; $i < @$dcls; ++$i) {
   my $fun = $dcls->[$i];
-  #shew($i);
-  #dumpit($fun);
+  shew($i);
+  #shew($fun);
   shew($fun->{"nodetype"});
   shew(gurt($fun));
 }
