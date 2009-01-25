@@ -14,6 +14,14 @@ my $dcls;
 
 my @integer_types = ("unsigned", "int");
 
+my $c_header = <<EOF;
+#include "a.h"
+#include "mem.h"
+#include "vor.h"
+#include "garf.impl.h"
+#include "misc/cg.h"
+EOF
+
 sub member($$) {
   my ($e, $list) = @_;
   foreach my $ee (@$list) {
@@ -410,6 +418,8 @@ sub opaque_wrap($$) {
   my ($type, $var) = @_;
   if (member($type, \@integer_types)) {
     return "integer($var)";
+  } elsif ($type eq "float") {
+    return "flote($var)";
   } else {
     return "opaque($var)";
   }
@@ -419,6 +429,8 @@ sub opaque_unwrap($$) {
   my ($type, $var) = @_;
   if (member($type, \@integer_types)) {
     return "getint($var)";
+  } elsif ($type eq "float") {
+    return "getfloat($var)";
   } else {
     return "opaqueval($var)";
   }
@@ -494,6 +506,7 @@ my $oot =
 sub impl_c($) {
   my ($dcls) = @_;
   my $s = "";
+  $s .= $c_header;
   for (my $i = 0; $i < @$dcls; ++$i) {
     my $fun = $dcls->[$i];
     $s .= gen_cbody($fun);
