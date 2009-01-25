@@ -57,7 +57,7 @@ sub zip($$) {
   die unless (@$a == @$b);
   my @z = ();
   for (my $i = 0; $i < @$a; ++$i) {
-    $z[$i] = [ $a->[$i], $a->[$i] ];
+    $z[$i] = [ $a->[$i], $b->[$i] ];
   }
   return \@z;
 }
@@ -399,10 +399,10 @@ print "BUILDING TREE...\n";
 my $tree = build_tree("\@1");
 
 my $dcls = function_decls($tree);
-for (my $i = 1718; $i < @$dcls; ++$i) {
+for (my $i = 0; $i < @$dcls; ++$i) {
   my $fun = $dcls->[$i];
   shew($i);
   shew($fun->{"nodetype"});
   #nshew(5, $fun);
-  shew(gurt($fun));
+  nshew(4, gurt($fun));
 }
