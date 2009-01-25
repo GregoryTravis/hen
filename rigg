@@ -372,17 +372,18 @@ sub go() {
   }
 }
 
-go();
+#xgo();
 
 sub gen($) {
   my ($fun) = @_;
   my $sig = "";
+shew($fun);
 
   my $params = join(", ",
-                    map { "$_->[0] $_->[1]" } @{$fun->{"params"}});
+                    map { "$_->[0] $_->[1]" } @{$fun->{"params"}->[0]});
 
   $sig .= $fun->{"return_type"};
-  $sig .= "";
+  $sig .= " ";
   $sig .= $fun->{"name"};
   $sig .= "(";
   $sig .= $params;
@@ -405,4 +406,4 @@ my $oot =
   'return_type' => 'void'
 };
 
-#gen($oot);
+gen($oot);
