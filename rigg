@@ -491,18 +491,6 @@ sub genregisterer($) {
   return $s;
 }
 
-my $oot = 
-{
-  'name' => 'glutInitDisplayMode',
-  'params' => [
-    [
-      'unsigned',
-      'mode'
-    ]
-  ],
-  'return_type' => 'void'
-};
-
 sub impl_c($) {
   my ($dcls) = @_;
   my $s = "";
@@ -514,8 +502,6 @@ sub impl_c($) {
   $s .= genregisterer($dcls);
   return $s;
 }
-
-#print gen_cbody($oot);
 
 my $funs = go();
 
