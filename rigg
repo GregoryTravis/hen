@@ -8,7 +8,6 @@ use Data::Dumper;
 use File;
 
 my %nodes;
-my %abnodes;
 my %tnodes = ();
 my $dcls;
 
@@ -101,23 +100,23 @@ sub burp($) {
   return $s;
 }
 
-sub build_tree_1($$) {
-  my ($index, $seen) = @_;
+sub build_tree_1($$$) {
+  my ($abnodes, $index, $seen) = @_;
 
   if (defined ($seen->{$index})) {
     return $seen->{$index};
   }
 
   my $node;
-  if (!(defined $abnodes{$index})) {
+  if (!(defined $abnodes->{$index})) {
     return "DANGLING $index";
   }
-  my $abnode = $abnodes{$index};
+  my $abnode = $abnodes->{$index};
   my $node = {};
   $seen->{$index} = $node;
   while (my ($k, $v) = each %$abnode) {
     if ($v =~ /^\@/ && $k ne "index") {
-      $v = build_tree_1($v, $seen);
+      $v = build_tree_1($abnodes, $v, $seen);
     }
     $node->{$k} = $v;
   }
@@ -125,9 +124,9 @@ sub build_tree_1($$) {
   return $node;
 }
 
-sub build_tree($) {
-  my ($index) = @_;
-  return build_tree_1($index, \%tnodes);
+sub build_tree($$) {
+  my ($abnodes, $index) = @_;
+  return build_tree_1($abnodes, $index, \%tnodes);
 }
 
 sub lookup($$) {
@@ -363,14 +362,14 @@ sub readem() {
   if ($current_id) {
     $nodes{$current_id} = $current;
   }
-  %abnodes = %nodes;
+  return \%nodes;
 }
 
 sub go() {
-  readem();
+  my $abnodes = readem();
 
   print "BUILDING TREE...\n";
-  my $tree = build_tree("\@1");
+  my $tree = build_tree($abnodes, "\@1");
 
   my @files = ("vertex_and_fragment_program.c", "cg.h", "cgGL.h", "cgGL_profiles.h",
                "cg_bindlocations.h", "cg_datatypes.h", "cg_enums.h", "cg_errors.h",

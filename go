@@ -1,5 +1,7 @@
+rm garf.impl.*
 rigg vertex_and_fragment_program.c.t00.tu #| head -2000
 gcc -c garf.impl.c
+ls -l garf.impl.*
 exit
 
 ./hum 2> errs
