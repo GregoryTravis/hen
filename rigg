@@ -54,7 +54,7 @@ sub shew( @ )
 
 sub zip($$) {
   my ($a, $b) = @_;
-  die unless (@$a == @$b);
+  die (@$a . "!=" . @$b) unless (@$a == @$b);
   my @z = ();
   for (my $i = 0; $i < @$a; ++$i) {
     $z[$i] = [ $a->[$i], $b->[$i] ];
@@ -347,11 +347,15 @@ sub gurt($) {
 
   if (defd($fun, "args")) {
     my @paramtypes = map { getparam($_); } (map { lookup($_, "valu"); } @{chanwalk(lookup($fun, "type/prms"))});
-    # Is the trailing void a delimiter, or the return type?
-    die unless $paramtypes[$#paramtypes] eq "void";
+    #die $paramtypes[$#paramtypes] unless $paramtypes[$#paramtypes] eq "void";
     #shew("bug", $stuff->{name}, $paramtypes[$#paramtypes]);
-    @paramtypes = @paramtypes[0..$#paramtypes-1];
     my @paramnames = map { name_undef("anonp", $_) } (map { mlookup($_, "name/strg"); } (@{chanwalk(lookup($fun, "args"))}));
+
+    # Trailing char* for e.g. varargs asprintf; everything else has trailing void
+    if ((scalar @paramtypes)-1 == (scalar @paramnames)) {
+      @paramtypes = @paramtypes[0..$#paramtypes-1];
+    }
+
     my @params = zip(\@paramtypes, \@paramnames);
     $stuff->{"params"} = \@params;
     #nshew(5, \@params);
@@ -402,7 +406,6 @@ my $dcls = function_decls($tree);
 for (my $i = 0; $i < @$dcls; ++$i) {
   my $fun = $dcls->[$i];
   shew($i);
-  shew($fun->{"nodetype"});
   #nshew(5, $fun);
   nshew(4, gurt($fun));
 }
