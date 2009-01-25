@@ -7,8 +7,6 @@ use strict;
 use Data::Dumper;
 use File;
 
-my $dcls;
-
 my @integer_types = ("unsigned", "int");
 
 my $c_header = <<EOF;
@@ -374,7 +372,7 @@ sub go() {
                "cg_bindlocations.h", "cg_datatypes.h", "cg_enums.h", "cg_errors.h",
                "cg_profiles.h", "gl.h", "glext.h", "glu.h", "glut.h");
 
-  $dcls = function_decls($tree);
+  my $dcls = function_decls($tree);
 
 my @dcls = @$dcls;
 @dcls = @dcls[0..4];
