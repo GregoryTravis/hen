@@ -5,10 +5,12 @@ $|=1;
 use strict;
 
 use Data::Dumper;
+use File;
 
 my %nodes;
 my %abnodes;
 my %tnodes = ();
+my $dcls;
 
 my @integer_types = ("unsigned", "int");
 
@@ -261,7 +263,7 @@ sub gurt($) {
   my ($fun) = @_;
   my $stuff = {};
   $stuff->{"name"} = name_undef("anonf", mlookup($fun, "name/strg"));
-  print "NAME $stuff->{name}\n";
+  #print "NAME $stuff->{name}\n";
 
   if (defd($fun, 'retn/name/name/strg')) {
     $stuff->{"return_type"} = lookup($fun, 'retn/name/name/strg');
@@ -366,19 +368,26 @@ sub go() {
                "cg_bindlocations.h", "cg_datatypes.h", "cg_enums.h", "cg_errors.h",
                "cg_profiles.h", "gl.h", "glext.h", "glu.h", "glut.h");
 
-  my $dcls = function_decls($tree);
+  $dcls = function_decls($tree);
+
+my @dcls = @$dcls;
+@dcls = @dcls[0..4];
+$dcls = \@dcls;
+
+  my @funs = ();
   for (my $i = 0; $i < @$dcls; ++$i) {
     my $fun = $dcls->[$i];
     if (member(funfile($fun), \@files)) {
-      shew($i);
+      #shew($i);
       #shew("SRC", lookup($fun, "srcp"));
       #nshew(5, $fun);
-      nshew(4, gurt($fun));
+      #nshew(4, gurt($fun));
+      push(@funs, gurt($fun));
     }
   }
-}
 
-#go();
+  return \@funs;
+}
 
 sub sig($) {
   my ($fun) = @_;
@@ -457,6 +466,19 @@ sub gen_cbody($) {
   return $s;
 }
 
+sub genregisterer($) {
+  my ($dcls) = @_;
+  my $s = "";
+  $s .= "void fakey_impl_register() {\n";
+  for (my $i = 0; $i < @$dcls; ++$i) {
+    my $fun = $dcls->[$i];
+    my $name = $fun->{"name"};
+    $s .= "  register_command(\"foop_$name\", &foop_$name);\n";
+  }
+  $s .= "}\n";
+  return $s;
+}
+
 my $oot = 
 {
   'name' => 'glutInitDisplayMode',
@@ -469,4 +491,27 @@ my $oot =
   'return_type' => 'void'
 };
 
-print gen_cbody($oot);
+sub impl_c($) {
+  my ($dcls) = @_;
+  my $s = "";
+  for (my $i = 0; $i < @$dcls; ++$i) {
+    my $fun = $dcls->[$i];
+    $s .= gen_cbody($fun);
+  }
+  $s .= genregisterer($dcls);
+  return $s;
+}
+
+#print gen_cbody($oot);
+
+my $funs = go();
+
+sub impl() {
+  my $name = "garf";
+  my $c = impl_c($funs);
+  my $h = "extern void fakey_impl_register();\n";
+  File::writeFile("$name.impl.c", $c);
+  File::writeFile("$name.impl.h", $h);
+}
+
+impl();
