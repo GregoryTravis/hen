@@ -27,6 +27,24 @@ sub psshew
   return $s;
 }
 
+sub nshew {
+  my ($depth, $thing) = @_;
+  my $s = "";
+
+  my $dumped;
+
+  local $Data::Dumper::Terse = 1;
+  local $Data::Dumper::Indent = 1;
+  local $Data::Dumper::Maxdepth = $depth;
+  local $Data::Dumper::Sortkeys = 1;
+
+  $dumped = +Dumper( $thing );
+  $dumped =~ s/\n$//;
+
+  $s .= "$dumped\n";
+  print $s;
+}
+
 sub shew( @ )
 {
   foreach (@_) {
@@ -286,10 +304,10 @@ sub id($) {
 }
 
 my $undef_unique_serial = 0;
-sub undef_unique($) {
-  my ($v) = @_;
+sub name_undef($$) {
+  my ($prefix, $v) = @_;
   if (!defined($v)) {
-    return "haha" . ($undef_unique_serial++);
+    return $prefix . ($undef_unique_serial++);
   } else {
     return $v;
   }
@@ -298,6 +316,10 @@ sub undef_unique($) {
 sub getparam($) {
   my ($t) = @_;
   my $stars = "";
+  if (lookup($t, "nodetype") eq "pointer_type" &&
+      lookup($t, "ptd/nodetype") eq "function_type") {
+    return gurt(lookup($t, "ptd"));
+  }
   while (!defd($t, "name/name/strg")) {
     defd($t, "ptd") || die;
     $stars .= "*";
@@ -313,19 +335,26 @@ my $anon_inx = 0;
 sub gurt($) {
   my ($fun) = @_;
   my $stuff = {};
-  $stuff->{"name"} = lookup($fun, "name/strg");
+  $stuff->{"name"} = name_undef("anonf", mlookup($fun, "name/strg"));
   print "NAME $stuff->{name}\n";
 
-  $stuff->{"return_type"} = getparam(lookup($fun, "type/retn"));
+  if (defd($fun, 'retn/name/name/strg')) {
+    $stuff->{"return_type"} = lookup($fun, 'retn/name/name/strg');
+  } else {
+    #nshew(3, mlookup($fun, 'retn/name/name/strg'));
+    $stuff->{"return_type"} = getparam(lookup($fun, "type/retn"));
+  }
 
   if (defd($fun, "args")) {
     my @paramtypes = map { getparam($_); } (map { lookup($_, "valu"); } @{chanwalk(lookup($fun, "type/prms"))});
     # Is the trailing void a delimiter, or the return type?
+    die unless $paramtypes[$#paramtypes] eq "void";
+    #shew("bug", $stuff->{name}, $paramtypes[$#paramtypes]);
     @paramtypes = @paramtypes[0..$#paramtypes-1];
-    my @paramnames = map { undef_unique($_) } (map { mlookup($_, "name/strg"); } (@{chanwalk(lookup($fun, "args"))}));
+    my @paramnames = map { name_undef("anonp", $_) } (map { mlookup($_, "name/strg"); } (@{chanwalk(lookup($fun, "args"))}));
     my @params = zip(\@paramtypes, \@paramnames);
     $stuff->{"params"} = \@params;
-    #shew(\@params);
+    #nshew(5, \@params);
   } else {
     $stuff->{"params"} = [];
   }
@@ -370,10 +399,10 @@ print "BUILDING TREE...\n";
 my $tree = build_tree("\@1");
 
 my $dcls = function_decls($tree);
-for (my $i = 0; $i < @$dcls; ++$i) {
+for (my $i = 1718; $i < @$dcls; ++$i) {
   my $fun = $dcls->[$i];
   shew($i);
-  #shew($fun);
   shew($fun->{"nodetype"});
+  #nshew(5, $fun);
   shew(gurt($fun));
 }

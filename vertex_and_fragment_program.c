@@ -45,6 +45,7 @@ void checkForCgError(char *situation)
 }
 
 /* Forward declared GLUT callbacks registered by main. */
+static void jerking(int (*butt)(int a, int b), int c);
 //static void display(void);
 static void keyboard(unsigned char c, int x, int y);
 
