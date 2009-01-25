@@ -10,6 +10,8 @@ my %nodes;
 my %abnodes;
 my %tnodes = ();
 
+my @integer_types = ("unsigned", "int");
+
 sub member($$) {
   my ($e, $list) = @_;
   foreach my $ee (@$list) {
@@ -223,11 +225,16 @@ sub id($) {
   return $v;
 }
 
-my $undef_unique_serial = 0;
+my $unique_serial = 0;
+sub unique($) {
+  my ($prefix) = @_;
+  return $prefix . ($unique_serial++);
+}
+
 sub name_undef($$) {
   my ($prefix, $v) = @_;
   if (!defined($v)) {
-    return $prefix . ($undef_unique_serial++);
+    return unique($prefix);
   } else {
     return $v;
   }
@@ -373,7 +380,7 @@ sub go() {
 
 #go();
 
-sub gen($) {
+sub sig($) {
   my ($fun) = @_;
   my $sig = "";
 
@@ -387,7 +394,67 @@ sub gen($) {
   $sig .= $params;
   $sig .= ")";
 
-  print $sig;
+  return $sig;
+}
+
+sub opaque_wrap($$) {
+  my ($type, $var) = @_;
+  if (member($type, \@integer_types)) {
+    return "integer($var)";
+  } else {
+    return "opaque($var)";
+  }
+}
+
+sub opaque_unwrap($$) {
+  my ($type, $var) = @_;
+  if (member($type, \@integer_types)) {
+    return "getint($var)";
+  } else {
+    return "opaqueval($var)";
+  }
+}
+
+sub gen_cbody($) {
+  my ($fun) = @_;
+  #print sig($fun);
+
+  my $s = "";
+
+  my $name = $fun->{"name"};
+  my $return_type = $fun->{"return_type"};
+  my $arg = unique("arg");
+
+  $s .= "yeah* foop_$name(yeah* $arg) {\n";
+
+  my $here = unique("here");
+  $s .= "  yeah* $here = $arg;\n";
+
+  my @names = ();
+  foreach my $p (@{$fun->{"params"}}) {
+    my ($type, $name) = @$p;
+
+    push(@names, $name);
+
+    my $harg = unique("harg");
+    $s .= "  yeah* $harg = hcar($here);\n";
+    $s .= "  $type $name = " . opaque_unwrap($type, $harg) . ";\n";
+    $s .= "  $here = hcdr($here);\n";
+  }
+  $s .= "  A(isnil($here));\n";
+
+  my $funcall = "$name(" . join(", ", @names) . ")";
+  if ($return_type eq "void") {
+    $s .= "  $funcall;\n";
+    $s .= "  return Nil;\n";
+  } else {
+    my $ret = unique("ret");
+    $s .= "  $return_type $ret = $funcall;\n";
+    $s .= "  return " . opaque_wrap($return_type, $ret) . ";\n";
+  }
+  $s .= "}\n";
+
+  return $s;
 }
 
 my $oot = 
@@ -402,4 +469,4 @@ my $oot =
   'return_type' => 'void'
 };
 
-gen($oot);
+print gen_cbody($oot);
