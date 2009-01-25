@@ -24,7 +24,7 @@ sub psshew
 
     local $Data::Dumper::Terse = 1;
     local $Data::Dumper::Indent = 1;
-    local $Data::Dumper::Maxdepth = 2;
+    #local $Data::Dumper::Maxdepth = 2;
     local $Data::Dumper::Sortkeys = 1;
 
     $dumped = +Dumper( $thing );
@@ -70,12 +70,6 @@ sub zip($$) {
   return \@z;
 }
 
-print "READING...\n";
-my @lines = <>;
-
-#0123456789012345678901234567890123456789012345678901234567890123456789
-#@1570   const_decl       name: @1622    type: @1479    srcp: cg.h:216    
-
 sub trim($) {
   my $s = shift;
   $s =~ s/^\s*//;
@@ -90,6 +84,9 @@ sub burp($) {
   $s =~ s/unsigned char/unsigned_char/;
   return $s;
 }
+
+print "READING...\n";
+my @lines = <>;
 
 my %nodes;
 my $current;
@@ -135,44 +132,6 @@ foreach my $line (@lines) {
 if ($current_id) {
   $nodes{$current_id} = $current;
 }
-
-=a
-#shew(\%nodes);
-shew($nodes{"\@3692"});
-
-exit;
-
-my $all = join('', @lines);
-$all =~ s/\n( +)/ /gm;
-my @nodelines = split(/\n/, $all);
-#shew(\@nodelines);
-
-my %abnodes = ();
-
-print "PARSING...\n";
-foreach my $nodeline (@nodelines) {
-  my @words = split(/\s+/, $nodeline);
-  #print join(":::", @words) . "\n";
-  my %node = ();
-  $node{"index"} = shift(@words);
-  $node{"nodetype"} = shift(@words);
-  while (@words > 0) {
-    if ($words[0] =~ /:$/) {
-      my $k = shift(@words);
-      my $v = shift(@words);
-
-      $k =~ s/:$// || die "\"$k\"";
-
-      $node{$k} = $v;
-    } else {
-      my $k = shift(@words);
-      $node{$k} = 1;
-    }
-  }
-
-  $abnodes{$node{"index"}} = \%node;
-}
-=cut
 
 my %abnodes = %nodes;
 
@@ -371,31 +330,6 @@ sub gurt($) {
     $stuff->{"params"} = [];
   }
 
-=a
-  my @params = ();
-  if (defd($fun, "args")) {
-    my $pts = "type/prms";
-    my $pns = "args";
-    while (1) {
-      my $type = getparam(lookup($fun, "$pts/valu"));
-      my $name = defd($fun, "$pns/name/strg")
-        ? lookup($fun, "$pns/name/strg")
-          : "anon_" . ($anon_inx++);
-
-      push(@params, [$type, $name]);
-
-      if (!defd($fun, "$pns/chan")) {
-        last;
-      }
-
-      $pts .= "/chan";
-      $pns .= "/chan";
-    }
-  }
-
-  $stuff->{"params"} = \@params;
-=cut
-
   return $stuff;
 }
 
@@ -421,13 +355,50 @@ sub funfile($) {
   return $filename;
 }
 
-my $dcls = function_decls($tree);
-for (my $i = 0; $i < @$dcls; ++$i) {
-  my $fun = $dcls->[$i];
-  if (member(funfile($fun), \@files)) {
-    shew($i);
-    shew("SRC", lookup($fun, "srcp"));
-    #nshew(5, $fun);
-    nshew(4, gurt($fun));
+sub go() {
+  my $dcls = function_decls($tree);
+  for (my $i = 0; $i < @$dcls; ++$i) {
+    my $fun = $dcls->[$i];
+    if (member(funfile($fun), \@files)) {
+      shew($i);
+      shew("SRC", lookup($fun, "srcp"));
+      #nshew(5, $fun);
+      nshew(4, gurt($fun));
+    }
   }
 }
+
+go();
+
+sub gen($) {
+  my ($fun) = @_;
+  my $sig = "";
+
+  my $params = join(", ",
+                    map { "$_->[0] $_->[1]" } @{$fun->{"params"}});
+
+  $sig .= $fun->{"return_type"};
+  $sig .= "";
+  $sig .= $fun->{"name"};
+  $sig .= "(";
+  $sig .= $params;
+  $sig .= ")";
+
+  print $sig;
+}
+
+my $oot = 
+{
+  'name' => 'glutInitDisplayMode',
+  'params' => [
+    [
+      [
+        'unsigned',
+        'mode'
+      ]
+    ]
+  ],
+  'return_type' => 'void'
+};
+
+#gen($oot);
