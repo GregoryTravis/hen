@@ -274,8 +274,7 @@ sub gurt($) {
       @paramtypes = @paramtypes[0..$#paramtypes-1];
     }
 
-    my @params = zip(\@paramtypes, \@paramnames);
-    $stuff->{"params"} = \@params;
+    $stuff->{"params"} = zip(\@paramtypes, \@paramnames);
     #nshew(5, \@params);
   } else {
     $stuff->{"params"} = [];
@@ -365,22 +364,21 @@ sub go() {
     my $fun = $dcls->[$i];
     if (member(funfile($fun), \@files)) {
       shew($i);
-      shew("SRC", lookup($fun, "srcp"));
+      #shew("SRC", lookup($fun, "srcp"));
       #nshew(5, $fun);
       nshew(4, gurt($fun));
     }
   }
 }
 
-#xgo();
+#go();
 
 sub gen($) {
   my ($fun) = @_;
   my $sig = "";
-shew($fun);
 
   my $params = join(", ",
-                    map { "$_->[0] $_->[1]" } @{$fun->{"params"}->[0]});
+                    map { "$_->[0] $_->[1]" } @{$fun->{"params"}});
 
   $sig .= $fun->{"return_type"};
   $sig .= " ";
@@ -397,10 +395,8 @@ my $oot =
   'name' => 'glutInitDisplayMode',
   'params' => [
     [
-      [
-        'unsigned',
-        'mode'
-      ]
+      'unsigned',
+      'mode'
     ]
   ],
   'return_type' => 'void'
