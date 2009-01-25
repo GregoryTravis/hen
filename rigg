@@ -6,6 +6,14 @@ use strict;
 
 use Data::Dumper;
 
+sub member($$) {
+  my ($e, $list) = @_;
+  foreach my $ee (@$list) {
+    return 1 if ($e eq $ee);
+  }
+  return 0;
+}
+
 sub psshew
 {
   my @things = @_;
@@ -402,10 +410,24 @@ sub function_decls($) {
 print "BUILDING TREE...\n";
 my $tree = build_tree("\@1");
 
+my @files = ("vertex_and_fragment_program.c", "cg.h", "cgGL.h", "cgGL_profiles.h",
+             "cg_bindlocations.h", "cg_datatypes.h", "cg_enums.h", "cg_errors.h",
+             "cg_profiles.h", "gl.h", "glext.h", "glu.h", "glut.h");
+
+sub funfile($) {
+  my ($fun) = @_;
+  my $filename = lookup($fun, "srcp");
+  $filename =~ s/\:\d+$//;
+  return $filename;
+}
+
 my $dcls = function_decls($tree);
 for (my $i = 0; $i < @$dcls; ++$i) {
   my $fun = $dcls->[$i];
-  shew($i);
-  #nshew(5, $fun);
-  nshew(4, gurt($fun));
+  if (member(funfile($fun), \@files)) {
+    shew($i);
+    shew("SRC", lookup($fun, "srcp"));
+    #nshew(5, $fun);
+    nshew(4, gurt($fun));
+  }
 }
