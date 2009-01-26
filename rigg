@@ -15,6 +15,9 @@ my $c_header = <<EOF;
 #include "vor.h"
 #include "garf.impl.h"
 #include "misc/cg.h"
+#include "misc/cgGL.h"
+#include "misc/gl.h"
+#include "misc/glut.h"
 EOF
 
 sub member($$) {
@@ -424,7 +427,7 @@ sub opaque_wrap($$) {
   } elsif ($type eq "float") {
     return "flote($var)";
   } else {
-    return "opaque($var)";
+    return "opaque((void*)$var)";
   }
 }
 
@@ -436,6 +439,30 @@ sub opaque_unwrap($$) {
     return "getfloat($var)";
   } else {
     return "opaqueval($var)";
+  }
+}
+
+sub declare_var($$) {
+  my ($type, $name) = @_;
+  if (ref($type) eq "") {
+    return "$type $name";
+  } else {
+    # Assume it's a fun.
+    $type = {%$type};
+    $type->{"name"} = "(*$name)";
+    return sig($type);
+  }
+}
+
+sub castit($) {
+  my ($type) = @_;
+  if (ref($type) eq "") {
+    return $type;
+  } else {
+    # Assume it's a fun.
+    $type = {%$type};
+    $type->{"name"} = "(*)";
+    return sig($type);
   }
 }
 
@@ -457,12 +484,14 @@ sub gen_cbody($) {
   my @names = ();
   foreach my $p (@{$fun->{"params"}}) {
     my ($type, $name) = @$p;
+    my $decl = declare_var($type, $name);
+    my $caster = castit($type);
 
     push(@names, $name);
 
     my $harg = unique("harg");
     $s .= "  yeah* $harg = hcar($here);\n";
-    $s .= "  $type $name = " . opaque_unwrap($type, $harg) . ";\n";
+    $s .= "  $decl = ($caster)" . opaque_unwrap($type, $harg) . ";\n";
     $s .= "  $here = hcdr($here);\n";
   }
   $s .= "  A(isnil($here));\n";
@@ -473,7 +502,8 @@ sub gen_cbody($) {
     $s .= "  return Nil;\n";
   } else {
     my $ret = unique("ret");
-    $s .= "  $return_type $ret = $funcall;\n";
+    my $rdecl = declare_var($return_type, $ret);
+    $s .= "  $rdecl = $funcall;\n";
     $s .= "  return " . opaque_wrap($return_type, $ret) . ";\n";
   }
   $s .= "}\n";
