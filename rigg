@@ -536,6 +536,23 @@ sub impl_c($) {
   return $s;
 }
 
+sub stub($) {
+  my ($dcls) = @_;
+  my $libname = "garf";
+  my $s = "";
+  for (my $i = 0; $i < @$dcls; ++$i) {
+    my $fun = $dcls->[$i];
+    my $name = $fun->{"name"};
+    my @param_names = map { $_->[1] } @{$fun->{"params"}};
+    my @ha = ($name, @param_names);
+    my $ha = join(" ", @ha);
+    my @ho = ("\$", @param_names);
+    my $ho = join(" ", @ho);
+    $s .= "(fun ($ha) (Command \'$name ($ho)))\n";
+  }
+  File::writeFile("$libname.stub.ss", $s);
+}
+
 my $funs = go();
 
 sub impl() {
@@ -547,3 +564,4 @@ sub impl() {
 }
 
 impl();
+stub($funs);
