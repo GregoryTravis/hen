@@ -1,7 +1,12 @@
-rm -f garf.impl.*
-rigg vertex_and_fragment_program.c.t00.tu #| head -2000
-gcc -c garf.impl.c
-ls -l garf.impl.*
+hen src.ss
+exit
+
+rm -f butt.c.impl* butt.c.stub*
+rm -f butt.c.t00.tu
+g++ -c -fdump-translation-unit butt.c
+rigg butt.c
+gcc -c butt_c.impl.c
+ls -l butt_c.impl.*
 exit
 
 ./hum 2> errs

@@ -6,6 +6,10 @@
 #include "mem.h"
 #include "spew.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void *mem_min_addr=MEM_NOT_ADDRESS;
 void *mem_max_addr=MEM_NOT_ADDRESS;
 
@@ -127,3 +131,7 @@ char *strkat( char *s0, char *s1 )
 
   return c;
 }
+
+#ifdef __cplusplus
+}
+#endif

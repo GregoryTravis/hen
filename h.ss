@@ -2,7 +2,7 @@
 
 (define hen-version "* hen v. 0.01")
 
-(define remove-temporaries #f)
+(define remove-temporaries #t)
 (define count-reductions #f)
 (define show-tsgs #f)
 (define show-bindings #f)
@@ -63,7 +63,8 @@
 (define libses '())
 
 (define (generate-stubs module)
-  (rcmd (++ "parse-headers " module ".h")))
+;  (rcmd (++ "parse-headers " module ".h")))
+  (rcmd (++ "rigg " module)))
 
 ;; TODO doesn't handle recursive
 (define (expand-imports forms)

@@ -11,7 +11,10 @@
 
 #include "spew.h"
 
+#ifndef __cplusplus
 typedef unsigned char bool;
+#endif
+
 typedef unsigned char uchar;
 
 #define true 1

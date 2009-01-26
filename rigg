@@ -13,7 +13,6 @@ my $c_header = <<EOF;
 #include "a.h"
 #include "mem.h"
 #include "vor.h"
-#include "garf.impl.h"
 #include "misc/cg.h"
 #include "misc/cgGL.h"
 #include "misc/gl.h"
@@ -320,9 +319,13 @@ sub funfile($) {
   return $filename;
 }
 
-sub readem() {
+sub readem($) {
+  my ($src) = @_;
   print "READING...\n";
-  my @lines = <>;
+  my $dumpfile = "$src.t00.tu";
+  open(DUMP, $dumpfile) || die $!;
+  my @lines = <DUMP>;
+  close(DUMP);
 
   my %nodes;
   my $current;
@@ -372,21 +375,19 @@ sub readem() {
   return \%nodes;
 }
 
-sub go() {
-  my $abnodes = readem();
+sub read_dump($) {
+  my ($src) = @_;
+  my $abnodes = readem($src);
 
   print "BUILDING TREE...\n";
   my $tree = build_tree($abnodes, "\@1");
 
-  my @files = ("vertex_and_fragment_program.c", "cg.h", "cgGL.h", "cgGL_profiles.h",
-               "cg_bindlocations.h", "cg_datatypes.h", "cg_enums.h", "cg_errors.h",
-               "cg_profiles.h", "gl.h", "glext.h", "glu.h", "glut.h");
+#  my @files = ("vertex_and_fragment_program.c", "cg.h", "cgGL.h", "cgGL_profiles.h",
+#               "cg_bindlocations.h", "cg_datatypes.h", "cg_enums.h", "cg_errors.h",
+#               "cg_profiles.h", "gl.h", "glext.h", "glu.h", "glut.h");
+  my @files = ("butt.c");
 
   my $dcls = function_decls($tree);
-
-my @dcls = @$dcls;
-@dcls = @dcls[0..50];
-$dcls = \@dcls;
 
   my @funs = ();
   for (my $i = 0; $i < @$dcls; ++$i) {
@@ -511,57 +512,65 @@ sub gen_cbody($) {
   return $s;
 }
 
-sub genregisterer($) {
-  my ($dcls) = @_;
+sub genregisterer($$) {
+  my ($module, $dcls) = @_;
   my $s = "";
-  $s .= "void fakey_impl_register() {\n";
+  $s .= "void ${module}_impl_register() {\n";
   for (my $i = 0; $i < @$dcls; ++$i) {
     my $fun = $dcls->[$i];
     my $name = $fun->{"name"};
-    $s .= "  register_command(\"foop_$name\", &foop_$name);\n";
+    $s .= "  register_command(\"$name\", &foop_$name);\n";
   }
   $s .= "}\n";
   return $s;
 }
 
-sub impl_c($) {
-  my ($dcls) = @_;
+sub impl_c($$) {
+  my ($module, $dcls) = @_;
   my $s = "";
   $s .= $c_header;
+  $s .= qq[#include "butt.h"\n];
+  $s .= qq[#include "$module.impl.h"\n];
   for (my $i = 0; $i < @$dcls; ++$i) {
     my $fun = $dcls->[$i];
     $s .= gen_cbody($fun);
   }
-  $s .= genregisterer($dcls);
+  $s .= genregisterer($module, $dcls);
   return $s;
 }
 
-sub stub($) {
-  my ($dcls) = @_;
-  my $libname = "garf";
+sub stub($$) {
+  my ($module, $dcls) = @_;
   my $s = "";
   for (my $i = 0; $i < @$dcls; ++$i) {
     my $fun = $dcls->[$i];
     my $name = $fun->{"name"};
+    my $hname = $name;
+    $hname =~ s/_/-/g;
     my @param_names = map { $_->[1] } @{$fun->{"params"}};
-    my @ha = ($name, @param_names);
+    my @ha = ($hname, @param_names);
     my $ha = join(" ", @ha);
     my @ho = ("\$", @param_names);
     my $ho = join(" ", @ho);
     $s .= "(fun ($ha) (Command \'$name ($ho)))\n";
   }
-  File::writeFile("$libname.stub.ss", $s);
+  File::writeFile("$module.stub.ss", $s);
 }
 
-my $funs = go();
-
-sub impl() {
-  my $name = "garf";
-  my $c = impl_c($funs);
-  my $h = "extern void fakey_impl_register();\n";
-  File::writeFile("$name.impl.c", $c);
-  File::writeFile("$name.impl.h", $h);
+sub impl($$) {
+  my ($module, $funs) = @_;
+  my $c = impl_c($module, $funs);
+  my $h = "extern void ${module}_impl_register();\n";
+  File::writeFile("$module.impl.c", $c);
+  File::writeFile("$module.impl.h", $h);
 }
 
-impl();
-stub($funs);
+sub go() {
+  my $module = $ARGV[0];
+  my $src = $module . ".c";
+  my $funs = read_dump($src);
+  impl($module, $funs);
+  stub($module, $funs);
+}
+
+go();
