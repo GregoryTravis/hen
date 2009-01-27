@@ -13,10 +13,9 @@ my $c_header = <<EOF;
 #include "a.h"
 #include "mem.h"
 #include "vor.h"
-#include "misc/cg.h"
-#include "misc/cgGL.h"
-#include "misc/gl.h"
-#include "misc/glut.h"
+#include <GL/gl.h>
+#include <GL/glut.h>
+#include <cg.h>
 EOF
 
 sub member($$) {
@@ -323,7 +322,7 @@ sub readem($) {
   my ($src) = @_;
   print "READING...\n";
   my $dumpfile = "$src.t00.tu";
-  open(DUMP, $dumpfile) || die $!;
+  open(DUMP, $dumpfile) || die "$dumpfile: $!";
   my @lines = <DUMP>;
   close(DUMP);
 
@@ -382,10 +381,12 @@ sub read_dump($) {
   print "BUILDING TREE...\n";
   my $tree = build_tree($abnodes, "\@1");
 
+  my @files = ("vertex_and_fragment_program.c", "gl.h", "glut.h");
+
 #  my @files = ("vertex_and_fragment_program.c", "cg.h", "cgGL.h", "cgGL_profiles.h",
 #               "cg_bindlocations.h", "cg_datatypes.h", "cg_enums.h", "cg_errors.h",
 #               "cg_profiles.h", "gl.h", "glext.h", "glu.h", "glut.h");
-  my @files = ("butt.c");
+#  my @files = ("butt.c");
 
   my $dcls = function_decls($tree);
 
