@@ -13,9 +13,9 @@ my $c_header = <<EOF;
 #include "a.h"
 #include "mem.h"
 #include "vor.h"
-#include <GL/gl.h>
-#include <GL/glut.h>
-#include <cg.h>
+//#include <GL/gl.h>
+//#include <GL/glut.h>
+//#include <cg.h>
 EOF
 
 sub member($$) {
@@ -381,7 +381,7 @@ sub read_dump($) {
   print "BUILDING TREE...\n";
   my $tree = build_tree($abnodes, "\@1");
 
-  my @files = ("vertex_and_fragment_program.c", "gl.h", "glut.h");
+  my @files = ("butt.c", "vertex_and_fragment_program.c", "gl.h", "glut.h");
 
 #  my @files = ("vertex_and_fragment_program.c", "cg.h", "cgGL.h", "cgGL_profiles.h",
 #               "cg_bindlocations.h", "cg_datatypes.h", "cg_enums.h", "cg_errors.h",
