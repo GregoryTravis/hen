@@ -6,6 +6,10 @@
 #include "a.h"
 #include "mem.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int* create_butt(int v) {
   int* vp = NEW(int);
   *vp = v;
@@ -25,3 +29,7 @@ void write_butt(int* vp, int v) {
 void destroy_butt(int* vp) {
   fri(vp);
 }
+
+#ifdef __cplusplus
+}
+#endif
