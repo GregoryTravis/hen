@@ -13,9 +13,9 @@ my $c_header = <<EOF;
 #include "a.h"
 #include "mem.h"
 #include "vor.h"
-//#include <GL/gl.h>
-//#include <GL/glut.h>
-//#include <cg.h>
+#include <GL/gl.h>
+#include <GL/glut.h>
+#include <cg.h>
 EOF
 
 my $extern_c_top = "#ifdef __cplusplus\nextern \"C\" {\n#endif\n";
@@ -431,7 +431,7 @@ sub opaque_wrap($$) {
     return "integer($var)";
   } elsif ($type eq "float") {
     return "flote($var)";
-  } elsif ($type eq "double") {
+  } elsif ($type eq "double" || $type eq "GLdouble" || $type eq "GLfloat") {
     return "flote((float)$var)";
   } else {
     return "opaque((void*)$var)";
@@ -442,7 +442,7 @@ sub opaque_unwrap($$) {
   my ($type, $var) = @_;
   if (member($type, \@integer_types)) {
     return "getint($var)";
-  } elsif ($type eq "float" || $type eq "double") {
+  } elsif ($type eq "float" || $type eq "double" || $type eq "GLdouble" || $type eq "GLfloat") {
     return "getfloat($var)";
   } else {
     return "opaqueval($var)";
