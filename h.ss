@@ -130,12 +130,14 @@
         (src-tlfs tlfs)
         (++ "#include \"vor.h\"\n"
             (apply ++ (generate-registration-includes))
+            "\n#ifdef __cplusplus\nextern \"C\" {\n#endif\n"
             "void hen_main() { "
             (apply ++ (generate-registration-calls))
             (apply ++ (append
                        (map cmpl-def global-env)
                        (map cmpl-top src-tlfs tlfs)))
-            "}")))
+            "}"
+            "\n#ifdef __cplusplus\n}\n#endif\n")))
 
 (define libs "-framework GLUT -framework OpenGL -framework CoreFoundation")
 
@@ -152,7 +154,7 @@
 ;    (rmtemps objfile exefile)
     (preclean objfile exefile)
     (rcmd (++ "make -s " objs))
-    (srcmd (++ "gcc -std=c99 -g -o " exefile " " objcfile " " objs " " libs))
+    (srcmd (++ "g++ -g -o " exefile " " objcfile " " objs " " libs))
     (cleanup-module-stuff)))
 
 (define (compile filename) (crun-file filename #f #f))
