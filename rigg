@@ -18,6 +18,9 @@ my $c_header = <<EOF;
 //#include <cg.h>
 EOF
 
+my $extern_c_top = "#ifdef __cplusplus\nextern \"C\" {\n#endif\n";
+my $extern_c_bottom = "#ifdef __cplusplus\n}\n#endif\n";
+
 sub member($$) {
   my ($e, $list) = @_;
   foreach my $ee (@$list) {
@@ -428,6 +431,8 @@ sub opaque_wrap($$) {
     return "integer($var)";
   } elsif ($type eq "float") {
     return "flote($var)";
+  } elsif ($type eq "double") {
+    return "flote((float)$var)";
   } else {
     return "opaque((void*)$var)";
   }
@@ -437,7 +442,7 @@ sub opaque_unwrap($$) {
   my ($type, $var) = @_;
   if (member($type, \@integer_types)) {
     return "getint($var)";
-  } elsif ($type eq "float") {
+  } elsif ($type eq "float" || $type eq "double") {
     return "getfloat($var)";
   } else {
     return "opaqueval($var)";
@@ -530,6 +535,7 @@ sub impl_c($$) {
   my ($module, $dcls) = @_;
   my $s = "";
   $s .= $c_header;
+  $s .= $extern_c_top;
   $s .= qq[#include "butt.h"\n];
   $s .= qq[#include "$module.impl.h"\n];
   for (my $i = 0; $i < @$dcls; ++$i) {
@@ -537,7 +543,16 @@ sub impl_c($$) {
     $s .= gen_cbody($fun);
   }
   $s .= genregisterer($module, $dcls);
+  $s .= $extern_c_bottom;
   return $s;
+}
+
+sub impl_h($) {
+  my ($module) = @_;
+  my $s = "";
+  $s .= $extern_c_top;
+  $s .= "extern void ${module}_impl_register();\n";
+  $s .= $extern_c_bottom;
 }
 
 sub stub($$) {
@@ -561,7 +576,7 @@ sub stub($$) {
 sub impl($$) {
   my ($module, $funs) = @_;
   my $c = impl_c($module, $funs);
-  my $h = "extern void ${module}_impl_register();\n";
+  my $h = impl_h($module);
   File::writeFile("$module.impl.c", $c);
   File::writeFile("$module.impl.h", $h);
 }
