@@ -481,5 +481,5 @@
 + (doo ref (create-charp-ref asdf) s (read-charp-ref ref) _ (shew s))
 "asdf"
 => Nil
-+ gcc -std=c99 -g -o test-input test-input.ss.c vor.o primcalls.o spew.o mem.o ref.impl.o shew.impl.o 
-+ gcc -std=c99 -g -o another-program another-program.ss.c vor.o primcalls.o spew.o mem.o ref.impl.o shew.impl.o 
++ g++ -g -o test-input test-input.ss.c vor.o primcalls.o spew.o mem.o ref.impl.o shew.impl.o 
++ g++ -g -o another-program another-program.ss.c vor.o primcalls.o spew.o mem.o ref.impl.o shew.impl.o 
