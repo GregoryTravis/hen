@@ -39,4 +39,7 @@ fbo.o: fbo.c
 # 	gcc -o fbo -g fbo.o GLee.o -framework GLUT -framework OpenGL -framework CoreFoundation
 
 vertex_and_fragment_program.o: vertex_and_fragment_program.c
-	gcc -Wall   -c -o vertex_and_fragment_program.o vertex_and_fragment_program.c
+	g++ -Wall   -c -o vertex_and_fragment_program.o vertex_and_fragment_program.c -I/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include -I/Library/Frameworks/Cg.framework/Versions/1.0/Headers/ -I/Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/GLUT.framework/Versions/A/Headers/ -framework GLUT -framework OpenGL -framework CoreFoundation
+
+vertex_and_fragment_program.impl.o: vertex_and_fragment_program.impl.c
+	g++ -c vertex_and_fragment_program.impl.c -I/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include -I/Library/Frameworks/Cg.framework/Versions/1.0/Headers/ -I/Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/GLUT.framework/Versions/A/Headers/
