@@ -10,6 +10,8 @@ use Data::Dumper;
 my @integer_types = ("unsigned", "int", "unsigned char", "GLboolean");
 my @float_types = ("float", "double", "GLfloat", "GLdouble", "GLclampf", "GLclampd");
 
+my @files = ("butt.c", "vertex_and_fragment_program.c", "gl.h", "glut.h");
+
 my $c_header = <<EOF;
 #include "a.h"
 #include "mem.h"
@@ -332,7 +334,6 @@ sub gurt($) {
     my @typeses = map { limp(lookup($_, "argt")) } @$ipp;
     $paramse = zip(\@typeses, \@nameses);
   } elsif (defd($fun, "type/prms")) {
-#    my @typeses = map { lookup($_, "valu/name/name/strg") } @{chanwalk(lookup($fun, "type/prms"))};
     my @typeses = map { lookup($_, "valu") } @{chanwalk(lookup($fun, "type/prms"))};
     @typeses = map { limp($_) } @typeses;
     $typeses[$#typeses] eq "void" || die;
@@ -340,9 +341,6 @@ sub gurt($) {
     my @nameses = map { unique("anonp") } @typeses;
     $paramse = zip(\@typeses, \@nameses);
   } elsif (defd($fun, "prms")) {
-#  nshew(6, $fun);
-#  nshew(6, lookup($fun, "prms"));
-#    my @typeses = map { lookup($_, "valu/name/name/strg") } @{chanwalk(lookup($fun, "prms"))};
     my @typeses = map { lookup($_, "valu") } @{chanwalk(lookup($fun, "prms"))};
     @typeses = map { limp($_) } @typeses;
     $typeses[$#typeses] eq "void" || die;
@@ -352,96 +350,16 @@ sub gurt($) {
   } else {
     die "asdfasdf";
   }
-  shew("paramse", $paramse);
-#die;
-
-
-#  nshew(4, $fun);
 
   die "UNASDNFA" unless (defd($fun, "type/prms") || defd($fun, "prms"));
 
-  my $prmspath;
-  if (defd($fun, "type/prms")) {
-    $prmspath = "type/prms";
-  } elsif (defd($fun, "prms")) {
-    $prmspath = "prms";
-  } else {
-    die "SFHDFH";
-  }
+  $stuff->{"params"} = $paramse;
 
-  my @paramtypes = map { getparam($_); } (map { lookup($_, "valu"); } @{chanwalk(lookup($fun, $prmspath))});
-  #shew($prmspath);
-  #shew(\@paramtypes);
-
-  my @paramnames;
-  if (defd($fun, "args")) {
-    @paramnames = map { name_undef("anonp", $_) } (map { mlookup($_, "name/strg"); } (@{chanwalk(lookup($fun, "args"))}));
-  } else {
-    @paramnames = map { undef; } @paramtypes;
-  }
-  #shew(\@paramnames);
-
-  # Trailing char* for e.g. varargs asprintf; everything else has trailing void
-  if ((scalar @paramtypes)-1 == (scalar @paramnames)) {
-    pop(@paramtypes);
-    #@paramtypes = @paramtypes[0..$#paramtypes-1];
-  } else {
-    pop(@paramtypes);
-    pop(@paramnames);
-  }
-
-#  $paramtypes[$#paramtypes] eq 'void' || die (scalar @paramtypes); #$#paramtypes;#$paramtypes[$#paramtypes];
-#  shift(@paramnames);
-#  shift(@paramtypes);
-
-  my $params = zip(\@paramtypes, \@paramnames);
-  $params = $paramse;
-  $stuff->{"params"} = $params;
-
-  #shew($stuff->{"params"});
-
-=a
-  {
-    my @paramtypes = map { getparam($_); } (map { lookup($_, "valu"); } @{chanwalk(lookup($fun, "type/prms"))});
-    nshew(3, \@paramtypes);
-    my @paramnames;
-    if (defd($fun, "args")) {
-      @paramnames = map { name_undef("anonp", $_) } (map { mlookup($_, "name/strg"); } (@{chanwalk(lookup($fun, "args"))}));
-    } else {
-      @paramnames = map { undef; } @paramtypes;
-    }
-    #nshew(3, \@paramnames);
-  }
-=cut
-
-#shew("RET");
   if (defd($fun, 'type/retn')) {
     $stuff->{"return_type"} = limp(lookup($fun, 'type/retn'));
-#} elsif (defd($fun, 'retn/name/name/strg')) {
   } else {
-    #nshew(3, mlookup($fun, 'retn/name/name/strg'));
-#nshew(5, $fun);
     $stuff->{"return_type"} = getparam(lookup($fun, "retn"));
   }
-
-=a
-  if (defd($fun, "args")) {
-    my @paramtypes = map { getparam($_); } (map { lookup($_, "valu"); } @{chanwalk(lookup($fun, "type/prms"))});
-    #die $paramtypes[$#paramtypes] unless $paramtypes[$#paramtypes] eq "void";
-    #shew("bug", $stuff->{name}, $paramtypes[$#paramtypes]);
-    my @paramnames = map { name_undef("anonp", $_) } (map { mlookup($_, "name/strg"); } (@{chanwalk(lookup($fun, "args"))}));
-
-    # Trailing char* for e.g. varargs asprintf; everything else has trailing void
-    if ((scalar @paramtypes)-1 == (scalar @paramnames)) {
-      @paramtypes = @paramtypes[0..$#paramtypes-1];
-    }
-
-    $stuff->{"params"} = zip(\@paramtypes, \@paramnames);
-    #nshew(5, \@params);
-  } else {
-    $stuff->{"params"} = [];
-  }
-=cut
 
   return $stuff;
 }
@@ -524,13 +442,6 @@ sub read_dump($) {
   print "BUILDING TREE...\n";
   my $tree = build_tree($abnodes, "\@1");
 
-  my @files = ("butt.c", "vertex_and_fragment_program.c", "gl.h", "glut.h");
-
-#  my @files = ("vertex_and_fragment_program.c", "cg.h", "cgGL.h", "cgGL_profiles.h",
-#               "cg_bindlocations.h", "cg_datatypes.h", "cg_enums.h", "cg_errors.h",
-#               "cg_profiles.h", "gl.h", "glext.h", "glu.h", "glut.h");
-#  my @files = ("butt.c");
-
   my $dcls = function_decls($tree);
 
   my @funs = ();
@@ -539,7 +450,6 @@ sub read_dump($) {
     if (member(funfile($fun), \@files)) {
       shew($i);
       push(@funs, gurt($fun));
-#last;
     }
   }
 
