@@ -161,6 +161,18 @@ sub lookup($$) {
   return $v;
 }
 
+sub tlookup($$) {
+  my ($node, $paths) = @_;
+  foreach my $path (@$paths) {
+    my $v = mlookup($node, $path);
+    return $v if defined($v);
+  }
+  print "==============\n";
+  nshew(3, $node);
+  shew($paths);
+  croak "tlookup";
+}
+
 sub mlookup($$) {
   my ($node, $path) = @_;
   my @path = split(/\//, $path);
@@ -306,16 +318,10 @@ sub get_function_type($) {
     my $ipp = chanwalk(lookup($fun, "args"));
     @nameses = map { name_undef("anonp", mlookup($_, "name/strg")) } @$ipp;
     @typeses = map { get_param_type(lookup($_, "argt")) } @$ipp;
-  } elsif (defd($fun, "type/prms")) {
-    @typeses = map { get_param_type($_) } (map { lookup($_, "valu") } @{chanwalk(lookup($fun, "type/prms"))});
-    pop(@typeses) eq "void" || die;
-    @nameses = map { unique("anonp") } @typeses;
-  } elsif (defd($fun, "prms")) {
-    @typeses = map { get_param_type($_) } (map { lookup($_, "valu") } @{chanwalk(lookup($fun, "prms"))});
-    pop(@typeses) eq "void" || die;
-    @nameses = map { unique("anonp") } @typeses;
   } else {
-    die "asdfasdf";
+    @nameses = map { unique("anonp") } @typeses;
+    @typeses = map { get_param_type($_) } (map { lookup($_, "valu") } @{chanwalk(tlookup($fun, ["type/prms", "prms"]))});
+    pop(@typeses) eq "void" || die;
   }
   $params = zip(\@typeses, \@nameses);
   $stuff->{"params"} = $params;
