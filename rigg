@@ -311,8 +311,7 @@ sub get_function_type($) {
     pop(@typeses) eq "void" || die;
     @nameses = map { unique("anonp") } @typeses;
   } elsif (defd($fun, "prms")) {
-    @typeses = map { lookup($_, "valu") } @{chanwalk(lookup($fun, "prms"))};
-    @typeses = map { get_param_type($_) } @typeses;
+    @typeses = map { get_param_type($_) } (map { lookup($_, "valu") } @{chanwalk(lookup($fun, "prms"))});
     pop(@typeses) eq "void" || die;
     @nameses = map { unique("anonp") } @typeses;
   } else {
