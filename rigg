@@ -261,7 +261,7 @@ sub get_function_type($) {
   my $stuff = {};
 
   $stuff->{"name"} = name_undef("anonf", mlookup($fun, "name/strg"));
-  print "NAME $stuff->{name}\n";
+  #print "NAME $stuff->{name}\n";
 
   my @nameses;
   my @typeses;
@@ -361,13 +361,16 @@ sub read_dump($) {
   my $dcls = function_decls($tree);
 
   my @funs = ();
+  my $count = 0;
   for (my $i = 0; $i < @$dcls; ++$i) {
     my $fun = $dcls->[$i];
     if (member(funfile($fun), \@files)) {
-      shew($i);
+      #shew($i);
+      $count++;
       push(@funs, get_function_type($fun));
     }
   }
+  print "Processed $count functions.\n";
 
   return \@funs;
 }
