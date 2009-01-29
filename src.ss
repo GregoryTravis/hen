@@ -3,7 +3,7 @@
 ;(foreign "glut" "glut.impl.o" "-framework GLUT -framework OpenGL -framework CoreFoundation")
 
 ;(foreign "fakey" "fakey.impl.o GLee.o" "-framework GLUT -framework OpenGL -framework CoreFoundation")
-(foreign "vertex_and_fragment_program" "vertex_and_fragment_program.o vertex_and_fragment_program.impl.o GLee.o" "-framework GLUT -framework OpenGL -framework CoreFoundation -I/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include -I/Library/Frameworks/Cg.framework/Versions/1.0/Headers/ -I/Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/GLUT.framework/Versions/A/Headers/")
+(foreign "hoot" "hoot.o hoot.impl.o GLee.o" "-framework GLUT -framework OpenGL -framework CoreFoundation -I/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include -I/Library/Frameworks/Cg.framework/Versions/1.0/Headers/ -I/Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/GLUT.framework/Versions/A/Headers/")
 ;(foreign "cvt" "cvt.o cvt.impl.o" "")
 
 (fun (display fbo img xrot-ref yrot-ref)

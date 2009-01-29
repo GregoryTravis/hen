@@ -43,3 +43,6 @@ vertex_and_fragment_program.o: vertex_and_fragment_program.c
 
 vertex_and_fragment_program.impl.o: vertex_and_fragment_program.impl.c
 	g++ -c vertex_and_fragment_program.impl.c -I/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include -I/Library/Frameworks/Cg.framework/Versions/1.0/Headers/ -I/Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/GLUT.framework/Versions/A/Headers/
+
+hoot.impl.o: hoot.impl.c
+	g++ -c hoot.impl.c -I/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include -I/Library/Frameworks/Cg.framework/Versions/1.0/Headers/ -I/Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/GLUT.framework/Versions/A/Headers/
