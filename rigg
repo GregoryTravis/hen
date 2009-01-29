@@ -299,30 +299,27 @@ sub get_function_type($) {
   $stuff->{"name"} = name_undef("anonf", mlookup($fun, "name/strg"));
   print "NAME $stuff->{name}\n";
 
-  my $paramse;
+  my $params;
+  my @nameses;
+  my @typeses;
   if (defd($fun, "args")) {
     my $ipp = chanwalk(lookup($fun, "args"));
-    my @nameses = map { name_undef("anonp", mlookup($_, "name/strg")) } @$ipp;
-    my @typeses = map { get_param_type(lookup($_, "argt")) } @$ipp;
-    $paramse = zip(\@typeses, \@nameses);
+    @nameses = map { name_undef("anonp", mlookup($_, "name/strg")) } @$ipp;
+    @typeses = map { get_param_type(lookup($_, "argt")) } @$ipp;
   } elsif (defd($fun, "type/prms")) {
-    my @typeses = map { get_param_type($_) } (map { lookup($_, "valu") } @{chanwalk(lookup($fun, "type/prms"))});
+    @typeses = map { get_param_type($_) } (map { lookup($_, "valu") } @{chanwalk(lookup($fun, "type/prms"))});
     pop(@typeses) eq "void" || die;
-    my @nameses = map { unique("anonp") } @typeses;
-    $paramse = zip(\@typeses, \@nameses);
+    @nameses = map { unique("anonp") } @typeses;
   } elsif (defd($fun, "prms")) {
-    my @typeses = map { lookup($_, "valu") } @{chanwalk(lookup($fun, "prms"))};
+    @typeses = map { lookup($_, "valu") } @{chanwalk(lookup($fun, "prms"))};
     @typeses = map { get_param_type($_) } @typeses;
     pop(@typeses) eq "void" || die;
-    my @nameses = map { unique("anonp") } @typeses;
-    $paramse = zip(\@typeses, \@nameses);
+    @nameses = map { unique("anonp") } @typeses;
   } else {
     die "asdfasdf";
   }
-
-  die "UNASDNFA" unless (defd($fun, "type/prms") || defd($fun, "prms"));
-
-  $stuff->{"params"} = $paramse;
+  $params = zip(\@typeses, \@nameses);
+  $stuff->{"params"} = $params;
 
   if (defd($fun, 'type/retn')) {
     $stuff->{"return_type"} = get_param_type(lookup($fun, 'type/retn'));
