@@ -1,6 +1,11 @@
+rm -f vertex_and_fragment_program.impl.*
+#g++ -c -fdump-translation-unit vertex_and_fragment_program.c
 rigg vertex_and_fragment_program
-gcc -c vertex_and_fragment_program.impl.c -framework GLUT -framework OpenGL -framework Cg -I/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include -I/Library/Frameworks/Cg.framework/Versions/1.0/Headers/ 2>&1 | head -15
+g++ -c vertex_and_fragment_program.impl.c -I/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include -I/Library/Frameworks/Cg.framework/Versions/1.0/Headers/ -I/Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/GLUT.framework/Versions/A/Headers/ #2>&1 | head -20
 exit
+
+#g++ -c vertex_and_fragment_program.impl.c -framework OpenGL
+#gcc -c vertex_and_fragment_program.impl.c -framework GLUT -framework OpenGL -framework Cg -I/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include -I/Library/Frameworks/Cg.framework/Versions/1.0/Headers/ 2>&1 | head -15
 
 g++ -c -fdump-translation-unit butt.c
 

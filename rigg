@@ -4,22 +4,34 @@ $|=1;
 
 use strict;
 
+use Carp;
 use Data::Dumper;
-use File;
 
-my @integer_types = ("unsigned", "int", "unsigned char");
+my @integer_types = ("unsigned", "int", "unsigned char", "GLboolean");
+my @float_types = ("float", "double", "GLfloat", "GLdouble", "GLclampf", "GLclampd");
 
 my $c_header = <<EOF;
 #include "a.h"
 #include "mem.h"
 #include "vor.h"
+#include <glut.h>
 #include <GL/gl.h>
-#include <GL/glut.h>
+#include <GL/glext.h>
 #include <cg.h>
+#include "vertex_and_fragment_program.h"
 EOF
 
 my $extern_c_top = "#ifdef __cplusplus\nextern \"C\" {\n#endif\n";
 my $extern_c_bottom = "#ifdef __cplusplus\n}\n#endif\n";
+
+# Write contents of string.
+sub writeFile( $$ )
+{
+  my ($filename,$contents) = @_;
+  open( FILE, ">$filename" ) || die "Can't open $filename: $!";
+  print FILE $contents;
+  close( FILE );
+}
 
 sub member($$) {
   my ($e, $list) = @_;
@@ -141,8 +153,8 @@ sub lookup($$) {
   my $v = mlookup($node, $path);
   if (!defined($v)) {
     print "==============\n";
-    shew($node);
-    die "lookup $path" 
+    nshew(3, $node);
+    croak "lookup $path" 
   }
   return $v;
 }
@@ -226,6 +238,8 @@ sub chanwalk($) {
   my $here = $node;
   my @rs = ();
   while (1) {
+#shew("CW");
+#nshew(3, $here);
     push @rs, $here;
     if (ref $here eq "HASH" && defined $here->{"chan"}) {
       $here = $here->{"chan"};
@@ -233,6 +247,8 @@ sub chanwalk($) {
       last;
     }
   }
+#shew("RET");
+#nshew(1, \@rs);
   return \@rs; 
 }
 
@@ -258,6 +274,7 @@ sub name_undef($$) {
 
 sub getparam($) {
   my ($t) = @_;
+#nshew(4, $t);
   my $stars = "";
   if (lookup($t, "nodetype") eq "pointer_type" &&
       lookup($t, "ptd/nodetype") eq "function_type") {
@@ -273,19 +290,141 @@ sub getparam($) {
   return $type;
 }
 
+sub limp($) {
+  my ($f) = @_;
+
+  if (lookup($f, "nodetype") eq "pointer_type" &&
+      lookup($f, "ptd/nodetype") eq "function_type") {
+    return gurt(lookup($f, "ptd"));
+  }
+
+  my $s = "";
+
+my $of = $f;
+  while (defd($f, "ptd")) {
+    $s .= "*";
+    $f = lookup($f, "ptd");
+  }
+
+if (!defd($f, "name/name/strg")) {
+#print "OY $s\n";
+  nshew(6, $of);
+die;
+}
+  $s = lookup($f, "name/name/strg") . $s;
+  if (mlookup($f, "qual") eq "c") {
+    $s = "const $s";
+  }
+  return $s;
+}
+
 sub gurt($) {
   my ($fun) = @_;
   my $stuff = {};
-  $stuff->{"name"} = name_undef("anonf", mlookup($fun, "name/strg"));
-  #print "NAME $stuff->{name}\n";
 
-  if (defd($fun, 'retn/name/name/strg')) {
-    $stuff->{"return_type"} = lookup($fun, 'retn/name/name/strg');
+  $stuff->{"name"} = name_undef("anonf", mlookup($fun, "name/strg"));
+  print "NAME $stuff->{name}\n";
+
+  my $paramse;
+  if (defd($fun, "args")) {
+    my $ipp = chanwalk(lookup($fun, "args"));
+    my @nameses = map { name_undef("anonp", mlookup($_, "name/strg")) } @$ipp;
+    my @typeses = map { limp(lookup($_, "argt")) } @$ipp;
+    $paramse = zip(\@typeses, \@nameses);
+  } elsif (defd($fun, "type/prms")) {
+#    my @typeses = map { lookup($_, "valu/name/name/strg") } @{chanwalk(lookup($fun, "type/prms"))};
+    my @typeses = map { lookup($_, "valu") } @{chanwalk(lookup($fun, "type/prms"))};
+    @typeses = map { limp($_) } @typeses;
+    $typeses[$#typeses] eq "void" || die;
+    pop(@typeses);
+    my @nameses = map { unique("anonp") } @typeses;
+    $paramse = zip(\@typeses, \@nameses);
+  } elsif (defd($fun, "prms")) {
+#  nshew(6, $fun);
+#  nshew(6, lookup($fun, "prms"));
+#    my @typeses = map { lookup($_, "valu/name/name/strg") } @{chanwalk(lookup($fun, "prms"))};
+    my @typeses = map { lookup($_, "valu") } @{chanwalk(lookup($fun, "prms"))};
+    @typeses = map { limp($_) } @typeses;
+    $typeses[$#typeses] eq "void" || die;
+    pop(@typeses);
+    my @nameses = map { unique("anonp") } @typeses;
+    $paramse = zip(\@typeses, \@nameses);
   } else {
-    #nshew(3, mlookup($fun, 'retn/name/name/strg'));
-    $stuff->{"return_type"} = getparam(lookup($fun, "type/retn"));
+    die "asdfasdf";
+  }
+  shew("paramse", $paramse);
+#die;
+
+
+#  nshew(4, $fun);
+
+  die "UNASDNFA" unless (defd($fun, "type/prms") || defd($fun, "prms"));
+
+  my $prmspath;
+  if (defd($fun, "type/prms")) {
+    $prmspath = "type/prms";
+  } elsif (defd($fun, "prms")) {
+    $prmspath = "prms";
+  } else {
+    die "SFHDFH";
   }
 
+  my @paramtypes = map { getparam($_); } (map { lookup($_, "valu"); } @{chanwalk(lookup($fun, $prmspath))});
+  #shew($prmspath);
+  #shew(\@paramtypes);
+
+  my @paramnames;
+  if (defd($fun, "args")) {
+    @paramnames = map { name_undef("anonp", $_) } (map { mlookup($_, "name/strg"); } (@{chanwalk(lookup($fun, "args"))}));
+  } else {
+    @paramnames = map { undef; } @paramtypes;
+  }
+  #shew(\@paramnames);
+
+  # Trailing char* for e.g. varargs asprintf; everything else has trailing void
+  if ((scalar @paramtypes)-1 == (scalar @paramnames)) {
+    pop(@paramtypes);
+    #@paramtypes = @paramtypes[0..$#paramtypes-1];
+  } else {
+    pop(@paramtypes);
+    pop(@paramnames);
+  }
+
+#  $paramtypes[$#paramtypes] eq 'void' || die (scalar @paramtypes); #$#paramtypes;#$paramtypes[$#paramtypes];
+#  shift(@paramnames);
+#  shift(@paramtypes);
+
+  my $params = zip(\@paramtypes, \@paramnames);
+  $params = $paramse;
+  $stuff->{"params"} = $params;
+
+  #shew($stuff->{"params"});
+
+=a
+  {
+    my @paramtypes = map { getparam($_); } (map { lookup($_, "valu"); } @{chanwalk(lookup($fun, "type/prms"))});
+    nshew(3, \@paramtypes);
+    my @paramnames;
+    if (defd($fun, "args")) {
+      @paramnames = map { name_undef("anonp", $_) } (map { mlookup($_, "name/strg"); } (@{chanwalk(lookup($fun, "args"))}));
+    } else {
+      @paramnames = map { undef; } @paramtypes;
+    }
+    #nshew(3, \@paramnames);
+  }
+=cut
+
+#shew("RET");
+  if (defd($fun, 'type/retn')) {
+    $stuff->{"return_type"} = limp(lookup($fun, 'type/retn'));
+#} elsif (defd($fun, 'retn/name/name/strg')) {
+  } else {
+    #nshew(3, mlookup($fun, 'retn/name/name/strg'));
+#nshew(5, $fun);
+    $stuff->{"return_type"} = getparam(lookup($fun, "retn"));
+  }
+
+=a
   if (defd($fun, "args")) {
     my @paramtypes = map { getparam($_); } (map { lookup($_, "valu"); } @{chanwalk(lookup($fun, "type/prms"))});
     #die $paramtypes[$#paramtypes] unless $paramtypes[$#paramtypes] eq "void";
@@ -302,6 +441,7 @@ sub gurt($) {
   } else {
     $stuff->{"params"} = [];
   }
+=cut
 
   return $stuff;
 }
@@ -397,11 +537,9 @@ sub read_dump($) {
   for (my $i = 0; $i < @$dcls; ++$i) {
     my $fun = $dcls->[$i];
     if (member(funfile($fun), \@files)) {
-      #shew($i);
-      #shew("SRC", lookup($fun, "srcp"));
-      #nshew(5, $fun);
-      #nshew(4, gurt($fun));
+      shew($i);
       push(@funs, gurt($fun));
+#last;
     }
   }
 
@@ -428,10 +566,11 @@ sub sig($) {
 sub opaque_wrap($$) {
   my ($type, $var) = @_;
   if (member($type, \@integer_types)) {
-    return "integer($var)";
-  } elsif ($type eq "float") {
-    return "flote($var)";
-  } elsif ($type eq "double" || $type eq "GLdouble" || $type eq "GLfloat") {
+    return "integer((int)$var)";
+#  } elsif ($type eq "float") {
+#    return "flote($var)";
+#  } elsif ($type eq "double" || $type eq "GLdouble" || $type eq "GLfloat") {
+  } elsif (member($type, \@float_types)) {
     return "flote((float)$var)";
   } else {
     return "opaque((void*)$var)";
@@ -442,7 +581,8 @@ sub opaque_unwrap($$) {
   my ($type, $var) = @_;
   if (member($type, \@integer_types)) {
     return "getint($var)";
-  } elsif ($type eq "float" || $type eq "double" || $type eq "GLdouble" || $type eq "GLfloat") {
+#  } elsif ($type eq "float" || $type eq "double" || $type eq "GLdouble" || $type eq "GLfloat") {
+  } elsif (member($type, \@float_types)) {
     return "getfloat($var)";
   } else {
     return "opaqueval($var)";
@@ -570,15 +710,15 @@ sub stub($$) {
     my $ho = join(" ", @ho);
     $s .= "(fun ($ha) (Command \'$name ($ho)))\n";
   }
-  File::writeFile("$module.stub.ss", $s);
+  writeFile("$module.stub.ss", $s);
 }
 
 sub impl($$) {
   my ($module, $funs) = @_;
   my $c = impl_c($module, $funs);
   my $h = impl_h($module);
-  File::writeFile("$module.impl.c", $c);
-  File::writeFile("$module.impl.h", $h);
+  writeFile("$module.impl.c", $c);
+  writeFile("$module.impl.h", $h);
 }
 
 sub go() {

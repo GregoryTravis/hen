@@ -45,9 +45,9 @@ void checkForCgError(char *situation)
 }
 
 /* Forward declared GLUT callbacks registered by main. */
-static void jerking(int (*butt)(int a, int b), int c);
+//static void jerking(int (*butt)(int a, int b), int c);
 //static void display(void);
-static void keyboard(unsigned char c, int x, int y);
+void keyboard(unsigned char c, int x, int y);
 
 //int mainby(int argc, char **argv)
 void mainby()
@@ -115,8 +115,8 @@ int mainby2(CGcontext urp_myCgContext) {
   return 0;
 }
 
-static void drawStar(float x, float y,
-                     int starPoints, float R, float r)
+void drawStar(float x, float y,
+  int starPoints, float R, float r)
 {
   int i;
   double piOverStarPoints = 3.14159 / starPoints,
@@ -137,7 +137,7 @@ static void drawStar(float x, float y,
   glEnd();
 }
 
-static void drawStars(void)
+void drawStars(void)
 {
   /*                     star    outer   inner  */
   /*        x      y     Points  radius  radius */
@@ -177,7 +177,7 @@ void display(void)
   glutSwapBuffers();
 }
 
-static void keyboard(unsigned char c, int x, int y)
+void keyboard(unsigned char c, int x, int y)
 {
   switch (c) {
   case 27:  /* Esc key */

@@ -1,3 +1,4 @@
+#if 0
 #define GLUT_RGB__GLUT_DOUBLE__GLUT_DEPTH 18
 #define CG_FALSE 0
 #define CG_NO_ERROR 0
@@ -13,12 +14,14 @@ typedef struct _CGprogram *CGprogram;
 typedef int CGbool;
 typedef int CGenum;
 typedef int CGerror;
+#endif
 
 void mainby();
 int mainby2(CGcontext urp_myCgContext);
 void mainby3();
 void display(void);
 
+#if 0
 CGcontext cgCreateContext();
 void checkForCgError(char *situation);
 
@@ -34,3 +37,10 @@ void cgGLSetOptimalOptions(CGprofile profile);
 char * cgGetLastErrorString(CGerror *error);
 char * cgGetLastListing(CGcontext ctx);
 void cgSetParameterSettingMode(CGcontext ctx, CGenum parameterSettingMode);
+#endif
+
+void drawStar(float x, float y,
+              int starPoints, float R, float r);
+void drawStars(void);
+void keyboard(unsigned char c, int x, int y);
+void checkForCgError(char *situation);
