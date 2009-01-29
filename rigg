@@ -240,8 +240,6 @@ sub chanwalk($) {
   my $here = $node;
   my @rs = ();
   while (1) {
-#shew("CW");
-#nshew(3, $here);
     push @rs, $here;
     if (ref $here eq "HASH" && defined $here->{"chan"}) {
       $here = $here->{"chan"};
@@ -249,8 +247,6 @@ sub chanwalk($) {
       last;
     }
   }
-#shew("RET");
-#nshew(1, \@rs);
   return \@rs; 
 }
 
@@ -276,7 +272,6 @@ sub name_undef($$) {
 
 sub getparam($) {
   my ($t) = @_;
-#nshew(4, $t);
   my $stars = "";
   if (lookup($t, "nodetype") eq "pointer_type" &&
       lookup($t, "ptd/nodetype") eq "function_type") {
@@ -302,17 +297,11 @@ sub limp($) {
 
   my $s = "";
 
-my $of = $f;
   while (defd($f, "ptd")) {
     $s .= "*";
     $f = lookup($f, "ptd");
   }
 
-if (!defd($f, "name/name/strg")) {
-#print "OY $s\n";
-  nshew(6, $of);
-die;
-}
   $s = lookup($f, "name/name/strg") . $s;
   if (mlookup($f, "qual") eq "c") {
     $s = "const $s";
@@ -367,7 +356,6 @@ sub gurt($) {
 sub function_decls($) {
   my ($t) = @_;
   my $dcls = chanwalk(lookup($t, "dcls"));
-#shew($dcls);
   $dcls = [grep { $_->{"nodetype"} eq "function_decl"; } @$dcls];
   return $dcls;
 }
