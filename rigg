@@ -316,12 +316,12 @@ sub get_function_type($) {
   my @typeses;
   if (defd($fun, "args")) {
     my $ipp = chanwalk(lookup($fun, "args"));
-    @nameses = map { name_undef("anonp", mlookup($_, "name/strg")) } @$ipp;
     @typeses = map { get_param_type(lookup($_, "argt")) } @$ipp;
+    @nameses = map { name_undef("anonp", mlookup($_, "name/strg")) } @$ipp;
   } else {
-    @nameses = map { unique("anonp") } @typeses;
     @typeses = map { get_param_type($_) } (map { lookup($_, "valu") } @{chanwalk(tlookup($fun, ["type/prms", "prms"]))});
     pop(@typeses) eq "void" || die;
+    @nameses = map { unique("anonp") } @typeses;
   }
   $params = zip(\@typeses, \@nameses);
   $stuff->{"params"} = $params;
