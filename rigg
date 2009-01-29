@@ -311,7 +311,6 @@ sub get_function_type($) {
   $stuff->{"name"} = name_undef("anonf", mlookup($fun, "name/strg"));
   print "NAME $stuff->{name}\n";
 
-  my $params;
   my @nameses;
   my @typeses;
   if (defd($fun, "args")) {
@@ -323,14 +322,9 @@ sub get_function_type($) {
     pop(@typeses) eq "void" || die;
     @nameses = map { unique("anonp") } @typeses;
   }
-  $params = zip(\@typeses, \@nameses);
-  $stuff->{"params"} = $params;
+  $stuff->{"params"} = zip(\@typeses, \@nameses);
 
-  if (defd($fun, 'type/retn')) {
-    $stuff->{"return_type"} = get_param_type(lookup($fun, 'type/retn'));
-  } else {
-    $stuff->{"return_type"} = get_param_type(lookup($fun, "retn"));
-  }
+  $stuff->{"return_type"} = get_param_type(tlookup($fun, ["type/retn", "retn"]));
 
   return $stuff;
 }
