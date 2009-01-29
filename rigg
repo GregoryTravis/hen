@@ -393,9 +393,6 @@ sub opaque_wrap($$) {
   my ($type, $var) = @_;
   if (member($type, \@integer_types)) {
     return "integer((int)$var)";
-#  } elsif ($type eq "float") {
-#    return "flote($var)";
-#  } elsif ($type eq "double" || $type eq "GLdouble" || $type eq "GLfloat") {
   } elsif (member($type, \@float_types)) {
     return "flote((float)$var)";
   } else {
