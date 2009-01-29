@@ -307,15 +307,13 @@ sub get_function_type($) {
     $paramse = zip(\@typeses, \@nameses);
   } elsif (defd($fun, "type/prms")) {
     my @typeses = map { get_param_type($_) } (map { lookup($_, "valu") } @{chanwalk(lookup($fun, "type/prms"))});
-    $typeses[$#typeses] eq "void" || die;
-    pop(@typeses);
+    pop(@typeses) eq "void" || die;
     my @nameses = map { unique("anonp") } @typeses;
     $paramse = zip(\@typeses, \@nameses);
   } elsif (defd($fun, "prms")) {
     my @typeses = map { lookup($_, "valu") } @{chanwalk(lookup($fun, "prms"))};
     @typeses = map { get_param_type($_) } @typeses;
-    $typeses[$#typeses] eq "void" || die;
-    pop(@typeses);
+    pop(@typeses) eq "void" || die;
     my @nameses = map { unique("anonp") } @typeses;
     $paramse = zip(\@typeses, \@nameses);
   } else {
