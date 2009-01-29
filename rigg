@@ -199,54 +199,6 @@ sub defd($$) {
   return 1;
 }
 
-my $maxlevel = 5;
-my $level = 0;
-
-my $tabb = "| ";
-
-sub dumpit($) {
-  return if ($level >= $maxlevel);
-  my ($node) = @_;
-  if (ref $node eq "ARRAY") {
-    print $tabb x $level;
-    print "[]\n";
-    for (my $i = 0; $i < @$node; ++$i) {
-      my $v = $node->[$i];
-      if (ref($v) eq "") {
-        print $tabb x $level;
-        print "$i: $v\n";
-      } else {
-        print $tabb x $level;
-        print "[$i]:\n";
-        $level++;
-        dumpit($v);
-        $level--;
-      }
-    }
-  } elsif (ref $node eq "HASH") {
-    print $tabb x $level;
-    print "[$node->{nodetype}]\n";
-    my @k = keys %$node;
-    foreach my $k (keys %$node) {
-      my $v = $node->{$k};
-      if (ref($v) eq "") {
-        print $tabb x $level;
-        print "$k: $v\n";
-      } else {
-        print $tabb x $level;
-        print "$k:\n";
-        $level++;
-        dumpit($v);
-        $level--;
-      }
-    }
-  } elsif (ref $node eq "") {
-    print "$node\n";
-  } else {
-    die $node;
-  }
-}
-
 sub chanwalk($) {
   my ($node) = @_;
   my $here = $node;
