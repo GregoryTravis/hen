@@ -270,29 +270,12 @@ sub name_undef($$) {
   }
 }
 
-sub getparam($) {
-  my ($t) = @_;
-  my $stars = "";
-  if (lookup($t, "nodetype") eq "pointer_type" &&
-      lookup($t, "ptd/nodetype") eq "function_type") {
-    return gurt(lookup($t, "ptd"));
-  }
-  while (!defd($t, "name/name/strg")) {
-    defd($t, "ptd") || die;
-    $stars .= "*";
-    $t = lookup($t, "ptd");
-  }
-  my $type = lookup($t, "name/name/strg");
-  $type .= $stars;
-  return $type;
-}
-
-sub limp($) {
+sub get_param_type($) {
   my ($f) = @_;
 
   if (lookup($f, "nodetype") eq "pointer_type" &&
       lookup($f, "ptd/nodetype") eq "function_type") {
-    return gurt(lookup($f, "ptd"));
+    return get_function_type(lookup($f, "ptd"));
   }
 
   my $s = "";
@@ -309,7 +292,7 @@ sub limp($) {
   return $s;
 }
 
-sub gurt($) {
+sub get_function_type($) {
   my ($fun) = @_;
   my $stuff = {};
 
@@ -320,18 +303,18 @@ sub gurt($) {
   if (defd($fun, "args")) {
     my $ipp = chanwalk(lookup($fun, "args"));
     my @nameses = map { name_undef("anonp", mlookup($_, "name/strg")) } @$ipp;
-    my @typeses = map { limp(lookup($_, "argt")) } @$ipp;
+    my @typeses = map { get_param_type(lookup($_, "argt")) } @$ipp;
     $paramse = zip(\@typeses, \@nameses);
   } elsif (defd($fun, "type/prms")) {
     my @typeses = map { lookup($_, "valu") } @{chanwalk(lookup($fun, "type/prms"))};
-    @typeses = map { limp($_) } @typeses;
+    @typeses = map { get_param_type($_) } @typeses;
     $typeses[$#typeses] eq "void" || die;
     pop(@typeses);
     my @nameses = map { unique("anonp") } @typeses;
     $paramse = zip(\@typeses, \@nameses);
   } elsif (defd($fun, "prms")) {
     my @typeses = map { lookup($_, "valu") } @{chanwalk(lookup($fun, "prms"))};
-    @typeses = map { limp($_) } @typeses;
+    @typeses = map { get_param_type($_) } @typeses;
     $typeses[$#typeses] eq "void" || die;
     pop(@typeses);
     my @nameses = map { unique("anonp") } @typeses;
@@ -345,9 +328,9 @@ sub gurt($) {
   $stuff->{"params"} = $paramse;
 
   if (defd($fun, 'type/retn')) {
-    $stuff->{"return_type"} = limp(lookup($fun, 'type/retn'));
+    $stuff->{"return_type"} = get_param_type(lookup($fun, 'type/retn'));
   } else {
-    $stuff->{"return_type"} = getparam(lookup($fun, "retn"));
+    $stuff->{"return_type"} = get_param_type(lookup($fun, "retn"));
   }
 
   return $stuff;
@@ -437,7 +420,7 @@ sub read_dump($) {
     my $fun = $dcls->[$i];
     if (member(funfile($fun), \@files)) {
       shew($i);
-      push(@funs, gurt($fun));
+      push(@funs, get_function_type($fun));
     }
   }
 
