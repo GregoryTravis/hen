@@ -1,3 +1,6 @@
+hen src.ss
+exit
+
 rm -f vertex_and_fragment_program.impl.*
 #g++ -c -fdump-translation-unit vertex_and_fragment_program.c
 rigg vertex_and_fragment_program
