@@ -1,4 +1,9 @@
 hen src.ss
+#rigg hoot
+#gcc -c hoot.c.defs.c
+exit
+
+hen src.ss
 exit
 
 rm -f vertex_and_fragment_program.impl.*

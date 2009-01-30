@@ -370,7 +370,7 @@ sub read_dump($) {
       push(@funs, get_function_type($fun));
     }
   }
-  print "Processed $count functions.\n";
+  print "$count functions.\n";
 
   return \@funs;
 }
@@ -521,8 +521,8 @@ sub impl_h($) {
   $s .= $extern_c_bottom;
 }
 
-sub stub($$) {
-  my ($module, $dcls) = @_;
+sub stub($$$) {
+  my ($src, $module, $dcls) = @_;
   my $s = "";
   for (my $i = 0; $i < @$dcls; ++$i) {
     my $fun = $dcls->[$i];
@@ -536,6 +536,7 @@ sub stub($$) {
     my $ho = join(" ", @ho);
     $s .= "(fun ($ha) (Command \'$name ($ho)))\n";
   }
+  $s .= gen_defines($src);
   writeFile("$module.stub.ss", $s);
 }
 
@@ -552,7 +553,91 @@ sub go() {
   my $src = $module . ".c";
   my $funs = read_dump($src);
   impl($module, $funs);
-  stub($module, $funs);
+  stub($src, $module, $funs);
+}
+
+sub blipp($) {
+  my ($s) = @_;
+#print "HO $s\n";
+  $s =~ s/\"/\\"/g;
+#print "HA $s\n";
+  return $s;
 }
 
 go();
+
+sub gen_value_getter($) {
+  my ($defs) = @_;
+  my $s = "";
+  $s .= "#include <stdio.h>\n";
+  $s .= "#include <GLUT/glut.h>\n";
+  $s .= "int main() {\n";
+  while (my ($k, $v) = each %$defs) {
+    $s .= "#ifdef $k\n";
+    $v = blipp($v);
+    if ($v =~ /^\d+$/ || $v =~ /^0[xX]\d+$/) {
+      $s .= qq[printf("$k %d\\n", $v);\n];
+    } else {
+      # Just don't even do non-numeric types.
+      #$s .= qq[printf("$k %s\\n", \"$v\");\n];
+    }
+    $s .= "#endif\n";
+  }
+  $s .= "}\n";
+  return $s;
+}
+
+sub parse_values($) {
+  my ($s) = @_;
+  my %vals = ();
+  foreach my $p (split(/\n/, $s)) {
+    chomp($p);
+    $p =~ /^(\S+) (.*)$/ || die $p;
+    my $k = $1;
+    my $v = $2;
+    $vals{$k} = $v;
+  }
+  return \%vals;
+}
+
+sub hen_render_defines($) {
+  my ($vals) = @_;
+  my $s = "";
+  while (my ($k, $v) = each %$vals) {
+    if ($k =~ /^[A-Z]/) {
+      $k = "_$k";
+    }
+    $s .= "(def $k $v)\n";
+  }
+  return $s;
+}
+
+sub gen_defines($) {
+  my ($src) = @_;
+  my $lines = `gcc -E -dM $src`;
+  my @lines = split(/\n/, $lines);
+  my %defs = ();
+  foreach my $line (@lines) {
+    chomp($line);
+    if ($line =~ /^\#define\s+\S+\(/) {
+      #print "MAC $line\n";
+    } elsif ($line =~ /^\#define\s+(\S+)\s+(.*)$/) {
+      my $k = $1;
+      my $v = $2;
+      $v = trim($v);
+      if ($v ne "") {
+        $defs{$k} = $v;
+      }
+    } else {
+      die "?? $line";
+    }
+  }
+  my $definer = "$src.defs.c";
+  writeFile($definer, gen_value_getter(\%defs));
+  (!`gcc -o $definer.exe $definer`) || die $!;
+  my $output = `./$definer.exe` || die $!;
+  my $values = parse_values($output);
+  print (scalar keys %$values);
+  print " constants.\n";
+  return hen_render_defines($values);
+}
