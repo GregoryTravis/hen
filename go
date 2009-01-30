@@ -1,3 +1,4 @@
+#g++ -c -fdump-translation-unit hoot.c
 hen src.ss
 #rigg hoot
 #gcc -c hoot.c.defs.c
