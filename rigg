@@ -9,6 +9,7 @@ use Data::Dumper;
 
 my @integer_types = ("unsigned", "int", "unsigned char", "GLboolean");
 my @float_types = ("float", "double", "GLfloat", "GLdouble", "GLclampf", "GLclampd");
+my @string_types = ("char*", "const char*");
 
 my @files = ("butt.c", "vertex_and_fragment_program.c", "gl.h", "glut.h");
 
@@ -410,6 +411,8 @@ sub opaque_unwrap($$) {
 #  } elsif ($type eq "float" || $type eq "double" || $type eq "GLdouble" || $type eq "GLfloat") {
   } elsif (member($type, \@float_types)) {
     return "getfloat($var)";
+  } elsif (member($type, \@string_types)) {
+    return "stringval($var)";
   } else {
     return "opaqueval($var)";
   }
@@ -564,8 +567,6 @@ sub blipp($) {
   return $s;
 }
 
-go();
-
 sub gen_value_getter($) {
   my ($defs) = @_;
   my $s = "";
@@ -641,3 +642,5 @@ sub gen_defines($) {
   print " constants.\n";
   return hen_render_defines($values);
 }
+
+go();
