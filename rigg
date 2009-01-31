@@ -595,7 +595,7 @@ sub gen_value_getter($) {
   while (my ($k, $v) = each %$defs) {
     $s .= "#ifdef $k\n";
     $v = blipp($v);
-    if ($v =~ /^\d+$/ || $v =~ /^0[xX]\d+$/) {
+    if ($v =~ /^\d+$/ || $v =~ /^0[xX][\da-fA-F]+$/) {
       $s .= qq[printf("$k %d\\n", $v);\n];
     } else {
       # Just don't even do non-numeric types.
