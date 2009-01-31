@@ -11,7 +11,7 @@ my @integer_types = ("unsigned", "int", "unsigned char", "GLboolean", "GLenum", 
 my @float_types = ("float", "double", "GLfloat", "GLdouble", "GLclampf", "GLclampd");
 my @string_types = ("char*", "const char*");
 
-my @files = ("butt.c", "vertex_and_fragment_program.c", "gl.h", "glut.h", "GLee.h");
+my @files = ("butt.c", "vertex_and_fragment_program.c", "gl.h", "glut.h", "GLee.h", "glext.h");
 
 my $c_header = <<EOF;
 #include "a.h"
