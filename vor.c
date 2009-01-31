@@ -245,6 +245,10 @@ char* stringval(yeah* e) {
 }
 
 void* opaqueval(yeah* e) {
+  if (!ISOPAQUE(e)) {
+    printf("NOTOP\n");
+    dumpn(e);
+  }
   A(ISOPAQUE(e));
   return e->u.opaque.q;
 }
