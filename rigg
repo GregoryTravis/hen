@@ -11,12 +11,13 @@ my @integer_types = ("unsigned", "int", "unsigned char", "GLboolean");
 my @float_types = ("float", "double", "GLfloat", "GLdouble", "GLclampf", "GLclampd");
 my @string_types = ("char*", "const char*");
 
-my @files = ("butt.c", "vertex_and_fragment_program.c", "gl.h", "glut.h");
+my @files = ("butt.c", "vertex_and_fragment_program.c", "gl.h", "glut.h", "GLee.h");
 
 my $c_header = <<EOF;
 #include "a.h"
 #include "mem.h"
 #include "vor.h"
+#include "GLee.h"
 #include <glut.h>
 #include <GL/gl.h>
 #include <GL/glext.h>
@@ -352,6 +353,20 @@ sub readem($) {
   return \%nodes;
 }
 
+# Copy name to cname, but prepend _ to name if it starts with a
+# capital.
+sub fixup_function($) {
+  my ($fun) = @_;
+  my $fun = \%$fun;
+  my $name = $fun->{"name"};
+  $fun->{"cname"} = $name;
+  if ($name =~ /^[A-Z]/) {
+    $name = "_$name";
+  }
+  $fun->{"name"} = $name;
+  return $fun;
+}
+
 sub read_dump($) {
   my ($src) = @_;
   my $abnodes = readem($src);
@@ -368,7 +383,9 @@ sub read_dump($) {
     if (member(funfile($fun), \@files)) {
       #shew($i);
       $count++;
-      push(@funs, get_function_type($fun));
+      my $stuff = get_function_type($fun);
+      $stuff = fixup_function($stuff);
+      push(@funs, $stuff);
     }
   }
   print "$count functions.\n";
@@ -449,6 +466,7 @@ sub gen_cbody($) {
   my $s = "";
 
   my $name = $fun->{"name"};
+  my $cname = $fun->{"cname"};
   my $return_type = $fun->{"return_type"};
   my $arg = unique("arg");
 
@@ -472,7 +490,7 @@ sub gen_cbody($) {
   }
   $s .= "  A(isnil($here));\n";
 
-  my $funcall = "$name(" . join(", ", @names) . ")";
+  my $funcall = "$cname(" . join(", ", @names) . ")";
   if ($return_type eq "void") {
     $s .= "  $funcall;\n";
     $s .= "  return Nil;\n";
@@ -532,6 +550,7 @@ sub stub($$$) {
     my $name = $fun->{"name"};
     my $hname = $name;
     $hname =~ s/_/-/g;
+    $hname =~ s/^-/_/;
     my @param_names = map { $_->[1] } @{$fun->{"params"}};
     my @ha = ($hname, @param_names);
     my $ha = join(" ", @ha);
