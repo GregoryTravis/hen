@@ -103,6 +103,7 @@ yeah* app(yeah* f, yeah* arg);
 yeah* nil(void);
 int getint(yeah* e);
 float getfloat(yeah* e);
+float getfloatcvt(yeah* e);
 // TODO use uchar
 uchar getuchar(yeah* e);
 void evl_top(char* src, yeah* e);

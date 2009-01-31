@@ -277,8 +277,22 @@ int getint(yeah* e) {
 }
 
 float getfloat(yeah* e) {
+  if (!ISFLOAT(e)) {
+    printf("GAH\n");
+    dumpn(e);
+  }
   A(ISFLOAT(e));
   return e->u.flote.f;
+}
+
+float getfloatcvt(yeah* e) {
+  if (ISINTEGER(e)) {
+    return (float)getint(e);
+  } else if (ISFLOAT(e)) {
+    return getfloat(e);
+  } else {
+    A(0);
+  }
 }
 
 uchar getuchar(yeah* e) {
