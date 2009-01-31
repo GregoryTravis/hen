@@ -11,6 +11,14 @@ my @integer_types = ("unsigned", "int", "unsigned char", "GLboolean", "GLenum", 
 my @float_types = ("float", "double", "GLfloat", "GLdouble", "GLclampf", "GLclampd");
 my @string_types = ("char*", "const char*");
 
+my @ext_includes = ("glGenFramebuffersEXT", "glGenRenderbuffersEXT",
+"glBindFramebufferEXT", "glBindFramebufferEXT",
+"glBindRenderbufferEXT", "glCheckFramebufferStatusEXT",
+"glDeleteFramebuffersEXT", "glDeleteRenderbuffersEXT",
+"glFramebufferRenderbufferEXT", "glFramebufferTexture2DEXT",
+"glGenFramebuffersEXT", "glGenRenderbuffersEXT",
+"glRenderbufferStorageEXT");
+
 my @files = ("butt.c", "vertex_and_fragment_program.c", "gl.h", "glut.h", "GLee.h", "glext.h");
 
 my $c_header = <<EOF;
@@ -367,6 +375,11 @@ sub fixup_function($) {
   return $fun;
 }
 
+sub exclude_fun($) {
+  my ($fun) = @_;
+  return $fun->{"name"} =~ /EXT$/ && !member($fun->{"name"}, \@ext_includes);
+}
+
 sub read_dump($) {
   my ($src) = @_;
   my $abnodes = readem($src);
@@ -382,10 +395,12 @@ sub read_dump($) {
     my $fun = $dcls->[$i];
     if (member(funfile($fun), \@files)) {
       #shew($i);
-      $count++;
       my $stuff = get_function_type($fun);
       $stuff = fixup_function($stuff);
-      push(@funs, $stuff);
+      if (!exclude_fun($stuff)) {
+        $count++;
+        push(@funs, $stuff);
+      }
     }
   }
   print "$count functions.\n";
