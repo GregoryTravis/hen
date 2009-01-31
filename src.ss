@@ -160,7 +160,7 @@
       _ (glGenFramebuffersEXT 1 ref)
       fbo (read-int-ref ref)
       _ (destroy-int-ref ref)
-      _ (shew fbo)
+      _ (shew ($ 'fbo fbo))
       _ (Return fbo)))
 
 (fun (make-depth-buffer)
@@ -169,7 +169,7 @@
       _ (glGenRenderbuffersEXT 1 ref)
       depthBuffer (read-int-ref ref)
       _ (destroy-int-ref ref)
-      _ (shew depthBuffer)
+      _ (shew ($ 'depthBuffer depthBuffer))
       _ (Return depthBuffer)))
 
 (fun (make-texture)
@@ -178,7 +178,7 @@
       _ (glGenTextures 1 ref)
       img (read-int-ref ref)
       _ (destroy-int-ref ref)
-      _ (shew img)
+      _ (shew ($ 'glGenTextures img))
       _ (Return img)))
 
 (fun (init)
@@ -197,6 +197,7 @@
       depthBuffer (make-depth-buffer)
 
       img (make-texture)
+      _ (shew ($ 'make-texture img))
 
       _ (glBindFramebufferEXT _GL_FRAMEBUFFER_EXT fbo)
       _ (glBindRenderbufferEXT _GL_RENDERBUFFER_EXT depthBuffer)
@@ -230,12 +231,12 @@
  _ (glutInitDisplayMode _GLUT_DOUBLE)
  _ (glutInitWindowSize 800 600)
  ret (glutCreateWindow "holy cow")
- _ (shew ret)
+ _ (shew ($ 'glutCreateWindow ret))
  ret (_GLeeInit)
- _ (shew ret)
+ _ (shew ($ '_GLeeInit ret))
 
  (Foo fbo img) (init)
- _ (shew fbo)
+ _ (shew ($ 'fbo fbo))
 
  xrot-ref (create-float-ref 0.0)
  yrot-ref (create-float-ref 0.0)
