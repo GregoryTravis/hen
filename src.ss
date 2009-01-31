@@ -242,8 +242,13 @@
  yrot-ref (create-float-ref 0.0)
 
 ; _ (fbo_main1)
+ _ (shew 3)
  _ (glutDisplayFunc (/. () (display fbo img xrot-ref yrot-ref)))
+ _ (shew 4)
  _ (glutReshapeFunc reshape)
+ _ (shew 5)
  _ (glutKeyboardFunc keyboard)
+ _ (shew 6)
  _ (glutIdleFunc idle)
+ _ (shew 7)
  _ (glutMainLoop))
