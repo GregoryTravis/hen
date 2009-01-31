@@ -2,7 +2,7 @@
 
 (define hen-version "* hen v. 0.01")
 
-(define remove-temporaries #t)
+(define remove-temporaries #f)
 (define count-reductions #f)
 (define show-tsgs #f)
 (define show-bindings #f)
@@ -173,7 +173,7 @@
     (write-string-to-file objcfile (csrc->obj (read-src srcfile)))
     (cbuild-exe objcfile objfile exefile)
     ;(rmtemps objcfile)
-    (rm-rtemps (++ stub ".dSYM"))
+    ;(rm-rtemps (++ stub ".dSYM"))
     (apply rmtemps (map (lambda (f) (++ f ".stub.ss")) modules))
     (if (not (file-exists? exefile))
         (err "No exe.")
