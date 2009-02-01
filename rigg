@@ -244,12 +244,16 @@ sub name_undef($$) {
   }
 }
 
+my @callback_funs = ();
+
 sub get_param_type($) {
   my ($f) = @_;
 
   if (lookup($f, "nodetype") eq "pointer_type" &&
       lookup($f, "ptd/nodetype") eq "function_type") {
-    return get_function_type(lookup($f, "ptd"));
+    my $ft = get_function_type(lookup($f, "ptd"));
+    push(@callback_funs, $ft);
+    return $ft;
   }
 
   my $s = "";
@@ -431,6 +435,8 @@ sub opaque_wrap($$) {
     return "integer((int)$var)";
   } elsif (member($type, \@float_types)) {
     return "flote((float)$var)";
+  } elsif (member($type, \@string_types)) {
+    return "string((char*)$var)";
   } else {
     return "opaque((void*)$var)";
   }
@@ -494,13 +500,22 @@ sub gen_cbody($) {
   foreach my $p (@{$fun->{"params"}}) {
     my ($type, $name) = @$p;
     my $decl = declare_var($type, $name);
+    my $unwrappy;
     my $caster = castit($type);
+
+    my $harg = unique("harg");
+
+    if (ref($type) eq "") {
+      $unwrappy = "($caster)" . opaque_unwrap($type, $harg);
+    } else {
+      my $sig = gen_signature_string($type);
+      $unwrappy = "${sig}_wrap($harg)";
+    }
 
     push(@names, $name);
 
-    my $harg = unique("harg");
     $s .= "  yeah* $harg = hcar($here);\n";
-    $s .= "  $decl = ($caster)" . opaque_unwrap($type, $harg) . ";\n";
+    $s .= "  $decl = $unwrappy;\n";
     $s .= "  $here = hcdr($here);\n";
   }
   $s .= "  A(isnil($here));\n";
@@ -531,6 +546,112 @@ sub genregisterer($$) {
   }
   $s .= "}\n";
   return $s;
+}
+
+sub gen_signature_string($) {
+  my ($f) = @_;
+  my $params = $f->{"params"};
+  if (ref($params->[0]) eq "ARRAY") {
+    $params = [map { $_->[0] } @$params];
+  }
+  my $s = join("_", (@{$params}, $f->{"return_type"}));
+  $s =~ s/ /_/g;
+  if ($s eq "void") { $s = "void_void"; }
+  return $s;
+}
+
+sub extract_callback_types() {
+  my @ncallback_funs = ();
+  foreach my $f (@callback_funs) {
+    my $f = {%$f};
+    delete $f->{"name"};
+    $f->{"params"} = [map { $_->[0] } @{$f->{"params"}}];
+    push(@ncallback_funs, $f);
+  }
+  @callback_funs = @ncallback_funs;
+  my %sigs = ();
+  foreach my $f (@callback_funs) {
+    $sigs{gen_signature_string($f)} = $f;
+  }
+  return [values %sigs];
+}
+
+sub listup($) {
+  my ($names) = @_;
+  if (@$names == 0) {
+    return "Nil";
+  } else {
+    my $car = $names->[0];
+    my @cdr = @$names;
+    shift(@cdr);
+    my $cdr = listup(\@cdr);
+    return "pair($car, $cdr)";
+  }
+}
+
+my $num_callback_copies = 4;
+
+sub gen_callbackers() {
+  my $cts = extract_callback_types();
+  my $ss = "";
+  my $hs = "";
+  foreach my $ct (@$cts) {
+    #shew($ct);
+    my $s = "";
+    my $sig = gen_signature_string($ct);
+    my $name = "cb_$sig";
+    $name =~ s/\*/P/g;
+    my $types = $ct->{"params"};
+    my @names = map { unique("bloot") } @$types;
+    my $params = zip($types, \@names);
+    #shew($params);
+    my @paramstrs = map { $_->[0] . " " . $_->[1] } @$params;
+    my $paramstr = join(", ", @paramstrs);
+    my $return_type = $ct->{"return_type"};
+    my $type_paramstr = join(", ", @$types);
+
+#    my $cbarr = "${sig}_cbs";
+    $hs .= "typedef $return_type (*$sig)($type_paramstr);\n";
+
+    for (my $i = 0; $i < $num_callback_copies; ++$i) {
+      $s .= "$return_type ${name}_$i($paramstr);\n";
+    }
+
+    $s .= "static $sig ${sig}_cbs"."[$num_callback_copies] = {\n";
+    for (my $i = 0; $i < $num_callback_copies; ++$i) {
+      $s .= "  &" . "${name}_$i,\n";
+    }
+    $s .= "};\n";
+    $s .= <<EOF;
+    static yeah* hen_cbs_${sig}[$num_callback_copies];
+EOF
+
+    for (my $i = 0; $i < $num_callback_copies; ++$i) {
+      $s .= "$return_type ${name}_$i($paramstr) {\n";
+      foreach my $param (@$params) {
+        my ($type, $name) = @$param;
+        $s .= "  yeah* _$name = " . opaque_wrap($type, $name) . ";\n";
+      }
+      $s .= "  yeah* __arg = " . listup([map { "_" . $_->[1] } @$params ]) . ";\n";
+      die unless $return_type eq "void";
+      $s .= "  evl_from_callback(app(hen_cbs_${sig}" . "[$i], __arg));\n";
+      $s .= "}\n";
+    }
+
+    my $wrapsig = "$sig ${sig}_wrap(yeah* fun)";
+    $s .= "static int ${sig}_cbs_inx = 0;\n";
+    $s .= "$wrapsig {\n";
+    $s .= "  int inx = ${sig}_cbs_inx++;\n";
+    $s .= "  A(inx < $num_callback_copies);\n";
+    $s .= "  hen_cbs_${sig}[inx] = fun;\n";
+    $s .= "  return ${sig}_cbs" . "[inx];\n";
+    $s .= "}\n";
+
+    $hs .= "$wrapsig;\n";
+
+    $ss .= $s;
+  }
+  return [$ss, $hs];
 }
 
 sub impl_c($$) {
@@ -581,6 +702,11 @@ sub impl($$) {
   my ($module, $funs) = @_;
   my $c = impl_c($module, $funs);
   my $h = impl_h($module);
+
+  my ($cbc, $cbh) = @{gen_callbackers()};
+  $c .= $cbc;
+  $h .= $cbh;
+
   writeFile("$module.impl.c", $c);
   writeFile("$module.impl.h", $h);
 }
