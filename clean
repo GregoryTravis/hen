@@ -1,0 +1,2 @@
+#rm -f *.o *.tu *.impl.h *.impl.c *.stub.ss *.c.defs.c *.c.defs.c.exe
+rm -f *.o `nonst`
