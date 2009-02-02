@@ -142,7 +142,9 @@
          (rmtemps (++ module ".impl.c") (++ module ".impl.h")))
        modules))
 
-(define (cbuild-exe objcfile objfile exefile)
+(define (cbuild-exe objcfile objfile exefile srcfile)
+  (preclean objcfile exefile)
+  (write-string-to-file objcfile (csrc->obj (read-src srcfile)))
   (let* ((srcs (append '("vor.c" "primcalls.c" "spew.c" "mem.c" "ref.impl.c" "shew.impl.c") ;; HEY call these srcs
                        objses))
          (objs (map (lambda (x) (++ x ".o")) srcs))
@@ -168,9 +170,7 @@
          (objfile (++ srcfile ".o"))
          (stub (remove-extension srcfile))
          (exefile stub))
-    (preclean objcfile exefile)
-    (write-string-to-file objcfile (csrc->obj (read-src srcfile)))
-    (cbuild-exe objcfile objfile exefile)
+    (cbuild-exe objcfile objfile exefile srcfile)
     ;(rmtemps objcfile)
     ;(rm-rtemps (++ stub ".dSYM"))
     (apply rmtemps (map (lambda (f) (++ f ".stub.ss")) modules))
