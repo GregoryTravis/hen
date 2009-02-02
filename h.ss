@@ -142,10 +142,13 @@
          (rmtemps (++ module ".impl.c") (++ module ".impl.h")))
        modules))
 
+(define (compile-cc-to-c srcfile objcfile)
+  (write-string-to-file objcfile (csrc->obj (read-src srcfile))))
+
 (define (cbuild-exe objcfile objfile exefile srcfile)
   (preclean objcfile exefile)
   (make objcfile
-    `((,(lambda (srcfile objcfile) (write-string-to-file objcfile (csrc->obj (read-src srcfile)))) (input ,srcfile) (output ,objcfile))))
+    `((,compile-cc-to-c (input ,srcfile) (output ,objcfile))))
   (let* ((srcs (append '("vor.c" "primcalls.c" "spew.c" "mem.c" "ref.impl.c" "shew.impl.c") ;; HEY call these srcs
                        objses))
          (objs (map (lambda (x) (++ x ".o")) srcs))
