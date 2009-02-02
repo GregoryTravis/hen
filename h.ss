@@ -154,7 +154,7 @@
        (map (lambda (src)
               (let ((srco (++ src ".o")))
                 `(g++ -g -o (output ,srco) -c (input ,src) "-I/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include -I/Library/Frameworks/Cg.framework/Versions/1.0/Headers/ -I/Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/GLUT.framework/Versions/A/Headers/")))
-            srcs))))
+            srcs)))
     (cleanup-module-stuff)))
 
 (define (compile filename) (crun-file filename #f #f))
