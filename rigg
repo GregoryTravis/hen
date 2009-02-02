@@ -802,7 +802,7 @@ sub gen_defines($) {
   (!`gcc -o $definer.exe $definer`) || die $!;
   my $output = `./$definer.exe` || die $!;
   my $values = parse_values($output);
-  print (scalar keys %$values);
+  #print (scalar keys %$values);
   #print " constants.\n";
   return hen_render_defines($values);
 }
