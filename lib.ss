@@ -1127,7 +1127,12 @@
   (if (pair? e) (cadr e) e))
 
 (define (make-execute-rule cmd)
-  (srcmd (join-things " " (map make-strip-annotation (make-strip-implicits cmd)))))
+  (let ((cmd (map make-strip-annotation (make-strip-implicits cmd))))
+    (if (procedure? (car cmd))
+        (begin
+          (display (++ "+ " (join-things " " cmd) "\n"))
+          (apply (car cmd) (cdr cmd)))
+        (srcmd (join-things " " cmd)))))
 
 (define (make-build-target target rules)
   (if (file-exists? target)

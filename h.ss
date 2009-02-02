@@ -144,7 +144,8 @@
 
 (define (cbuild-exe objcfile objfile exefile srcfile)
   (preclean objcfile exefile)
-  (write-string-to-file objcfile (csrc->obj (read-src srcfile)))
+  (make objcfile
+    `((,(lambda (srcfile objcfile) (write-string-to-file objcfile (csrc->obj (read-src srcfile)))) (input ,srcfile) (output ,objcfile))))
   (let* ((srcs (append '("vor.c" "primcalls.c" "spew.c" "mem.c" "ref.impl.c" "shew.impl.c") ;; HEY call these srcs
                        objses))
          (objs (map (lambda (x) (++ x ".o")) srcs))
