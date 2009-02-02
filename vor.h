@@ -1,5 +1,8 @@
 #include "a.h"
 
+#ifndef _VOR_H_
+#define _VOR_H_
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -149,3 +152,5 @@ vuciifunp wrap_hen_fun_vuciifunp(yeah* f);
 #ifdef __cplusplus
 }
 #endif
+
+#endif  // _VOR_H_
