@@ -1089,35 +1089,42 @@
    ((eq? (car lyst) #\.) (cdr lyst))
    (#t (remove-extension-1 (cdr lyst)))))
 
-(define (make-build-dependencies target rules)
-  (let ((deps (make-gather-dependencies-of target rules)))
-    (map (lambda (target) (make target rules)) deps)))
+(define (make-inline-implicits rule)
+  (cond
+   ((null? rule) '())
+   ((and (pair? (car rule)) (eq? (caar rule) 'implicit))
+    (append (cdar rule) (make-inline-implicits (cdr rule))))
+   (#t (cons (car rule) (make-inline-implicits (cdr rule))))))
 
-(define (make-rule->cmd rule) (cdr rule))
+(define (make-strip-implicits rule)
+  (cond
+   ((null? rule) '())
+   ((and (pair? (car rule)) (eq? (caar rule) 'implicit))
+    (make-strip-implicits (cdr rule)))
+   (#t (cons (car rule) (make-strip-implicits (cdr rule))))))
 
-(define (make-output-of-rule rule) (car rule))
+(define (make-get-annotated annotation rule)
+  (map-append (lambda (e) (if (and (pair? e) (eq? annotation (car e))) (list (cadr e)) '())) (make-inline-implicits rule)))
+
+(define (make-inputs-of-rule rule) (make-get-annotated 'input rule))
+(define (make-outputs-of-rule rule) (make-get-annotated 'output rule))
+
+(define (make-is-input-of? o rule) (member? o (make-inputs-of-rule rule)))
+(define (make-is-output-of? o rule) (member? o (make-outputs-of-rule rule)))
 
 (define (make-lookup-rule-for target rules)
-  (let ((matches (grep (lambda (rule) (member? target (make-output-of-rule rule))) rules)))
+  (let ((matches (grep (lambda (rule) (make-is-output-of? target rule)) rules)))
     (cond
      ((= (length matches) 1) (car matches))
      ((= (length matches) 0) '())
      ((> (length matches) 1) (err 'too-many-rules-for target))
      (#t (err)))))
 
-(define (make-strip-annotations e)
+(define (make-strip-annotation e)
   (if (pair? e) (cadr e) e))
 
-(define (make-is-input e)
-  (and (pair? e) (eq? (car e) 'input)))
-
-(define (make-get-inputs cmd)
-  (if (null? cmd)
-      '()
-      (grep make-is-input cmd)))
-
 (define (make-execute-rule cmd)
-  (srcmd (join-things " " (map make-strip-annotations cmd))))
+  (srcmd (join-things " " (map make-strip-annotation (make-strip-implicits cmd)))))
 
 (define (make-build-target target rules)
   (if (file-exists? target)
@@ -1126,17 +1133,13 @@
         (if (null? rule)
             (err? 'no-rule-for target)
             (begin
-              (make-execute-rule (make-rule->cmd rule))
+              (make-execute-rule rule)
               (if (not (file-exists? target))
                   (err 'didn't-build target)
                   '()))))))
 
-(define (make-build-dependencies target rules)
-  (map (lambda (deptarget) (make deptarget rules))
-       (map make-strip-annotations (make-get-inputs (make-lookup-rule-for target rules)))))
-
 (define (make-get-dependencies target rules)
-  (map make-strip-annotations (make-get-inputs (make-lookup-rule-for target rules))))
+  (map make-strip-annotation (make-inputs-of-rule (make-lookup-rule-for target rules))))
 
 (define (make-newer-than? file files)
   (if (or (pair? files) (null? files))
@@ -1153,4 +1156,4 @@
           (map (lambda (target) (make target rules)) dependencies)
           (make-build-target target rules)))))
 
-(tracefun make-strip-annotations make-execute-rule make-build-target make-lookup-rule-for make-get-inputs make make-build-dependencies make-newer-than? make-get-dependencies)
+;(tracefun make make-inline-implicits make-get-annotated make-inputs-of-rule make-outputs-of-rule make-is-input-of? make-is-output-of? make-lookup-rule-for make-strip-annotation make-execute-rule make-build-target make-get-dependencies make-newer-than? make-strip-implicits)
