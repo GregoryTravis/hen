@@ -50,8 +50,8 @@ void *malik_actual( char *file, int line, int size )
   if (mem < mem_min_addr) {
     mem_min_addr = mem;
   }
-  if (mem+size-1 > mem_max_addr) {
-    mem_max_addr = mem+size-1;
+  if (((char*)mem)+size-1 > (char*)mem_max_addr) {
+    mem_max_addr = (void*)(((char*)mem)+size-1);
   }
 
   return mem;
@@ -125,7 +125,7 @@ char *strkat( char *s0, char *s1 )
   int len0 = strlen( s0 );
   int len1 = strlen( s1 );
 
-  char *c = malik( len0+len1+1 );
+  char *c = (char*)malik( len0+len1+1 );
   strkapi( c, s0 );
   strkapi( c+len0, s1 );
 

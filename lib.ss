@@ -1149,12 +1149,14 @@
          (file-or-directory-modify-seconds files))))
 
 (define (make target rules)
-  (let ((dependencies (make-get-dependencies target rules)))
-    (if (and (file-exists? target)
-             (make-newer-than? target dependencies))
-        '()
+  (let* ((dependencies (make-get-dependencies target rules))
+         (must-make (or (not (file-exists? target))
+                        (not (make-newer-than? target dependencies)))))
+    (shew (++ target " " (if must-make "<" ">") " " dependencies))
+    (if must-make
         (begin
           (map (lambda (target) (make target rules)) dependencies)
-          (make-build-target target rules)))))
+          (make-build-target target rules))
+        '())))
 
 ;(tracefun make make-inline-implicits make-get-annotated make-inputs-of-rule make-outputs-of-rule make-is-input-of? make-is-output-of? make-lookup-rule-for make-strip-annotation make-execute-rule make-build-target make-get-dependencies make-newer-than? make-strip-implicits)

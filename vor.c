@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdio.h>
 #include <string.h>
 
@@ -573,7 +577,7 @@ yeah* evl_completely_list(yeah* e, yeah* env) {
 yeah* primcalls;
 
 void add_primcall(char* name, yeah* (*f)(yeah* e)) {
-  primcalls = pair(pair(symbol(name), opaque(f)), primcalls);
+  primcalls = pair(pair(symbol(name), opaque((void*)f)), primcalls);
 }
 
 bool try_primcall(yeah* e, yeah* env, yeah** result) {
@@ -779,7 +783,7 @@ yeah* evl(yeah* e) {
 
 yeah* foreign_functions;
 void register_command(char *name, foreign_function f) {
-  foreign_functions = pair(pair(symbol(name), opaque(f)), foreign_functions);
+  foreign_functions = pair(pair(symbol(name), opaque((void*)f)), foreign_functions);
 }
 
 yeah* execute_command(yeah* name, yeah* arg) {
@@ -916,3 +920,7 @@ int main(int argc, char** argv) {
 BOO(vvfunp)
 BOO(viifunp)
 BOO(vuciifunp)
+
+#ifdef __cplusplus
+}
+#endif

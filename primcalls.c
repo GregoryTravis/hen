@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "vor.h"
 
 yeah* primcall_plus(yeah* e) {
@@ -9,3 +13,7 @@ yeah* primcall_plus(yeah* e) {
 void install_primcalls(void) {
   add_primcall("plus", &primcall_plus);
 }
+
+#ifdef __cplusplus
+}
+#endif
