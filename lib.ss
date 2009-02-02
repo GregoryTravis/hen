@@ -1070,6 +1070,7 @@
 
 (define (cmd1 show-p die-p stuff)
   (if show-p (begin (display "+ ") (display (join-things " " stuff)) (display "\n")) '())
+;(shew 'guh stuff)
   (let ((retval (apply system stuff)))
     (if (and die-p (not retval))
         (err "Command error:" stuff)

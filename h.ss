@@ -148,10 +148,13 @@
                                    objses)))
         (libs (join-things " " libses)))
 ;    (rmtemps objfile exefile)
-    (preclean objfile exefile) ; comment this out to skip building src.ss.o
+;    (preclean objfile exefile) ; comment this out to skip building src.ss.o
     (srcmd (++ "make -s " objs))
-    (srcmd (++ "g++ -g -c " objcfile)) ; comment this out to skip building src.ss.o
-    (srcmd (++ "g++ -g -o " exefile " " objfile " " objs " " libs))
+;    (srcmd (++ "g++ -g -c " objcfile)) ; comment this out to skip building src.ss.o
+;    (srcmd (++ "g++ -g -o " exefile " " objfile " " objs " " libs))
+    (make exefile
+      `((g++ -g -o (output ,exefile) (input ,objfile) ,objs ,libs)
+        (g++ -g -c (output ,objfile) (input ,objcfile))))
     (cleanup-module-stuff)))
 
 (define (compile filename) (crun-file filename #f #f))
