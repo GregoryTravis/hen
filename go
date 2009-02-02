@@ -1,12 +1,9 @@
-rm -f hoot hoot.o
-hen src.ss
-ls -l hoot.o
-exit
+#rm -f hoot hoot.o
+#hen src.ss
+#ls -l hoot.o
+#exit
 
-#g++ -c -fdump-translation-unit hoot.c
 hen src.ss
-#rigg hoot
-#gcc -c hoot.c.defs.c
 exit
 
 hen src.ss

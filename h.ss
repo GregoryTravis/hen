@@ -77,9 +77,9 @@
           (set! modules (cons module modules))
           (set! objses (cons objs objses))
           (set! libses (cons libs libses))
-          (generate-stubs module)
-          (append (read-objects (++ module ".stub.ss"))
-                  (expand-imports rest)))
+          (let ((stub (++ module ".stub.ss")))
+            (make stub `((rigg module (implicit (output ,stub)))))
+            (append (read-objects stub) (expand-imports rest))))
 
         (x . rest)
         (cons x (expand-imports rest))))
@@ -711,9 +711,9 @@
 ;(tracefun expand-do expand-do-1 goulash)
 ;(tracefun goulash)
 
-(define rules '(
-                (g++ -c (input "hoot.c") (implicit (output "hoot.o")))
-                ("g++" "-o" (output "hoot") (input "hoot.o"))
-))
+;; (define rules '(
+;;                 (g++ -c (input "hoot.c") (implicit (output "hoot.o")))
+;;                 ("g++" "-o" (output "hoot") (input "hoot.o"))
+;; ))
 
-(make "hoot" rules)
+;; (make "hoot" rules)
