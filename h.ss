@@ -710,3 +710,10 @@
 ;(tracefun evl-driver execute-command)
 ;(tracefun expand-do expand-do-1 goulash)
 ;(tracefun goulash)
+
+(define rules '(
+                (("hoot.o") g++ -c (input "hoot.c"))
+                (("hoot") "g++" "-o" "hoot" (input "hoot.o"))
+))
+
+(make "hoot" rules)
