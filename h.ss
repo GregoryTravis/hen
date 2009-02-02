@@ -154,7 +154,7 @@
 ;    (rmtemps objfile exefile)
     (preclean objfile exefile) ; comment this out to skip building src.ss.o
     (srcmd (++ "make -s " objs))
-    (srcmd (++ "g++ -g -c " objcfile " " libs)) ; comment this out to skip building src.ss.o
+    (srcmd (++ "g++ -g -c " objcfile)) ; comment this out to skip building src.ss.o
     (srcmd (++ "g++ -g -o " exefile " " objfile " " objs " " libs))
     (cleanup-module-stuff)))
 
