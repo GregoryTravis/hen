@@ -232,7 +232,7 @@
 
  _ (glutInitDisplayMode _GLUT_DOUBLE)
  _ (glutInitWindowSize 800 600)
- ret (glutCreateWindow "holy cow")
+ ret (glutCreateWindow "i mean, really, holy cow")
  _ (shew ($ 'glutCreateWindow ret))
  ret (_GLeeInit)
  _ (shew ($ '_GLeeInit ret))
