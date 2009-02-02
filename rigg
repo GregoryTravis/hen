@@ -7,7 +7,7 @@ use strict;
 use Carp;
 use Data::Dumper;
 
-my @integer_types = ("unsigned", "int", "unsigned char", "GLboolean", "GLenum", "GLsizei", "GLint", "GLuint");
+my @integer_types = ("unsigned", "int", "unsigned char", "GLboolean", "GLenum", "GLsizei", "GLint", "GLuint", "GLbitfield");
 my @float_types = ("float", "double", "GLfloat", "GLdouble", "GLclampf", "GLclampd");
 my @string_types = ("char*", "const char*");
 my @void_types = ("void", "GLvoid");
