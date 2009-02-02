@@ -20,9 +20,6 @@
       (srcmd (join-things " " (cons 'rm (cons '-r files))))
       '()))
 
-(define (preclean . files)
-  (srcmd (join-things " " (cons 'rm (cons '-f files)))))<
-
 (define (reset-everything)
   (clear-global-env))
 
@@ -146,7 +143,6 @@
   (write-string-to-file objcfile (csrc->obj (read-src srcfile))))
 
 (define (cbuild-exe objcfile objfile exefile srcfile)
-  (preclean objcfile exefile)
   (make objcfile
     `((,compile-cc-to-c (input ,srcfile) (output ,objcfile))))
   (let* ((srcs (append '("vor.c" "primcalls.c" "spew.c" "mem.c" "ref.impl.c" "shew.impl.c") ;; HEY call these srcs
