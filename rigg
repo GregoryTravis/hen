@@ -717,6 +717,7 @@ sub impl($$) {
 sub go() {
   my $module = $ARGV[0];
   my $src = $module . ".c";
+  print `g++ -c -fdump-translation-unit $src`;
   my $funs = read_dump($src);
   impl($module, $funs);
   stub($src, $module, $funs);
