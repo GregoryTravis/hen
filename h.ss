@@ -62,10 +62,6 @@
 (define objses '())
 (define libses '())
 
-(define (generate-stubs module)
-;  (srcmd (++ "parse-headers " module ".h")))
-  (srcmd (++ "rigg " module)))
-
 ;; TODO doesn't handle recursive
 (define (expand-imports forms)
   (mtch forms
@@ -78,7 +74,7 @@
           (set! objses (cons objs objses))
           (set! libses (cons libs libses))
           (let ((stub (++ module ".stub.ss")))
-            (make stub `((rigg module (implicit (output ,stub)))))
+            (make stub `((rigg ,module (implicit (output ,stub)))))
             (append (read-objects stub) (expand-imports rest))))
 
         (x . rest)
