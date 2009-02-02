@@ -1088,3 +1088,69 @@
    ((null? lyst) (err))
    ((eq? (car lyst) #\.) (cdr lyst))
    (#t (remove-extension-1 (cdr lyst)))))
+
+(define (make-build-dependencies target rules)
+  (let ((deps (make-gather-dependencies-of target rules)))
+    (map (lambda (target) (make target rules)) deps)))
+
+(define (make-rule->cmd rule) (cdr rule))
+
+(define (make-output-of-rule rule) (car rule))
+
+(define (make-lookup-rule-for target rules)
+  (let ((matches (grep (lambda (rule) (member? target (make-output-of-rule rule))) rules)))
+    (cond
+     ((= (length matches) 1) (car matches))
+     ((= (length matches) 0) '())
+     ((> (length matches) 1) (err 'too-many-rules-for target))
+     (#t (err)))))
+
+(define (make-strip-annotations e)
+  (if (pair? e) (cadr e) e))
+
+(define (make-is-input e)
+  (and (pair? e) (eq? (car e) 'input)))
+
+(define (make-get-inputs cmd)
+  (if (null? cmd)
+      '()
+      (grep make-is-input cmd)))
+
+(define (make-execute-rule cmd)
+  (srcmd (join-things " " (map make-strip-annotations cmd))))
+
+(define (make-build-target target rules)
+  (if (file-exists? target)
+      '()
+      (let ((rule (make-lookup-rule-for target rules)))
+        (if (null? rule)
+            (err? 'no-rule-for target)
+            (begin
+              (make-execute-rule (make-rule->cmd rule))
+              (if (not (file-exists? target))
+                  (err 'didn't-build target)
+                  '()))))))
+
+(define (make-build-dependencies target rules)
+  (map (lambda (deptarget) (make deptarget rules))
+       (map make-strip-annotations (make-get-inputs (make-lookup-rule-for target rules)))))
+
+(define (make-get-dependencies target rules)
+  (map make-strip-annotations (make-get-inputs (make-lookup-rule-for target rules))))
+
+(define (make-newer-than? file files)
+  (if (or (pair? files) (null? files))
+      (all? (map (lambda (f) (make-newer-than? file f)) files))
+      (> (file-or-directory-modify-seconds file)
+         (file-or-directory-modify-seconds files))))
+
+(define (make target rules)
+  (let ((dependencies (make-get-dependencies target rules)))
+    (if (and (file-exists? target)
+             (make-newer-than? target dependencies))
+        '()
+        (begin
+          (map (lambda (target) (make target rules)) dependencies)
+          (make-build-target target rules)))))
+
+(tracefun make-strip-annotations make-execute-rule make-build-target make-lookup-rule-for make-get-inputs make make-build-dependencies make-newer-than? make-get-dependencies)
