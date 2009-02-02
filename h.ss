@@ -147,18 +147,10 @@
                        objses))
          (objs (map (lambda (x) (++ x ".o")) srcs))
          (libs (join-things " " libses)))
-;    (rmtemps objfile exefile)
-;    (preclean objfile exefile) ; comment this out to skip building src.ss.o
-
-;    (map (lambda (src) (srcmd (++ "g++ -g -o " src ".o" " -c " src " -I/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include -I/Library/Frameworks/Cg.framework/Versions/1.0/Headers/ -I/Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/GLUT.framework/Versions/A/Headers/"))) srcs)
     (map (lambda (src)
            (let ((srco (++ src ".o")))
              (make srco `((g++ -g -o (output ,srco) -c (input ,src) "-I/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include -I/Library/Frameworks/Cg.framework/Versions/1.0/Headers/ -I/Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/GLUT.framework/Versions/A/Headers/")))))
-           srcs)
-
-;    (srcmd (++ "g++ -g -c " objcfile)) ; comment this out to skip building src.ss.o
-;    (srcmd (++ "g++ -g -o " exefile " " objfile " " objs " " libs))
-(shew 'er objs)
+         srcs)
     (make exefile
       `((g++ -g -o (output ,exefile) (input ,objfile) ,@objs ,libs)
         (g++ -g -c (input ,objcfile) (implicit (output ,objfile)))))
