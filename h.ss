@@ -712,7 +712,7 @@
 ;(tracefun goulash)
 
 (define rules '(
-                ((implicit (output "hoot.o")) g++ -c (input "hoot.c"))
+                (g++ -c (input "hoot.c") (implicit (output "hoot.o")))
                 ("g++" "-o" (output "hoot") (input "hoot.o"))
 ))
 
