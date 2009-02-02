@@ -10,6 +10,7 @@ use Data::Dumper;
 my @integer_types = ("unsigned", "int", "unsigned char", "GLboolean", "GLenum", "GLsizei", "GLint", "GLuint");
 my @float_types = ("float", "double", "GLfloat", "GLdouble", "GLclampf", "GLclampd");
 my @string_types = ("char*", "const char*");
+my @void_types = ("void", "GLvoid");
 
 my @ext_includes = ("glGenFramebuffersEXT", "glGenRenderbuffersEXT",
 "glBindFramebufferEXT", "glBindFramebufferEXT",
@@ -19,7 +20,7 @@ my @ext_includes = ("glGenFramebuffersEXT", "glGenRenderbuffersEXT",
 "glGenFramebuffersEXT", "glGenRenderbuffersEXT",
 "glRenderbufferStorageEXT");
 
-my @files = ("butt.c", "vertex_and_fragment_program.c", "gl.h", "glut.h", "GLee.h", "glext.h");
+my @files = ("butt.c", "vertex_and_fragment_program.c", "gl.h", "glut.h", "GLee.h", "glext.h", "cvt.c", "glu.h");
 
 my $c_header = <<EOF;
 #include "a.h"
@@ -30,6 +31,8 @@ my $c_header = <<EOF;
 #include <GL/gl.h>
 #include <GL/glext.h>
 #include <cg.h>
+#include <GL/glu.h>
+#include "cvt.h"
 #include "vertex_and_fragment_program.h"
 EOF
 
@@ -285,7 +288,7 @@ sub get_function_type($) {
     @nameses = map { name_undef("anonp", mlookup($_, "name/strg")) } @$ipp;
   } else {
     @typeses = map { get_param_type($_) } (map { lookup($_, "valu") } @{chanwalk(tlookup($fun, ["type/prms", "prms"]))});
-    pop(@typeses) eq "void" || die;
+    member(pop(@typeses), \@void_types) || die;
     @nameses = map { unique("anonp") } @typeses;
   }
   $stuff->{"params"} = zip(\@typeses, \@nameses);
@@ -521,7 +524,7 @@ sub gen_cbody($) {
   $s .= "  A(isnil($here));\n";
 
   my $funcall = "$cname(" . join(", ", @names) . ")";
-  if ($return_type eq "void") {
+  if (member($return_type, \@void_types)) {
     $s .= "  $funcall;\n";
     $s .= "  return Nil;\n";
   } else {
@@ -557,6 +560,7 @@ sub gen_signature_string($) {
   my $s = join("_", (@{$params}, $f->{"return_type"}));
   $s =~ s/ /_/g;
   if ($s eq "void") { $s = "void_void"; }
+  $s = "uu$s";
   return $s;
 }
 
@@ -594,7 +598,7 @@ my $num_callback_copies = 4;
 sub gen_callbackers() {
   my $cts = extract_callback_types();
   my $ss = "";
-  my $hs = "";
+  my $tops = "";
   foreach my $ct (@$cts) {
     #shew($ct);
     my $s = "";
@@ -611,7 +615,7 @@ sub gen_callbackers() {
     my $type_paramstr = join(", ", @$types);
 
 #    my $cbarr = "${sig}_cbs";
-    $hs .= "typedef $return_type (*$sig)($type_paramstr);\n";
+    $tops .= "typedef $return_type (*$sig)($type_paramstr);\n";
 
     for (my $i = 0; $i < $num_callback_copies; ++$i) {
       $s .= "$return_type ${name}_$i($paramstr);\n";
@@ -633,7 +637,7 @@ EOF
         $s .= "  yeah* _$name = " . opaque_wrap($type, $name) . ";\n";
       }
       $s .= "  yeah* __arg = " . listup([map { "_" . $_->[1] } @$params ]) . ";\n";
-      die unless $return_type eq "void";
+      die $return_type unless member($return_type, \@void_types);
       $s .= "  evl_from_callback(app(hen_cbs_${sig}" . "[$i], __arg));\n";
       $s .= "}\n";
     }
@@ -647,11 +651,12 @@ EOF
     $s .= "  return ${sig}_cbs" . "[inx];\n";
     $s .= "}\n";
 
-    $hs .= "$wrapsig;\n";
+    $tops .= "$wrapsig;\n";
 
     $ss .= $s;
   }
-  return [$ss, $hs];
+  $ss = "$tops$ss";
+  return $ss;
 }
 
 sub impl_c($$) {
@@ -661,6 +666,7 @@ sub impl_c($$) {
   $s .= $extern_c_top;
   $s .= qq[#include "butt.h"\n];
   $s .= qq[#include "$module.impl.h"\n];
+  $s .= gen_callbackers();
   for (my $i = 0; $i < @$dcls; ++$i) {
     my $fun = $dcls->[$i];
     $s .= gen_cbody($fun);
@@ -673,6 +679,7 @@ sub impl_c($$) {
 sub impl_h($) {
   my ($module) = @_;
   my $s = "";
+#  $s .= $c_header;
   $s .= $extern_c_top;
   $s .= "extern void ${module}_impl_register();\n";
   $s .= $extern_c_bottom;
@@ -702,11 +709,6 @@ sub impl($$) {
   my ($module, $funs) = @_;
   my $c = impl_c($module, $funs);
   my $h = impl_h($module);
-
-  my ($cbc, $cbh) = @{gen_callbackers()};
-  $c .= $cbc;
-  $h .= $cbh;
-
   writeFile("$module.impl.c", $c);
   writeFile("$module.impl.h", $h);
 }

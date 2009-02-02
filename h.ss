@@ -12,16 +12,16 @@
 (define (rmtemps . files)
   (if (not (null? files))
       (if remove-temporaries
-          (rcmd (join-things " " (cons 'rm files)))
+          (srcmd (join-things " " (cons 'rm files)))
           '())
       '()))
 (define (rm-rtemps . files)
   (if remove-temporaries
-      (rcmd (join-things " " (cons 'rm (cons '-r files))))
+      (srcmd (join-things " " (cons 'rm (cons '-r files))))
       '()))
 
 (define (preclean . files)
-  (rcmd (join-things " " (cons 'rm (cons '-f files)))))<
+  (srcmd (join-things " " (cons 'rm (cons '-f files)))))<
 
 (define (reset-everything)
   (clear-global-env))
@@ -63,8 +63,8 @@
 (define libses '())
 
 (define (generate-stubs module)
-;  (rcmd (++ "parse-headers " module ".h")))
-  (rcmd (++ "rigg " module)))
+;  (srcmd (++ "parse-headers " module ".h")))
+  (srcmd (++ "rigg " module)))
 
 ;; TODO doesn't handle recursive
 (define (expand-imports forms)
@@ -153,8 +153,8 @@
         (libs (join-things " " libses)))
 ;    (rmtemps objfile exefile)
     (preclean objfile exefile) ; comment this out to skip building src.ss.o
-    (rcmd (++ "make -s " objs))
-    (srcmd (++ "g++ -g -c " objcfile)) ; comment this out to skip building src.ss.o
+    (srcmd (++ "make -s " objs))
+    (srcmd (++ "g++ -g -c " objcfile " " libs)) ; comment this out to skip building src.ss.o
     (srcmd (++ "g++ -g -o " exefile " " objfile " " objs " " libs))
     (cleanup-module-stuff)))
 
@@ -179,7 +179,7 @@
         (err "No exe.")
         (begin
           (if run-p
-              (cmd (++ "./" exefile))
+              (scmd (++ "./" exefile))
               '())
           (if delete-p
               (rmtemps exefile)

@@ -4,6 +4,8 @@
 
 ;(foreign "fakey" "fakey.impl.o GLee.o" "-framework GLUT -framework OpenGL -framework CoreFoundation")
 (foreign "hoot" "hoot.o hoot.impl.o GLee.o" "-framework GLUT -framework OpenGL -framework CoreFoundation -I/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include -I/Library/Frameworks/Cg.framework/Versions/1.0/Headers/ -I/Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/GLUT.framework/Versions/A/Headers/")
+(foreign "cvt" "cvt.o cvt.impl.o" "-framework GLUT -framework OpenGL -framework CoreFoundation -I/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include -I/Library/Frameworks/Cg.framework/Versions/1.0/Headers/ -I/Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/GLUT.framework/Versions/A/Headers/")
+
 ;(foreign "cvt" "cvt.o cvt.impl.o" "")
 
 (fun (display fbo img xrot-ref yrot-ref)
@@ -140,8 +142,8 @@
       _ (glViewport 0 0 w h)
       _ (glMatrixMode _GL_PROJECTION)
       _ (glLoadIdentity)
-      wf (int_to_float w)
-      hf (int_to_float h)
+      wf (int-to-float w)
+      hf (int-to-float h)
       _ (gluPerspective 80.0 ((/ wf) hf) 1.0 5000.0);
       _ (glMatrixMode _GL_MODELVIEW)
       _ (glLoadIdentity)))
