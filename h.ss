@@ -147,13 +147,14 @@
                        objses))
          (objs (map (lambda (x) (++ x ".o")) srcs))
          (libs (join-things " " libses)))
-    (map (lambda (src)
-           (let ((srco (++ src ".o")))
-             (make srco `((g++ -g -o (output ,srco) -c (input ,src) "-I/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include -I/Library/Frameworks/Cg.framework/Versions/1.0/Headers/ -I/Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/GLUT.framework/Versions/A/Headers/")))))
-         srcs)
     (make exefile
-      `((g++ -g -o (output ,exefile) (input ,objfile) ,@objs ,libs)
-        (g++ -g -c (input ,objcfile) (implicit (output ,objfile)))))
+      (append
+       `((g++ -g -o (output ,exefile) (input ,objfile) ,@(map (lambda (o) `(input ,o)) objs) ,libs)
+         (g++ -g -c (input ,objcfile) (implicit (output ,objfile))))
+       (map (lambda (src)
+              (let ((srco (++ src ".o")))
+                `(g++ -g -o (output ,srco) -c (input ,src) "-I/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include -I/Library/Frameworks/Cg.framework/Versions/1.0/Headers/ -I/Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/GLUT.framework/Versions/A/Headers/")))
+            srcs))))
     (cleanup-module-stuff)))
 
 (define (compile filename) (crun-file filename #f #f))

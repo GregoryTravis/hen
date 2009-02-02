@@ -1132,7 +1132,7 @@
       '()
       (let ((rule (make-lookup-rule-for target rules)))
         (if (null? rule)
-            (err? 'no-rule-for target)
+            (err 'no-rule-for target)
             (begin
               (make-execute-rule rule)
               (if (not (file-exists? target))
