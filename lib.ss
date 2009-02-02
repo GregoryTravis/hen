@@ -1090,6 +1090,8 @@
    ((eq? (car lyst) #\.) (cdr lyst))
    (#t (remove-extension-1 (cdr lyst)))))
 
+(define make-debug #f)
+
 (define (make-inline-implicits rule)
   (cond
    ((null? rule) '())
@@ -1152,7 +1154,9 @@
   (let* ((dependencies (make-get-dependencies target rules))
          (must-make (or (not (file-exists? target))
                         (not (make-newer-than? target dependencies)))))
-    (shew (++ target " " (if must-make "<" ">") " " dependencies))
+    (if make-debug
+        (shew (++ target " " (if must-make "<" ">") " " dependencies))
+        '())
     (if must-make
         (begin
           (map (lambda (target) (make target rules)) dependencies)

@@ -315,7 +315,7 @@ sub funfile($) {
 
 sub readem($) {
   my ($src) = @_;
-  print "READING...\n";
+  #print "READING...\n";
   my $dumpfile = "$src.t00.tu";
   open(DUMP, $dumpfile) || die "$dumpfile: $!";
   my @lines = <DUMP>;
@@ -392,7 +392,7 @@ sub read_dump($) {
   my ($src) = @_;
   my $abnodes = readem($src);
 
-  print "BUILDING TREE...\n";
+  #print "BUILDING TREE...\n";
   my $tree = build_tree($abnodes, "\@1");
 
   my $dcls = function_decls($tree);
@@ -411,7 +411,7 @@ sub read_dump($) {
       }
     }
   }
-  print "$count functions.\n";
+  #print "$count functions.\n";
 
   return \@funs;
 }
@@ -803,7 +803,7 @@ sub gen_defines($) {
   my $output = `./$definer.exe` || die $!;
   my $values = parse_values($output);
   print (scalar keys %$values);
-  print " constants.\n";
+  #print " constants.\n";
   return hen_render_defines($values);
 }
 
