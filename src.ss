@@ -14,7 +14,7 @@
       _ (glPushAttrib _GL_VIEWPORT_BIT)
       _ (glViewport 0 0 512 512)
       _ (glClearColor 0.0 0.0 0.0 0.5)
-      _ (glClear _GL_COLOR_BUFFER_BIT_or_GL_DEPTH_BUFFER_BIT)
+      _ (glClear ((+ _GL_COLOR_BUFFER_BIT) _GL_DEPTH_BUFFER_BIT))
 
       _ (glLoadIdentity)
 
@@ -59,7 +59,7 @@
       _ (glPopAttrib)
       _ (glBindFramebufferEXT _GL_FRAMEBUFFER_EXT 0)
       _ (glClearColor 0.0 0.0 0.2 0.5)
-      _ (glClear _GL_COLOR_BUFFER_BIT_or_GL_DEPTH_BUFFER_BIT)
+      _ (glClear ((+ _GL_COLOR_BUFFER_BIT) _GL_DEPTH_BUFFER_BIT))
       _ (glLoadIdentity)
       _ (glBindTexture _GL_TEXTURE_2D img)
       _ (glEnable _GL_TEXTURE_2D)

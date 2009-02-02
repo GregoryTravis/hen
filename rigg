@@ -20,7 +20,7 @@ my @ext_includes = ("glGenFramebuffersEXT", "glGenRenderbuffersEXT",
 "glGenFramebuffersEXT", "glGenRenderbuffersEXT",
 "glRenderbufferStorageEXT");
 
-my @files = ("butt.c", "vertex_and_fragment_program.c", "gl.h", "glut.h", "GLee.h", "glext.h", "cvt.c", "glu.h");
+my @files = ("butt.c", "vertex_and_fragment_program.c", "gl.h", "glut.h", "GLee.h", "glext.h", "cvt.c", "glu.h", "glx.h");
 
 my $c_header = <<EOF;
 #include "a.h"
@@ -32,6 +32,7 @@ my $c_header = <<EOF;
 #include <GL/glext.h>
 #include <cg.h>
 #include <GL/glu.h>
+#include <GL/glx.h>
 #include "cvt.h"
 #include "vertex_and_fragment_program.h"
 EOF
