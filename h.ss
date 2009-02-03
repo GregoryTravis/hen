@@ -134,8 +134,6 @@
             "}"
             "\n#ifdef __cplusplus\n}\n#endif\n")))
 
-(define libs "-framework GLUT -framework OpenGL -framework CoreFoundation")
-
 (define (cleanup-module-stuff)
   (map (lambda (module)
          (rmtemps (++ module ".impl.c") (++ module ".impl.h")))
