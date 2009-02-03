@@ -27,12 +27,12 @@ my $c_header = <<EOF;
 #include "mem.h"
 #include "vor.h"
 #include "GLee.h"
-#include <glut.h>
-#include <GL/gl.h>
-#include <GL/glext.h>
-#include <cg.h>
-#include <GL/glu.h>
-#include <GL/glx.h>
+#include <GLUT/glut.h>
+#include <OpenGL/gl.h>
+#include <OpenGL/glext.h>
+#include <CG/cg.h>
+#include <OpenGL/glu.h>
+#include <OpenGL/glu.h>
 #include "cvt.h"
 #include "vertex_and_fragment_program.h"
 EOF
