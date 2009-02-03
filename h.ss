@@ -59,23 +59,25 @@
 (define objses '()) ; HEY srcseses
 (define libses '())
 
-;; TODO doesn't handle recursive
-(define (expand-imports forms)
-  (mtch forms
-        ()
-        '()
+(define (import? form) (mtch form ('foreign module objs libs) #t x #f))
 
-        (('foreign module objs libs) . rest)
+(define (expand-imports forms)
+  (let* ((d (divide-by-pred import? forms))
+         (imports (car d))
+         (rest (cdr d)))
+    (append (map-append expand-import imports) rest)))
+
+;; TODO doesn't handle recursive
+(define (expand-import imp)
+  (mtch imp
+        ('foreign module objs libs)
         (begin
           (set! modules (cons module modules))
           (set! objses (append objs objses))
           (set! libses (cons libs libses))
           (let ((stub (++ module ".stub.ss")))
             (make stub `((rigg ,module (implicit (output ,stub)))))
-            (append (read-objects stub) (expand-imports rest))))
-
-        (x . rest)
-        (cons x (expand-imports rest))))
+            (read-objects stub)))))
 
 (define (preprocess-program forms)
   (mtch (forms->defs-n-tlfs forms)
