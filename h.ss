@@ -144,21 +144,68 @@
 (define (compile-cc-to-c srcfile objcfile)
   (write-string-to-file objcfile (csrc->obj (read-src srcfile))))
 
+(define (get-imports-from-file src)
+  (grep import? (read-objects src)))
+
+(define (rigg-rules module module-deps)
+  `((input "rigg") ,module
+    (implicit (output ,(++ module ".impl.h")))
+    (implicit (output ,(++ module ".impl.c")))
+    (implicit (output ,(++ module ".stub.ss")))
+    ,@(map (lambda (s) `(implicit (input ,s))) module-deps)))
+
+(define (rigg-o-rules srcfile modules objcfile)
+  `(;(implicit (output ,objcfile))
+    ,@(map-append
+       (lambda (module)
+         `((implicit (input ,(++ module ".impl.h")))
+;           (implicit (input ,(++ module ".impl.c")))
+           (implicit (input ,(++ module ".stub.ss")))))
+       modules)
+    ,compile-cc-to-c
+    (input ,srcfile)
+    (output ,objcfile)))
+;    ,(lambda (srcfile) (assemble-ss-c srcfile))
+;    ,srcfile))
+
+(define (import-module form)
+  (mtch form
+        ('foreign module objs libs)
+        module))
+
+(define (import-objs form)
+  (mtch form
+        ('foreign module objs libs)
+        objs))
+
+(define (import-libs form)
+  (mtch form
+        ('foreign module objs libs)
+        libs))
+
+(define (import-rules form)
+  (mtch form
+        ('foreign module objs libs)
+        (rigg-rules module objs)))
+
+(define (co-rule src libs) `(g++ -g -c -o (output ,(++ src ".o")) (input ,src) ,libs))
+
 (define (cbuild-exe objcfile objfile exefile srcfile)
-  (make objcfile
-    `((,compile-cc-to-c (input ,srcfile) (output ,objcfile))))
-  (let* ((srcs (append '("vor.c" "primcalls.c" "spew.c" "mem.c" "ref.impl.c" "shew.impl.c") ;; HEY call these srcs
-                       objses))
-         (objs (map (lambda (x) (++ x ".o")) srcs))
-         (libs (join-things " " libses)))
-    (make exefile
-      (append
-       `((g++ -g -o (output ,exefile) (input ,objfile) ,@(map (lambda (o) `(input ,o)) objs) ,libs)
-         (g++ -g -c (input ,objcfile) (implicit (output ,objfile))))
-       (map (lambda (src)
-              (let ((srco (++ src ".o")))
-                `(g++ -g -o (output ,srco) -c (input ,src) "-I/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include -I/Library/Frameworks/Cg.framework/Versions/1.0/Headers/ -I/Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/GLUT.framework/Versions/A/Headers/")))
-            srcs)))
+  (let* ((imports (get-imports-from-file srcfile))
+         (modules-impls-c (map (lambda (x) (++ x ".impl.c")) (map import-module imports)))
+         (srcs (append '("vor.c" "primcalls.c" "spew.c" "mem.c" "ref.impl.c" "shew.impl.c") ;; HEY call these srcs
+                       objses
+                       (map-append import-objs imports)
+                       modules-impls-c))
+         (objs (append (map (lambda (x) (++ x ".o")) srcs)))
+         (libs (join-things " " (map import-libs imports)))
+         (rules (append (map import-rules imports)
+                        (list (rigg-o-rules srcfile (map import-module imports) objcfile))
+                        (list `(g++ -g -o (output ,exefile) (input ,objfile) ,@(map (lambda (o) `(input ,o)) objs) ,libs))
+                        (list `(g++ -g -c (input ,objcfile) (implicit (output ,objfile))))
+                        (map (lambda (src) (co-rule src libs)) srcs))))
+    (make exefile rules)
+    (shew 'done)
     (cleanup-module-stuff)))
 
 (define (compile filename) (crun-file filename #f #f))

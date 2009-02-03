@@ -1090,7 +1090,7 @@
    ((eq? (car lyst) #\.) (cdr lyst))
    (#t (remove-extension-1 (cdr lyst)))))
 
-(define make-debug #t)
+(define make-debug #f)
 
 (define (make-inline-implicits rule)
   (cond
@@ -1128,11 +1128,13 @@
 
 (define (make-execute-rule cmd)
   (let ((cmd (map make-strip-annotation (make-strip-implicits cmd))))
-    (if (procedure? (car cmd))
-        (begin
-          (display (++ "+ " (join-things " " cmd) "\n"))
-          (apply (car cmd) (cdr cmd)))
-        (srcmd (join-things " " cmd)))))
+    (cond
+     ((null? cmd) (err 'empty-command cmd))
+     ((procedure? (car cmd))
+      (begin
+        (display (++ "+ " (join-things " " cmd) "\n"))
+        (apply (car cmd) (cdr cmd))))
+     (#t (srcmd (join-things " " cmd))))))
 
 (define (make-build-target target rules)
   (if (file-exists? target)
