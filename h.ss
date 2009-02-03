@@ -159,15 +159,12 @@
     ,@(map-append
        (lambda (module)
          `((implicit (input ,(++ module ".impl.h")))
-;           (implicit (input ,(++ module ".impl.c")))
            (implicit (input ,(++ module ".stub.ss")))))
        modules)
     ,compile-cc-to-c
     ,modules
     (input ,srcfile)
     (output ,objcfile)))
-;    ,(lambda (srcfile) (assemble-ss-c srcfile))
-;    ,srcfile))
 
 (define (import-module form)
   (mtch form
@@ -195,7 +192,6 @@
   (let* ((imports (get-imports-from-file srcfile))
          (modules-impls-c (map (lambda (x) (++ x ".impl.c")) (map import-module imports)))
          (srcs (append '("vor.c" "primcalls.c" "spew.c" "mem.c" "ref.impl.c" "shew.impl.c") ;; HEY call these srcs
-;                       objses
                        (map-append import-objs imports)
                        modules-impls-c))
          (objs (append (map (lambda (x) (++ x ".o")) srcs)))
@@ -219,9 +215,6 @@
          (stub (remove-extension srcfile))
          (exefile stub))
     (cbuild-exe objcfile objfile exefile srcfile)
-    ;(rmtemps objcfile)
-    ;(rm-rtemps (++ stub ".dSYM"))
-;    (apply rmtemps (map (lambda (f) (++ f ".stub.ss")) modules))
     (if (not (file-exists? exefile))
         (err "No exe.")
         (begin
