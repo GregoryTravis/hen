@@ -1,7 +1,5 @@
-(foreign "hoot" ("hoot.c" "GLee.c") "-framework GLUT -framework OpenGL -framework CoreFoundation -I/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include -I/Library/Frameworks/Cg.framework/Versions/1.0/Headers/ -I/Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/GLUT.framework/Versions/A/Headers/")
-(foreign "cvt" ("cvt.c") "-framework GLUT -framework OpenGL -framework CoreFoundation -I/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include -I/Library/Frameworks/Cg.framework/Versions/1.0/Headers/ -I/Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/GLUT.framework/Versions/A/Headers/")
-
-;(foreign "cvt" "cvt.o cvt.impl.o" "")
+(foreign "hoot" ("hoot.c" "GLee.c") "-I/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include -I/Library/Frameworks/Cg.framework/Versions/1.0/Headers/ -I/Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/GLUT.framework/Versions/A/Headers/" "-framework GLUT -framework OpenGL -framework CoreFoundation")
+(foreign "cvt" ("cvt.c") "-I/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include -I/Library/Frameworks/Cg.framework/Versions/1.0/Headers/ -I/Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/GLUT.framework/Versions/A/Headers/" "-framework GLUT -framework OpenGL -framework CoreFoundation")
 
 (fun (display fbo img xrot-ref yrot-ref)
      (doo

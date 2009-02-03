@@ -59,7 +59,7 @@
 ;(define objses '()) ; HEY srcseses
 ;(define libses '())
 
-(define (import? form) (mtch form ('foreign module objs libs) #t x #f))
+(define (import? form) (mtch form ('foreign module objs includes libs) #t x #f))
 
 (define (expand-imports forms)
   (let* ((d (divide-by-pred import? forms))
@@ -70,7 +70,7 @@
 ;; TODO doesn't handle recursive
 (define (expand-import imp)
   (mtch imp
-        ('foreign module objs libs)
+        ('foreign module objs includes libs)
         (begin
 ;          (set! modules (cons module modules))
 ;          (set! objses (append objs objses))
@@ -168,29 +168,35 @@
 
 (define (import-module form)
   (mtch form
-        ('foreign module objs libs)
+        ('foreign module objs includes libs)
         module))
 
 (define (import-objs form)
   (mtch form
-        ('foreign module objs libs)
+        ('foreign module objs includes libs)
         objs))
+
+(define (import-includes form)
+  (mtch form
+        ('foreign module objs includes libs)
+        includes))
 
 (define (import-libs form)
   (mtch form
-        ('foreign module objs libs)
+        ('foreign module objs includes libs)
         libs))
 
 (define (import-rules form)
   (mtch form
-        ('foreign module objs libs)
+        ('foreign module objs includes libs)
         (rigg-rules module objs)))
 
-(define (co-rule src libs) `(g++ -g -c -o (output ,(++ src ".o")) (input ,src) ,libs))
+(define (co-rule src includes) `(g++ -g -c -o (output ,(++ src ".o")) (input ,src) ,@includes))
 
 (define (cbuild-exe objcfile objfile exefile srcfile)
   (let* ((imports (get-imports-from-file srcfile))
          (modules-impls-c (map (lambda (x) (++ x ".impl.c")) (map import-module imports)))
+         (includes (map import-includes imports))
          (srcs (append '("vor.c" "primcalls.c" "spew.c" "mem.c" "ref.impl.c" "shew.impl.c") ;; HEY call these srcs
                        (map-append import-objs imports)
                        modules-impls-c))
@@ -200,7 +206,7 @@
                         (list (rigg-o-rules srcfile (map import-module imports) objcfile))
                         (list `(g++ -g -o (output ,exefile) (input ,objfile) ,@(map (lambda (o) `(input ,o)) objs) ,libs))
                         (list `(g++ -g -c (input ,objcfile) (implicit (output ,objfile))))
-                        (map (lambda (src) (co-rule src libs)) srcs))))
+                        (map (lambda (src) (co-rule src includes)) srcs))))
     (make exefile rules)))
 
 (define (compile filename) (crun-file filename #f #f))
