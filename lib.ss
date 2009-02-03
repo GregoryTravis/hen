@@ -1124,7 +1124,9 @@
      (#t (err)))))
 
 (define (make-strip-annotation e)
-  (if (pair? e) (cadr e) e))
+  (if (and (pair? e) (member (car e) '(input output implicit)))
+      (cadr e)
+      e))
 
 (define (make-execute-rule cmd)
   (let ((cmd (map make-strip-annotation (make-strip-implicits cmd))))

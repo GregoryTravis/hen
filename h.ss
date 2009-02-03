@@ -55,9 +55,9 @@
         (defs funs tlfs)
         (list (append defs (funs->defs funs)) tlfs)))
 
-(define modules '())
-(define objses '()) ; HEY srcseses
-(define libses '())
+;(define modules '())
+;(define objses '()) ; HEY srcseses
+;(define libses '())
 
 (define (import? form) (mtch form ('foreign module objs libs) #t x #f))
 
@@ -72,11 +72,11 @@
   (mtch imp
         ('foreign module objs libs)
         (begin
-          (set! modules (cons module modules))
-          (set! objses (append objs objses))
-          (set! libses (cons libs libses))
+;          (set! modules (cons module modules))
+;          (set! objses (append objs objses))
+;          (set! libses (cons libs libses))
           (let ((stub (++ module ".stub.ss")))
-            (make stub `((rigg ,module (implicit (output ,stub)))))
+;            (make stub `((rigg ,module (implicit (output ,stub)))))
             (read-objects stub)))))
 
 (define (preprocess-program forms)
@@ -114,20 +114,20 @@
 (define (cmpl-top src-e e)
   (++ (render `(evl_top ,(sdisplay src-e) ,(cmpl e))) ";\n"))
 
-(define (generate-registration-includes)
+(define (generate-registration-includes modules)
   (map (lambda (module) (++ "#include \"" module ".impl.h\"\n")) modules))
 
-(define (generate-registration-calls)
+(define (generate-registration-calls modules)
   (map (lambda (module) (++ module "_impl_register();\n")) modules))
 
-(define (csrc->obj forms)
+(define (csrc->obj modules forms)
   (mtch (preprocess-program forms)
         (src-tlfs tlfs)
         (++ "#include \"vor.h\"\n"
-            (apply ++ (generate-registration-includes))
+            (apply ++ (generate-registration-includes modules))
             "\n#ifdef __cplusplus\nextern \"C\" {\n#endif\n"
             "void hen_main() { "
-            (apply ++ (generate-registration-calls))
+            (apply ++ (generate-registration-calls modules))
             (apply ++ (append
                        (map cmpl-def global-env)
                        (map cmpl-top src-tlfs tlfs)))
@@ -141,8 +141,8 @@
          (rmtemps (++ module ".impl.c") (++ module ".impl.h")))
        modules))
 
-(define (compile-cc-to-c srcfile objcfile)
-  (write-string-to-file objcfile (csrc->obj (read-src srcfile))))
+(define (compile-cc-to-c modules srcfile objcfile)
+  (write-string-to-file objcfile (csrc->obj modules (read-src srcfile))))
 
 (define (get-imports-from-file src)
   (grep import? (read-objects src)))
@@ -163,6 +163,7 @@
            (implicit (input ,(++ module ".stub.ss")))))
        modules)
     ,compile-cc-to-c
+    ,modules
     (input ,srcfile)
     (output ,objcfile)))
 ;    ,(lambda (srcfile) (assemble-ss-c srcfile))
@@ -194,7 +195,7 @@
   (let* ((imports (get-imports-from-file srcfile))
          (modules-impls-c (map (lambda (x) (++ x ".impl.c")) (map import-module imports)))
          (srcs (append '("vor.c" "primcalls.c" "spew.c" "mem.c" "ref.impl.c" "shew.impl.c") ;; HEY call these srcs
-                       objses
+;                       objses
                        (map-append import-objs imports)
                        modules-impls-c))
          (objs (append (map (lambda (x) (++ x ".o")) srcs)))
@@ -204,9 +205,7 @@
                         (list `(g++ -g -o (output ,exefile) (input ,objfile) ,@(map (lambda (o) `(input ,o)) objs) ,libs))
                         (list `(g++ -g -c (input ,objcfile) (implicit (output ,objfile))))
                         (map (lambda (src) (co-rule src libs)) srcs))))
-    (make exefile rules)
-    (shew 'done)
-    (cleanup-module-stuff)))
+    (make exefile rules)))
 
 (define (compile filename) (crun-file filename #f #f))
 (define (crun filename) (crun-file filename #t #t))
@@ -222,7 +221,7 @@
     (cbuild-exe objcfile objfile exefile srcfile)
     ;(rmtemps objcfile)
     ;(rm-rtemps (++ stub ".dSYM"))
-    (apply rmtemps (map (lambda (f) (++ f ".stub.ss")) modules))
+;    (apply rmtemps (map (lambda (f) (++ f ".stub.ss")) modules))
     (if (not (file-exists? exefile))
         (err "No exe.")
         (begin
