@@ -1090,7 +1090,7 @@
    ((eq? (car lyst) #\.) (cdr lyst))
    (#t (remove-extension-1 (cdr lyst)))))
 
-(define make-debug #f)
+(define make-debug #t)
 
 (define (make-inline-implicits rule)
   (cond
@@ -1136,15 +1136,16 @@
 
 (define (make-build-target target rules)
   (if (file-exists? target)
-      '()
-      (let ((rule (make-lookup-rule-for target rules)))
-        (if (null? rule)
-            (err 'no-rule-for target)
-            (begin
-              (make-execute-rule rule)
-              (if (not (file-exists? target))
-                  (err 'didn't-build target)
-                  '()))))))
+      (system (++ "rm " target))
+      '())
+  (let ((rule (make-lookup-rule-for target rules)))
+    (if (null? rule)
+        (err 'no-rule-for target)
+        (begin
+          (make-execute-rule rule)
+          (if (not (file-exists? target))
+              (err 'didn't-build target)
+              '())))))
 
 (define (make-get-dependencies target rules)
   (map make-strip-annotation (make-inputs-of-rule (make-lookup-rule-for target rules))))
@@ -1156,16 +1157,15 @@
          (file-or-directory-modify-seconds files))))
 
 (define (make target rules)
-  (let* ((dependencies (make-get-dependencies target rules))
-         (must-make (or (not (file-exists? target))
-                        (not (make-newer-than? target dependencies)))))
-    (if make-debug
-        (shew (++ target " " (if must-make "<" ">") " " dependencies))
-        '())
-    (if must-make
-        (begin
-          (map (lambda (target) (make target rules)) dependencies)
-          (make-build-target target rules))
-        '())))
+  (let ((dependencies (make-get-dependencies target rules)))
+    (map (lambda (target) (make target rules)) dependencies)
+    (let ((must-make (or (not (file-exists? target))
+                         (not (make-newer-than? target dependencies)))))
+      (if make-debug
+          (shew (++ target " " (if must-make "<" ">") " " dependencies))
+          '())
+      (if must-make
+          (make-build-target target rules)
+          '()))))
 
 ;(tracefun make make-inline-implicits make-get-annotated make-inputs-of-rule make-outputs-of-rule make-is-input-of? make-is-output-of? make-lookup-rule-for make-strip-annotation make-execute-rule make-build-target make-get-dependencies make-newer-than? make-strip-implicits)
