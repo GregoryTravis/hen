@@ -131,7 +131,7 @@
          (rmtemps (++ module ".impl.c") (++ module ".impl.h")))
        modules))
 
-(define (compile-cc-to-c modules srcfile objcfile)
+(define (compile-ss-to-c modules srcfile objcfile)
   (write-string-to-file objcfile (csrc->obj modules (read-src srcfile))))
 
 (define (get-imports-from-file src)
@@ -151,7 +151,7 @@
          `((implicit (input ,(++ module ".impl.h")))
            (implicit (input ,(++ module ".stub.ss")))))
        modules)
-    ,compile-cc-to-c
+    ,compile-ss-to-c
     ,modules
     (input ,srcfile)
     (output ,objcfile)))
