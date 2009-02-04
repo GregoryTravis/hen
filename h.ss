@@ -55,10 +55,6 @@
         (defs funs tlfs)
         (list (append defs (funs->defs funs)) tlfs)))
 
-;(define modules '())
-;(define objses '()) ; HEY srcseses
-;(define libses '())
-
 (define (import? form) (mtch form ('foreign module objs includes libs) #t x #f))
 
 (define (expand-imports forms)
@@ -72,11 +68,7 @@
   (mtch imp
         ('foreign module objs includes libs)
         (begin
-;          (set! modules (cons module modules))
-;          (set! objses (append objs objses))
-;          (set! libses (cons libs libses))
           (let ((stub (++ module ".stub.ss")))
-;            (make stub `((rigg ,module (implicit (output ,stub)))))
             (read-objects stub)))))
 
 (define (preprocess-program forms)
