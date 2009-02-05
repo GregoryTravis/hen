@@ -91,12 +91,12 @@
   (run-src (read-src filename)))
 
 (define (read-src filename)
-  (expand-imports
-   (append
-    (read-objects "overture.ss")
-    (read-objects "ref.stub.ss")
-    (read-objects "shew.stub.ss")
-    (read-objects filename))))
+  (grep (fnot import?)
+        (append
+         (read-objects "overture.ss")
+         (read-objects "ref.stub.ss")
+         (read-objects "shew.stub.ss")
+         (read-objects filename))))
 
 (define (cmpl-def def)
   (mtch def
@@ -109,17 +109,23 @@
 (define (generate-registration-includes modules)
   (map (lambda (module) (++ "#include \"" module ".impl.h\"\n")) modules))
 
+(define (generate-blott-decls modules)
+  (map (lambda (module) (++ "extern void " module "_blott();\n")) modules))
+
 (define (generate-registration-calls modules)
   (map (lambda (module) (++ module "_impl_register();\n")) modules))
 
-(define (csrc->obj modules forms)
+(define (generate-blott-calls modules)
+  (map (lambda (module) (++ module "_blott();\n")) modules))
+
+(define (csrc->obj modules forms stub)
   (mtch (preprocess-program forms)
         (src-tlfs tlfs)
         (++ "#include \"vor.h\"\n"
-            (apply ++ (generate-registration-includes modules))
+;            (apply ++ (generate-registration-includes modules))
             "\n#ifdef __cplusplus\nextern \"C\" {\n#endif\n"
-            "void hen_main() { "
-            (apply ++ (generate-registration-calls modules))
+            "void " stub "_blott() { "
+;            (apply ++ (generate-registration-calls modules))
             (apply ++ (append
                        (map cmpl-def global-env)
                        (map cmpl-top src-tlfs tlfs)))
@@ -131,8 +137,8 @@
          (rmtemps (++ module ".impl.c") (++ module ".impl.h")))
        modules))
 
-(define (compile-ss-to-c modules srcfile objcfile)
-  (write-string-to-file objcfile (csrc->obj modules (read-src srcfile))))
+(define (compile-ss-to-c modules srcfile objcfile stub)
+  (write-string-to-file objcfile (csrc->obj modules (read-src srcfile) stub)))
 
 (define (get-imports-from-file src)
   (grep import? (read-objects src)))
@@ -204,13 +210,62 @@
 (define (interpret filename) (run-file filename))
 (define run run-file)
 
+(define (gen-main stub modules file)
+  (write-string-to-file
+   file
+   (++ "#include \"vor.h\"\n"
+       "\n#ifdef __cplusplus\nextern \"C\" {\n#endif\n"
+       (apply ++ (generate-registration-includes modules))
+       (apply ++ (generate-blott-decls modules))
+       (apply ++ (generate-blott-decls (list stub)))
+       "void hen_main() {\n"
+       (apply ++ (generate-registration-calls modules))
+       (apply ++ (generate-blott-calls modules))
+       (apply ++ (generate-blott-calls (list stub)))
+       "}"
+       "\n#ifdef __cplusplus\n}\n#endif\n")))
+
+(define (hark stub)
+  (make "src"
+    `((g++ -g -o (output "src") (input "src.ss.c.o") (input "hoot.stub.ss.c.o") (input "cvt.stub.ss.c.o") (input "hoot.impl.c.o") (input "cvt.impl.c.o")
+           (input "vor.c.o") (input "mem.c.o") (input "ref.stub.ss.c.o") (input "ref.impl.c.o") (input "shew.stub.ss.c.o") (input "shew.impl.c.o")
+           (input "spew.c.o") (input "GLee.c.o") (input "cvt.c.o") (input "primcalls.c.o") (input "src_main.c.o")
+           "-framework GLUT -framework OpenGL -framework CoreFoundation")
+      (g++ -g -c -o (output "src_main.c.o") (input "src_main.c"))
+      (g++ -g -c -o (output "primcalls.c.o") (input "primcalls.c"))
+      (g++ -g -c -o (output "cvt.c.o") (input "cvt.c"))
+      (g++ -g -c -o (output "GLee.c.o") (input "GLee.c"))
+      (g++ -g -c -o (output "spew.c.o") (input "spew.c"))
+      (g++ -g -c -o (output "vor.c.o") (input "vor.c"))
+      (g++ -g -c -o (output "mem.c.o") (input "mem.c"))
+      (g++ -g -c -o (output "hoot.stub.ss.c.o") (input "hoot.stub.ss.c"))
+      (g++ -g -c -o (output "cvt.stub.ss.c.o") (input "cvt.stub.ss.c"))
+      (g++ -g -c -o (output "ref.stub.ss.c.o") (input "ref.stub.ss.c"))
+      (g++ -g -c -o (output "shew.stub.ss.c.o") (input "shew.stub.ss.c"))
+      (g++ -g -c -o (output "hoot.impl.c.o") (input "hoot.impl.c"))
+      (g++ -g -c -o (output "cvt.impl.c.o") (input "cvt.impl.c"))
+      (g++ -g -c -o (output "ref.impl.c.o") (input "ref.impl.c"))
+      (g++ -g -c -o (output "shew.impl.c.o") (input "shew.impl.c"))
+      (,compile-ss-to-c ("hoot" "cvt") (input "hoot.stub.ss") (output "hoot.stub.ss.c") "hoot")
+      (,compile-ss-to-c ("hoot" "cvt") (input "cvt.stub.ss") (output "cvt.stub.ss.c") "cvt")
+      (,compile-ss-to-c ("hoot" "cvt") (input "ref.stub.ss") (output "ref.stub.ss.c") "ref")
+      (,compile-ss-to-c ("hoot" "cvt") (input "shew.stub.ss") (output "shew.stub.ss.c") "shew")
+      (,gen-main src ("hoot" "cvt" "ref" "shew") (output "src_main.c"))
+      (rigg "hoot" (implicit (input "hoot.c")) (implicit (output "hoot.stub.ss")) (implicit (output "hoot.impl.c")) (implicit (output "hoot.impl.h")))
+      (rigg "cvt" (implicit (input "cvt.c"))  (implicit (output "cvt.stub.ss")) (implicit (output "cvt.impl.c")) (implicit (output "cvt.impl.h")))
+      (g++ -g -c -o (output "src.ss.c.o") (input "src.ss.c"))
+      ;((implicit (output "src.ss.c")) (implicit (input "hoot.stub.ss")) (implicit (input "cvt.stub.ss")))
+      (,compile-ss-to-c ("hoot" "cvt") (input "src.ss") (output "src.ss.c") (implicit (input "hoot.stub.ss")) (implicit (input "cvt.stub.ss")) "src")
+)))
+
 (define (crun-file srcfile run-p delete-p)
   (reset-everything)
   (let* ((objcfile (++ srcfile ".c"))
          (objfile (++ srcfile ".o"))
          (stub (remove-extension srcfile))
          (exefile stub))
-    (cbuild-exe objcfile objfile exefile srcfile)
+    ;(cbuild-exe objcfile objfile exefile srcfile)
+    (hark stub)
     (if (not (file-exists? exefile))
         (err "No exe.")
         (begin

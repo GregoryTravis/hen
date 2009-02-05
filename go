@@ -1,3 +1,4 @@
+#./clean
 #rm -f hoot hoot.o
 #hen src.ss
 #ls -l hoot.o
