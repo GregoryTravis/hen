@@ -227,6 +227,7 @@
 
 (define (output a) `(output ,a))
 (define (input a) `(input ,a))
+(define (implicit a) `(implicit ,a))
 
 (define (ext f e) (++ f "." e))
 (define (exter e) (lambda (f) (ext f e)))
@@ -267,9 +268,11 @@
           ,@(map gco (map (exter "impl.c") mods))
           ,@(map (lambda (mod) (ss-to-c '() mod)) mods)
           (,gen-main src ,mods (output "src_main.c"))
-          ,@(map hootie (list "hoot" "cvt"))
-          (g++ -g -c -o (output "src.ss.c.o") (input "src.ss.c"))
-          (,compile-ss-to-c ("hoot" "cvt") (input "src.ss") (output "src.ss.c") (implicit (input "hoot.stub.ss")) (implicit (input "cvt.stub.ss")) "src")
+          ,@(map hootie rmods)
+          (g++ -g -c -o (output ,(ssco stub)) (input ,(ext stub 'ss.c)))
+          (,compile-ss-to-c ,rmods (input ,(ext stub 'ss)) (output ,(ext stub 'ss.c))
+                            ,@(map implicit (map input (map (exter 'stub.ss) rmods)))
+                            ,stub)
           )))))
 
 (define (crun-file srcfile run-p delete-p)
