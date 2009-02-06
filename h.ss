@@ -239,6 +239,7 @@
 (define (impl f) (ext f 'impl))
 (define (stub-ssco f) (ssco (stub f)))
 (define (impl-co f) (co (impl f)))
+(define (framework l) (++ "-framework " l))
 
 (define (hootie mod)
   `(rigg ,mod (implicit (input ,(ext mod 'c))) (implicit (output ,(ext mod 'stub.ss))) (implicit (output ,(ext mod 'impl.c))) (implicit (output ,(ext mod 'impl.h)))))
@@ -259,7 +260,7 @@
                ,@(map input (map impl-co mods))
                ,@(map input (map co runtime))
                (input "src_main.c.o")
-               "-framework GLUT -framework OpenGL -framework CoreFoundation")
+               ,(join-things " " (map framework frameworks)))
           ,@(map gco (map c runtime))
           ,(gco "src_main.c")
           ,@(map gco (map (exter "stub.ss.c") mods))
