@@ -251,7 +251,8 @@
           (mods (append rmods fmods))
           (runtime (list "cvt" "GLee" "spew" "vor" "mem" "primcalls"))
           (linkobjs "GLee")
-          (frameworks (list "GLUT" "OpenGL" "CoreFoundation")))
+          (frameworks (list "GLUT" "OpenGL" "CoreFoundation"))
+          (main (++ stub "_main")))
      (make stub
        (sr
         `((g++ -g -o
@@ -263,11 +264,11 @@
                (input "src_main.c.o")
                ,(join-things " " (map framework frameworks)))
           ,@(map gco (map c runtime))
-          ,(gco "src_main.c")
+          ,(gco (c main))
           ,@(map gco (map (exter "stub.ss.c") mods))
           ,@(map gco (map (exter "impl.c") mods))
           ,@(map (lambda (mod) (ss-to-c '() mod)) mods)
-          (,gen-main src ,mods (output "src_main.c"))
+          (,gen-main src ,mods (output (c main)))
           ,@(map hootie rmods)
           (g++ -g -c -o (output ,(ssco stub)) (input ,(ext stub 'ss.c)))
           (,compile-ss-to-c ,rmods (input ,(ext stub 'ss)) (output ,(ext stub 'ss.c))
