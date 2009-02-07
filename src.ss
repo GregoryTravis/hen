@@ -1,4 +1,4 @@
-(foreign "hoot" ("GLee.c") "" "-framework GLUT -framework OpenGL -framework CoreFoundation")
+(foreign "hoot" ("GLee") "" "-framework GLUT -framework OpenGL -framework CoreFoundation")
 (foreign "cvt" () "" "-framework GLUT -framework OpenGL -framework CoreFoundation")
 
 (fun (display fbo img xrot-ref yrot-ref)
