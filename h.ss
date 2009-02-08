@@ -264,7 +264,7 @@
                (output ,stub)
                (input ,(ssco stub))
                ,@(map input (append (map stub-ssco mods) (map impl-co mods) (map co runtime) (map co linkcs)))
-               (input "src_main.c.o")
+               ,(input (++ stub "_main.c.o"))
                ,(join-things " " (map framework frameworks)))
           ,@(map gco (map c runtime))
           ,@(map gco (map c linkcs))
