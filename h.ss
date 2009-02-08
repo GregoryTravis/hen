@@ -55,7 +55,7 @@
         (defs funs tlfs)
         (list (append defs (funs->defs funs)) tlfs)))
 
-(define (import? form) (mtch form ('foreign module objs includes libs) #t x #f))
+(define (import? form) (mtch form ('import module objs includes libs) #t x #f))
 
 (define (expand-imports forms)
   (let* ((d (divide-by-pred import? forms))
@@ -66,7 +66,7 @@
 ;; TODO doesn't handle recursive
 (define (expand-import imp)
   (mtch imp
-        ('foreign module objs includes libs)
+        ('import module objs includes libs)
         (begin
           (let ((stub (++ module ".stub.ss")))
             (read-objects stub)))))
@@ -164,27 +164,27 @@
 
 (define (import-module form)
   (mtch form
-        ('foreign module objs includes libs)
+        ('import module objs includes libs)
         module))
 
 (define (import-objs form)
   (mtch form
-        ('foreign module objs includes libs)
+        ('import module objs includes libs)
         objs))
 
 (define (import-includes form)
   (mtch form
-        ('foreign module objs includes libs)
+        ('import module objs includes libs)
         includes))
 
 (define (import-libs form)
   (mtch form
-        ('foreign module objs includes libs)
+        ('import module objs includes libs)
         libs))
 
 (define (import-rules form)
   (mtch form
-        ('foreign module objs includes libs)
+        ('import module objs includes libs)
         (rigg-rules module objs)))
 
 (define (co-rule src includes) `(g++ -g -c -o (output ,(++ src ".o")) (input ,src) ,@includes))
