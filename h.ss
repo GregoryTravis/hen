@@ -240,13 +240,11 @@
   (let* ((src (read-objects srcfile))
          (imports (group-by car (map-append cdr (grep import? src))))
          (src (grep (fnot import?) src))
-
          (ffis (map remove-extension (map cadr (lookup-or 'ffi imports '()))))
          (links (map cadr (lookup-or 'link imports '())))
          (frameworks (map cadr (lookup-or 'framework imports '())))
-
          (stub (remove-extension srcfile))
-         (linkcs links) ;(map-append import-objs (get-imports-from-file (ext stub 'ss))))
+         (linkcs links)
          (fmods (list "ref" "shew"))
          (runtime (list "cvt" "spew" "vor" "mem" "primcalls"))
          (mods (append ffis fmods))
