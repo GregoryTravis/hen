@@ -1097,7 +1097,7 @@
    ((eq? (car lyst) #\.) (cdr lyst))
    (#t (remove-extension-1 (cdr lyst)))))
 
-(define make-debug #t)
+(define make-debug #f)
 
 (define (make-inline-implicits rule)
   (cond
