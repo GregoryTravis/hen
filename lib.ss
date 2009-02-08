@@ -1000,6 +1000,13 @@
     (if (eq? #f v)
         (err 'lookup k env)
         (cdr v))))
+
+(define (lookup-or k env or-this)
+  (let ((v (assoc k env)))
+    (if (eq? #f v)
+        or-this
+        (cdr v))))
+
 (define (lookup-exists? e env)
   (not (eq? #f (assoc e env))))
 
@@ -1090,7 +1097,7 @@
    ((eq? (car lyst) #\.) (cdr lyst))
    (#t (remove-extension-1 (cdr lyst)))))
 
-(define make-debug #f)
+(define make-debug #t)
 
 (define (make-inline-implicits rule)
   (cond

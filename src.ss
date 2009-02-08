@@ -1,5 +1,10 @@
-(import "hoot" ("GLee") "" "-framework GLUT -framework OpenGL -framework CoreFoundation")
-(import "cvt" () "" "-framework GLUT -framework OpenGL -framework CoreFoundation")
+(import
+ (ffi "hoot.c")
+ (ffi "cvt.c")
+ (link "GLee.c")
+ (framework "GLUT")
+ (framework "OpenGL")
+ (framework "CoreFoundation"))
 
 (fun (display fbo img xrot-ref yrot-ref)
      (doo

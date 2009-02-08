@@ -55,7 +55,7 @@
         (defs funs tlfs)
         (list (append defs (funs->defs funs)) tlfs)))
 
-(define (import? form) (mtch form ('import module objs includes libs) #t x #f))
+(define (import? form) (mtch form ('import . stuff) #t x #f))
 
 (define (preprocess-program forms)
   (mtch (forms->defs-n-tlfs forms)
@@ -236,25 +236,39 @@
         (gco (ext mod "stub.ss.c"))
         (gco (ext mod "impl.c"))))
 
-(define (hark stub)
-  (let* ((rmods (map import-module (get-imports-from-file (ext stub 'ss))))
-         (linkcs (map-append import-objs (get-imports-from-file (ext stub 'ss))))
+(define (hark srcfile)
+  (let* ((src (read-objects srcfile))
+         (imports (map-append cdr (grep import? src)))
+;         (dummy (shew imports))
+         (imports (group-by car imports))
+;         (dummy (shew imports))
+         (src (grep (fnot import?) src))
+
+         (ffis (map remove-extension (map cadr (lookup-or 'ffi imports '()))))
+         (links (map cadr (lookup-or 'link imports '())))
+         (frameworks (map cadr (lookup-or 'framework imports '())))
+
+         (stub (remove-extension srcfile))
+                                        ;         (rmods (map import-module (get-imports-from-file (ext stub 'ss))))
+         (rmods ffis)
+         (linkcs links) ;(map-append import-objs (get-imports-from-file (ext stub 'ss))))
          (fmods (list "ref" "shew"))
          (runtime (list "cvt" "spew" "vor" "mem" "primcalls"))
          (mods (append rmods fmods))
-         (frameworks (list "GLUT" "OpenGL" "CoreFoundation"))
          (main (++ stub "_main")))
+;(shew 'stub stub)
      (make stub
        (sr
         `((g++ -g -o
                (output ,stub)
                (input ,(ssco stub))
-               ,@(map input (append (map stub-ssco mods) (map impl-co mods) (map co runtime) (map co linkcs)))
+               ,@(map input (append (map stub-ssco mods) (map impl-co mods) (map co runtime) (map ($ ext _ 'o) linkcs)))
                ,(input (++ stub "_main.c.o"))
                ,(join-things " " (map framework frameworks)))
           ,@(map gco (map c runtime))
           ,@(map gco (map c linkcs))
           ,(gco (c main))
+          ,@(map gco linkcs)
           ,@(map-append foreign mods)
           (,gen-main src ,mods (output ,(c main)))
           ,@(map hootie rmods)
@@ -271,7 +285,7 @@
          (stub (remove-extension srcfile))
          (exefile stub))
     ;(cbuild-exe objcfile objfile exefile srcfile)
-    (hark stub)
+    (hark srcfile)
     (if (not (file-exists? exefile))
         (err "No exe.")
         (begin
