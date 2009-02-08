@@ -107,16 +107,16 @@
   (++ (render `(evl_top ,(sdisplay src-e) ,(cmpl e))) ";\n"))
 
 (define (generate-registration-includes modules)
-  (map (lambda (module) (++ "#include \"" module ".impl.h\"\n")) modules))
+  (map ($ ++ "#include \"" _ ".impl.h\"\n") modules))
 
 (define (generate-blott-decls modules)
-  (map (lambda (module) (++ "extern void " module "_blott();\n")) modules))
+  (map ($ ++ "extern void " _ "_blott();\n") modules))
 
 (define (generate-registration-calls modules)
-  (map (lambda (module) (++ module "_impl_register();\n")) modules))
+  (map ($ ++ _ "_impl_register();\n") modules))
 
 (define (generate-blott-calls modules)
-  (map (lambda (module) (++ module "_blott();\n")) modules))
+  (map ($ ++ _ "_blott();\n") modules))
 
 (define (csrc->obj modules forms stub)
   (mtch (preprocess-program forms)
@@ -191,18 +191,18 @@
 
 (define (cbuild-exe objcfile objfile exefile srcfile)
   (let* ((imports (get-imports-from-file srcfile))
-         (modules-impls-c (map (lambda (x) (++ x ".impl.c")) (map import-module imports)))
+         (modules-impls-c (map ($ ++ _ ".impl.c") (map import-module imports)))
          (includes (map import-includes imports))
          (srcs (append '("vor.c" "primcalls.c" "spew.c" "mem.c" "ref.impl.c" "shew.impl.c") ;; HEY call these srcs
                        (map-append import-objs imports)
                        modules-impls-c))
-         (objs (append (map (lambda (x) (++ x ".o")) srcs)))
+         (objs (append (map (++ _ ".o") srcs)))
          (libs (join-things " " (map import-libs imports)))
          (rules (append (map import-rules imports)
                         (list (rigg-o-rules srcfile (map import-module imports) objcfile))
                         (list `(g++ -g -o (output ,exefile) (input ,objfile) ,@(map (lambda (o) `(input ,o)) objs) ,libs))
                         (list `(g++ -g -c (input ,objcfile) (implicit (output ,objfile))))
-                        (map (lambda (src) (co-rule src includes)) srcs))))
+                        (map ($ co-rule _ includes) srcs))))
     (make exefile rules)))
 
 (define (compile filename) (crun-file filename #f #f))
