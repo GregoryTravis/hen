@@ -3,10 +3,6 @@
 #ifndef _spew_h_
 #define _spew_h_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define SPEW_STREAM stdout
 
 #define SPEW_ON
@@ -48,9 +44,5 @@ void err_do( char *f, ... );
 void bkpt( void );
 
 #define here() spew(( "at %s:%d\n", __FILE__, __LINE__ ))
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _spew_h_ */

@@ -3,10 +3,6 @@
 #ifndef _mem_h_
 #define _mem_h_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define malik(size) (malik_actual(__FILE__,__LINE__,(size)))
 #define realik(mem,size) (realik_actual(__FILE__,__LINE__,(mem),(size)))
 #define fri(mem) (fri_actual(__FILE__,__LINE__,(mem)))
@@ -40,9 +36,5 @@ extern void *mem_max_addr;
 #define AMEM_ADDR_IN_RANGE(m)      \
   RA( MEM_ADDR_IN_RANGE((m)),   \
       ("Address %x out of range %x..%x\n", (m), mem_min_addr, mem_max_addr) )
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _mem_h_ */

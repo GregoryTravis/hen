@@ -109,14 +109,12 @@
         (src-tlfs tlfs)
         (++ "#include \"vor.h\"\n"
 ;            (apply ++ (generate-registration-includes modules))
-            "\n#ifdef __cplusplus\nextern \"C\" {\n#endif\n"
             "void " stub "_blott() { "
 ;            (apply ++ (generate-registration-calls modules))
             (apply ++ (append
                        (map cmpl-def global-env)
                        (map cmpl-top src-tlfs tlfs)))
-            "}"
-            "\n#ifdef __cplusplus\n}\n#endif\n")))
+            "}")))
 
 (define (cleanup-module-stuff)
   (map (lambda (module)
@@ -157,7 +155,6 @@
   (write-string-to-file
    file
    (++ "#include \"vor.h\"\n"
-       "\n#ifdef __cplusplus\nextern \"C\" {\n#endif\n"
        (apply ++ (generate-registration-includes modules))
        (apply ++ (generate-blott-decls modules))
        (apply ++ (generate-blott-decls (list stub)))
@@ -165,8 +162,7 @@
        (apply ++ (generate-registration-calls modules))
        (apply ++ (generate-blott-calls modules))
        (apply ++ (generate-blott-calls (list stub)))
-       "}"
-       "\n#ifdef __cplusplus\n}\n#endif\n")))
+       "}")))
 
 (define (output a) `(output ,a))
 (define (input a) `(input ,a))

@@ -1,7 +1,3 @@
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdio.h>
 #include <string.h>
 
@@ -111,7 +107,3 @@ void ref_impl_register() {
   register_command("destroy-charp-ref-impl", &destroy_charp_ref);
   register_command("create-null-ref-impl", &create_null_ref);
 }
-
-#ifdef __cplusplus
-}
-#endif
