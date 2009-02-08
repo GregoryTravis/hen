@@ -230,7 +230,7 @@
 (define (implicit a) `(implicit ,a))
 
 (define (ext f e) (++ f "." e))
-(define (exter e) (lambda (f) (ext f e)))
+(define (exter e) ($ ext _ e))
 (define (gco f) `(g++ -g -c -o ,(output (ext f 'o)) ,(input f)))
 (define (ss-to-c modules mod) `(,compile-ss-to-c ,modules ,(input (ext mod "stub.ss")) ,(output (ext mod "stub.ss.c")) ,mod))
 (define (co f) (ext f 'c.o))
@@ -790,9 +790,9 @@
 
    ('/. args body) `(/. ,args ,(exp-map f body))
 
-   ('/./. . lams) `(/./. . ,(map (lambda (e) (exp-map f e)) lams))
+   ('/./. . lams) `(/./. . ,(map ($ exp-map f _) lams))
 
-   (fn . args) (map-improper (lambda (e) (exp-map f e)) (f e))
+   (fn . args) (map-improper ($ exp-map f _) (f e))
 
    x (f x)))
 
