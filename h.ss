@@ -236,7 +236,7 @@
         (gco (ext mod "stub.ss.c"))
         (gco (ext mod "impl.c"))))
 
-(define (hark srcfile)
+(define (build-exe srcfile)
   (let* ((src (read-objects srcfile))
          (imports (group-by car (map-append cdr (grep import? src))))
          (src (grep (fnot import?) src))
@@ -271,12 +271,8 @@
 
 (define (crun-file srcfile run-p delete-p)
   (reset-everything)
-  (let* ((objcfile (++ srcfile ".c"))
-         (objfile (++ srcfile ".o"))
-         (stub (remove-extension srcfile))
-         (exefile stub))
-    ;(cbuild-exe objcfile objfile exefile srcfile)
-    (hark srcfile)
+  (let* ((exefile (remove-extension srcfile)))
+    (build-exe srcfile)
     (if (not (file-exists? exefile))
         (err "No exe.")
         (begin
