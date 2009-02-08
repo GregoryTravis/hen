@@ -148,49 +148,6 @@
     (input ,srcfile)
     (output ,objcfile)))
 
-(define (import-module form)
-  (mtch form
-        ('import module objs includes libs)
-        module))
-
-(define (import-objs form)
-  (mtch form
-        ('import module objs includes libs)
-        objs))
-
-(define (import-includes form)
-  (mtch form
-        ('import module objs includes libs)
-        includes))
-
-(define (import-libs form)
-  (mtch form
-        ('import module objs includes libs)
-        libs))
-
-(define (import-rules form)
-  (mtch form
-        ('import module objs includes libs)
-        (rigg-rules module objs)))
-
-(define (co-rule src includes) `(g++ -g -c -o (output ,(++ src ".o")) (input ,src) ,@includes))
-
-(define (cbuild-exe objcfile objfile exefile srcfile)
-  (let* ((imports (get-imports-from-file srcfile))
-         (modules-impls-c (map ($ ++ _ ".impl.c") (map import-module imports)))
-         (includes (map import-includes imports))
-         (srcs (append '("vor.c" "primcalls.c" "spew.c" "mem.c" "ref.impl.c" "shew.impl.c") ;; HEY call these srcs
-                       (map-append import-objs imports)
-                       modules-impls-c))
-         (objs (append (map (++ _ ".o") srcs)))
-         (libs (join-things " " (map import-libs imports)))
-         (rules (append (map import-rules imports)
-                        (list (rigg-o-rules srcfile (map import-module imports) objcfile))
-                        (list `(g++ -g -o (output ,exefile) (input ,objfile) ,@(map (lambda (o) `(input ,o)) objs) ,libs))
-                        (list `(g++ -g -c (input ,objcfile) (implicit (output ,objfile))))
-                        (map ($ co-rule _ includes) srcs))))
-    (make exefile rules)))
-
 (define (compile filename) (crun-file filename #f #f))
 (define (crun filename) (crun-file filename #t #t))
 (define (interpret filename) (run-file filename))
