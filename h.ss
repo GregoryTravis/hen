@@ -57,20 +57,6 @@
 
 (define (import? form) (mtch form ('import module objs includes libs) #t x #f))
 
-(define (expand-imports forms)
-  (let* ((d (divide-by-pred import? forms))
-         (imports (car d))
-         (rest (cdr d)))
-    (append (map-append expand-import imports) rest)))
-
-;; TODO doesn't handle recursive
-(define (expand-import imp)
-  (mtch imp
-        ('import module objs includes libs)
-        (begin
-          (let ((stub (++ module ".stub.ss")))
-            (read-objects stub)))))
-
 (define (preprocess-program forms)
   (mtch (forms->defs-n-tlfs forms)
         (defs src-tlfs)
@@ -250,13 +236,12 @@
         (gco (ext mod "stub.ss.c"))
         (gco (ext mod "impl.c"))))
 
-(define (hark stub)
+(define (hark stub frameworks)
   (let* ((rmods (map import-module (get-imports-from-file (ext stub 'ss))))
          (linkcs (map-append import-objs (get-imports-from-file (ext stub 'ss))))
          (fmods (list "ref" "shew"))
          (runtime (list "cvt" "spew" "vor" "mem" "primcalls"))
          (mods (append rmods fmods))
-         (frameworks (list "GLUT" "OpenGL" "CoreFoundation"))
          (main (++ stub "_main")))
      (make stub
        (sr
@@ -285,7 +270,7 @@
          (stub (remove-extension srcfile))
          (exefile stub))
     ;(cbuild-exe objcfile objfile exefile srcfile)
-    (hark stub)
+    (hark stub (list "GLUT" "OpenGL" "CoreFoundation"))
     (if (not (file-exists? exefile))
         (err "No exe.")
         (begin
