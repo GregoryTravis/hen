@@ -6,10 +6,6 @@
 #include "a.h"
 #include "mem.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 int* create_butt(int v) {
   int* vp = NEW(int);
   *vp = v;
@@ -55,7 +51,3 @@ void destroy_dubble(double* vp) {
 double joe_add(double a, double b) {
   return a + b;
 }
-
-#ifdef __cplusplus
-}
-#endif

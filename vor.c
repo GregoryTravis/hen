@@ -1,7 +1,3 @@
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdio.h>
 #include <string.h>
 
@@ -920,7 +916,3 @@ int main(int argc, char** argv) {
 BOO(vvfunp)
 BOO(viifunp)
 BOO(vuciifunp)
-
-#ifdef __cplusplus
-}
-#endif

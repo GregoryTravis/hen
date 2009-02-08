@@ -3,10 +3,6 @@
 #ifndef _VOR_H_
 #define _VOR_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 typedef enum {
   LAMBDA,
   CLOSURE,
@@ -148,9 +144,5 @@ void add_primcall(char* name, yeah* (*f)(yeah* e));
 vvfunp wrap_hen_fun_vvfunp(yeah* f);
 viifunp wrap_hen_fun_viifunp(yeah* f);
 vuciifunp wrap_hen_fun_vuciifunp(yeah* f);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif  // _VOR_H_

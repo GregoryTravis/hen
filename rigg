@@ -37,9 +37,6 @@ my $c_header = <<EOF;
 #include "vertex_and_fragment_program.h"
 EOF
 
-my $extern_c_top = "#ifdef __cplusplus\nextern \"C\" {\n#endif\n";
-my $extern_c_bottom = "#ifdef __cplusplus\n}\n#endif\n";
-
 # Write contents of string.
 sub writeFile( $$ )
 {
@@ -664,7 +661,6 @@ sub impl_c($$) {
   my ($module, $dcls) = @_;
   my $s = "";
   $s .= $c_header;
-  $s .= $extern_c_top;
   $s .= qq[#include "butt.h"\n];
   $s .= qq[#include "$module.impl.h"\n];
   $s .= gen_callbackers();
@@ -673,7 +669,6 @@ sub impl_c($$) {
     $s .= gen_cbody($fun);
   }
   $s .= genregisterer($module, $dcls);
-  $s .= $extern_c_bottom;
   return $s;
 }
 
@@ -681,9 +676,7 @@ sub impl_h($) {
   my ($module) = @_;
   my $s = "";
 #  $s .= $c_header;
-  $s .= $extern_c_top;
   $s .= "extern void ${module}_impl_register();\n";
-  $s .= $extern_c_bottom;
 }
 
 sub stub($$$) {
