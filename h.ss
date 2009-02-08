@@ -236,12 +236,13 @@
         (gco (ext mod "stub.ss.c"))
         (gco (ext mod "impl.c"))))
 
-(define (hark stub frameworks)
+(define (hark stub)
   (let* ((rmods (map import-module (get-imports-from-file (ext stub 'ss))))
          (linkcs (map-append import-objs (get-imports-from-file (ext stub 'ss))))
          (fmods (list "ref" "shew"))
          (runtime (list "cvt" "spew" "vor" "mem" "primcalls"))
          (mods (append rmods fmods))
+         (frameworks (list "GLUT" "OpenGL" "CoreFoundation"))
          (main (++ stub "_main")))
      (make stub
        (sr
@@ -270,7 +271,7 @@
          (stub (remove-extension srcfile))
          (exefile stub))
     ;(cbuild-exe objcfile objfile exefile srcfile)
-    (hark stub (list "GLUT" "OpenGL" "CoreFoundation"))
+    (hark stub)
     (if (not (file-exists? exefile))
         (err "No exe.")
         (begin
