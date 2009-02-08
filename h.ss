@@ -174,7 +174,7 @@
 
 (define (ext f e) (++ f "." e))
 (define (exter e) ($ ext _ e))
-(define (gco f) `(g++ -g -c -o ,(output (ext f 'o)) ,(input f)))
+(define (gco f) `(gcc -std=c99 -g -c -o ,(output (ext f 'o)) ,(input f)))
 (define (ss-to-c modules mod) `(,compile-ss-to-c ,modules ,(input (ext mod "stub.ss")) ,(output (ext mod "stub.ss.c")) ,mod))
 (define (co f) (ext f 'c.o))
 (define (c f) (ext f 'c))
@@ -207,7 +207,7 @@
          (mods (append ffis fmods))
          (main (++ stub "_main")))
      (make stub
-       `((g++ -g -o
+       `((gcc -std=c99 -g -o
               (output ,stub)
               (input ,(ssco stub))
               ,@(map input (append (map stub-ssco mods) (map impl-co mods) (map co runtime) (map ($ ext _ 'o) linkcs)))
@@ -220,7 +220,7 @@
          ,@(map-append foreign mods)
          (,gen-main src ,mods (output ,(c main)))
          ,@(map hootie ffis)
-         (g++ -g -c -o (output ,(ssco stub)) (input ,(ext stub 'ss.c)))
+         (gcc -std=c99 -g -c -o (output ,(ssco stub)) (input ,(ext stub 'ss.c)))
          (,compile-ss-to-c ,ffis (input ,(ext stub 'ss)) (output ,(ext stub 'ss.c))
                            ,@(map implicit (map input (map (exter 'stub.ss) ffis)))
                            ,stub)
