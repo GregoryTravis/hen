@@ -127,25 +127,6 @@
 (define (get-imports-from-file src)
   (grep import? (read-objects src)))
 
-(define (rigg-rules module module-deps)
-  `((input "rigg") ,module
-    (implicit (output ,(++ module ".impl.h")))
-    (implicit (output ,(++ module ".impl.c")))
-    (implicit (output ,(++ module ".stub.ss")))
-    ,@(map (lambda (s) `(implicit (input ,s))) module-deps)))
-
-(define (rigg-o-rules srcfile modules objcfile)
-  `(;(implicit (output ,objcfile))
-    ,@(map-append
-       (lambda (module)
-         `((implicit (input ,(++ module ".impl.h")))
-           (implicit (input ,(++ module ".stub.ss")))))
-       modules)
-    ,compile-ss-to-c
-    ,modules
-    (input ,srcfile)
-    (output ,objcfile)))
-
 (define (compile filename) (crun-file filename #f #f))
 (define (crun filename) (crun-file filename #t #t))
 (define (interpret filename) (run-file filename))
