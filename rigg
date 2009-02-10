@@ -20,8 +20,7 @@ my @ext_includes = ("glGenFramebuffersEXT", "glGenRenderbuffersEXT",
 "glGenFramebuffersEXT", "glGenRenderbuffersEXT",
 "glRenderbufferStorageEXT");
 
-my @files = ("butt.c", "vertex_and_fragment_program.c", "gl.h", "glut.h", "GLee.h", "glext.h", "cvt.c", "glu.h", "glx.h");
-#my @files = ();
+my @files = ();
 
 my $c_header = <<EOF;
 #include "a.h"
@@ -45,6 +44,25 @@ sub writeFile( $$ )
   open( FILE, ">$filename" ) || die "Can't open $filename: $!";
   print FILE $contents;
   close( FILE );
+}
+
+sub readFile( $ )
+{
+  my ($filename) = @_;
+  open( FILE, $filename ) || die "Can't open $filename: $!";
+  my $s = join( '', (<FILE>) );
+  close( FILE );
+  return $s;
+}
+
+sub readFileLines( $ )
+{
+  my ($filename) = @_;
+  open( FILE, $filename ) || die $!;
+  my @lines = <FILE>;
+  map { chomp; } @lines;
+  close( FILE );
+  return \@lines;
 }
 
 sub member($$) {
@@ -386,8 +404,8 @@ sub exclude_fun($) {
   return $fun->{"name"} =~ /EXT$/ && !member($fun->{"name"}, \@ext_includes);
 }
 
-sub read_dump($) {
-  my ($src) = @_;
+sub read_dump($$) {
+  my ($src, $files) = @_;
   my $abnodes = readem($src);
 
   #print "BUILDING TREE...\n";
@@ -399,7 +417,7 @@ sub read_dump($) {
   my $count = 0;
   for (my $i = 0; $i < @$dcls; ++$i) {
     my $fun = $dcls->[$i];
-    if (member(funfile($fun), \@files)) {
+    if (member(funfile($fun), $files)) {
       #shew($i);
       my $stuff = get_function_type($fun);
       $stuff = fixup_function($stuff);
@@ -716,6 +734,23 @@ sub extract_header_file_from_import_string($) {
   return $is;
 }
 
+sub get_includes($) {
+  my ($filename) = @_;
+  my $lines = readFileLines($filename);
+  my @includes;
+  foreach my $line (@$lines) {
+    if ($line =~ /^#\s*include\s+(.*)\s*$/) {
+      my $include = $1;
+      $include =~ s/^<//;
+      $include =~ s/>$//;
+      $include =~ s/"//g;
+      $include =~ s/.*\///;
+      push(@includes, $include);
+    }
+  }
+  return \@includes;
+}
+
 sub go() {
   @ARGV == 1 || die;
 
@@ -724,8 +759,10 @@ sub go() {
 #  push(@files, extract_header_file_from_import_string($import_string));
 
   my $src = $module . ".c";
+  my $files = get_includes($src);
+  push(@$files, $src);
   print `g++ -c -fdump-translation-unit $src`;
-  my $funs = read_dump($src);
+  my $funs = read_dump($src, $files);
   impl($module, $funs);
   stub($src, $module, $funs);
 }
