@@ -183,13 +183,10 @@
   (++ "#include " (if (ends-with import-string ">") import-string (++ "\"" import-string "\"")) "\n"))
 (define (generate-includer filename import-strings)
   (write-string-to-file filename (apply ++ (map gen-include-string import-strings))))
-(define (generate-includers stub import-strings)
-  (let* ((stuff (divide-by-pred (lambda (import-string) (or (ends-with import-string ".h") (ends-with import-string ".h>"))) import-strings))
-         (.h-imports (car stuff))
-         (.c-imports (cdr stuff))
-         (includer-file (++ stub "_includer.c")))
-    (generate-includer includer-file .h-imports)
-    (cons includer-file .c-imports)))
+
+(define (ffi-is-.h? import-string)
+  (or (ends-with import-string ".h") (ends-with import-string ".h>")))
+
 (define (cleanup-includers) (apply rmtemps ffi-includers))
 
 (define (build-cleanup)
@@ -201,7 +198,13 @@
          (imports (group-by car (map-append cdr (grep import? src))))
          (src (grep (fnot import?) src))
          (import-strings (map cadr (lookup-or 'ffi imports '())))
-         (ffis (map remove-extension (generate-includers stub import-strings)))
+
+         (stuff (divide-by-pred ffi-is-.h? import-strings))
+         (.h-imports (car stuff))
+         (.c-imports (cdr stuff))
+         (.h-includer (++ stub "_includer.c"))
+         (ffis (map remove-extension (cons .h-includer .c-imports)))
+
          (links (map cadr (lookup-or 'link imports '())))
          (frameworks (map cadr (lookup-or 'framework imports '())))
          (linkcs links)
@@ -216,6 +219,7 @@
               ,@(map input (append (map stub-ssco mods) (map impl-co mods) (map co runtime) (map ($ ext _ 'o) linkcs)))
               ,(input (++ stub "_main.c.o"))
               ,(join-things " " (map framework frameworks)))
+         (,generate-includer (output ,.h-includer) ,.h-imports)
          ,@(map gco (map c runtime))
          ,@(map gco (map c linkcs))
          ,(gco (c main))
