@@ -405,6 +405,14 @@
     '()
     (string->list s))))
 
+(define (string-replace-char s from to)
+  (list->string
+   (foldr
+    (lambda (a rest)
+      (cons (if (eq? a from) to a) rest))
+    '()
+    (string->list s))))
+
 (define (find-first pred lyst)
   (cond
    ((null? lyst) (err pred))

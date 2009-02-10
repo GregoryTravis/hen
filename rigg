@@ -21,6 +21,7 @@ my @ext_includes = ("glGenFramebuffersEXT", "glGenRenderbuffersEXT",
 "glRenderbufferStorageEXT");
 
 my @files = ("butt.c", "vertex_and_fragment_program.c", "gl.h", "glut.h", "GLee.h", "glext.h", "cvt.c", "glu.h", "glx.h");
+#my @files = ();
 
 my $c_header = <<EOF;
 #include "a.h"
@@ -616,7 +617,7 @@ sub gen_callbackers() {
     $tops .= "typedef $return_type (*$sig)($type_paramstr);\n";
 
     for (my $i = 0; $i < $num_callback_copies; ++$i) {
-      $s .= "$return_type ${name}_$i($paramstr);\n";
+      $s .= "static $return_type ${name}_$i($paramstr);\n";
     }
 
     $s .= "static $sig ${sig}_cbs"."[$num_callback_copies] = {\n";
@@ -629,7 +630,7 @@ sub gen_callbackers() {
 EOF
 
     for (my $i = 0; $i < $num_callback_copies; ++$i) {
-      $s .= "$return_type ${name}_$i($paramstr) {\n";
+      $s .= "static $return_type ${name}_$i($paramstr) {\n";
       foreach my $param (@$params) {
         my ($type, $name) = @$param;
         $s .= "  yeah* _$name = " . opaque_wrap($type, $name) . ";\n";
@@ -642,14 +643,14 @@ EOF
 
     my $wrapsig = "$sig ${sig}_wrap(yeah* fun)";
     $s .= "static int ${sig}_cbs_inx = 0;\n";
-    $s .= "$wrapsig {\n";
+    $s .= "static $wrapsig {\n";
     $s .= "  int inx = ${sig}_cbs_inx++;\n";
     $s .= "  A(inx < $num_callback_copies);\n";
     $s .= "  hen_cbs_${sig}[inx] = fun;\n";
     $s .= "  return ${sig}_cbs" . "[inx];\n";
     $s .= "}\n";
 
-    $tops .= "$wrapsig;\n";
+    $tops .= "static $wrapsig;\n";
 
     $ss .= $s;
   }
@@ -707,8 +708,21 @@ sub impl($$) {
   writeFile("$module.impl.h", $h);
 }
 
+sub extract_header_file_from_import_string($) {
+  my ($is) = @_;
+  $is =~ s/^<//;
+  $is =~ s/>$//;
+  $is =~ s/.*\///;
+  return $is;
+}
+
 sub go() {
+  @ARGV == 1 || die;
+
   my $module = $ARGV[0];
+#  my $import_string = $ARGV[1];
+#  push(@files, extract_header_file_from_import_string($import_string));
+
   my $src = $module . ".c";
   print `g++ -c -fdump-translation-unit $src`;
   my $funs = read_dump($src);

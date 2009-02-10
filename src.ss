@@ -1,5 +1,9 @@
 (import
- (ffi "hoot.c")
+ (ffi "GLee.h")
+ (ffi "<OpenGL/gl.h>")
+ (ffi "<GLUT/glut.h>")
+ (ffi "<OpenGL/glext.h>")
+ (ffi "<OpenGL/glu.h>")
  (ffi "cvt.c")
  (link "GLee.c")
  (framework "GLUT")
