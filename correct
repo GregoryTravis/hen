@@ -486,6 +486,5 @@
 + gcc -std=c99 -g -c -o another-program.ss.c.o another-program.ss.c
 + #<procedure:compile-ss-to-c> () another_program_includer.stub.ss another_program_includer.stub.ss.c another_program_includer
 + gcc -std=c99 -g -c -o another_program_includer.stub.ss.c.o another_program_includer.stub.ss.c
-+ gcc -std=c99 -g -c -o another_program_includer.impl.c.o another_program_includer.impl.c
 + gcc -std=c99 -g -c -o another_program_main.c.o another_program_main.c
 + gcc -std=c99 -g -o another-program another-program.ss.c.o another_program_includer.stub.ss.c.o ref.stub.ss.c.o shew.stub.ss.c.o another_program_includer.impl.c.o ref.impl.c.o shew.impl.c.o cvt.c.o spew.c.o vor.c.o mem.c.o primcalls.c.o another_program_main.c.o 
