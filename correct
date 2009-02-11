@@ -481,5 +481,11 @@
 + (doo ref (create-charp-ref asdf) s (read-charp-ref ref) _ (shew s))
 "asdf"
 => Nil
-+ g++ -g -o test-input test-input.ss.c vor.o primcalls.o spew.o mem.o ref.impl.o shew.impl.o 
-+ g++ -g -o another-program another-program.ss.c vor.o primcalls.o spew.o mem.o ref.impl.o shew.impl.o 
++ gcc -std=c99 -g -o test-input test-input.ss.c.o test_input_includer.stub.ss.c.o ref.stub.ss.c.o shew.stub.ss.c.o test_input_includer.impl.c.o ref.impl.c.o shew.impl.c.o cvt.c.o spew.c.o vor.c.o mem.c.o primcalls.c.o test_input_main.c.o 
++ #<procedure:compile-ss-to-c> (another_program_includer) another-program.ss another-program.ss.c another-program
++ gcc -std=c99 -g -c -o another-program.ss.c.o another-program.ss.c
++ #<procedure:compile-ss-to-c> () another_program_includer.stub.ss another_program_includer.stub.ss.c another_program_includer
++ gcc -std=c99 -g -c -o another_program_includer.stub.ss.c.o another_program_includer.stub.ss.c
++ gcc -std=c99 -g -c -o another_program_includer.impl.c.o another_program_includer.impl.c
++ gcc -std=c99 -g -c -o another_program_main.c.o another_program_main.c
++ gcc -std=c99 -g -o another-program another-program.ss.c.o another_program_includer.stub.ss.c.o ref.stub.ss.c.o shew.stub.ss.c.o another_program_includer.impl.c.o ref.impl.c.o shew.impl.c.o cvt.c.o spew.c.o vor.c.o mem.c.o primcalls.c.o another_program_main.c.o 
