@@ -140,10 +140,10 @@
    file
    (++ "#include \"vor.h\"\n"
        (apply ++ (generate-registration-includes modules))
-       (apply ++ (generate-blott-decls (map c-identifier-safe (cons stub modules))))
+       (apply ++ (generate-blott-decls (map c-identifier-safe (snoc modules stub))))
        "void hen_main() {\n"
        (apply ++ (generate-registration-calls modules))
-       (apply ++ (generate-blott-calls (map c-identifier-safe (cons stub modules))))
+       (apply ++ (generate-blott-calls (map c-identifier-safe (snoc modules stub))))
        "}")))
 
 ;(tracefun gen-main)
