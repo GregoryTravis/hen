@@ -37,6 +37,12 @@ my $c_header = <<EOF;
 #include "vertex_and_fragment_program.h"
 EOF
 
+sub c_identifier_safe($) {
+  my ($s) = @_;
+  $s =~ s/-/_/g;
+  return $s;
+}
+
 # Write contents of string.
 sub writeFile( $$ )
 {
@@ -557,6 +563,7 @@ sub gen_cbody($) {
 
 sub genregisterer($$) {
   my ($module, $dcls) = @_;
+  $module = c_identifier_safe($module);
   my $s = "";
   $s .= "void ${module}_impl_register() {\n";
   for (my $i = 0; $i < @$dcls; ++$i) {
@@ -693,6 +700,7 @@ sub impl_c($$) {
 
 sub impl_h($) {
   my ($module) = @_;
+  $module = c_identifier_safe($module);
   my $s = "";
 #  $s .= $c_header;
   $s .= "extern void ${module}_impl_register();\n";

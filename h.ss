@@ -93,23 +93,23 @@
   (++ (render `(evl_top ,(sdisplay src-e) ,(cmpl e))) ";\n"))
 
 (define (generate-registration-includes modules)
-  (map ($ ++ "#include \"" _ ".impl.h\"\n") modules))
+  (map ($ ++ "#include \"" _ ".impl.h\"\n") (map c-identifier-safe modules)))
 
 (define (generate-blott-decls modules)
-  (map ($ ++ "extern void " _ "_blott();\n") modules))
+  (map ($ ++ "extern void " _ "_blott();\n") (map c-identifier-safe modules)))
 
 (define (generate-registration-calls modules)
-  (map ($ ++ _ "_impl_register();\n") modules))
+  (map ($ ++ _ "_impl_register();\n") (map c-identifier-safe modules)))
 
 (define (generate-blott-calls modules)
-  (map ($ ++ _ "_blott();\n") modules))
+  (map ($ ++ _ "_blott();\n") (map c-identifier-safe modules)))
 
 (define (csrc->obj modules forms stub)
   (mtch (preprocess-program forms)
         (src-tlfs tlfs)
         (++ "#include \"vor.h\"\n"
 ;            (apply ++ (generate-registration-includes modules))
-            "void " stub "_blott() { "
+            "void " (c-identifier-safe stub) "_blott() { "
 ;            (apply ++ (generate-registration-calls modules))
             (apply ++ (append
                        (map cmpl-def global-env)
@@ -132,18 +132,21 @@
 (define (interpret filename) (run-file filename))
 (define run run-file)
 
+(define (c-identifier-safe s)
+  (string-replace-char-pairs s '((#\- . #\_))))
+
 (define (gen-main stub modules file)
   (write-string-to-file
    file
    (++ "#include \"vor.h\"\n"
        (apply ++ (generate-registration-includes modules))
-       (apply ++ (generate-blott-decls modules))
-       (apply ++ (generate-blott-decls (list stub)))
+       (apply ++ (generate-blott-decls (map c-identifier-safe (cons stub modules))))
        "void hen_main() {\n"
        (apply ++ (generate-registration-calls modules))
-       (apply ++ (generate-blott-calls modules))
-       (apply ++ (generate-blott-calls (list stub)))
+       (apply ++ (generate-blott-calls (map c-identifier-safe (cons stub modules))))
        "}")))
+
+;(tracefun gen-main)
 
 (define (output a) `(output ,a))
 (define (input a) `(input ,a))
@@ -202,7 +205,7 @@
          (stuff (divide-by-pred ffi-is-.h? import-strings))
          (.h-imports (car stuff))
          (.c-imports (cdr stuff))
-         (.h-includer (++ stub "_includer.c"))
+         (.h-includer (++ (c-identifier-safe stub) "_includer.c"))
          (ffis (map remove-extension (cons .h-includer .c-imports)))
 
          (links (map cadr (lookup-or 'link imports '())))
@@ -211,13 +214,13 @@
          (fmods (list "ref" "shew"))
          (runtime (list "cvt" "spew" "vor" "mem" "primcalls"))
          (mods (append ffis fmods))
-         (main (++ stub "_main")))
+         (main (++ (c-identifier-safe stub) "_main")))
      (make stub
        `((gcc -std=c99 -g -o
               (output ,stub)
               (input ,(ssco stub))
               ,@(map input (append (map stub-ssco mods) (map impl-co mods) (map co runtime) (map ($ ext _ 'o) linkcs)))
-              ,(input (++ stub "_main.c.o"))
+              ,(input (ext main "c.o"))
               ,(join-things " " (map framework frameworks)))
          (,generate-includer (output ,.h-includer) ,.h-imports)
          ,@(map gco (map c runtime))
@@ -225,7 +228,7 @@
          ,(gco (c main))
          ,@(map gco linkcs)
          ,@(map-append foreign mods)
-         (,gen-main src ,mods (output ,(c main)))
+         (,gen-main ,stub ,mods (output ,(c main)))
          ,@(map hootie ffis); import-strings)
          (gcc -std=c99 -g -c -o (output ,(ssco stub)) (input ,(ext stub 'ss.c)))
          (,compile-ss-to-c ,ffis (input ,(ext stub 'ss)) (output ,(ext stub 'ss.c))
@@ -242,7 +245,7 @@
         (err "No exe.")
         (begin
           (if run-p
-              (scmd (++ "./" exefile))
+              (cmd (++ "./" exefile))
               '())
           (if delete-p
               (rmtemps exefile)
