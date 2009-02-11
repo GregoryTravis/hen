@@ -1,4 +1,5 @@
 (load "h.ss")
+(set! make-show-commands #f)
 
 ;; (shew (doobie-exp '(/. (x . joe) x)))
 ;; (shew (doobie-exp '(/. (x y z . q) x)))
