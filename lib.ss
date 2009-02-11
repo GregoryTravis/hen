@@ -413,6 +413,13 @@
     '()
     (string->list s))))
 
+(define (string-replace-char-pairs s pairs)
+  (if (null? pairs)
+      s
+      (string-replace-char-pairs
+       (string-replace-char s (caar pairs) (cdar pairs))
+       (cdr pairs))))
+
 (define (find-first pred lyst)
   (cond
    ((null? lyst) (err pred))
@@ -1106,6 +1113,7 @@
    (#t (remove-extension-1 (cdr lyst)))))
 
 (define make-debug #f)
+(define make-show-commands #f)
 
 (define (make-inline-implicits rule)
   (cond
@@ -1149,9 +1157,11 @@
      ((null? cmd) (err 'empty-command cmd))
      ((procedure? (car cmd))
       (begin
-        (display (++ "+ " (join-things " " cmd) "\n"))
+        (if make-show-commands
+            (display (++ "+ " (join-things " " cmd) "\n"))
+            '())
         (apply (car cmd) (cdr cmd))))
-     (#t (srcmd (join-things " " cmd))))))
+     (#t ((if make-show-commands srcmd rcmd) (join-things " " cmd))))))
 
 (define (make-build-target target rules)
   (if (file-exists? target)
