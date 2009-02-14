@@ -80,7 +80,6 @@
   (grep (fnot import?)
         (append
          (read-objects "overture.ss")
-         (read-objects "ref.stub.ss")
          (read-objects "shew.stub.ss")
          (read-objects filename))))
 
@@ -211,7 +210,7 @@
          (links (map cadr (lookup-or 'link imports '())))
          (frameworks (map cadr (lookup-or 'framework imports '())))
          (linkcs links)
-         (fmods (list "ref" "shew"))
+         (fmods (list "shew"))
          (runtime (list "cvt" "spew" "vor" "mem" "primcalls"))
          (mods (append ffis fmods))
          (main (++ (c-identifier-safe stub) "_main")))
@@ -219,11 +218,12 @@
        `((gcc -std=c99 -g -o
               (output ,stub)
               (input ,(ssco stub))
-              ,@(map input (append (map stub-ssco mods) (map impl-co mods) (map co runtime) (map ($ ext _ 'o) linkcs)))
+              ,@(map input (append (map stub-ssco mods) (map impl-co mods) (map co runtime) (map co (map remove-extension .c-imports)) (map ($ ext _ 'o) linkcs)))
               ,(input (ext main "c.o"))
               ,(join-things " " (map framework frameworks)))
          (,generate-includer (output ,.h-includer) ,.h-imports)
          ,@(map gco (map c runtime))
+         ,@(map gco .c-imports)
          ,@(map gco (map c linkcs))
          ,(gco (c main))
          ,@(map gco linkcs)
@@ -309,7 +309,6 @@
 (define (register-command name f) (set! commands (cons (cons name f) commands)))
 
 ;; HEY rid
-(load "ref.impl.ss")
 (load "shew.impl.ss")
 
 (define (execute-command name args)
