@@ -26,15 +26,7 @@ my $c_header = <<EOF;
 #include "a.h"
 #include "mem.h"
 #include "vor.h"
-#include "GLee.h"
-#include <GLUT/glut.h>
-#include <OpenGL/gl.h>
-#include <OpenGL/glext.h>
-#include <CG/cg.h>
-#include <OpenGL/glu.h>
-#include <OpenGL/glu.h>
 #include "cvt.h"
-#include "vertex_and_fragment_program.h"
 EOF
 
 sub c_identifier_safe($) {
