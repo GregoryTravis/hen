@@ -1,5 +1,5 @@
+(require scheme/system)
 (require (lib "ports-6.ss" "rnrs/io"))
-;(require (lib "simple-6.ss" "rnrs/io")) ; bad one
 (require (lib "32.ss" "srfi"))
 (require (lib "13.ss" "srfi"))
 (require (lib "35.ss" "srfi"))
@@ -8,11 +8,13 @@
 (require (lib "process.ss"))
 (require (lib "compat.ss"))
 (require (for-syntax (lib "pretty.ss")))
+(require (lib "pretty.ss"))
 ;(require (lib "../errortrace/errortrace.ss"))
 ;(require-for-syntax (lib "list.ss"))
 (load "mtch.ss")
 
 (define impl-tracefun-indentation 0)
+(define trace-stump-level 1000)
 (define (trace-indent) (set! impl-tracefun-indentation (+ 1 impl-tracefun-indentation)))
 (define (trace-unindent) (set! impl-tracefun-indentation (+ -1 impl-tracefun-indentation)))
 
@@ -44,7 +46,7 @@
 (define (plain-ol-tracer app runner)
   (display (make-string-string impl-tracefun-indentation "| "))
   (display "+  ")
-  (lshew app)
+  (lshew (stump app trace-stump-level))
   (display "\n")
   (trace-indent)
   (flush-output)
@@ -52,7 +54,7 @@
     (trace-unindent)
     (display (make-string-string impl-tracefun-indentation "| "))
     (display "-> ")
-    (lshew r)
+    (lshew (stump r trace-stump-level))
     (display "\n")
     (flush-output)
     r))
@@ -146,6 +148,10 @@
 (define (read-objects filename)
   (call-with-input-file filename read-objects-port))
 
+(define (write-string-to-file filename s)
+  (call-with-output-file filename
+    (lambda (port) (display s port))))
+
 (define (read-objects-port p)
   (letrec ((objects '())
            (read-em
@@ -192,7 +198,7 @@
    (string-one-line
     (call-with-output-string
      (lambda (port)
-       (map (lambda (j) (pretty-print j port)) args))))))
+       (map (lambda (j) (display j port)) args))))))
 
 (define (proper-list? l)
   (or (eq? l '()) (and (pair? l) (proper-list? (cdr l)))))
@@ -335,6 +341,7 @@
 (define (id x) x)
 
 (define (err . args)
+  (flush-output)
   (display "Error!\n")
   (shew (map show-shorten args))
 (car '()))
@@ -397,6 +404,21 @@
           (cons a rest)))
     '()
     (string->list s))))
+
+(define (string-replace-char s from to)
+  (list->string
+   (foldr
+    (lambda (a rest)
+      (cons (if (eq? a from) to a) rest))
+    '()
+    (string->list s))))
+
+(define (string-replace-char-pairs s pairs)
+  (if (null? pairs)
+      s
+      (string-replace-char-pairs
+       (string-replace-char s (caar pairs) (cdar pairs))
+       (cdr pairs))))
 
 (define (find-first pred lyst)
   (cond
@@ -489,6 +511,17 @@
              (not-in-group (cdr divided)))
         (cons (cons group-of-car in-group)
               (group-by f not-in-group)))))
+
+;; Elements may match more than one predicate; they are grouped with
+;; the first one they match.  Every element must match at least one
+;; predicate.
+(define (group-by-preds preds lyst)
+  (if (null? preds)
+      (if (not (null? lyst))
+          (err "Some elements match no preds: " lyst)
+          '())
+      (cons (grep (car preds) lyst)
+            (group-by-preds (cdr preds) (grep (fnot (car preds)) lyst)))))
 
 ;; ;; maybe stuff.
 
@@ -982,6 +1015,13 @@
     (if (eq? #f v)
         (err 'lookup k env)
         (cdr v))))
+
+(define (lookup-or k env or-this)
+  (let ((v (assoc k env)))
+    (if (eq? #f v)
+        or-this
+        (cdr v))))
+
 (define (lookup-exists? e env)
   (not (eq? #f (assoc e env))))
 
@@ -1002,3 +1042,183 @@
    ((pair? l) `(Cons ,(car l) ,(consify-top-layer (cdr l))))
    ((null? l) 'Nil)
    (#t l)))
+
+(define (smart== a b)
+  (or (and (number? a) (= a b))
+      (and (string? a) (string= a b))
+      (equal? a b)))
+
+(define (til-same f arg)
+  (let ((result (f arg)))
+    (if (smart== arg result)
+        result
+        (til-same f result))))
+
+(define (map-when f lyst pred)
+  (if (null? lyst)
+      '()
+      (let ((a (car lyst)))
+        (cons (if (pred a) (f a) a)
+              (map-when f (cdr lyst) pred)))))
+
+(define (stump e n)
+  (cond
+   ((= n 0) '...)
+   ((pair? e) (cons (stump (car e) (- n 1))
+                    (stump (cdr e) (- n 1))))
+   (#t e)))
+
+(define (tree-size a)
+  (if (pair? a)
+      (+ (tree-size (car a)) (tree-size (cdr a)))
+      1))
+
+(define (quoted-symbol? o)
+  (and (pair? o) (eq? (car o) 'quote) (symbol? (cadr o)) (null? (cddr o))))
+
+(define (join-things-list glue things)
+  (cond
+   ((null? things) things)
+   ((null? (cdr things)) things)
+   (#t (cons (car things) (cons glue (join-things-list glue (cdr things)))))))
+
+(define (join-things glue things)
+  (apply ++ (join-things-list glue things)))
+
+(define (cmd . stuff) (cmd1 #f #f stuff))
+(define (scmd . stuff) (cmd1 #t #f stuff))
+(define (rcmd . stuff) (cmd1 #f #t stuff))
+(define (srcmd . stuff) (cmd1 #t #t stuff))
+
+(define (cmd1 show-p die-p stuff)
+  (if show-p (begin (display "+ ") (display (join-things " " stuff)) (display "\n")) '())
+;(shew 'guh stuff)
+  (let ((retval (apply system stuff)))
+    (if (and die-p (not retval))
+        (err "Command error:" stuff)
+        retval)))
+
+(define (check . stuff)
+  (let ((bools (rdc stuff))
+        (value (rac stuff)))
+    (if (all? bools)
+        value
+        (err 'check value))))
+
+(define (remove-extension s) (list->string (reverse (remove-extension-1 (reverse (string->list s))))))
+(define (remove-extension-1 lyst)
+  (cond
+   ((null? lyst) (err))
+   ((eq? (car lyst) #\.) (cdr lyst))
+   (#t (remove-extension-1 (cdr lyst)))))
+
+(define make-debug #f)
+(define make-show-commands #t)
+
+(define (make-inline-implicits rule)
+  (cond
+   ((null? rule) '())
+   ((and (pair? (car rule)) (eq? (caar rule) 'implicit))
+    (append (cdar rule) (make-inline-implicits (cdr rule))))
+   (#t (cons (car rule) (make-inline-implicits (cdr rule))))))
+
+(define (make-strip-implicits rule)
+  (cond
+   ((null? rule) '())
+   ((and (pair? (car rule)) (eq? (caar rule) 'implicit))
+    (make-strip-implicits (cdr rule)))
+   (#t (cons (car rule) (make-strip-implicits (cdr rule))))))
+
+(define (make-get-annotated annotation rule)
+  (map-append (lambda (e) (if (and (pair? e) (eq? annotation (car e))) (list (cadr e)) '())) (make-inline-implicits rule)))
+
+(define (make-inputs-of-rule rule) (make-get-annotated 'input rule))
+(define (make-outputs-of-rule rule) (make-get-annotated 'output rule))
+
+(define (make-is-input-of? o rule) (member? o (make-inputs-of-rule rule)))
+(define (make-is-output-of? o rule) (member? o (make-outputs-of-rule rule)))
+
+(define (make-lookup-rule-for target rules)
+  (let ((matches (grep (lambda (rule) (make-is-output-of? target rule)) rules)))
+    (cond
+     ((= (length matches) 1) (car matches))
+     ((= (length matches) 0) '())
+     ((> (length matches) 1) (err 'too-many-rules-for target))
+     (#t (err)))))
+
+(define (make-strip-annotation e)
+  (if (and (pair? e) (member (car e) '(input output implicit)))
+      (cadr e)
+      e))
+
+(define (make-execute-rule cmd)
+  (let ((cmd (map make-strip-annotation (make-strip-implicits cmd))))
+    (cond
+     ((null? cmd) (err 'empty-command cmd))
+     ((procedure? (car cmd))
+      (begin
+        (if make-show-commands
+            (display (++ "+ " (join-things " " cmd) "\n"))
+            '())
+        (apply (car cmd) (cdr cmd))))
+     (#t ((if make-show-commands srcmd rcmd) (join-things " " cmd))))))
+
+(define (make-build-target target rules)
+  (if (file-exists? target)
+      (system (++ "rm " target))
+      '())
+  (let ((rule (make-lookup-rule-for target rules)))
+    (if (null? rule)
+        (err 'no-rule-for target)
+        (begin
+          (make-execute-rule rule)
+          (if (not (file-exists? target))
+              (err 'didn't-build target)
+              '())))))
+
+(define (make-get-dependencies target rules)
+  (map make-strip-annotation (make-inputs-of-rule (make-lookup-rule-for target rules))))
+
+(define (make-newer-than? file files)
+  (if (or (pair? files) (null? files))
+      (all? (map (lambda (f) (make-newer-than? file f)) files))
+      (> (file-or-directory-modify-seconds file)
+         (file-or-directory-modify-seconds files))))
+
+(define (make target rules)
+  (let ((dependencies (make-get-dependencies target rules)))
+    (map (lambda (target) (make target rules)) dependencies)
+    (let ((must-make (or (not (file-exists? target))
+                         (not (make-newer-than? target dependencies)))))
+      (if make-debug
+          (shew (++ target " " (if must-make "<" ">") " " dependencies))
+          '())
+      (if must-make
+          (make-build-target target rules)
+          '()))))
+
+;(tracefun make make-inline-implicits make-get-annotated make-inputs-of-rule make-outputs-of-rule make-is-input-of? make-is-output-of? make-lookup-rule-for make-strip-annotation make-execute-rule make-build-target make-get-dependencies make-newer-than? make-strip-implicits)
+
+(define _ 'f7g89f7d7f9d7fg987dfn97dfghdf87gdfog789dfg)
+(define ($-zip as bs)
+  (cond
+   ((and (pair? as) (eq? (car as) _))
+    (cons (car bs) ($-zip (cdr as) (cdr bs))))
+   ((pair? as) (cons (car as) ($-zip (cdr as) bs)))
+   ((null? as) bs)
+   (#t (err '$-zip as bs))))
+;(tracefun $-zip)
+
+(define ($ f . args0)
+  (lambda args1
+    (apply f ($-zip args0 args1))))
+
+(define-macro (pv . vars)
+  `(begin
+     ,@(apply append (map (lambda (var)
+                            `((display "= ")
+                              (display ',var)
+                              (display " = ")
+                              (lshew ,var)
+                              (display "\n")))
+                          vars))))
