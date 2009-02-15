@@ -1212,3 +1212,13 @@
 (define ($ f . args0)
   (lambda args1
     (apply f ($-zip args0 args1))))
+
+(define-macro (pv . vars)
+  `(begin
+     ,@(apply append (map (lambda (var)
+                            `((display "= ")
+                              (display ',var)
+                              (display " = ")
+                              (lshew ,var)
+                              (display "\n")))
+                          vars))))
