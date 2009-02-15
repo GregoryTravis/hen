@@ -10,7 +10,6 @@
 #include "spew.h"
 
 // HEY
-#include "ref.impl.h"
 #include "shew.impl.h"
 
 void hen_main();
@@ -866,7 +865,6 @@ void init_constants() {
   foreign_functions = symbol("Nil");
 
   // HEY rid
-  ref_impl_register();
   shew_impl_register();
 }
 

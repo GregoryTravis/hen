@@ -205,7 +205,7 @@
          (.h-imports (car stuff))
          (.c-imports (cdr stuff))
          (.h-includer (++ (c-identifier-safe stub) "_includer.c"))
-         (ffis (map remove-extension (cons .h-includer .c-imports)))
+         (ffis (map remove-extension .c-imports))
 
          (links (map cadr (lookup-or 'link imports '())))
          (frameworks (map cadr (lookup-or 'framework imports '())))
@@ -215,10 +215,10 @@
          (mods (append ffis fmods))
          (main (++ (c-identifier-safe stub) "_main")))
      (make stub
-       `((gcc -std=c99 -g -o
+(sr        `((gcc -std=c99 -g -o
               (output ,stub)
               (input ,(ssco stub))
-              ,@(map input (append (map stub-ssco mods) (map impl-co mods) (map co runtime) (map co (map remove-extension .c-imports)) (map ($ ext _ 'o) linkcs)))
+              ,@(map input (append (map stub-ssco mods) (map impl-co mods) (map co runtime) (map co (map remove-extension .c-imports)) (map ($ ext _ 'o) linkcs) (list .h-includer)))
               ,(input (ext main "c.o"))
               ,(join-things " " (map framework frameworks)))
          (,generate-includer (output ,.h-includer) ,.h-imports)
@@ -229,12 +229,13 @@
          ,@(map gco linkcs)
          ,@(map-append foreign mods)
          (,gen-main ,stub ,mods (output ,(c main)))
-         ,@(map hootie ffis); import-strings)
+;         ,@(map hootie ffis); import-strings)
+         ,@(map hootie (map remove-extension import-strings))
          (gcc -std=c99 -g -c -o (output ,(ssco stub)) (input ,(ext stub 'ss.c)))
          (,compile-ss-to-c ,ffis (input ,(ext stub 'ss)) (output ,(ext stub 'ss.c))
                            ,@(map implicit (map input (map (exter 'stub.ss) ffis)))
                            ,stub)
-         ))
+         )))
      (build-cleanup)))
 
 (define (crun-file srcfile run-p delete-p)
