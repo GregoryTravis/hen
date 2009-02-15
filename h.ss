@@ -11,8 +11,11 @@
     ((cton Foo ((var a) (const (opaque 20)) (var c)))
      (cton Bar ((var c) (var a))))))
 
-(define target '(cton Foo ((const (opaque 10)) (const (opaque 20)) (const (opaque 30)))))
-;(define target '(cton Foo ((const (opaque 10)) (const (opaque 20)))))
+(define targets
+  '((cton Foo ((const (opaque 10)) (const (opaque 20)) (const (opaque 30))))
+    (cton Foo ((const (opaque 10)) (const (opaque 20)) (const (opaque 300))))
+    (cton Foo ((const (opaque 10)) (const (opaque 200)) (const (opaque 30))))
+    (cton Foo ((const (opaque 10)) (const (opaque 20))))))
 
 (define (try-rules rules target)
   (if (null? rules)
@@ -60,4 +63,41 @@
 
 ;(tracefun try-rules try-rule try-pat pat-match-failed?)
 
-(shew (try-rules rules target))
+(define (strip-opaque e)
+  (if (and (pair? e) (eq? (car e) 'opaque))
+      (cadr e)
+      e))
+
+(define (sugar e)
+  (let ((type (car e)))
+    (cond
+     ((eq? type 'const)
+      (let ((c (cadr e)))
+        (if (symbol? c) `(quote, c) (strip-opaque c))))
+     ((eq? type 'var) (cadr e))
+     ((eq? type 'cton) (cons (cadr e) (map sugar (caddr e))))
+     (#t (err 'try-pat type)))))
+
+(define (unsugar e)
+  (cond
+   ((and (pair? e) (ctor? (car e)))
+    `(cton ,(car e) ,(map unsugar (cdr e))))
+   ((symbol? e)
+    `(var ,e))
+   ((is-quote? e)
+    (let ((o (cadr e)))
+      (assert (symbol? o))
+      `(const ,o)))
+   ((or (number? e) (string? e))
+    `(const (opaque ,e)))
+   (#t (err 'unsugar e))))
+
+(define (sus e)
+  (let* ((se (sugar e))
+         (use (unsugar se))
+         (suse (sugar use)))
+    (assert (and (equal? e use)
+                 (equal? se suse)))
+    (shew e se use suse)))
+
+(shew (map ($ try-rules rules _) targets))
