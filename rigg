@@ -56,7 +56,7 @@ sub readFile( $ )
 sub readFileLines( $ )
 {
   my ($filename) = @_;
-  open( FILE, $filename ) || die $!;
+  open( FILE, $filename ) || die "$!: $filename";
   my @lines = <FILE>;
   map { chomp; } @lines;
   close( FILE );
@@ -680,6 +680,9 @@ sub impl_c($$) {
   my $s = "";
   $s .= $c_header;
   $s .= qq[#include "butt.h"\n];
+  if (-e "$module.h") {
+    $s .= qq[#include "$module.h"\n];
+  }
   $s .= qq[#include "$module.impl.h"\n];
   $s .= gen_callbackers();
   for (my $i = 0; $i < @$dcls; ++$i) {
