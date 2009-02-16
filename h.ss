@@ -99,5 +99,3 @@
     (assert (and (equal? e use)
                  (equal? se suse)))
     (shew e se use suse)))
-
-(shew (map ($ try-rules rules _) targets))
