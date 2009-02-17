@@ -95,21 +95,46 @@
     `(const (opaque ,e)))
    (#t (err 'unsugar-consts-pairs-vars e))))
 
+(define (unsugar-head-var-syms->consts e)
+  (let ((type (car e)))
+    (cond
+     ((eq? type 'const) e)
+     ((eq? type 'var) e)
+     ((eq? type 'app)
+      (if (and (pair? (cadr e)) (eq? (caadr e) 'var))
+          `(app (const ,(cadadr e)) ,(map unsugar-head-var-syms->consts (caddr e)))
+          `(app ,(cadr e) ,(map unsugar-head-var-syms->consts (caddr e)))))
+     ((eq? type 'cton) `(cton ,(cadr e) ,(map unsugar-head-var-syms->consts (caddr e))))
+     (#t (err 'unsugar-head-var-syms->consts e)))))
+
+(define (sugar-head-const-syms->vars e)
+  (let ((type (car e)))
+    (cond
+     ((eq? type 'const) e)
+     ((eq? type 'var) e)
+     ((eq? type 'app)
+      (if (and (pair? (cadr e)) (eq? (caadr e) 'const))
+          `(app (var ,(cadadr e)) ,(map sugar-head-const-syms->vars (caddr e)))
+          `(app ,(cadr e) ,(map sugar-head-const-syms->vars (caddr e)))))
+     ((eq? type 'cton) `(cton ,(cadr e) ,(map sugar-head-const-syms->vars (caddr e))))
+     (#t (err 'sugar-head-const-syms->vars e)))))
+
 (define (sugar e)
-  (sugar-consts-pairs-vars e))
+  (sugar-consts-pairs-vars (sugar-head-const-syms->vars e)))
 
 (define (unsugar e)
-  (unsugar-consts-pairs-vars e))
+  (unsugar-head-var-syms->consts (unsugar-consts-pairs-vars e)))
 
 (define (sus e)
   (let* ((se (sugar e))
          (use (unsugar se))
          (suse (sugar use)))
+    (shew e se use suse)
     (assert (and (equal? e use)
                  (equal? se suse)))
     (shew e se use suse)))
 
-(define (us e)
+(define (usu e)
   (let* ((ue (unsugar e))
          (sue (sugar ue))
          (usue (unsugar sue)))
@@ -117,7 +142,21 @@
                  (equal? ue usue)))
     (shew e ue sue usue)))
 
-;(shew (unsugar-consts-pairs-vars '(joe 10)))
-;(shew (sugar-consts-pairs-vars (unsugar-consts-pairs-vars '(joe 10))))
-;(us '(joe 10))
-;(us '(joe (Hoot 10)))
+(define rules
+  '(
+    ((Foo a 20 c) (Bar c a))))
+
+(define targets
+  `((Foo 10 20 30)
+    (Foo 10 20 300)
+    (Foo 10 200 30)
+    (Foo 10 20)))
+
+(define more-exps
+  '((app (const joe) ((cton Hoot ((const (opaque 10))))))
+    (app (const joe) ((const (opaque 10))))))
+
+(shew (map ($ try-rules (map (lambda (rule) (map unsugar rule)) rules) _) (map unsugar targets)))
+(map usu (apply append rules))
+(map usu targets)
+(map sus more-exps)
