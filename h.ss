@@ -76,12 +76,15 @@
         (if (symbol? c) `(quote, c) (strip-opaque c))))
      ((eq? type 'var) (cadr e))
      ((eq? type 'cton) (cons (cadr e) (map sugar-consts-pairs-vars (caddr e))))
+     ((eq? type 'app) (cons (cadr (cadr e)) (map sugar-consts-pairs-vars (caddr e))))
      (#t (err 'sugar-consts-pairs-vars type)))))
 
 (define (unsugar-consts-pairs-vars e)
   (cond
    ((and (pair? e) (ctor? (car e)))
     `(cton ,(car e) ,(map unsugar-consts-pairs-vars (cdr e))))
+   ((pair? e)
+    `(app ,(unsugar-consts-pairs-vars (car e)) ,(map unsugar-consts-pairs-vars (cdr e))))
    ((symbol? e)
     `(var ,e))
    ((is-quote? e)
@@ -105,3 +108,16 @@
     (assert (and (equal? e use)
                  (equal? se suse)))
     (shew e se use suse)))
+
+(define (us e)
+  (let* ((ue (unsugar e))
+         (sue (sugar ue))
+         (usue (unsugar sue)))
+    (assert (and (equal? e sue)
+                 (equal? ue usue)))
+    (shew e ue sue usue)))
+
+;(shew (unsugar-consts-pairs-vars '(joe 10)))
+;(shew (sugar-consts-pairs-vars (unsugar-consts-pairs-vars '(joe 10))))
+;(us '(joe 10))
+;(us '(joe (Hoot 10)))
