@@ -68,20 +68,20 @@
       (cadr e)
       e))
 
-(define (sugar e)
+(define (sugar-consts-pairs-vars e)
   (let ((type (car e)))
     (cond
      ((eq? type 'const)
       (let ((c (cadr e)))
         (if (symbol? c) `(quote, c) (strip-opaque c))))
      ((eq? type 'var) (cadr e))
-     ((eq? type 'cton) (cons (cadr e) (map sugar (caddr e))))
-     (#t (err 'try-pat type)))))
+     ((eq? type 'cton) (cons (cadr e) (map sugar-consts-pairs-vars (caddr e))))
+     (#t (err 'sugar-consts-pairs-vars type)))))
 
-(define (unsugar e)
+(define (unsugar-consts-pairs-vars e)
   (cond
    ((and (pair? e) (ctor? (car e)))
-    `(cton ,(car e) ,(map unsugar (cdr e))))
+    `(cton ,(car e) ,(map unsugar-consts-pairs-vars (cdr e))))
    ((symbol? e)
     `(var ,e))
    ((is-quote? e)
@@ -90,7 +90,13 @@
       `(const ,o)))
    ((or (number? e) (string? e))
     `(const (opaque ,e)))
-   (#t (err 'unsugar e))))
+   (#t (err 'unsugar-consts-pairs-vars e))))
+
+(define (sugar e)
+  (sugar-consts-pairs-vars e))
+
+(define (unsugar e)
+  (unsugar-consts-pairs-vars e))
 
 (define (sus e)
   (let* ((se (sugar e))
