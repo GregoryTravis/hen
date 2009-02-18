@@ -20,3 +20,6 @@
 (map usu (apply append rules))
 (map usu targets)
 (map sus more-exps)
+
+(define rule '((map f l) (boop f jerk l)))
+(shew (sugar-rule rule))

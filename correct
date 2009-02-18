@@ -42,3 +42,5 @@
 (joe 10)
 (app (const joe) ((const (opaque 10))))
 (joe 10)
+((app (const map) ((var f) (var l)))
+ (app (const boop) ((var f) (global jerk) (var l))))

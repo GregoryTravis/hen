@@ -125,6 +125,46 @@
 (define (unsugar e)
   (head-var-syms->consts (unsugar-consts-pairs-vars e)))
 
+(define (traverse-program f e)
+  (let ((type (car e)))
+    (cond
+     ((eq? type 'const) (f e))
+     ((eq? type 'var) (f e))
+     ((eq? type 'app) (f `(app ,(traverse-program f (cadr e)) ,(map (lambda (e) (traverse-program f e)) (caddr e)))))
+     ((eq? type 'cton) (f `(cton ,(cadr e) ,(map head-const-syms->vars (caddr e)))))
+     (#t (err 'traverse-program f e)))))
+
+(define (traverse-program-this-type type f e)
+  (traverse-program (lambda (n)
+                      (if (eq? type (car n))
+                          (f n)
+                          n))
+                    e))
+
+(define (traverse-vars f e) (traverse-program-this-type 'var f e))
+
+;; Vars in body that aren't bound in pat are actually assumed to be
+;; globals.
+(define (globalize-non-vars pat body)
+  (let ((vars (vars-bound-in pat)))
+    (traverse-vars (lambda (v) (if (member? v vars)
+                                   v
+                                   `(global ,(cadr v))))
+                   body)))
+(define (vars-bound-in e)
+  (let ((vars '()))
+    (traverse-vars (lambda (v) (set! vars (cons v vars)))
+                   e)
+    vars))
+
+;(tracefun traverse-program traverse-program-this-type traverse-vars)
+
+(define (sugar-rule rule)
+  (let ((pat (unsugar (car rule)))
+        (body (unsugar (cadr rule))))
+    (list pat
+          (globalize-non-vars pat body))))
+
 (define (sus e)
   (let* ((se (sugar e))
          (use (unsugar se))
