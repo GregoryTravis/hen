@@ -1216,7 +1216,7 @@
 (define-macro (pv . vars)
   `(begin
      ,@(apply append (map (lambda (var)
-                            `((display "= ")
+                            `(;(display "= ")
                               (display ',var)
                               (display " = ")
                               (lshew ,var)
