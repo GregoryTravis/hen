@@ -198,6 +198,7 @@
 
 (define (build-exe srcfile)
   (let* ((imports '("GLee.h" "<OpenGL/gl.h>" "<GLUT/glut.h>" "<OpenGL/glext.h>" "<OpenGL/glu.h>"))
+         (ffis.c '("ref" "cvt"))
          (src "fbo")
          (src.ss (ext src 'ss))
          (src.ss.c (ext src 'ss.c))
@@ -211,17 +212,18 @@
          (includer-generation-rules
           `((,generate-includer (output "fbo_includer.c") ,imports)))
          (includer-rules (rigg-rules includer))
-         (ref-rules (rigg-rules "ref"))
-         (cvt-rules (rigg-rules "cvt"))
+         (ffis.c-rules (map-append rigg-rules ffis.c))
          (src-rules
           `((,compile-ss-to-c () (input ,src.ss) (output ,src.ss.c) ,src)
             (gcc -std=c99 -g -c -o (output ,src.ss.c.o) (input ,src.ss.c))))
          (runtime-rules
-          `((gcc -std=c99 -g -c -o (output "vor.c.o") (input "vor.c"))
-            (gcc -std=c99 -g -c -o (output "mem.c.o") (input "mem.c"))
-            (gcc -std=c99 -g -c -o (output "primcalls.c.o") (input "primcalls.c"))
-            (gcc -std=c99 -g -c -o (output "spew.c.o") (input "spew.c"))
-            (gcc -std=c99 -g -c -o (output "GLee.c.o") (input "GLee.c"))
+          (map gco (map ($ ext _ 'c) runtime)))
+;;           `((gcc -std=c99 -g -c -o (output "vor.c.o") (input "vor.c"))
+;;             (gcc -std=c99 -g -c -o (output "mem.c.o") (input "mem.c"))
+;;             (gcc -std=c99 -g -c -o (output "spew.c.o") (input "spew.c"))
+;;             (gcc -std=c99 -g -c -o (output "primcalls.c.o") (input "primcalls.c"))))
+         (bah-rules
+          `((gcc -std=c99 -g -c -o (output "GLee.c.o") (input "GLee.c"))
             (gcc -std=c99 -g -c -o (output "shew.impl.c.o") (input "shew.impl.c"))))
          (main-rules
           `((,gen-main "fbo" ("fbo_includer" "ref" "cvt") (output "fbo_main.c") (implicit (input "ref.impl.h")) (implicit (input "cvt.impl.h")))
@@ -231,7 +233,7 @@
                  (input "ref.c.o") (input "ref.stub.ss.c.o") (input "ref.impl.c.o")
                  (input "cvt.c.o") (input "cvt.stub.ss.c.o") (input "cvt.impl.c.o")
                  (input "GLee.c.o") (input "shew.impl.c.o") "-framework GLUT -framework OpenGL -framework CoreFoundation")))
-         (rules (append includer-generation-rules includer-rules ref-rules cvt-rules src-rules runtime-rules main-rules link-rules)))
+         (rules (append includer-generation-rules includer-rules ffis.c-rules src-rules runtime-rules bah-rules main-rules link-rules)))
     (shew rules)
     (make "fbo"
       rules)))
