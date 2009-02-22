@@ -198,82 +198,77 @@
       "_includer"))
 
 (define (build-exe srcfile)
-;;   (let* ((stub (remove-extension srcfile))
-;;          (src (read-objects srcfile))
-;;          (imports (group-by car (map-append cdr (grep import? src))))
-;;          (src (grep (fnot import?) src))
-;;          (import-strings (map cadr (lookup-or 'ffi imports '()))))
-    (let* ((imports '("GLee.h" "<OpenGL/gl.h>" "<GLUT/glut.h>" "<OpenGL/glext.h>" "<OpenGL/glu.h>"))
-           (src "fbo")
-           (src.ss (ext src 'ss))
-           (src.ss.c (ext src 'ss.c))
-           (src.ss.c.o (ext src 'ss.c.o))
-           (includer (++ src "_includer"))
-           (includer.c (ext includer 'c))
-           (includer.impl.h (ext includer 'impl.h))
-           (includer.impl.c (ext includer 'impl.c))
-           (includer.impl.c.o (ext includer 'impl.c.o))
-           (includer.stub.ss (ext includer 'stub.ss))
-           (includer.stub.ss.c (ext includer 'stub.ss.c))
-           (includer.stub.ss.c.o (ext includer 'stub.ss.c.o))
-           (runtime '("vor" "mem" "spew" "primcalls"))
-           (link-objs (append '("fbo_main.c.o" "fbo_includer.impl.c.o") (map ($ ext _ 'c.o) runtime)))
-;           (includer.o (ext includer.c 'o))
-           (includer-rules
-            `((,generate-includer (output ,includer.c) ,imports)))
-           (rigg-rules
-            `((rigg ,includer
-                    (implicit (input ,(ext includer 'c)))
-                    (implicit (output ,(ext includer 'impl.h)))
-                    (implicit (output ,(ext includer 'impl.c)))
-                    (implicit (output ,(ext includer 'stub.ss))))))
-           (ref-rules
-            `((rigg "ref"
-                    (implicit (input ,(ext "ref" 'c)))
-                    (implicit (output ,(ext "ref" 'impl.h)))
-                    (implicit (output ,(ext "ref" 'impl.c)))
-                    (implicit (output ,(ext "ref" 'stub.ss))))
-              (gcc -std=c99 -g -c -o (output "ref.impl.c.o") (input "ref.impl.c"))
-              (gcc -std=c99 -g -c -o (output "ref.c.o") (input "ref.c"))
-              (gcc -std=c99 -g -c -o (output "ref.stub.ss.c.o") (input "ref.stub.ss.c"))
-              (,compile-ss-to-c () (input "ref.stub.ss") (output "ref.stub.ss.c") "ref")))
-           (cvt-rules
-            `((rigg "cvt"
-                    (implicit (input ,(ext "cvt" 'c)))
-                    (implicit (output ,(ext "cvt" 'impl.h)))
-                    (implicit (output ,(ext "cvt" 'impl.c)))
-                    (implicit (output ,(ext "cvt" 'stub.ss))))
-              (gcc -std=c99 -g -c -o (output "cvt.impl.c.o") (input "cvt.impl.c"))
-              (gcc -std=c99 -g -c -o (output "cvt.c.o") (input "cvt.c"))
-              (gcc -std=c99 -g -c -o (output "cvt.stub.ss.c.o") (input "cvt.stub.ss.c"))
-              (,compile-ss-to-c () (input "cvt.stub.ss") (output "cvt.stub.ss.c") "cvt")))
-           (ss-c-rules
-            `((,compile-ss-to-c () (input ,includer.stub.ss) (output ,includer.stub.ss.c) ,includer)))
-           (co-rules
-            `((gcc -std=c99 -g -c -o (output ,includer.impl.c.o) (input ,includer.impl.c))
-              (gcc -std=c99 -g -c -o (output ,includer.stub.ss.c.o) (input ,includer.stub.ss.c))))
-           (src-rules
-            `((,compile-ss-to-c () (input ,src.ss) (output ,src.ss.c) ,src)
-              (gcc -std=c99 -g -c -o (output ,src.ss.c.o) (input ,src.ss.c))))
-           (runtime-rules
-            `((gcc -std=c99 -g -c -o (output "vor.c.o") (input "vor.c"))
-              (gcc -std=c99 -g -c -o (output "mem.c.o") (input "mem.c"))
-              (gcc -std=c99 -g -c -o (output "primcalls.c.o") (input "primcalls.c"))
-              (gcc -std=c99 -g -c -o (output "spew.c.o") (input "spew.c"))
-              (gcc -std=c99 -g -c -o (output "GLee.c.o") (input "GLee.c"))
-              (gcc -std=c99 -g -c -o (output "shew.impl.c.o") (input "shew.impl.c"))))
-           (main-rules
-            `((,gen-main "fbo" ("fbo_includer" "ref" "cvt") (output "fbo_main.c") (implicit (input "ref.impl.h")) (implicit (input "cvt.impl.h")))
-              (gcc -std=c99 -g -c -o (output "fbo_main.c.o") (input "fbo_main.c"))))
-           (link-rules
-            `((gcc -std=c99 -o (output ,src) (input ,src.ss.c.o) (input ,includer.stub.ss.c.o) ,@(map input link-objs)
-                   (input "ref.c.o") (input "ref.stub.ss.c.o") (input "ref.impl.c.o")
-                   (input "cvt.c.o") (input "cvt.stub.ss.c.o") (input "cvt.impl.c.o")
-                   (input "GLee.c.o") (input "shew.impl.c.o") "-framework GLUT -framework OpenGL -framework CoreFoundation")))
-           (rules (append includer-rules rigg-rules ref-rules cvt-rules ss-c-rules co-rules src-rules runtime-rules main-rules link-rules)))
-      (shew rules)
-      (make "fbo"
-        rules)))
+  (let* ((imports '("GLee.h" "<OpenGL/gl.h>" "<GLUT/glut.h>" "<OpenGL/glext.h>" "<OpenGL/glu.h>"))
+         (src "fbo")
+         (src.ss (ext src 'ss))
+         (src.ss.c (ext src 'ss.c))
+         (src.ss.c.o (ext src 'ss.c.o))
+         (includer (++ src "_includer"))
+         (includer.c (ext includer 'c))
+         (includer.impl.h (ext includer 'impl.h))
+         (includer.impl.c (ext includer 'impl.c))
+         (includer.impl.c.o (ext includer 'impl.c.o))
+         (includer.stub.ss (ext includer 'stub.ss))
+         (includer.stub.ss.c (ext includer 'stub.ss.c))
+         (includer.stub.ss.c.o (ext includer 'stub.ss.c.o))
+         (runtime '("vor" "mem" "spew" "primcalls"))
+         (link-objs (append '("fbo_main.c.o" "fbo_includer.impl.c.o") (map ($ ext _ 'c.o) runtime)))
+                                        ;           (includer.o (ext includer.c 'o))
+         (includer-rules
+          `((,generate-includer (output ,includer.c) ,imports)))
+         (rigg-rules
+          `((rigg ,includer
+                  (implicit (input ,(ext includer 'c)))
+                  (implicit (output ,(ext includer 'impl.h)))
+                  (implicit (output ,(ext includer 'impl.c)))
+                  (implicit (output ,(ext includer 'stub.ss))))))
+         (ref-rules
+          `((rigg "ref"
+                  (implicit (input ,(ext "ref" 'c)))
+                  (implicit (output ,(ext "ref" 'impl.h)))
+                  (implicit (output ,(ext "ref" 'impl.c)))
+                  (implicit (output ,(ext "ref" 'stub.ss))))
+            (gcc -std=c99 -g -c -o (output "ref.impl.c.o") (input "ref.impl.c"))
+            (gcc -std=c99 -g -c -o (output "ref.c.o") (input "ref.c"))
+            (gcc -std=c99 -g -c -o (output "ref.stub.ss.c.o") (input "ref.stub.ss.c"))
+            (,compile-ss-to-c () (input "ref.stub.ss") (output "ref.stub.ss.c") "ref")))
+         (cvt-rules
+          `((rigg "cvt"
+                  (implicit (input ,(ext "cvt" 'c)))
+                  (implicit (output ,(ext "cvt" 'impl.h)))
+                  (implicit (output ,(ext "cvt" 'impl.c)))
+                  (implicit (output ,(ext "cvt" 'stub.ss))))
+            (gcc -std=c99 -g -c -o (output "cvt.impl.c.o") (input "cvt.impl.c"))
+            (gcc -std=c99 -g -c -o (output "cvt.c.o") (input "cvt.c"))
+            (gcc -std=c99 -g -c -o (output "cvt.stub.ss.c.o") (input "cvt.stub.ss.c"))
+            (,compile-ss-to-c () (input "cvt.stub.ss") (output "cvt.stub.ss.c") "cvt")))
+         (ss-c-rules
+          `((,compile-ss-to-c () (input ,includer.stub.ss) (output ,includer.stub.ss.c) ,includer)))
+         (co-rules
+          `((gcc -std=c99 -g -c -o (output ,includer.impl.c.o) (input ,includer.impl.c))
+            (gcc -std=c99 -g -c -o (output ,includer.stub.ss.c.o) (input ,includer.stub.ss.c))))
+         (src-rules
+          `((,compile-ss-to-c () (input ,src.ss) (output ,src.ss.c) ,src)
+            (gcc -std=c99 -g -c -o (output ,src.ss.c.o) (input ,src.ss.c))))
+         (runtime-rules
+          `((gcc -std=c99 -g -c -o (output "vor.c.o") (input "vor.c"))
+            (gcc -std=c99 -g -c -o (output "mem.c.o") (input "mem.c"))
+            (gcc -std=c99 -g -c -o (output "primcalls.c.o") (input "primcalls.c"))
+            (gcc -std=c99 -g -c -o (output "spew.c.o") (input "spew.c"))
+            (gcc -std=c99 -g -c -o (output "GLee.c.o") (input "GLee.c"))
+            (gcc -std=c99 -g -c -o (output "shew.impl.c.o") (input "shew.impl.c"))))
+         (main-rules
+          `((,gen-main "fbo" ("fbo_includer" "ref" "cvt") (output "fbo_main.c") (implicit (input "ref.impl.h")) (implicit (input "cvt.impl.h")))
+            (gcc -std=c99 -g -c -o (output "fbo_main.c.o") (input "fbo_main.c"))))
+         (link-rules
+          `((gcc -std=c99 -o (output ,src) (input ,src.ss.c.o) (input ,includer.stub.ss.c.o) ,@(map input link-objs)
+                 (input "ref.c.o") (input "ref.stub.ss.c.o") (input "ref.impl.c.o")
+                 (input "cvt.c.o") (input "cvt.stub.ss.c.o") (input "cvt.impl.c.o")
+                 (input "GLee.c.o") (input "shew.impl.c.o") "-framework GLUT -framework OpenGL -framework CoreFoundation")))
+         (rules (append includer-rules rigg-rules ref-rules cvt-rules ss-c-rules co-rules src-rules runtime-rules main-rules link-rules)))
+    (shew rules)
+    (make "fbo"
+      rules)))
                         
 (define (crun-file srcfile run-p delete-p)
   (reset-everything)
