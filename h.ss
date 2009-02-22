@@ -197,7 +197,7 @@
     (,compile-ss-to-c () (input ,(ext stub 'stub.ss)) (output ,(ext stub 'stub.ss.c)) ,stub)))
 
 (define (implicits . stuff)
-  (map implicits (apply append stuff)))
+  (map implicit (apply append stuff)))
 (define (inputs . stuff)
   (map input (apply append stuff)))
 (define (outputs . stuff)
@@ -229,7 +229,8 @@
          (runtime-rules
           (map gco (exts (append runtime libs.c) 'c)))
          (main-rules
-          `((,gen-main "fbo" ("fbo_includer" "ref" "cvt") (output "fbo_main.c") (implicit (input "ref.impl.h")) (implicit (input "cvt.impl.h")))
+          `((,gen-main ,src ,(cons includer ffis.c) (output ,main.c)
+                       ,@(implicits (inputs (exts ffis.c 'impl.h))))
             (gcc -std=c99 -g -c -o (output "fbo_main.c.o") (input "fbo_main.c"))))
          (link-rules
           `((gcc -std=c99 -o (output ,src) (input ,src.ss.c.o) (input "fbo_includer.stub.ss.c.o") ,@(inputs link-objs)
