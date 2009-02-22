@@ -202,9 +202,12 @@
          (src.ss (ext src 'ss))
          (src.ss.c (ext src 'ss.c))
          (src.ss.c.o (ext src 'ss.c.o))
+         (main (++ src "_main"))
+         (main.c (ext main 'c))
+         (main.c.o (ext main 'c.o))
          (includer (++ src "_includer"))
          (runtime '("vor" "mem" "spew" "primcalls"))
-         (link-objs (append '("fbo_main.c.o" "fbo_includer.impl.c.o") (map ($ ext _ 'c.o) runtime)))
+         (link-objs (append `(,main.c.o "fbo_includer.impl.c.o") (map ($ ext _ 'c.o) runtime)))
          (includer-generation-rules
           `((,generate-includer (output "fbo_includer.c") ,imports)))
          (includer-rules (rigg-rules includer))
