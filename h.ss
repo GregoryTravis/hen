@@ -208,7 +208,7 @@
 (define (build-exe srcfile)
   (let* ((imports '("GLee.h" "<OpenGL/gl.h>" "<GLUT/glut.h>" "<OpenGL/glext.h>" "<OpenGL/glu.h>"))
          (ffis.c '("ref" "cvt"))
-         (libs.c '("GLee"))
+         (libs.c '("GLee" "shew.impl"))
          (src (remove-extension srcfile))
          (src.ss (ext src 'ss))
          (src.ss.c (ext src 'ss.c))
@@ -220,7 +220,7 @@
          (runtime '("vor" "mem" "spew" "primcalls"))
          (link-objs (append `(,main.c.o "fbo_includer.impl.c.o") (exts runtime 'c.o)))
          (includer-generation-rules
-          `((,generate-includer (output "fbo_includer.c") ,imports)))
+          `((,generate-includer (output ,(ext includer 'c)) ,imports)))
          (includer-rules (rigg-rules includer))
          (ffis.c-rules (map-append rigg-rules ffis.c))
          (src-rules
@@ -228,8 +228,6 @@
             (gcc -std=c99 -g -c -o (output ,src.ss.c.o) (input ,src.ss.c))))
          (runtime-rules
           (map gco (exts (append runtime libs.c) 'c)))
-         (bah-rules
-          `((gcc -std=c99 -g -c -o (output "shew.impl.c.o") (input "shew.impl.c"))))
          (main-rules
           `((,gen-main "fbo" ("fbo_includer" "ref" "cvt") (output "fbo_main.c") (implicit (input "ref.impl.h")) (implicit (input "cvt.impl.h")))
             (gcc -std=c99 -g -c -o (output "fbo_main.c.o") (input "fbo_main.c"))))
@@ -238,8 +236,8 @@
                  (input "ref.c.o") (input "ref.stub.ss.c.o") (input "ref.impl.c.o")
                  (input "cvt.c.o") (input "cvt.stub.ss.c.o") (input "cvt.impl.c.o")
                  ,@(inputs (exts libs.c 'c.o))
-                 (input "shew.impl.c.o") "-framework GLUT -framework OpenGL -framework CoreFoundation")))
-         (rules (append includer-generation-rules includer-rules ffis.c-rules src-rules runtime-rules bah-rules main-rules link-rules)))
+                 "-framework GLUT -framework OpenGL -framework CoreFoundation")))
+         (rules (append includer-generation-rules includer-rules ffis.c-rules src-rules runtime-rules main-rules link-rules)))
     (shew rules)
     (make "fbo"
       rules)))
