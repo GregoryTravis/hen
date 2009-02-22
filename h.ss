@@ -218,10 +218,6 @@
             (gcc -std=c99 -g -c -o (output ,src.ss.c.o) (input ,src.ss.c))))
          (runtime-rules
           (map gco (map ($ ext _ 'c) runtime)))
-;;           `((gcc -std=c99 -g -c -o (output "vor.c.o") (input "vor.c"))
-;;             (gcc -std=c99 -g -c -o (output "mem.c.o") (input "mem.c"))
-;;             (gcc -std=c99 -g -c -o (output "spew.c.o") (input "spew.c"))
-;;             (gcc -std=c99 -g -c -o (output "primcalls.c.o") (input "primcalls.c"))))
          (bah-rules
           `((gcc -std=c99 -g -c -o (output "GLee.c.o") (input "GLee.c"))
             (gcc -std=c99 -g -c -o (output "shew.impl.c.o") (input "shew.impl.c"))))
