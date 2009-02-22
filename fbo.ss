@@ -4,6 +4,7 @@
  (ffi "<GLUT/glut.h>")
  (ffi "<OpenGL/glext.h>")
  (ffi "<OpenGL/glu.h>")
+ (ffi "ref.c")
  (ffi "cvt.c")
  (link "GLee.c")
  (framework "GLUT")

@@ -675,10 +675,12 @@ EOF
   return $ss;
 }
 
-sub impl_c($$) {
-  my ($module, $dcls) = @_;
+sub impl_c($$$) {
+  my ($files, $module, $dcls) = @_;
   my $s = "";
   $s .= $c_header;
+  $files = [map { "#include $_" } @$files];
+  $s .= join("\n", @$files) . "\n";
   $s .= qq[#include "butt.h"\n];
   if (-e "$module.h") {
     $s .= qq[#include "$module.h"\n];
@@ -721,9 +723,9 @@ sub stub($$$) {
   writeFile("$module.stub.ss", $s);
 }
 
-sub impl($$) {
-  my ($module, $funs) = @_;
-  my $c = impl_c($module, $funs);
+sub impl($$$) {
+  my ($files, $module, $funs) = @_;
+  my $c = impl_c($files, $module, $funs);
   my $h = impl_h($module);
   writeFile("$module.impl.c", $c);
   writeFile("$module.impl.h", $h);
@@ -737,6 +739,15 @@ sub extract_header_file_from_import_string($) {
   return $is;
 }
 
+sub get_include_basefile($) {
+  my ($include) = @_;
+  $include =~ s/^<//;
+  $include =~ s/>$//;
+  $include =~ s/"//g;
+  $include =~ s/.*\///;
+  return $include;
+}
+
 sub get_includes($) {
   my ($filename) = @_;
   my $lines = readFileLines($filename);
@@ -744,13 +755,21 @@ sub get_includes($) {
   foreach my $line (@$lines) {
     if ($line =~ /^#\s*include\s+(.*)\s*$/) {
       my $include = $1;
-      $include =~ s/^<//;
-      $include =~ s/>$//;
-      $include =~ s/"//g;
-      $include =~ s/.*\///;
+#      $include =~ s/^<//;
+#      $include =~ s/>$//;
+#      $include =~ s/"//g;
+#      $include =~ s/.*\///;
       push(@includes, $include);
     }
   }
+  return \@includes;
+}
+
+sub get_include_basefiles($) {
+  my ($filename) = @_;
+  my $includes = get_includes($filename);
+  my @includes = @$includes;
+  @includes = map { get_include_basefile($_); } @includes;
   return \@includes;
 }
 
@@ -763,10 +782,13 @@ sub go() {
 
   my $src = $module . ".c";
   my $files = get_includes($src);
-  push(@$files, $src);
+  my $base_includes = get_include_basefiles($src);
+  push(@$base_includes, $src);
+#shew($files);
+#shew($base_includes);
   print `g++ -c -fdump-translation-unit $src`;
-  my $funs = read_dump($src, $files);
-  impl($module, $funs);
+  my $funs = read_dump($src, $base_includes);
+  impl($files, $module, $funs);
   stub($src, $module, $funs);
 }
 

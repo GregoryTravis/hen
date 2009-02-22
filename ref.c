@@ -9,3 +9,7 @@ typedef char* charp;
 REFFIE(int)
 REFFIE(float)
 REFFIE(charp)
+
+void* create_null_ref(void) {
+  return 0;
+}
