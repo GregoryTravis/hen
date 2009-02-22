@@ -236,15 +236,11 @@
             (gcc -std=c99 -g -c -o (output ,(ext main.c 'o)) (input ,main.c))))
          (link-rules
           `((gcc -std=c99 -o (output ,src) (input ,src.ss.c.o) (input ,(ext includer 'stub.ss.c.o)) ,@(inputs link-objs)
-                 ,@(inputs (exts ffis.c 'c.o))
-                 ,@(inputs (exts ffis.c 'stub.ss.c.o))
-                 ,@(inputs (exts ffis.c 'impl.c.o))
-                 ,@(inputs (exts libs.c 'c.o))
-                 ,libstring)))
+                 ,@(inputs (exts ffis.c 'c.o)) ,@(inputs (exts ffis.c 'stub.ss.c.o)) ,@(inputs (exts ffis.c 'impl.c.o))
+                 ,@(inputs (exts libs.c 'c.o)) ,libstring)))
          (rules (append includer-generation-rules includer-rules ffis.c-rules src-rules runtime-rules main-rules link-rules)))
     (shew rules)
-    (make "fbo"
-      rules)))
+    (make src rules)))
                         
 (define (crun-file srcfile run-p delete-p)
   (reset-everything)
