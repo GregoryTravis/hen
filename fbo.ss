@@ -7,6 +7,7 @@
  (ffi "ref.c")
  (ffi "cvt.c")
  (link "GLee.c")
+ (link "spew.impl.c")
  (framework "GLUT")
  (framework "OpenGL")
  (framework "CoreFoundation"))

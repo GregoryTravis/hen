@@ -1112,6 +1112,13 @@
    ((eq? (car lyst) #\.) (cdr lyst))
    (#t (remove-extension-1 (cdr lyst)))))
 
+(define (get-extension s) (list->string (reverse (get-extension-1 (reverse (string->list s))))))
+(define (get-extension-1 lyst)
+  (cond
+   ((null? lyst) (err))
+   ((eq? (car lyst) #\.) '())
+   (#t (cons (car lyst) (get-extension-1 (cdr lyst))))))
+
 (define make-debug #t)
 (define make-show-commands #t)
 
