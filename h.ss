@@ -206,10 +206,12 @@
   (map ($ ext _ ex) os))
 
 (define (build-exe srcfile)
-  (let* ((imports '("GLee.h" "<OpenGL/gl.h>" "<GLUT/glut.h>" "<OpenGL/glext.h>" "<OpenGL/glu.h>"))
+  (let* ((imports '("shew.impl.h" "GLee.h" "<OpenGL/gl.h>" "<GLUT/glut.h>" "<OpenGL/glext.h>" "<OpenGL/glu.h>"))
          (ffis.c '("ref" "cvt"))
          (libs.c '("GLee" "shew.impl"))
          (libs '("GLUT" "OpenGL" "CoreFoundation"))
+         (runtime '("vor" "mem" "spew" "primcalls"))
+
          (libstring (join-things " " (map-append ($ list "-framework" _) libs)))
          (src (remove-extension srcfile))
          (src.ss (ext src 'ss))
@@ -219,7 +221,6 @@
          (main.c (ext main 'c))
          (main.c.o (ext main 'c.o))
          (includer (++ src "_includer"))
-         (runtime '("vor" "mem" "spew" "primcalls"))
          (link-objs (append `(,main.c.o ,(ext includer 'impl.c.o)) (exts runtime 'c.o)))
          (includer-generation-rules
           `((,generate-includer (output ,(ext includer 'c)) ,imports)))
