@@ -1,2 +1,2 @@
 #./clean
-hen fbo.ss
+hen src.ss

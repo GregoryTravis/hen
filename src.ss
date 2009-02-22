@@ -1,5 +1,6 @@
 (import
- (ffi "ref.c"))
+ (ffi "ref.c")
+ (link "shew.impl.c"))
 
 (doo
  ref (create-int-ref 10)
