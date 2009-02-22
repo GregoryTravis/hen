@@ -196,6 +196,15 @@
     (gcc -std=c99 -g -c -o (output ,(ext stub 'stub.ss.c.o)) (input ,(ext stub 'stub.ss.c)))
     (,compile-ss-to-c () (input ,(ext stub 'stub.ss)) (output ,(ext stub 'stub.ss.c)) ,stub)))
 
+(define (implicits . stuff)
+  (map implicits (apply append stuff)))
+(define (inputs . stuff)
+  (map input (apply append stuff)))
+(define (outputs . stuff)
+  (map output (apply append stuff)))
+(define (exts os ex)
+  (map ($ ext _ ex) os))
+
 (define (build-exe srcfile)
   (let* ((imports '("GLee.h" "<OpenGL/gl.h>" "<GLUT/glut.h>" "<OpenGL/glext.h>" "<OpenGL/glu.h>"))
          (ffis.c '("ref" "cvt"))
@@ -209,7 +218,7 @@
          (main.c.o (ext main 'c.o))
          (includer (++ src "_includer"))
          (runtime '("vor" "mem" "spew" "primcalls"))
-         (link-objs (append `(,main.c.o "fbo_includer.impl.c.o") (map ($ ext _ 'c.o) runtime)))
+         (link-objs (append `(,main.c.o "fbo_includer.impl.c.o") (exts runtime 'c.o)))
          (includer-generation-rules
           `((,generate-includer (output "fbo_includer.c") ,imports)))
          (includer-rules (rigg-rules includer))
@@ -218,18 +227,17 @@
           `((,compile-ss-to-c () (input ,src.ss) (output ,src.ss.c) ,src)
             (gcc -std=c99 -g -c -o (output ,src.ss.c.o) (input ,src.ss.c))))
          (runtime-rules
-          (map gco (map ($ ext _ 'c) (append runtime
-                                             libs.c))))
+          (map gco (exts (append runtime libs.c) 'c)))
          (bah-rules
           `((gcc -std=c99 -g -c -o (output "shew.impl.c.o") (input "shew.impl.c"))))
          (main-rules
           `((,gen-main "fbo" ("fbo_includer" "ref" "cvt") (output "fbo_main.c") (implicit (input "ref.impl.h")) (implicit (input "cvt.impl.h")))
             (gcc -std=c99 -g -c -o (output "fbo_main.c.o") (input "fbo_main.c"))))
          (link-rules
-          `((gcc -std=c99 -o (output ,src) (input ,src.ss.c.o) (input "fbo_includer.stub.ss.c.o") ,@(map input link-objs)
+          `((gcc -std=c99 -o (output ,src) (input ,src.ss.c.o) (input "fbo_includer.stub.ss.c.o") ,@(inputs link-objs)
                  (input "ref.c.o") (input "ref.stub.ss.c.o") (input "ref.impl.c.o")
                  (input "cvt.c.o") (input "cvt.stub.ss.c.o") (input "cvt.impl.c.o")
-                 ,@(map input (map ($ ext _ 'c.o) libs.c))
+                 ,@(inputs (exts libs.c 'c.o))
                  (input "shew.impl.c.o") "-framework GLUT -framework OpenGL -framework CoreFoundation")))
          (rules (append includer-generation-rules includer-rules ffis.c-rules src-rules runtime-rules bah-rules main-rules link-rules)))
     (shew rules)
