@@ -218,7 +218,7 @@
          (main.c.o (ext main 'c.o))
          (includer (++ src "_includer"))
          (runtime '("vor" "mem" "spew" "primcalls"))
-         (link-objs (append `(,main.c.o "fbo_includer.impl.c.o") (exts runtime 'c.o)))
+         (link-objs (append `(,main.c.o ,(ext includer 'impl.c.o)) (exts runtime 'c.o)))
          (includer-generation-rules
           `((,generate-includer (output ,(ext includer 'c)) ,imports)))
          (includer-rules (rigg-rules includer))
@@ -231,9 +231,9 @@
          (main-rules
           `((,gen-main ,src ,(cons includer ffis.c) (output ,main.c)
                        ,@(implicits (inputs (exts ffis.c 'impl.h))))
-            (gcc -std=c99 -g -c -o (output "fbo_main.c.o") (input "fbo_main.c"))))
+            (gcc -std=c99 -g -c -o (output ,(ext main.c 'o)) (input ,main.c))))
          (link-rules
-          `((gcc -std=c99 -o (output ,src) (input ,src.ss.c.o) (input "fbo_includer.stub.ss.c.o") ,@(inputs link-objs)
+          `((gcc -std=c99 -o (output ,src) (input ,src.ss.c.o) (input ,(ext includer 'stub.ss.c.o)) ,@(inputs link-objs)
                  (input "ref.c.o") (input "ref.stub.ss.c.o") (input "ref.impl.c.o")
                  (input "cvt.c.o") (input "cvt.stub.ss.c.o") (input "cvt.impl.c.o")
                  ,@(inputs (exts libs.c 'c.o))
