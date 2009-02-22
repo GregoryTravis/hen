@@ -209,6 +209,8 @@
   (let* ((imports '("GLee.h" "<OpenGL/gl.h>" "<GLUT/glut.h>" "<OpenGL/glext.h>" "<OpenGL/glu.h>"))
          (ffis.c '("ref" "cvt"))
          (libs.c '("GLee" "shew.impl"))
+         (libs '("GLUT" "OpenGL" "CoreFoundation"))
+         (libstring (join-things " " (map-append ($ list "-framework" _) libs)))
          (src (remove-extension srcfile))
          (src.ss (ext src 'ss))
          (src.ss.c (ext src 'ss.c))
@@ -234,10 +236,11 @@
             (gcc -std=c99 -g -c -o (output ,(ext main.c 'o)) (input ,main.c))))
          (link-rules
           `((gcc -std=c99 -o (output ,src) (input ,src.ss.c.o) (input ,(ext includer 'stub.ss.c.o)) ,@(inputs link-objs)
-                 (input "ref.c.o") (input "ref.stub.ss.c.o") (input "ref.impl.c.o")
-                 (input "cvt.c.o") (input "cvt.stub.ss.c.o") (input "cvt.impl.c.o")
+                 ,@(inputs (exts ffis.c 'c.o))
+                 ,@(inputs (exts ffis.c 'stub.ss.c.o))
+                 ,@(inputs (exts ffis.c 'impl.c.o))
                  ,@(inputs (exts libs.c 'c.o))
-                 "-framework GLUT -framework OpenGL -framework CoreFoundation")))
+                 ,libstring)))
          (rules (append includer-generation-rules includer-rules ffis.c-rules src-rules runtime-rules main-rules link-rules)))
     (shew rules)
     (make "fbo"
