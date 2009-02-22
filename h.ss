@@ -214,20 +214,9 @@
          (link-objs (append '("fbo_main.c.o" "fbo_includer.impl.c.o") (map ($ ext _ 'c.o) runtime)))
          (includer-rules
           `((,generate-includer (output ,includer.c) ,imports)))
-         (rigg-rulesy
-          `((rigg ,includer
-                  (implicit (input ,(ext includer 'c)))
-                  (implicit (output ,(ext includer 'impl.h)))
-                  (implicit (output ,(ext includer 'impl.c)))
-                  (implicit (output ,(ext includer 'stub.ss))))))
-;         (rigg-rulesy (rigg-rulesy includer)
+         (includer-rules (rigg-rules includer))
          (ref-rules (rigg-rules "ref"))
          (cvt-rules (rigg-rules "cvt"))
-         (ss-c-rules
-          `((,compile-ss-to-c () (input ,includer.stub.ss) (output ,includer.stub.ss.c) ,includer)))
-         (co-rules
-          `((gcc -std=c99 -g -c -o (output ,includer.impl.c.o) (input ,includer.impl.c))
-            (gcc -std=c99 -g -c -o (output ,includer.stub.ss.c.o) (input ,includer.stub.ss.c))))
          (src-rules
           `((,compile-ss-to-c () (input ,src.ss) (output ,src.ss.c) ,src)
             (gcc -std=c99 -g -c -o (output ,src.ss.c.o) (input ,src.ss.c))))
@@ -246,7 +235,7 @@
                  (input "ref.c.o") (input "ref.stub.ss.c.o") (input "ref.impl.c.o")
                  (input "cvt.c.o") (input "cvt.stub.ss.c.o") (input "cvt.impl.c.o")
                  (input "GLee.c.o") (input "shew.impl.c.o") "-framework GLUT -framework OpenGL -framework CoreFoundation")))
-         (rules (append includer-rules rigg-rulesy ref-rules cvt-rules ss-c-rules co-rules src-rules runtime-rules main-rules link-rules)))
+         (rules (append includer-rules includer-rules ref-rules cvt-rules src-rules runtime-rules main-rules link-rules)))
     (shew rules)
     (make "fbo"
       rules)))
