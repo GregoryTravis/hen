@@ -203,17 +203,10 @@
          (src.ss.c (ext src 'ss.c))
          (src.ss.c.o (ext src 'ss.c.o))
          (includer (++ src "_includer"))
-         (includer.c (ext includer 'c))
-         (includer.impl.h (ext includer 'impl.h))
-         (includer.impl.c (ext includer 'impl.c))
-         (includer.impl.c.o (ext includer 'impl.c.o))
-         (includer.stub.ss (ext includer 'stub.ss))
-         (includer.stub.ss.c (ext includer 'stub.ss.c))
-         (includer.stub.ss.c.o (ext includer 'stub.ss.c.o))
          (runtime '("vor" "mem" "spew" "primcalls"))
          (link-objs (append '("fbo_main.c.o" "fbo_includer.impl.c.o") (map ($ ext _ 'c.o) runtime)))
-         (includer-rules
-          `((,generate-includer (output ,includer.c) ,imports)))
+         (includer-generation-rules
+          `((,generate-includer (output "fbo_includer.c") ,imports)))
          (includer-rules (rigg-rules includer))
          (ref-rules (rigg-rules "ref"))
          (cvt-rules (rigg-rules "cvt"))
@@ -231,11 +224,11 @@
           `((,gen-main "fbo" ("fbo_includer" "ref" "cvt") (output "fbo_main.c") (implicit (input "ref.impl.h")) (implicit (input "cvt.impl.h")))
             (gcc -std=c99 -g -c -o (output "fbo_main.c.o") (input "fbo_main.c"))))
          (link-rules
-          `((gcc -std=c99 -o (output ,src) (input ,src.ss.c.o) (input ,includer.stub.ss.c.o) ,@(map input link-objs)
+          `((gcc -std=c99 -o (output ,src) (input ,src.ss.c.o) (input "fbo_includer.stub.ss.c.o") ,@(map input link-objs)
                  (input "ref.c.o") (input "ref.stub.ss.c.o") (input "ref.impl.c.o")
                  (input "cvt.c.o") (input "cvt.stub.ss.c.o") (input "cvt.impl.c.o")
                  (input "GLee.c.o") (input "shew.impl.c.o") "-framework GLUT -framework OpenGL -framework CoreFoundation")))
-         (rules (append includer-rules includer-rules ref-rules cvt-rules src-rules runtime-rules main-rules link-rules)))
+         (rules (append includer-generation-rules includer-rules ref-rules cvt-rules src-rules runtime-rules main-rules link-rules)))
     (shew rules)
     (make "fbo"
       rules)))
