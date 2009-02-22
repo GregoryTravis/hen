@@ -185,18 +185,6 @@
 (define (generate-includer filename import-strings)
   (write-string-to-file filename (apply ++ (map gen-include-string import-strings))))
 
-(define (ffi-is-.h? import-string)
-  (or (ends-with import-string ".h") (ends-with import-string ".h>")))
-
-(define (cleanup-includers) (apply rmtemps ffi-includers))
-
-(define (build-cleanup)
-  (cleanup-includers))
-
-(define (munge-include is)
-  (++ (string-replace-char-pairs is '((#\< . #\A) (#\> . #\B) (#\/ . #\S)))
-      "_includer"))
-
 (define (build-exe srcfile)
   (let* ((imports '("GLee.h" "<OpenGL/gl.h>" "<GLUT/glut.h>" "<OpenGL/glext.h>" "<OpenGL/glu.h>"))
          (src "fbo")
@@ -213,7 +201,6 @@
          (includer.stub.ss.c.o (ext includer 'stub.ss.c.o))
          (runtime '("vor" "mem" "spew" "primcalls"))
          (link-objs (append '("fbo_main.c.o" "fbo_includer.impl.c.o") (map ($ ext _ 'c.o) runtime)))
-                                        ;           (includer.o (ext includer.c 'o))
          (includer-rules
           `((,generate-includer (output ,includer.c) ,imports)))
          (rigg-rules
