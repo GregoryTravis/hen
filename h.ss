@@ -80,7 +80,7 @@
 (define (preprocess e)
   (mtch e
    ('def name e) `(def ,name ,(preprocess e))
-   e (simplify (pattern-compile (quote-ctors (doobie (syntax-desugar (expand-do e))))))))
+   e (simplify (pattern-compile (quote-ctors (doobie (syntax-desugar e)))))))
 
 (define global-env '())
 (define (clear-global-env) (set! global-env '()))
@@ -399,39 +399,6 @@
 
    x x))
 
-(define (cmpl e)
-  (mtch
-   e
-
-   () '(nil)
-
-   ('quote x) `(csymbol ,x)
-
-   ('P a b) `(pair ,(cmpl a) ,(cmpl b))
-
-   ('/. arg body) `(lambda ,(cmpl arg) ,(cmpl body))
-
-   ('$ lam env) `(closure ,(cmpl lam) ,(cmpl env))
-
-   (a b) `(app ,(cmpl a) ,(cmpl b))
-
-   x (cond
-      ;((quoted-symbol? x) `(csymbol ,x))
-      ((symbol? x) `(symbol ,x))
-      ((char? x) `(char (char->integer x)))
-      ((and (number? x) (inexact? x) (real? x)) `(flote ,x))
-      ((and (number? x) (exact? x) (integer? x)) `(integer ,x))
-      ((string? x) `(string ,x))
-      (#t (err 'cmpl x)))))
-
-(define (render e)
-  (cond
-   ((pair? e) (++ (car e) "(" (join-things ", " (map render (cdr e))) ")"))
-   ((symbol? e) (++ #\" e #\"))
-   ((or (symbol? e) (number? e)) (->string e))
-   ((string? e) (++ "\"" e "\""))
-   (#t (err 'render e))))
-
 (define (quote-ctors e)
   (atom-traverse (lambda (p) (if (and (ctor? p) (not (eq? p 'P))) `(quote ,p) p)) e))
 
@@ -480,65 +447,7 @@
 (define (prettify-shewer shewer)
   (lambda args (apply shewer ((if pretty-output syntax-sugar id) args))))
 
-(define pshew (prettify-shewer shew))
 (define plshew (prettify-shewer lshew))
 
 (define (hen args)
   (map run-file args))
-
-(define (exp-map f e)
-  (mtch
-   e
-
-   ('def name val) `(def ,name ,(exp-map f val))
-   ('quote x) e
-   ('P a b) `(P ,(exp-map f a) ,(exp-map f b))
-   ('CAR a) `(CAR ,(exp-map f a))
-   ('CDR a) `(CDR ,(exp-map f a))
-
-   (('+ a) b) `((+ ,(exp-map f a)) ,(exp-map f b))
-   (('- a) b) `((- ,(exp-map f a)) ,(exp-map f b))
-   (('* a) b) `((* ,(exp-map f a)) ,(exp-map f b))
-   (('/ a) b) `((/ ,(exp-map f a)) ,(exp-map f b))
-   ((('if a) b) c) `(((if ,(exp-map f a)) ,(exp-map f b)) ,(exp-map f c))
-
-   ('/. args body) `(/. ,args ,(exp-map f body))
-
-   ('/./. . lams) `(/./. . ,(map ($ exp-map f _) lams))
-
-   (fn . args) (map-improper ($ exp-map f _) (f e))
-
-   x (f x)))
-
-(define (goulash stuff)
-  (mtch stuff
-        ('doo v command) `(CommandSeq ,command (/. (,v) ,v))
-        ('doo v command . rest) `(CommandSeq ,command (/. (,v) ,(goulash `(doo . ,rest))))))
-
-(define (expand-do-1 e)
-  (mtch e
-        ('doo .  stuff) (goulash e)
-        x x))
-
-(define (expand-do e) (exp-map expand-do-1 e))
-;(tracefun preprocess preprocess-program)
-;(tracefun build-receiver build-traverser)
-;(tracefun evl evl-step)
-;(tracefun evl-fully evl-completely)
-;(tracefun doobie doobie doobie-arglist)
-;(tracefun pattern-compile pattern-compile-/./. pattern-compile-/.)
-;(tracefun simplify simplify-env simplify-trivial-app)
-;(tracefun render)
-;(tracefun cmpl cmpl-def)
-;(tracefun syntax-desugar syntax-sugar p-ify un-p-ify)
-;(tracefun cons-ify un-cons-ify un-cons-ify-1)
-;(tracefun evl-driver execute-command)
-;(tracefun expand-do expand-do-1 goulash)
-;(tracefun goulash)
-
-;; (define rules '(
-;;                 (g++ -c (input "hoot.c") (implicit (output "hoot.o")))
-;;                 ("g++" "-o" (output "hoot") (input "hoot.o"))
-;; ))
-
-;; (make "hoot" rules)
