@@ -1,2 +1,1 @@
-#./clean
-hen test-input.ss
+hen interpret src.ss
