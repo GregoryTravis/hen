@@ -2,23 +2,11 @@
 
 (define hen-version "* hen v. 0.01")
 
-(define remove-temporaries #f)
 (define count-reductions #f)
 (define show-tsgs #f)
 (define show-bindings #f)
 (define pretty-output #t)
 (define show-commands #f)
-
-(define (rmtemps . files)
-  (if (not (null? files))
-      (if remove-temporaries
-          (srcmd (join-things " " (cons 'rm files)))
-          '())
-      '()))
-(define (rm-rtemps . files)
-  (if remove-temporaries
-      (srcmd (join-things " " (cons 'rm (cons '-r files))))
-      '()))
 
 (define (reset-everything)
   (clear-global-env))
@@ -83,214 +71,11 @@
          (read-objects "shew.stub.ss")
          (read-objects filename))))
 
-(define (cmpl-def def)
-  (mtch def
-        (name . e)
-        (++ (render `(store_global ,name ,(cmpl e))) ";\n")))
-
-(define (cmpl-top src-e e)
-  (++ (render `(evl_top ,(sdisplay src-e) ,(cmpl e))) ";\n"))
-
-(define (generate-registration-includes modules)
-  (map ($ ++ "#include \"" _ ".impl.h\"\n") modules));(map c-identifier-safe modules)))
-
-(define (generate-blott-decls modules)
-  (map ($ ++ "extern void " _ "_blott();\n") (map c-identifier-safe modules)))
-
-(define (generate-registration-calls modules)
-  (map ($ ++ _ "_impl_register();\n") (map c-identifier-safe modules)))
-
-(define (generate-blott-calls modules)
-  (map ($ ++ _ "_blott();\n") (map c-identifier-safe modules)))
-
-(define (csrc->obj modules forms stub)
-  (mtch (preprocess-program forms)
-        (src-tlfs tlfs)
-        (++ "#include \"vor.h\"\n"
-;            (apply ++ (generate-registration-includes modules))
-            "void " (c-identifier-safe stub) "_blott() { "
-;            (apply ++ (generate-registration-calls modules))
-            (apply ++ (append
-                       (map cmpl-def global-env)
-                       (map cmpl-top src-tlfs tlfs)))
-            "}")))
-
-(define (cleanup-module-stuff)
-  (map (lambda (module)
-         (rmtemps (++ module ".impl.c") (++ module ".impl.h")))
-       modules))
-
-(define (compile-ss-to-c modules srcfile objcfile stub)
-  (write-string-to-file objcfile (csrc->obj modules (read-src srcfile) stub)))
-
-(define (get-imports-from-file src)
-  (apply append (map cdr (grep import? (read-objects src)))))
-
-(define (compile filename) (crun-file filename #f #f))
-(define (crun filename) (crun-file filename #t #t))
-(define (interpret filename) (run-file filename))
-(define run run-file)
-
-(define (c-identifier-safe s)
-  (string-replace-char-pairs s '((#\- . #\_))))
-
-(define (gen-main stub modules file)
-  (write-string-to-file
-   file
-   (++ "#include \"vor.h\"\n"
-       (apply ++ (generate-registration-includes modules))
-       (apply ++ (generate-blott-decls (map c-identifier-safe (snoc modules stub))))
-;       (apply ++ (generate-blott-decls (map c-identifier-safe modules)))
-       "void hen_main() {\n"
-       (apply ++ (generate-registration-calls modules))
-       (apply ++ (generate-blott-calls (map c-identifier-safe (snoc modules stub))))
-;       (apply ++ (generate-blott-calls (map c-identifier-safe modules)))
-       "}")))
-
-;(tracefun gen-main)
-
-(define (output a) `(output ,a))
-(define (input a) `(input ,a))
-(define (implicit a) `(implicit ,a))
-
-(define (ext f e) (++ f "." e))
-(define (exter e) ($ ext _ e))
-(define (gco f) `(gcc -std=c99 -g -c -o ,(output (ext f 'o)) ,(input f)))
-(define (ss-to-c modules mod) `(,compile-ss-to-c ,modules ,(input (ext mod "stub.ss")) ,(output (ext mod "stub.ss.c")) ,mod))
-(define (co f) (ext f 'c.o))
-(define (c f) (ext f 'c))
-(define (ssco f) (ext f 'ss.c.o))
-(define (stub f) (ext f 'stub))
-(define (impl f) (ext f 'impl))
-(define (stub-ssco f) (ssco (stub f)))
-(define (impl-co f) (co (impl f)))
-(define (framework l) (++ "-framework " l))
-
-(define (foreign mod)
-  (list (ss-to-c '() mod)
-        (gco (ext mod "stub.ss.c"))
-        (gco (ext mod "impl.c"))))
-
-;; ffis can be:
-;;
-;;   (ffi "src.c")
-;;   (ffi "src.h")
-;;   (ffi "<OpenGL/gl.h>")
-;;
-;; For the .h files, we generate [program]_includer.c that includes
-;; those files.
-(define ffi-includers '())
-(define (gen-include-string import-string)
-  (++ "#include " (if (ends-with import-string ">") import-string (++ "\"" import-string "\"")) "\n"))
-(define (generate-includer filename import-strings)
-  (write-string-to-file filename (apply ++ (map gen-include-string import-strings))))
-
-(define (rigg-rules stub)
-  `((rigg ,stub
-          (implicit (input ,(ext stub 'c)))
-          (implicit (output ,(ext stub 'impl.h)))
-          (implicit (output ,(ext stub 'impl.c)))
-          (implicit (output ,(ext stub 'stub.ss))))
-    (gcc -std=c99 -g -c -o (output ,(ext stub 'impl.c.o)) (input ,(ext stub 'impl.c)))
-    (gcc -std=c99 -g -c -o (output ,(ext stub 'c.o)) (input ,(ext stub 'c)))
-    (gcc -std=c99 -g -c -o (output ,(ext stub 'stub.ss.c.o)) (input ,(ext stub 'stub.ss.c)))
-    (,compile-ss-to-c () (input ,(ext stub 'stub.ss)) (output ,(ext stub 'stub.ss.c)) ,stub)))
-
-(define (implicits . stuff)
-  (map implicit (apply append stuff)))
-(define (inputs . stuff)
-  (map input (apply append stuff)))
-(define (outputs . stuff)
-  (map output (apply append stuff)))
-(define (exts os ex)
-  (map ($ ext _ ex) os))
-
-;; Strip <>s
-(define (file-base-name name)
-  (if (starts-with name "<")
-      (substring name 1 (- (string-length name) 1))
-      name))
-
-(define (group-imports imports)
-  (group-by-preds
-   (list
-    (lambda (x) (and (eq? (car x) 'ffi)
-                     (string=? (get-extension (file-base-name (cadr x))) "h")))
-    (lambda (x) (and (eq? (car x) 'ffi)
-                     (string=? (get-extension (file-base-name (cadr x))) "c")))
-    (lambda (x) (and (eq? (car x) 'link)
-                     (string=? (get-extension (file-base-name (cadr x))) "c")))
-    (lambda (x) (eq? (car x) 'framework)))
-   imports))
-
-(define (build-exe srcfile)
-  (let* ((imports (get-imports-from-file srcfile)))
-    (mtch (group-imports imports)
-          (ffis.h ffis.c libs.c frameworks)
-          (let* ((ffis.h (map remove-extension (map file-base-name (map cadr ffis.h))))
-                 (ffis.c (map remove-extension (map cadr ffis.c)))
-                 (libs.c (map remove-extension (map cadr libs.c)))
-                 (runtime '("vor" "mem" "spew" "primcalls"))
-                 (framework-string (join-things " " (map-append ($ list "-framework" _) (map cadr frameworks))))
-                 (src (remove-extension srcfile))
-                 (src.ss (ext src 'ss))
-                 (src.ss.c (ext src 'ss.c))
-                 (src.ss.c.o (ext src 'ss.c.o))
-                 (main (++ src "_main"))
-                 (main.c (ext main 'c))
-                 (main.c.o (ext main 'c.o))
-                 (includer (++ src "_includer"))
-                 (link-objs (append `(,main.c.o ,(ext includer 'impl.c.o)) (exts runtime 'c.o)))
-                 (includer-generation-rules
-                  `((,generate-includer (output ,(ext includer 'c)) ,(exts ffis.h 'h)))) ;,imports)))
-                 (includer-rules (rigg-rules includer))
-                 (ffis.c-rules (map-append rigg-rules ffis.c))
-                 (src-rules
-                  `((,compile-ss-to-c () (input ,src.ss) (output ,src.ss.c) ,src)
-                    (gcc -std=c99 -g -c -o (output ,src.ss.c.o) (input ,src.ss.c))))
-                 (runtime-rules
-                  (map gco (exts (append runtime libs.c) 'c)))
-                 (main-rules
-                  `((,gen-main ,src ,(cons includer ffis.c) (output ,main.c)
-                               ,@(implicits (inputs (exts ffis.c 'impl.h))))
-                    (gcc -std=c99 -g -c -o (output ,(ext main.c 'o)) (input ,main.c))))
-                 (link-rules
-                  `((gcc -std=c99 -o (output ,src) (input ,src.ss.c.o) (input ,(ext includer 'stub.ss.c.o)) ,@(inputs link-objs)
-                         ,@(inputs (exts ffis.c 'c.o)) ,@(inputs (exts ffis.c 'stub.ss.c.o)) ,@(inputs (exts ffis.c 'impl.c.o))
-                         ,@(inputs (exts libs.c 'c.o)) ,framework-string)))
-                 (rules (append includer-generation-rules includer-rules ffis.c-rules src-rules runtime-rules main-rules link-rules)))
-            ;(shew rules)
-            (make src rules)))))
-                        
-(define (crun-file srcfile run-p delete-p)
-  (reset-everything)
-  (let* ((exefile (remove-extension srcfile)))
-    (build-exe srcfile)
-    (if (not (file-exists? exefile))
-        (err "No exe.")
-        (begin
-          (if run-p
-              (cmd (++ "./" exefile))
-              '())
-          (if delete-p
-              (rmtemps exefile)
-              '())))))
-
 (define (fun? e)
   (and (pair? e) (eq? (car e) 'fun)))
 
 (define (def? e)
   (and (pair? e) (eq? (car e) 'def)))
-
-(define (opaque v) `(Q ,v))
-(define (opaque-val q)
-  (assert (opaque? q))
-  (cadr q))
-
-(define (opaque? e)
-  (mtch e
-        ('Q q) #t
-        x #f))
 
 (define (preprocess e)
   (mtch e
@@ -323,40 +108,6 @@
 (define (hcadr e) (hcar (hcdr e)))
 (define (hpair? e) (mtch e ('P 'Cons ('P a ('P d 'Nil))) #t x #f))
 (define (hnull? e) (eq? e 'Nil))
-
-(define (high-list->low-list e)
-  (cond
-   ((hpair? e) (cons (hcar e) (high-list->low-list (hcdr e))))
-   ((hnull? e) '())
-   (#t (err))))
-
-(define commands '())
-(define (register-command name f) (set! commands (cons (cons name f) commands)))
-
-;; HEY rid
-(load "shew.impl.ss")
-
-(define (execute-command name args)
-  (if show-commands
-      (begin
-        (display "Command: ")
-        (display name)
-        (display " ")
-        (plshew args)
-        (display "\n"))
-      '())
-
-  (if (lookup-exists? name commands)
-      (apply (lookup name commands) (high-list->low-list args))
-      (err "Unknown command" (list name args))))
-
-  ;; (mtch name
-;;         'shew (begin (shew (list 'SHEW arg)) 'Nil)
-;;         'create-int-ref (create-int-ref arg)
-;;         'read-int-ref (read-int-ref arg)
-;;         'write-int-ref (write-int-ref arg)
-;;         'destroy-int-ref (destroy-int-ref arg)
-;;         x (err "Unknown command" (list name arg)))
 
 (define (evl-driver e)
 ;  (let ((ee (evl e)))
@@ -732,24 +483,8 @@
 (define pshew (prettify-shewer shew))
 (define plshew (prettify-shewer lshew))
 
-(define (usage)
-  (display (++
-            hen-version "\n"
-            "Usage:\n"
-            "  hen [file]           : compile and run (and delete exe)\n"
-            "  hen interpret [file] : run interpreter on file\n"
-            "  hen compile [file]   : compile but don't run file\n")))
-
-;;             "Usage: hen options src [src...]\n"
-;;             "  -n: use interpreter\n"
-;;             "  -c: just generate exe (otherwise run and delete)\n")))
-
 (define (hen args)
-  (mtch args
-        () (usage)
-        ("interpret" filename) (interpret filename)
-        ("compile" filename) (compile filename)
-        (filename) (crun filename)))
+  (map run-file args))
 
 (define (exp-map f e)
   (mtch

@@ -1,1 +1,1 @@
-hen interpret src.ss
+hen src.ss
