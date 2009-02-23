@@ -1119,7 +1119,7 @@
    ((eq? (car lyst) #\.) '())
    (#t (cons (car lyst) (get-extension-1 (cdr lyst))))))
 
-(define make-debug #t)
+(define make-debug #f)
 (define make-show-commands #t)
 
 (define (make-inline-implicits rule)
