@@ -92,7 +92,7 @@
   (++ (render `(evl_top ,(sdisplay src-e) ,(cmpl e))) ";\n"))
 
 (define (generate-registration-includes modules)
-  (map ($ ++ "#include \"" _ ".impl.h\"\n") (map c-identifier-safe modules)))
+  (map ($ ++ "#include \"" _ ".impl.h\"\n") modules));(map c-identifier-safe modules)))
 
 (define (generate-blott-decls modules)
   (map ($ ++ "extern void " _ "_blott();\n") (map c-identifier-safe modules)))
@@ -259,7 +259,7 @@
                          ,@(inputs (exts ffis.c 'c.o)) ,@(inputs (exts ffis.c 'stub.ss.c.o)) ,@(inputs (exts ffis.c 'impl.c.o))
                          ,@(inputs (exts libs.c 'c.o)) ,framework-string)))
                  (rules (append includer-generation-rules includer-rules ffis.c-rules src-rules runtime-rules main-rules link-rules)))
-            (shew rules)
+            ;(shew rules)
             (make src rules)))))
                         
 (define (crun-file srcfile run-p delete-p)
