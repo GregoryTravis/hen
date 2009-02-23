@@ -1,2 +1,2 @@
 #./clean
-hen src.ss
+hen test-input.ss

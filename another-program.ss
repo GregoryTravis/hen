@@ -1,3 +1,7 @@
+(import
+ (ffi "ref.c")
+ (link "shew.impl.c"))
+
 (doo
  ref (create-int-ref 10)
  val (read-int-ref ref)

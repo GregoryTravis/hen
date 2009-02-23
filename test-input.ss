@@ -1,3 +1,7 @@
+(import
+ (ffi "ref.c")
+ (link "shew.impl.c"))
+
 ((/. (x) x) Nil)
 
 ((/. ((PP j k)) j) (PP 10 20))

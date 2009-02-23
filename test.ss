@@ -53,6 +53,6 @@
 ;; ;; ;; ;       (((if False) 1) 2)
 ;; ;; ;;        ))
 
-(run "test-input.ss")
+;(run "test-input.ss")
 (crun "test-input.ss")
 (crun "another-program.ss")
