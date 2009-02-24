@@ -68,7 +68,6 @@
   (grep (fnot import?)
         (append
          (read-objects "overture.ss")
-         (read-objects "shew.stub.ss")
          (read-objects filename))))
 
 (define (fun? e)
