@@ -21,8 +21,8 @@
 ((/. (x) (x 2)) (/. (x) x))
 ;(/. (r) r)
 ((/. (r) r) 3)
-((+ 10) 20)
-((+ ((/. (x) x) 2000)) 3000)
+;((+ 10) 20)
+;((+ ((/. (x) x) 2000)) 3000)
 ((== 30) 30)
 ((== 30) 40)
 (((if True) 100) 200)
@@ -31,17 +31,17 @@
 (def tuct (/. (x) x))
 
 (tuct 10)
-((+ 20) (tuct 10))
-((- 40) 15)
-((* 10) 20)
+;((+ 20) (tuct 10))
+;((- 40) 15)
+;((* 10) 20)
 
 (((if ((== 0) 3)) True) False)
 (((if ((== 0) 0)) True) False)
 ((/. (n) (((if ((== n) 3)) True) False)) 3)
 ((/. (n) (((if ((== n) 3)) True) False)) 0)
-(((if ((== 0) 0)) ((* 10) 20)) ((* 30) 40))
-(((if ((== 3) 0)) ((* 10) 20)) ((* 30) 40))
-((/. (n) (((if ((== n) 0)) 1) ((* n) ((- n) 1)))) 3)
+;(((if ((== 0) 0)) ((* 10) 20)) ((* 30) 40))
+;(((if ((== 3) 0)) ((* 10) 20)) ((* 30) 40))
+;((/. (n) (((if ((== n) 0)) 1) ((* n) ((- n) 1)))) 3)
 
 (cons 1 2)
 (car (cons 1 2))
@@ -53,8 +53,8 @@
 (pair? 10)
 (pair? (car (cons (cons 1 2) 3)))
 
-(def double (/. (x) ((+ x) x)))
-(double 10)
+;(def double (/. (x) ((+ x) x)))
+;(double 10)
 
 (def ones
   (/./.
@@ -70,8 +70,8 @@
           (/. ((PP a d)) (PP (f a) ((map3 f) d)))
           (/. (x) x))))
 
-((map3 double) (PP 1 (PP 2 (PP 3 Nil))))
-((map3 double) 1)
+;((map3 double) (PP 1 (PP 2 (PP 3 Nil))))
+;((map3 double) 1)
  
 ((/. (a . b) a) 1 . 2)
 ((/. (a . b) b) 1 . 2)
@@ -79,7 +79,7 @@
 (def voo
      (/./.
 ;      (/. (PP a (PP b c)) ((+ b) c))
-      (/. (a b . c) ((+ b) c))
+      (/. (a b . c) (cons b c))
 ;      (/. (PP a b) b)
       (/. (a . b) b)))
 
@@ -92,7 +92,7 @@
 ;; ((/. (a . b) 1) 10 . 20)
 ;; ((/. (a . b) a) 10 . 20)
 ;; ((/. (a . b) b) 10 . 20)
-;; ((/. (a . b) ((+ a) b)) 10 . 20)
+;;; ((/. (a . b) ((+ a) b)) 10 . 20)
 
 ;; - will (/. (Foo a) ..) ever mean anything?
 ;; (def voo2
@@ -113,7 +113,7 @@
       (/. (f (PP a b)) (PP (f a) (map2 f b)))
       (/. (f Nil) Nil)))
 
-(map2 double (PP 1 (PP 2 (PP 3 Nil))))
+;(map2 double (PP 1 (PP 2 (PP 3 Nil))))
 
 ((/. 1 2) . 1)
 ((/. (1) 2) 1)
@@ -131,7 +131,7 @@
 ((/. (joe) 1) joee)
 
 ((/. (1 2) 40) 1 2)
-((/. (a b) ((+ a) b)) 1 2)
+;((/. (a b) ((+ a) b)) 1 2)
 
 1
 ; varargs-binding
@@ -145,10 +145,10 @@
 (Foo 1 2)
 ((/. ((Foo a b)) a) (Foo 10 20))
 ((/. ((Foo a b)) b) (Foo 10 20))
-((/. ((Foo a b)) ((+ a) b)) (Foo 10 20))
+;((/. ((Foo a b)) ((+ a) b)) (Foo 10 20))
 ((/. ((Foo (Bar a) b)) a) (Foo (Bar 10) 20))
 ((/. ((Foo (Bar a) b)) b) (Foo (Bar 10) 20))
-((/. ((Foo (Bar a) b)) ((+ a) b)) (Foo (Bar 10) 20))
+;((/. ((Foo (Bar a) b)) ((+ a) b)) (Foo (Bar 10) 20))
 ((/. ((Foo a b)) a) (Foo (Bar 10) 20))
 ((/. ((Foo a b)) b) (Foo (Bar 10) 20))
 
@@ -158,7 +158,7 @@
 (ones2 (PP 1 Nil))
 (ones2 (PP 1 (PP 2 (PP 3 Nil))))
 
-(fun (voo20 a b . c) ((+ b) c))
+(fun (voo20 a b . c) (cons b c))
 (fun (voo20 a . b) b)
 
 (voo20 1 2 . 3)
@@ -173,7 +173,7 @@
 (fun (map22 f (PP a b)) (PP (f a) (map22 f b)))
 (fun (map22 f Nil) Nil)
 
-(map22 double (PP 1 (PP 2 (PP 3 Nil))))
+;(map22 double (PP 1 (PP 2 (PP 3 Nil))))
 
 (fun (boit 1) 100)
 (fun (boit 2) 200)
@@ -193,5 +193,5 @@
 (cdr (cdr ($ 1 2)))
 
 (fun (fact 0) 1)
-(fun (fact n) ((* n) (fact ((- n) 1))))
-(fact 10)
+;(fun (fact n) ((* n) (fact ((- n) 1))))
+;(fact 10)

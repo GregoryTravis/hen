@@ -188,14 +188,6 @@
 
    ((('if b) th) el) (mtch (evl-fully b env) 'True (freeze th env) 'False (freeze el env))
 
-   (('+ a) b) (+ (evl-fully a env) (evl-fully b env))
-
-   (('- a) b) (- (evl-fully a env) (evl-fully b env))
-
-   (('* a) b) (* (evl-fully a env) (evl-fully b env))
-
-   (('/ a) b) (* (evl-fully a env) (evl-fully b env))
-
    (('== a) b) (mtch (prim== (evl-fully a env) (evl-fully b env)) #t 'True #f 'False)
 
    (a b) `(,(evl-completely a env) ,(freeze b env))
@@ -246,10 +238,6 @@
    ('CAR a) `(CAR ,(doobie a))
    ('CDR a) `(CDR ,(doobie a))
 
-   (('+ a) b) `((+ ,(doobie a)) ,(doobie b))
-   (('- a) b) `((- ,(doobie a)) ,(doobie b))
-   (('* a) b) `((* ,(doobie a)) ,(doobie b))
-   (('/ a) b) `((/ ,(doobie a)) ,(doobie b))
    ((('if a) b) c) `(((if ,(doobie a)) ,(doobie b)) ,(doobie c))
 
    ('/. args body) `(/. ,(doobie-arglist args) ,(doobie body))
@@ -307,9 +295,6 @@
         ('/. pat body) (pattern-compile-/. e 'TOPFAIL)
         ('/./. . lams) (pattern-compile-/./. lams)
         ('P a b) `(P ,(pattern-compile a) ,(pattern-compile b))
-
-        ('+ a) `(+ ,(pattern-compile a))
-        (('+ a) b) `((+ ,(pattern-compile a)) ,(pattern-compile b))
 
         ('== a) `(== ,(pattern-compile a))
         (('== a) b) `((== ,(pattern-compile a)) ,(pattern-compile b))
