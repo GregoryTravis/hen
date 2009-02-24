@@ -81,12 +81,6 @@
         (('quote a) ('quote b)) (eq? a b)
         x (smart== a b)))
 
-(define (hcar e) (mtch e ('P 'Cons ('P a ('P d 'Nil))) a))
-(define (hcdr e) (mtch e ('P 'Cons ('P a ('P d 'Nil))) d))
-(define (hcadr e) (hcar (hcdr e)))
-(define (hpair? e) (mtch e ('P 'Cons ('P a ('P d 'Nil))) #t x #f))
-(define (hnull? e) (eq? e 'Nil))
-
 (define (evl-driver e)
 ;  (let ((ee (evl e)))
   (let ((ee e))
