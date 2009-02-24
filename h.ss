@@ -4,8 +4,6 @@
 (define hen-version "* hen v. 0.01")
 
 (define show-bindings #f)
-(define pretty-output #t)
-(define show-commands #f)
 
 (define (reset-everything)
   (clear-global-env))
@@ -408,11 +406,6 @@
 ; P isn't really sugar, since you can't use P directly, but whatever.
 (define (syntax-sugar e) (un-cons-ify (un-p-ify e)))
 (define (syntax-desugar e) (p-ify-ctons (cons-ify e)))
-
-(define (prettify-shewer shewer)
-  (lambda args (apply shewer ((if pretty-output syntax-sugar id) args))))
-
-(define plshew (prettify-shewer lshew))
 
 (define (hen args)
   (map run-file args))
