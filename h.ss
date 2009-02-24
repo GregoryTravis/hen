@@ -1,25 +1,14 @@
 (load "lib.ss")
+(load "util.ss")
 
 (define hen-version "* hen v. 0.01")
 
-(define count-reductions #f)
-(define show-tsgs #f)
 (define show-bindings #f)
 (define pretty-output #t)
 (define show-commands #f)
 
 (define (reset-everything)
   (clear-global-env))
-
-(define n-reductions 0)
-(define (count-reductions-start)
-  (set! n-reductions 0))
-(define (count-reductions-end)
-  (if count-reductions
-      (begin
-        (display n-reductions)
-        (display " reductions.\n"))
-      '()))
 
 (define (fun-name fun)
   (mtch fun
@@ -88,14 +77,6 @@
         ('def name e)
         (set! global-env
               (cons (cons name (evl-step e '())) global-env))))
-
-(define sg (symbol-generator-generator))
-(define tsg
-  (let ((sg (tagged-symbol-generator-generator)))
-    (lambda (tag . stuff)
-      (let ((v (sg tag)))
-        (if show-tsgs (shew `(,v ,tag . ,stuff)) '())
-        v))))
 
 (define (prim== a b)
   (mtch (list a b)
