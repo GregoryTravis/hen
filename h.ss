@@ -398,10 +398,12 @@
 (define (luk-other e)
   (mtch e
         ('+ a b) (+ a b)
-        e e))
+        x (cond
+           ((cton? e) e)
+           (#t e))))
 
 (define (data? e)
-  (or (symbol? e) (number? e)))
+  (or (symbol? e) (number? e) (cton? e)))
 
 ;; evl
 (define (luk e scs)
@@ -428,7 +430,9 @@
 (define progs
   '(
     (((/. x (/. y (+ x y))) 10) 20)
-    (((/. x (/. y (x y))) (/. a (+ a a))) 11)))
+    (((/. x (/. y (x y))) (/. a (+ a a))) 11)
+    (Foo 10)
+    (Bar (Cup 20) 30)))
 
 (define (run p)
   (mtch (closure-convert p)
