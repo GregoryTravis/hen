@@ -357,3 +357,41 @@
 
 (define (hen args)
   (map run-file args))
+
+(define (closure-convert e)
+  (let ((annot (add-in-scope e '())))
+    (gather-supercombinators annot)))
+;    (replace-with-supercombinators-sc (gather-supercombinators annot))))
+
+(define scname (tagged-symbol-generator-generator "sc"))
+
+;; (/. x (/. y b)) -> (/. x sc0 () (/. y sc1 (x) b))
+(define (add-in-scope e in-scope)
+  (mtch e
+        ('/. v b) `(/. ,v ,(scname) ,in-scope ,(add-in-scope b (cons v in-scope)))
+        (a . b) (map ($ add-in-scope _ in-scope) e)
+        x x))
+
+;; (name (args) body) -> (name (args) (replace-with-supercombinators body))
+(define (replace-with-supercombinators-sc e)
+  (lensmap caddr-lens replace-with-supercombinators e))
+
+(define (gather-supercombinators e)
+  (mtch e
+        ('/. v name in-scope b) (cons `(,name ,(snoc in-scope v) ,b)
+                                      (gather-supercombinators b))
+        (a . b) (map-append gather-supercombinators e)
+        x '()))
+
+;; (/. name in-scope body) -> ((name . in-scope) body)
+(define (replace-with-supercombinators e)
+  (mtch e
+        ('/. v name in-scope b) `((,name . ,in-scope) ,(replace-with-supercombinators b))
+        (a . b) (map replace-with-supercombinators e)
+        x x))
+
+(define prog '(((/. x (/. y (+ x y))) 10) 20))
+
+(tracefun lensmap replace-with-supercombinators replace-with-supercombinators-sc)
+
+(shew (closure-convert prog))

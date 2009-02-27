@@ -14,7 +14,7 @@
 
 (define sg (symbol-generator-generator))
 (define tsg
-  (let ((sg (tagged-symbol-generator-generator)))
+  (let ((sg (tagging-symbol-generator-generator)))
     (lambda (tag . stuff)
       (let ((v (sg tag)))
         (if show-tsgs (shew `(,v ,tag . ,stuff)) '())

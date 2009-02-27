@@ -475,6 +475,8 @@
   (cons (cdr x) (lambda (d) (cons (car x) d))))
 
 (define cadr-lens (compose-lenses car-lens cdr-lens))
+(define cddr-lens (compose-lenses cdr-lens cdr-lens))
+(define caddr-lens (compose-lenses car-lens cddr-lens))
 
 (define (lensmap lens f l)
   (map (lambda (e) (apply-through-lens lens f e)) l))
@@ -764,7 +766,7 @@
       e
       (f (car lyst) (foldr f e (cdr lyst)))))
 
-(define (tagged-symbol-generator-generator)
+(define (tagging-symbol-generator-generator)
   (let ((serial 0))
     (lambda (tag)
       (let ((s serial))
@@ -772,8 +774,11 @@
         (->symbol (concat (->string tag) (number->string s)))))))
 
 (define (symbol-generator-generator)
-  (let ((tsg (tagged-symbol-generator-generator)))
-    (lambda () (tsg "a"))))
+  (tagged-symbol-generator-generator "a"))
+
+(define (tagged-symbol-generator-generator tag)
+  (let ((tsg (tagging-symbol-generator-generator)))
+    (lambda () (tsg tag))))
 
 (define (lambda? e)
   (and (proper-list? e)
