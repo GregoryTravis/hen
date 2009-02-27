@@ -361,7 +361,6 @@
 ;; Returns (list top-level-exp supercombinators)
 (define (closure-convert e)
   (let ((annot (add-in-scope e '())))
-;    (gather-supercombinators annot)))
     (list
      (replace-with-supercombinators annot)
      (map replace-with-supercombinators-sc (gather-supercombinators annot)))))
@@ -378,7 +377,6 @@
 ;; (name (args) body) -> (name (args) (replace-with-supercombinators body))
 (define (replace-with-supercombinators-sc e)
   (lensapp caddr-lens replace-with-supercombinators e))
-;  (lensmap caddr-lens replace-with-supercombinators e))
 
 (define (gather-supercombinators e)
   (mtch e
@@ -410,8 +408,6 @@
   (mtch e
         (('$ sc . es) . es2) (luk (apply-supercombinator-exp sc (append es es2) scs) scs)
         ((a . d) . es) (luk (cons (luk (car e) scs) (cdr e)) scs)
-        ;(a . d) (luk (cons (luk a scs) d) scs)
-        ;(a . d) (luk (cons (luk (car e) scs) (luk (cdr e) scs)) scs)
         e (luk-other e)))
 
 ;; subst
