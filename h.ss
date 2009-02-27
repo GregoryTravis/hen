@@ -408,16 +408,11 @@
 ;; evl
 (define (luk e scs)
   (mtch e
-        (('$ sc . es) . es2) (apply-supercombinator-exp sc (append es es2) scs)
-        (a . d) (luk (cons (luk a scs) d) scs)
+        (('$ sc . es) . es2) (luk (apply-supercombinator-exp sc (append es es2) scs) scs)
+        ((a . d) . es) (luk (cons (luk (car e) scs) (cdr e)) scs)
+        ;(a . d) (luk (cons (luk a scs) d) scs)
         ;(a . d) (luk (cons (luk (car e) scs) (luk (cdr e) scs)) scs)
         e (luk-other e)))
-
-;; (define (luk-drive e scs)
-;;   (let ((ee (luk e scs)))
-;;     (if (data? ee)
-;;         ee
-;;         (luk-drive ee scs))))
 
 ;; subst
 (define (gunst env body)
@@ -432,13 +427,18 @@
   (mtch (lookup sc scs)
         (params body) (gunst (zip cons params args) body)))
 
-(tracefun luk luk apply-supercombinator-exp gunst)
+;(tracefun luk apply-supercombinator-exp gunst)
 
-(define prog '(((/. x (/. y (+ x y))) 10) 20))
+(define progs
+  '(
+    (((/. x (/. y (+ x y))) 10) 20)
+    (((/. x (/. y (x y))) (/. a (+ a a))) 11)))
 
-(mtch (closure-convert prog)
-      (e scs)
-      (begin
-        (listshew scs)
-        (shew e)
-        (luk e scs)))
+(define (run p)
+  (mtch (closure-convert p)
+        (e scs)
+        (begin
+          (listshew scs)
+          (shew e)
+          (shew (luk e scs)))))
+(map run progs)
