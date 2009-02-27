@@ -358,10 +358,13 @@
 (define (hen args)
   (map run-file args))
 
+;; Returns (list top-level-exp supercombinators)
 (define (closure-convert e)
   (let ((annot (add-in-scope e '())))
-    (gather-supercombinators annot)))
-;    (replace-with-supercombinators-sc (gather-supercombinators annot))))
+;    (gather-supercombinators annot)))
+    (list
+     (replace-with-supercombinators annot)
+     (map replace-with-supercombinators-sc (gather-supercombinators annot)))))
 
 (define scname (tagged-symbol-generator-generator "sc"))
 
@@ -374,7 +377,8 @@
 
 ;; (name (args) body) -> (name (args) (replace-with-supercombinators body))
 (define (replace-with-supercombinators-sc e)
-  (lensmap caddr-lens replace-with-supercombinators e))
+  (lensapp caddr-lens replace-with-supercombinators e))
+;  (lensmap caddr-lens replace-with-supercombinators e))
 
 (define (gather-supercombinators e)
   (mtch e
@@ -386,12 +390,13 @@
 ;; (/. name in-scope body) -> ((name . in-scope) body)
 (define (replace-with-supercombinators e)
   (mtch e
-        ('/. v name in-scope b) `((,name . ,in-scope) ,(replace-with-supercombinators b))
+        ('/. v name in-scope b) `($ ,name . ,in-scope)
         (a . b) (map replace-with-supercombinators e)
         x x))
 
 (define prog '(((/. x (/. y (+ x y))) 10) 20))
 
-(tracefun lensmap replace-with-supercombinators replace-with-supercombinators-sc)
+;(tracefun lensmap replace-with-supercombinators replace-with-supercombinators-sc)
 
-(shew (closure-convert prog))
+(mtch (closure-convert prog)
+      (e scs) (begin (listshew scs) (shew e)))

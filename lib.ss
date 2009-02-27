@@ -455,7 +455,7 @@
            (re-inserter (cdr blah)))
       (re-inserter (f extracted)))))
 
-(define (apply-through-lens lens f o)
+(define (lensapp lens f o)
   ((compose-lens-and-fun lens f) o))
 
 (define (compose-lenses a b)
@@ -479,7 +479,7 @@
 (define caddr-lens (compose-lenses car-lens cddr-lens))
 
 (define (lensmap lens f l)
-  (map (lambda (e) (apply-through-lens lens f e)) l))
+  (map (lambda (e) (lensapp lens f e)) l))
 
 (define (fnot f) (lambda (x) (not (f x))))
 (define (for a b) (lambda (x) (or (a x) (b x))))
@@ -1234,3 +1234,6 @@
                               (lshew ,var)
                               (display "\n")))
                           vars))))
+
+(define (listshew lyst)
+  (map (lambda (e) (display "- ") (lshew e) (display "\n")) lyst))
