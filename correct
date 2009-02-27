@@ -34,19 +34,19 @@
 => True
 + ((== 30) 40)
 => False
-+ (((if True) 100) 200)
++ (if True 100 200)
 => 100
-+ (((if False) 100) 200)
++ (if False 100 200)
 => 200
 + (tuct 10)
 => 10
-+ (((if ((== 0) 3)) True) False)
++ (if ((== 0) 3) True False)
 => False
-+ (((if ((== 0) 0)) True) False)
++ (if ((== 0) 0) True False)
 => True
-+ ((/. (n) (((if ((== n) 3)) True) False)) 3)
++ ((/. (n) (if ((== n) 3) True False)) 3)
 => False
-+ ((/. (n) (((if ((== n) 3)) True) False)) 0)
++ ((/. (n) (if ((== n) 3) True False)) 0)
 => False
 + (cons 1 2)
 => ($ 1 . 2)

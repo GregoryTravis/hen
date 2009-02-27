@@ -152,7 +152,7 @@
 
    ('CDR p) (mtch (evl-fully p env) ('P a b) b x (err 'not-pair e))
 
-   ((('if b) th) el) (mtch (evl-fully b env) 'True (freeze th env) 'False (freeze el env))
+   ('if b th el) (mtch (evl-fully b env) 'True (freeze th env) 'False (freeze el env))
 
    (('== a) b) (mtch (smart== (evl-fully a env) (evl-fully b env)) #t 'True #f 'False)
 
@@ -204,7 +204,7 @@
    ('CAR a) `(CAR ,(doobie a))
    ('CDR a) `(CDR ,(doobie a))
 
-   ((('if a) b) c) `(((if ,(doobie a)) ,(doobie b)) ,(doobie c))
+   ('if a b c) `(if ,(doobie a) ,(doobie b) ,(doobie c))
 
    ('/. args body) `(/. ,(doobie-arglist args) ,(doobie body))
 
@@ -235,9 +235,9 @@
      ('P a b)
      (let ((lefter (build-traverser a failure))
            (righter (build-traverser b failure)))
-       `(/. ,k (/. ,v (/. ,rv (((if (PAIR? ,v)) (((,lefter ((,righter ,k) (CDR ,v))) (CAR ,v)) ,rv)) ,failure)))))
+       `(/. ,k (/. ,v (/. ,rv (if (PAIR? ,v) (((,lefter ((,righter ,k) (CDR ,v))) (CAR ,v)) ,rv) ,failure)))))
      x (cond ((or (number? pat) (quoted-symbol? pat))
-              `(/. ,k (/. ,v (/. ,rv (((if ((== ,v) ,pat)) (,k ,rv)) ,failure)))))
+              `(/. ,k (/. ,v (/. ,rv (if ((== ,v) ,pat) (,k ,rv) ,failure)))))
              ((symbol? pat)
               `(/. ,k (/. ,v (/. ,rv (,k (,rv ,v))))))
              (#t (err 'build-traverser pat failure))))))
@@ -265,7 +265,7 @@
         ('== a) `(== ,(pattern-compile a))
         (('== a) b) `((== ,(pattern-compile a)) ,(pattern-compile b))
 
-        ((('if b) t) e) `(((if ,(pattern-compile b)) ,(pattern-compile t)) ,(pattern-compile e))
+        ('if b t e) `(if ,(pattern-compile b) ,(pattern-compile t) ,(pattern-compile e))
 
         'True e
         'False e
@@ -289,6 +289,8 @@
        `(/. ,xx ,(subst x v body)))
 
    ('P a b) `(P ,(subst x v a) ,(subst x v b))
+
+   ('if b t e) `(if ,(subst x v b) ,(subst x v t) ,(subst x v e))
 
    (a b) `(,(subst x v a) ,(subst x v b))
 
