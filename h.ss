@@ -394,9 +394,51 @@
         (a . b) (map replace-with-supercombinators e)
         x x))
 
-(define prog '(((/. x (/. y (+ x y))) 10) 20))
-
 ;(tracefun lensmap replace-with-supercombinators replace-with-supercombinators-sc)
 
+;; prims
+(define (luk-other e)
+  (mtch e
+        ('+ a b) (+ a b)
+        e e))
+
+(define (data? e)
+  (or (symbol? e) (number? e)))
+
+;; evl
+(define (luk e scs)
+  (mtch e
+        (('$ sc . es) . es2) (apply-supercombinator-exp sc (append es es2) scs)
+        (a . d) (luk (cons (luk a scs) d) scs)
+        ;(a . d) (luk (cons (luk (car e) scs) (luk (cdr e) scs)) scs)
+        e (luk-other e)))
+
+;; (define (luk-drive e scs)
+;;   (let ((ee (luk e scs)))
+;;     (if (data? ee)
+;;         ee
+;;         (luk-drive ee scs))))
+
+;; subst
+(define (gunst env body)
+  (cond
+   ((pair? body) (cons (gunst env (car body))
+                       (gunst env (cdr body))))
+   ((and (symbol? body) (lookup-exists? body env))
+    (lookup body env))
+   (#t body)))
+
+(define (apply-supercombinator-exp sc args scs)
+  (mtch (lookup sc scs)
+        (params body) (gunst (zip cons params args) body)))
+
+(tracefun luk luk apply-supercombinator-exp gunst)
+
+(define prog '(((/. x (/. y (+ x y))) 10) 20))
+
 (mtch (closure-convert prog)
-      (e scs) (begin (listshew scs) (shew e)))
+      (e scs)
+      (begin
+        (listshew scs)
+        (shew e)
+        (luk e scs)))
