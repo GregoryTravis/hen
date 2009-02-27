@@ -66,7 +66,7 @@
 (define (preprocess e)
   (mtch e
    ('def name e) `(def ,name ,(preprocess e))
-   e (simplify (pattern-compile (quote-ctors (doobie (syntax-desugar e)))))))
+   e (simplify (pattern-compile (doobie (syntax-desugar e))))))
 
 (define global-env '())
 (define (clear-global-env) (set! global-env '()))
@@ -75,11 +75,6 @@
         ('def name e)
         (set! global-env
               (cons (cons name (evl-step e '())) global-env))))
-
-(define (prim== a b)
-  (mtch (list a b)
-        (('quote a) ('quote b)) (eq? a b)
-        x (smart== a b)))
 
 (define (evl-driver e)
 ;  (let ((ee (evl e)))
@@ -153,20 +148,19 @@
 
    ('PAIR? e) (mtch (evl-fully e env) ('P a b) 'True x 'False)
 
-   ('quote s) s
-
    ('CAR p) (mtch (evl-fully p env) ('P a b) a x (err 'not-pair e))
 
    ('CDR p) (mtch (evl-fully p env) ('P a b) b x (err 'not-pair e))
 
    ((('if b) th) el) (mtch (evl-fully b env) 'True (freeze th env) 'False (freeze el env))
 
-   (('== a) b) (mtch (prim== (evl-fully a env) (evl-fully b env)) #t 'True #f 'False)
+   (('== a) b) (mtch (smart== (evl-fully a env) (evl-fully b env)) #t 'True #f 'False)
 
    (a b) `(,(evl-completely a env) ,(freeze b env))
 
    x
    (cond
+    ((ctor? x) x)
     ((symbol? x)
      (cond
       ((lookup-exists? x env) (lookup x env))
@@ -206,7 +200,6 @@
    e
 
    ('def name val) `(def ,name ,(doobie val))
-   ('quote x) e
    ('P a b) `(P ,(doobie a) ,(doobie b))
    ('CAR a) `(CAR ,(doobie a))
    ('CDR a) `(CDR ,(doobie a))

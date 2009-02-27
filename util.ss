@@ -25,9 +25,6 @@
 
 (define plshew (prettify-shewer lshew))
 
-(define (quote-ctors e)
-  (atom-traverse (lambda (p) (if (and (ctor? p) (not (eq? p 'P))) `(quote ,p) p)) e))
-
 (define (p-ify-ctons e)
   (cond
    ((cton? e) (p-ify (map p-ify-ctons e)))
