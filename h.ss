@@ -400,6 +400,8 @@
     (((/. x (/. y (x y))) (/. a (+ a a))) 11)
     (Foo 10)
     (Bar (Cup 20) 30)
+    ((/. x (/. x x)) 10)
+    ((/. x (/. y x)) 10)
 ))
 
 ;(tracefun gr subst apply-until gr-drive data?)
