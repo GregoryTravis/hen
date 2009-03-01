@@ -678,11 +678,11 @@
             (map-until-not-fail f (cdr lyst))
             v))))
 
-;; (define (apply-until f pred o)
-;;   (let ((r (f o)))
-;;     (if (pred r)
-;;         r
-;;         (apply-until f pred r))))
+(define (apply-until f pred o)
+  (let ((r (f o)))
+    (if (pred r)
+        r
+        (apply-until f pred r))))
 
 (define (++ . stuff)
   (apply concat (map (lambda (o) (->string o)) stuff)))
@@ -1237,3 +1237,10 @@
 
 (define (listshew lyst)
   (map (lambda (e) (display "- ") (lshew e) (display "\n")) lyst))
+
+(define (nice-evally f e)
+  (display "+ ")
+  (lshew e)
+  (display "\n")
+  (lshew (f e))
+  (display "\n"))

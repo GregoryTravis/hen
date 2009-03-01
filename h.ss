@@ -358,87 +358,48 @@
 (define (hen args)
   (map run-file args))
 
-;; Returns (list top-level-exp supercombinators)
-(define (closure-convert e)
-  (let ((annot (add-in-scope e '())))
-    (list
-     (replace-with-supercombinators annot)
-     (map replace-with-supercombinators-sc (gather-supercombinators annot)))))
+;; Replace v with ($ x) everywhere.
+(define (subst v x e)
+  (cond
+   ((eq? v e) x)
+   ((pair? e) (cons (subst v x (car e)) (subst v x (cdr e))))
+   (#t e)))
 
-(define scname (tagged-symbol-generator-generator "sc"))
+(define (prim-apply stuff)
+  (apply (eval (car stuff)) (cdr stuff)))
 
-;; (/. x (/. y b)) -> (/. x sc0 () (/. y sc1 (x) b))
-(define (add-in-scope e in-scope)
+(define (gr e)
   (mtch e
-        ('/. v b) `(/. ,v ,(scname) ,in-scope ,(add-in-scope b (cons v in-scope)))
-        (a . b) (map ($ add-in-scope _ in-scope) e)
-        x x))
-
-;; (name (args) body) -> (name (args) (replace-with-supercombinators body))
-(define (replace-with-supercombinators-sc e)
-  (lensapp caddr-lens replace-with-supercombinators e))
-
-(define (gather-supercombinators e)
-  (mtch e
-        ('/. v name in-scope b) (cons `(,name ,(snoc in-scope v) ,b)
-                                      (gather-supercombinators b))
-        (a . b) (map-append gather-supercombinators e)
-        x '()))
-
-;; (/. name in-scope body) -> ((name . in-scope) body)
-(define (replace-with-supercombinators e)
-  (mtch e
-        ('/. v name in-scope b) `($ ,name . ,in-scope)
-        (a . b) (map replace-with-supercombinators e)
-        x x))
-
-;(tracefun lensmap replace-with-supercombinators replace-with-supercombinators-sc)
-
-;; prims
-(define (luk-other e)
-  (mtch e
-        ('+ a b) (+ a b)
-        x (cond
-           ((cton? e) e)
-           (#t e))))
+        (('/. v e) x) (subst v x e)
+        ('/. v b) e
+        ('$ e) e
+        ((a . b) c) `(,(gr (car e)) ,(cadr e))
+        (a . b) (cond
+                 ((cton? e) e)
+                 ((symbol? a) (prim-apply e))
+                 (#t e))
+        e e))
 
 (define (data? e)
-  (or (symbol? e) (number? e) (cton? e)))
+  (or (number? e)
+      (string? e)
+      (cton? e)
+      (mtch e ('/. v e) #t x #f)))
 
-;; evl
-(define (luk e scs)
-  (mtch e
-        (('$ sc . es) . es2) (luk (apply-supercombinator-exp sc (append es es2) scs) scs)
-        ((a . d) . es) (luk (cons (luk (car e) scs) (cdr e)) scs)
-        e (luk-other e)))
-
-;; subst
-(define (gunst env body)
-  (cond
-   ((pair? body) (cons (gunst env (car body))
-                       (gunst env (cdr body))))
-   ((and (symbol? body) (lookup-exists? body env))
-    (lookup body env))
-   (#t body)))
-
-(define (apply-supercombinator-exp sc args scs)
-  (mtch (lookup sc scs)
-        (params body) (gunst (zip cons params args) body)))
-
-;(tracefun luk apply-supercombinator-exp gunst)
+(define (gr-drive e)
+  (apply-until gr data? e))
 
 (define progs
   '(
+    10
+    (/. x (Foo x x))
+    ((/. x (Foo x x)) 10)
     (((/. x (/. y (+ x y))) 10) 20)
     (((/. x (/. y (x y))) (/. a (+ a a))) 11)
     (Foo 10)
-    (Bar (Cup 20) 30)))
+    (Bar (Cup 20) 30)
+))
 
-(define (run p)
-  (mtch (closure-convert p)
-        (e scs)
-        (begin
-          (listshew scs)
-          (shew e)
-          (shew (luk e scs)))))
-(map run progs)
+;(tracefun gr subst apply-until gr-drive data?)
+
+(map ($ nice-evally gr-drive _) progs)
