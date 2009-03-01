@@ -1,2 +1,2 @@
 (load "h.ss")
-(hen "src.ss")
+(map hen (vector->list (current-command-line-arguments)))

@@ -1,3 +1,3 @@
 (load "h.ss")
 
-(hen (list "test-input.ss"))
+(hen "test-input.ss")
