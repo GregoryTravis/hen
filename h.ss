@@ -390,20 +390,7 @@
 (define (gr-drive e)
   (apply-until gr data? e))
 
-(define progs
-  '(
-    10
-    (/. x (Foo x x))
-    ((/. x (Foo x x)) 10)
-    ((/. x (/. y (+ x y))) 10)
-    (((/. x (/. y (+ x y))) 10) 20)
-    (((/. x (/. y (x y))) (/. a (+ a a))) 11)
-    (Foo 10)
-    (Bar (Cup 20) 30)
-    ((/. x (/. x x)) 10)
-    ((/. x (/. y x)) 10)
-))
-
 ;(tracefun gr subst apply-until gr-drive data?)
 
-(map ($ nice-evally gr-drive _) progs)
+(define (hen file)
+  (map ($ nice-evally gr-drive _) (read-objects file)))
