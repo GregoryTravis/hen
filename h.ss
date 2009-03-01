@@ -362,6 +362,7 @@
 (define (subst v x e)
   (cond
    ((eq? v e) x)
+   ((mtch e ('/. v b) #t _ #f) (if (eq? v (cadr e)) e `(/. ,(cadr e) ,(subst v x (caddr e)))))
    ((pair? e) (cons (subst v x (car e)) (subst v x (cdr e))))
    (#t e)))
 
@@ -394,6 +395,7 @@
     10
     (/. x (Foo x x))
     ((/. x (Foo x x)) 10)
+    ((/. x (/. y (+ x y))) 10)
     (((/. x (/. y (+ x y))) 10) 20)
     (((/. x (/. y (x y))) (/. a (+ a a))) 11)
     (Foo 10)
