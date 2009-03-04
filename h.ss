@@ -54,7 +54,7 @@
 (define (read-src filename)
   (grep (fnot import?)
         (append
-         (read-objects "overture.ss")
+;         (read-objects "overture.ss")
          (read-objects filename))))
 
 (define (fun? e)
@@ -146,11 +146,11 @@
      (if show-bindings (shew 'BIND a (terzie v)) '())
      (evl-step body (cons (cons a v) env)))
 
-   ('PAIR? e) (mtch (evl-fully e env) ('P a b) 'True x 'False)
+   ('$PAIR? e) (mtch (evl-fully e env) ('P a b) 'True x 'False)
 
-   ('CAR p) (mtch (evl-fully p env) ('P a b) a x (err 'not-pair e))
+   ('$CAR p) (mtch (evl-fully p env) ('P a b) a x (err 'not-pair e))
 
-   ('CDR p) (mtch (evl-fully p env) ('P a b) b x (err 'not-pair e))
+   ('$CDR p) (mtch (evl-fully p env) ('P a b) b x (err 'not-pair e))
 
    ('if b th el) (mtch (evl-fully b env) 'True (freeze th env) 'False (freeze el env))
 
@@ -201,8 +201,8 @@
 
    ('def name val) `(def ,name ,(doobie val))
    ('P a b) `(P ,(doobie a) ,(doobie b))
-   ('CAR a) `(CAR ,(doobie a))
-   ('CDR a) `(CDR ,(doobie a))
+   ('$CAR a) `($CAR ,(doobie a))
+   ('$CDR a) `($CDR ,(doobie a))
 
    ('if a b c) `(if ,(doobie a) ,(doobie b) ,(doobie c))
 
@@ -235,7 +235,7 @@
      ('P a b)
      (let ((lefter (build-traverser a failure))
            (righter (build-traverser b failure)))
-       `(/. ,k (/. ,v (/. ,rv (if (PAIR? ,v) (((,lefter ((,righter ,k) (CDR ,v))) (CAR ,v)) ,rv) ,failure)))))
+       `(/. ,k (/. ,v (/. ,rv (if ($PAIR? ,v) (((,lefter ((,righter ,k) ($CDR ,v))) ($CAR ,v)) ,rv) ,failure)))))
      x (cond ((or (number? pat) (quoted-symbol? pat))
               `(/. ,k (/. ,v (/. ,rv (if ((== ,v) ,pat) (,k ,rv) ,failure)))))
              ((symbol? pat)
@@ -367,10 +367,18 @@
    (#t e)))
 
 (define (prim-apply stuff)
-  (apply (eval (car stuff)) (cdr stuff)))
+  (apply (eval (car stuff)) (un-p-ify (gr-fully (cadr stuff)))))
+;  (apply (eval (car stuff)) (map un-p-ify (map gr-drive (cdr stuff)))))
+;  (apply (eval (car stuff)) (map gr-drive (sr (map un-p-ify (cdr stuff))))))
 
 (define (gr e)
   (mtch e
+        ('if a b c) (mtch (gr-drive a) 'True b 'False c)
+        ('$PAIR? ('P a b)) 'True
+        ('$CAR ('P a b)) a
+        ('$CDR ('P a b)) b
+        ('P a b) e
+
         (('/. v e) x) (subst v x e)
         ('/. v b) e
         ('$ e) e
@@ -384,13 +392,35 @@
 (define (data? e)
   (or (number? e)
       (string? e)
+      (ctor? e)
       (cton? e)
       (mtch e ('/. v e) #t x #f)))
 
 (define (gr-drive e)
   (apply-until gr data? e))
 
-;(tracefun gr subst apply-until gr-drive data?)
+(define (gr-fully e)
+  (let ((ee (gr-drive e)))
+    (mtch ee
+          ('P a b) `(P ,(gr-fully a) ,(gr-fully b))
+          ee (if (data? ee)
+                ee
+                (gr-fully ee)))))
 
-(define (hen file)
-  (map ($ nice-evally gr-drive _) (read-objects file)))
+;(define (hen file)
+;  (shew (preprocess-program (read-objects file))))
+;;  (map ($ nice-evally gr-drive _) (read-objects file)))
+
+(define (run-src forms)
+  (reset-everything)
+  (count-reductions-start)
+  (mtch (preprocess-program forms)
+        (src-tlfs tlfs)
+        (map ($ nice-evally (compose un-p-ify gr-fully) _ _) src-tlfs tlfs))
+  (count-reductions-end)
+  (flush-output))
+
+;(tracefun gr apply-until gr-drive prim-apply gr-fully un-p-ify)
+
+(define (hen filename)
+  (run-src (read-src filename)))

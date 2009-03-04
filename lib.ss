@@ -1238,9 +1238,9 @@
 (define (listshew lyst)
   (map (lambda (e) (display "- ") (lshew e) (display "\n")) lyst))
 
-(define (nice-evally f e)
+(define (nice-evally f src-e e)
   (display "+ ")
-  (lshew e)
+  (lshew src-e)
   (display "\n")
   (lshew (f e))
   (display "\n"))
