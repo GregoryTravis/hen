@@ -116,8 +116,7 @@
     (map eval scheme)
     (map eval (trace-em scheme))
     )
-  (shew 'ok)
-  (eval '(main)))
+  (shew (eval '(main))))
 
 ;(tracefun simplify-patterns patterns->conditionals ->scheme)
 ;(tracefun def->scheme gort)
