@@ -1,12 +1,4 @@
+(fun (goop (Foo x)) (+ x x))
+
 (fun (main)
-     (list
-      ((/. x x boom) 10)
-      ((/. (x . y) x boom) (cons 1 2))
-      ((/. (x . y) y boom) (cons 1 2))
-      ((/. ((x . y) . z) x boom) (cons (cons 1 2) 3))
-      ((/. ((x . y) . z) y boom) (cons (cons 1 2) 3))
-      ((/. ((x . y) . z) z boom) (cons (cons 1 2) 3))
-      ((/. (x . (y . z)) x boom) (cons 1 (cons 2 3)))
-      ((/. (x . (y . z)) y boom) (cons 1 (cons 2 3)))
-      ((/. (x . (y . z)) z boom) (cons 1 (cons 2 3)))
-      ))
+     (goop (Foo 10)))

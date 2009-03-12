@@ -48,8 +48,8 @@
         ('if b t e) `(if ,(->scheme b) ,(->scheme t) ,(->scheme e))
         ('let* bindings body) `(let* ,(lensmap cadr-lens ->scheme bindings) ,(->scheme body))
 
-        (a . b)
-        (map ->scheme e)
+        (a . b) (cond ((ctor? a) `(list ',a ,@b))
+                      (#t (map ->scheme e)))
 
         x x))
 
