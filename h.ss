@@ -36,7 +36,7 @@
   (mtch (forms->defs-n-tlfs forms)
         (defs src-tlfs)
         (begin (map define-def (map preprocess defs))
-               ;(shew< global-env)
+               ;(shew global-env)
                (list src-tlfs (map preprocess src-tlfs)))))
 
 (define (run-src forms)
@@ -74,10 +74,9 @@
   (mtch e
         ('def name e)
         (set! global-env
-              (cons (cons name (evl-step e '())) global-env))))
+              (cons (cons name e) global-env))))
 
 (define (evl-driver e)
-;  (let ((ee (evl e)))
   (let ((ee e))
     (mtch ee
           ('P 'CommandSeq ('P command ('P kcommand 'Nil)))
@@ -368,8 +367,6 @@
 
 (define (prim-apply stuff)
   (apply (eval (car stuff)) (un-p-ify (gr-fully (cadr stuff)))))
-;  (apply (eval (car stuff)) (map un-p-ify (map gr-drive (cdr stuff)))))
-;  (apply (eval (car stuff)) (map gr-drive (sr (map un-p-ify (cdr stuff))))))
 
 (define (gr e)
   (mtch e
@@ -381,11 +378,12 @@
 
         (('/. v e) x) (subst v x e)
         ('/. v b) e
-        ('$ e) e
         ((a . b) c) `(,(gr (car e)) ,(cadr e))
         (a . b) (cond
                  ((cton? e) e)
-                 ((symbol? a) (prim-apply e))
+                 ((symbol? a) (if (lookup-exists? a global-env)
+                                  (cons (lookup a global-env) b)
+                                  (prim-apply e)))
                  (#t e))
         e e))
 
@@ -420,7 +418,8 @@
   (count-reductions-end)
   (flush-output))
 
-;(tracefun gr apply-until gr-drive prim-apply gr-fully un-p-ify)
+;(tracefun gr apply-until gr-drive prim-apply gr-fully un-p-ify lookup)
+;(tracefun lookup-exists?)
 
 (define (hen filename)
   (run-src (read-src filename)))
