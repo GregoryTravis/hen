@@ -372,7 +372,14 @@
 (define (gr e)
   (mtch e
         ('if a b c) (mtch (gr-drive a) 'True b 'False c)
-        ('$PAIR? ('P a b)) 'True
+;        ('$PAIR? ('P a b)) 'True
+;        ('$PAIR? x) 'False
+
+        ('$PAIR? e) (mtch (gr-fully e) ('P a b) 'True x 'False)
+
+        ('$CAR e) (mtch (gr-fully e) ('P a b) a)
+        ('$CDR e) (mtch (gr-fully e) ('P a b) b)
+
         ('$CAR ('P a b)) a
         ('$CDR ('P a b)) b
         ('P a b) e
