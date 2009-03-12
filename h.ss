@@ -120,5 +120,3 @@
 
 ;(tracefun simplify-patterns patterns->conditionals ->scheme)
 ;(tracefun def->scheme gort)
-
-(hen-run "src.ss")
