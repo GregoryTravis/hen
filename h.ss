@@ -447,13 +447,10 @@
           ('/. args body fail)
           `(/. ,args ,(simplify-patterns body) ,(simplify-patterns fail))
 
-          (a b)
-          `(,(simplify-patterns a) ,(simplify-patterns b))
+          (a . b)
+          (map simplify-patterns e)
 
           x x)))
-;;           x (cond
-;;              ((symbol? x) x)
-;;              (#t (err 'simplify-patterns e))))))
 
 (define (patterns->conditionals e)
   (let ((v (sg)))
@@ -464,8 +461,8 @@
           ('/. a body fail)
           `(/. ,a ,body)
 
-          (a b)
-          `(,(patterns->conditionals a) ,(patterns->conditionals b))
+          (a . b)
+          (map patterns->conditionals e)
 
           x x)))
 
@@ -477,8 +474,8 @@
         ('if b t e) `(if ,(->scheme b) ,(->scheme t) ,(->scheme e))
         ('let* bindings body) `(let* ,(lensmap cadr-lens ->scheme bindings) ,(->scheme body))
 
-        (a b)
-        `(,(->scheme a) ,(->scheme b))
+        (a . b)
+        (map ->scheme e)
 
         x x))
 
