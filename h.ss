@@ -1,5 +1,6 @@
 (load "lib.ss")
 (load "util.ss")
+(load "primitives.ss")
 
 (define hen-version "* hen v. 0.01")
 
@@ -366,7 +367,7 @@
    (#t e)))
 
 (define (prim-apply stuff)
-  (apply (eval (car stuff)) (un-p-ify (gr-fully (cadr stuff)))))
+  (apply (eval (symbol++ "prim-" (car stuff))) (un-p-ify (gr-fully (cadr stuff)))))
 
 (define (gr e)
   (mtch e
