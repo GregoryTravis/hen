@@ -30,7 +30,6 @@
     (mtch e
           ('/. (a . b) body fail)
           `(/. ,v (if (pair? ,v) ,(patterns->conditionals `(((/. ,a (/. ,b ,body ,fail) ,fail) (car ,v)) (cdr ,v))) (,(patterns->conditionals fail) ,v)))
-;          `(/. ,v (if (pair? ,v) (let* ((,a (car ,v)) (,b (cdr ,v))) ,(patterns->conditionals body)) (,(patterns->conditionals fail) ,v)))
 
           ('/. a body fail) (cond ((symbol? a) `(/. ,a ,(patterns->conditionals body)))
                                   ((constant? a) `(/. ,v (if (prim-= ,v ,(quote-constant a)) ,(patterns->conditionals body) (,(patterns->conditionals fail) ,v))))
@@ -51,7 +50,6 @@
 
         (a . b)
         (map ->scheme e)
-;        (list (->scheme a) (map ->scheme b))
 
         x x))
 
@@ -108,14 +106,7 @@
 (define gort (** ->scheme patterns->conditionals simplify-patterns))
 
 (define (def->scheme e)
-;  (mtch e ('def name body) `(define ,name ,((** ->scheme patterns->conditionals simplify-patterns) body))))
-;;   (mtch e
-;;         ('def name (/. args body)) `(define ,name ,(cascade-lambdas name (list `(/. ,args ,body))))
-;;         ('def name value) `(define ,name ,value)))
-;        ('def name body) `(define ,name (lambda args (,(gort body) args)))))
   (mtch e ('def name body) `(define (,name . args) (,(gort body) args))))
-
-;`(define ,name (lambda x (,((** ->scheme patterns->conditionals simplify-patterns) body) x)))))
 
 (define (trace-em defines)
   (map (lambda (x) (mtch x ('define (name . args) body) `(tracefun ,name))) defines))
