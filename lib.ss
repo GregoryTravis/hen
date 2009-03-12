@@ -1246,3 +1246,5 @@
   (display "\n"))
 
 (define (symbol++ . args) (->symbol (apply ++ args)))
+
+(define (** . args) (apply compose args))
