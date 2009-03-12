@@ -112,7 +112,7 @@
   (map (lambda (x) (mtch x ('define (name . args) body) `(tracefun ,name))) defines))
 
 (define (hen-run file)
-  (let ((scheme (sr (map def->scheme (sr (tlfs->defs (read-objects file)))))))
+  (let ((scheme (map def->scheme (tlfs->defs (read-objects file)))))
     (map eval scheme)
     (map eval (trace-em scheme))
     )
