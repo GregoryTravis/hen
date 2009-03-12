@@ -9,6 +9,7 @@
 (define (prim-= a b)
   (tflift
    (cond
+    ((null? a) (null? b))
     ((number? a) (= a b))
     ((string? a) (string= a b))
     ((symbol? a) (eq? a b))
