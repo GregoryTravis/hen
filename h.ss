@@ -53,28 +53,7 @@
 
         x x))
 
-;(define (boom a) (err 'boom a))
 (define (boom name) (lambda (x) (err 'boom name x)))
-
-;; (map (** shew eval ->scheme patterns->conditionals simplify-patterns)
-;;      '(
-;; ;;        (/. x x boom)
-;; ;;        (/. (x . y) x boom)
-;; ;;        (/. (x . (y . z)) x boom)
-;; ;;        (/. ((x . y) . z) x boom)
-;; ;;        ((/. x x boom) 10)
-;; ;;        ((/. (x . y) x boom) (cons 1 2))
-;; ;;        ((/. (x . y) y boom) (cons 1 2))
-;; ;; ;;       ((/. (x . y) y boom) 3)
-;; ;;        ((/. ((x . y) . z) x boom) (cons (cons 1 2) 3))
-;; ;;        ((/. ((x . y) . z) y boom) (cons (cons 1 2) 3))
-;; ;;        ((/. ((x . y) . z) z boom) (cons (cons 1 2) 3))
-;; ;; ;;       ((/. ((x . y) . z) x boom) (cons 1 (cons 2 3)))
-;; ;;        ((/. (x . (y . z)) x boom) (cons 1 (cons 2 3)))
-;;        ((/. (x . (y . z)) y boom) (cons 1 (cons 2 3)))
-;; ;;        ((/. (x . (y . z)) z boom) (cons 1 (cons 2 3)))
-;; ;; ;;       ((/. (x . (y . z)) z boom) (cons (cons 1 2) 3))
-;;        ))
 
 (define (fun? e) (mtch e ('fun a b) #t _ #f))
 (define (def? e) (mtch e ('def a b) #t _ #f))
@@ -114,7 +93,7 @@
 (define (hen-run file)
   (let ((scheme (map def->scheme (tlfs->defs (read-objects file)))))
     (map eval scheme)
-    (map eval (trace-em scheme))
+;    (map eval (trace-em scheme))
     )
   (shew (eval '(main))))
 
