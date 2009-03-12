@@ -1244,3 +1244,5 @@
   (display "\n")
   (lshew (f e))
   (display "\n"))
+
+(define (symbol++ . args) (->symbol (apply ++ args)))
