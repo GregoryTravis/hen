@@ -1051,9 +1051,13 @@
    (#t l)))
 
 (define (smart== a b)
-  (or (and (number? a) (= a b))
-      (and (string? a) (string= a b))
-      (equal? a b)))
+  (cond
+   ((null? a) (null? b))
+   ((number? a) (= a b))
+   ((string? a) (string= a b))
+   ((symbol? a) (eq? a b))
+   ((pair? a) (and (pair? b) (prim-= (car a) (car b)) (prim-= (cdr a) (cdr b))))
+   (#t (err 'prim= a b))))
 
 (define (til-same f arg)
   (let ((result (f arg)))

@@ -6,14 +6,7 @@
    
 ;; (define prim-= (lift-pred =))
 
-(define (prim-= a b)
-  (tflift
-   (cond
-    ((null? a) (null? b))
-    ((number? a) (= a b))
-    ((string? a) (string= a b))
-    ((symbol? a) (eq? a b))
-    (#t (err 'prim= a b)))))
+(define (prim-== a b) (tflift (smart== a b)))
 
 (define prim-+ +)
 (define prim-- -)
