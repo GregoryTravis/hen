@@ -32,7 +32,7 @@
           `(/. ,v (if (pair? ,v) ,(patterns->conditionals `(((/. ,a (/. ,b ,body ,fail) ,fail) (car ,v)) (cdr ,v))) (,(patterns->conditionals fail) ,v)))
 
           ('/. a body fail) (cond ((symbol? a) `(/. ,a ,(patterns->conditionals body)))
-                                  ((constant? a) `(/. ,v (if (prim-= ,v ,(quote-constant a)) ,(patterns->conditionals body) (,(patterns->conditionals fail) ,v))))
+                                  ((constant? a) `(/. ,v (if (prim-== ,v ,(quote-constant a)) ,(patterns->conditionals body) (,(patterns->conditionals fail) ,v))))
                                   (#t (err 'patterns->conditionals)))
 
           (a . b)
