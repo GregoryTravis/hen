@@ -12,3 +12,5 @@
 (define prim-- -)
 (define prim-* *)
 (define prim-/ /)
+
+(define prim-shew shew-no-voids)
