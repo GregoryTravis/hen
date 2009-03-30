@@ -1,4 +1,5 @@
 (fun (goop (Foo x)) (+ x x))
 
 (fun (main)
-     (goop (Foo 10)))
+     (shew (goop (Foo 10))))
+1

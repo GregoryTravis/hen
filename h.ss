@@ -60,10 +60,14 @@
 (define (fun-name e) (mtch e ('fun (name . args) b) name))
 
 (define (tlfs->defs e)
-  (mtch (group-by-preds (list def? fun?) e)
-        (defs funs)
+  (mtch (group-by-preds (list def? fun? true-pred) e)
+        (defs funs top-level-expressions)
         (append defs
+                (list (tle-def top-level-expressions))
                 (funs->defs funs))))
+
+(define (tle-def tles)
+  `(def _tle (/. () (shew-no-voids ,@tles))))
 
 (define (fun->/. e)
   (mtch e ('fun (name . args) body) `(/. ,args ,body)))
@@ -90,12 +94,23 @@
 (define (trace-em defines)
   (map (lambda (x) (mtch x ('define (name . args) body) `(tracefun ,name))) defines))
 
+;; Add main if there isn't one, and add _main which calls _tles and
+;; main.  This is done before funs->defs.
+(define (has-main tlfs) (any? (map (lambda (x) (and (fun? x) (eq? (caadr x) 'main))) tlfs)))
+(define (add-mains tlfs)
+  (cons
+   (if (has-main tlfs)
+       `(fun (_main) (begin (_tle) (main)))
+       `(fun (_main) (_tle)))
+   tlfs))
+
 (define (hen-run file)
-  (let ((scheme (map def->scheme (tlfs->defs (read-objects file)))))
+  (let ((scheme (map def->scheme (tlfs->defs (add-mains (read-objects file))))))
+    ;(shew scheme)
     (map eval scheme)
-;    (map eval (trace-em scheme))
+    ;(map eval (trace-em scheme))
     )
-  (shew (eval '(main))))
+  (eval '(_main)))
 
 ;(tracefun simplify-patterns patterns->conditionals ->scheme)
 ;(tracefun def->scheme gort)
