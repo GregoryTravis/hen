@@ -1,5 +1,5 @@
 (fun (goop (Foo x)) (+ x x))
+(fun (goop a) (Bok a a))
 
-(fun (main)
-     (shew (goop (Foo 10))))
-1
+(goop (Foo 10))
+(goop (Bar 30))

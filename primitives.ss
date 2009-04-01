@@ -6,7 +6,7 @@
    
 ;; (define prim-= (lift-pred =))
 
-(define (prim-== a b) (tflift (smart== a b)))
+(define (prim-== a b) (tflift (== a b)))
 
 (define prim-+ +)
 (define prim-- -)

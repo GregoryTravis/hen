@@ -31,7 +31,8 @@
           ('/. (a . b) body fail)
           `(/. ,v (if (pair? ,v) ,(patterns->conditionals `(((/. ,a (/. ,b ,body ,fail) ,fail) (car ,v)) (cdr ,v))) (,(patterns->conditionals fail) ,v)))
 
-          ('/. a body fail) (cond ((symbol? a) `(/. ,a ,(patterns->conditionals body)))
+          ('/. a body fail) (cond ((ctor? a) `(/. ,v (if (== ,v ',a) ,(patterns->conditionals body) ,(patterns->conditionals fail))))
+                                  ((symbol? a) `(/. ,a ,(patterns->conditionals body)))
                                   ((constant? a) `(/. ,v (if (prim-== ,v ,(quote-constant a)) ,(patterns->conditionals body) (,(patterns->conditionals fail) ,v))))
                                   (#t (err 'patterns->conditionals)))
 
