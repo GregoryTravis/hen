@@ -3,4 +3,5 @@
 
 (goop (Foo 10))
 (goop (Bar 30))
-;(fun (main) 12)
+(fun (main) 12)
+

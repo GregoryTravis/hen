@@ -526,7 +526,7 @@
       (cons (grep (car preds) lyst)
             (group-by-preds (cdr preds) (grep (fnot (car preds)) lyst)))))
 
-(define (true-pred a) #t)
+(define (ftrue a) #t)
 
 ;; ;; maybe stuff.
 

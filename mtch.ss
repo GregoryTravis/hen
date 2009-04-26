@@ -74,3 +74,7 @@
 
 (define-macro (mtch target . clauses)
   (mtch-render target clauses))
+
+(define-macro (defn name . clauses)
+  `(define (,name . target)
+     ,(mtch-render 'target clauses)))
