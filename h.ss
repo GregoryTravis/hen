@@ -49,8 +49,52 @@
 (define (uut forms)
   (map ($ identifiers->k-or-v _ '()) (map parse forms)))
 
+(define (tuu e)
+  (mtch e
+        ('P ('K 'Integer) ('P ('Prim x) 'Nil)) x
+        ('P ('K 'String) ('P ('Prim x) 'Nil)) x
+        ('P a b) (cons (tuu a) (tuu b))
+        ('K x) x
+        ('V x) (err 'tuu e)
+        'Nil '()))
+
+(define (try-funs e funs)
+  (if (null? funs)
+      (err 'fail e)
+      (mtch (try-fun e (car funs))
+            'Ono (try-funs e (cdr funs))
+            (Yay result) result)))
+
+(define (try-fun e fun)
+  (mtch fun
+        ('Fun pat body)
+        (let ((bindings (pat-match pat e)))
+          (if (any? (map (feq? #f) bindings))
+              'Ono
+              `(Yay ,(rewrite-body body bindings))))))
+
+(define (pat-match pat e)
+  (mtch (list pat e)
+        (('P a b) ('P c d)) (append (pat-match a c) (pat-match b d))
+        (('V x) y) `((,x . ,y))
+        (('K a) ('K b)) (if (== a b) '() #f)
+        (('Prim a) ('Prim b)) (if (== a b) '() #f)
+        ('Nil 'Nil) '()))
+
+(define (rewrite-body body bindings)
+  (mtch body
+        ('P a b) `(P ,(rewrite-body a bindings) ,(rewrite-body b bindings))
+        ('V x) (lookup x bindings)
+        ('K x) body
+        ('Prim x) body
+        'Nil body))
+
 (define (evl e funs)
-  (shew 'evl e))
+  (let ((r (try-funs e funs)))
+    (shew (tuu r))
+    r))
+
+;(tracefun evl try-funs try-fun pat-match rewrite-body tuu)
 
 (define (run-src forms)
   (mtch (group-by-preds (list fun? ftrue) forms)
