@@ -13,6 +13,7 @@
 (define (parse form)
   (mtch form
         ('fun pat body) `(Fun ,(parse pat) ,(parse body))
+        ('quote x) (if (symbol? x) `(K ,x) (err 'bad-quote form))
         (a . b) `(P ,(parse a) ,(parse b))
         () `Nil
         x (cond ((ctor? x) `(K ,x))
@@ -25,6 +26,11 @@
   (mtch e
         ('P a b) `(P ,(p-map f a) ,(p-map f b))
         _ (f e)))
+
+(define (un-p-ify e)
+  (mtch e
+        ('P a b) (cons a (un-p-ify b))
+        'Nil '()))
 
 (define (identifiers->k-or-v e bound)
   (mtch e
@@ -46,8 +52,8 @@
         ('K x) '()))
 
 ;; TODO: top-level list of forms -> P-ified?
-(define (uut forms)
-  (map ($ identifiers->k-or-v _ '()) (map parse forms)))
+(define (uut form)
+  (identifiers->k-or-v (parse form) '()))
 
 (define (tuu e)
   (mtch e
@@ -72,6 +78,16 @@
           (if (any? (map (feq? #f) bindings))
               'Ono
               `(Yay ,(rewrite-body body bindings))))))
+
+(define (try-funs-or-prim e funs)
+  (mtch e
+        ('P ('K 'prim) b) (uut (apply-prim (tuu b)))
+        _ (try-funs e funs)))
+
+(tracefun un-p-ify)
+
+(define (apply-prim l)
+  (apply (eval (car l)) (cdr l)))
 
 (define (pat-match pat e)
   (mtch (list pat e)
@@ -100,7 +116,7 @@
 (define (evl-rewrite e funs)
   (if (evaluated? e)
       e
-      (try-funs e funs)))
+      (try-funs-or-prim e funs)))
 
 (define (evl-children e funs)
   (mtch e
@@ -126,8 +142,10 @@
   (shew (tuu e))
   (shew (tuu (evl e funs))))
 
-;(tracefun try-funs try-fun pat-match rewrite-body)
+;(tracefun try-funs try-funs-or-prim try-fun pat-match rewrite-body apply-prim)
+;(tracefun tuu uut)
 ;(tracefun evl evl-drive evl-step evl-children evl-rewrite)
+;(tracefun parse identifiers->k-or-v)
 
 (define (run-src forms)
   (mtch (group-by-preds (list fun? ftrue) forms)
@@ -138,4 +156,4 @@
                  tles))))
 
 (define (hen-run file)
-  (run-src (uut (read-objects file))))
+  (run-src (map uut (read-objects file))))
