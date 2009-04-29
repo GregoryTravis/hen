@@ -2,6 +2,5 @@
 (fun (goop a) (Bok a a))
 
 (goop (Foo 10))
-(goop (Bar 30))
-(fun (main) 12)
-
+;; (goop (Bar 30))
+;; (fun (main) 12)
