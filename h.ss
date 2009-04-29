@@ -89,24 +89,53 @@
         ('Prim x) body
         'Nil body))
 
-(define (evl e funs)
-  (let ((r (try-funs e funs)))
-    (shew (tuu r))
-    r))
+(define (evaluated? e)
+  (mtch e
+        ('P ('K x) b) (ctor? x)
+        ('K x) #t
+        ('V x) (err 'evaluated e)
+        ('Prim x) #t
+        'Nil #t))
 
-;(tracefun evl try-funs try-fun pat-match rewrite-body tuu)
+(define (evl-rewrite e funs)
+  (if (evaluated? e)
+      e
+      (try-funs e funs)))
+
+(define (evl-children e funs)
+  (mtch e
+        ('P a b) (p-map ($ evl _ funs) e)
+        ('K x) e
+        'Nil e
+        ('Prim x) e))
+
+(define (evl-step e funs)
+  (evl-rewrite (evl-children e funs) funs))
+
+(define (evl-drive e funs)
+  (let ((r (evl-step e funs)))
+    (if (evaluated? r)
+        r
+        (evl-drive r funs))))
+
+(define (evl e funs)
+  (evl-drive e funs))
+
+(define (evl-top e funs)
+  (display "+ ")
+  (shew (tuu e))
+  (shew (tuu (evl e funs))))
+
+;(tracefun try-funs try-fun pat-match rewrite-body)
+;(tracefun evl evl-drive evl-step evl-children evl-rewrite)
 
 (define (run-src forms)
   (mtch (group-by-preds (list fun? ftrue) forms)
         (funs tles)
-        (map ($ evl _ funs)
+        (map ($ evl-top _ funs)
              (if (member? 'main (map fun-name funs))
                  (snoc tles '(main))
                  tles))))
 
 (define (hen-run file)
   (run-src (uut (read-objects file))))
-;  (shew (tlfs->defs (read-objects file))))
-
-;(tracefun simplify-patterns patterns->conditionals ->scheme)
-;(tracefun def->scheme gort)

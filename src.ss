@@ -1,4 +1,5 @@
-(fun (goop (Foo x)) (+ x x))
+;(fun (goop (Foo x)) (+ x x))
+(fun (goop (Foo x)) (Oik x (Dot x)))
 (fun (goop a) (Bok a a))
 
 (goop (Foo 10))
