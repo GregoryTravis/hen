@@ -1,4 +1,7 @@
 (fun (foo (A a)) (+ a a))
 (fun (foo (B b c)) (* b c))
+(fun (foo 7) 8)
+(fun (foo a) (^ a a))
+(fun (foo . q) q)
 (fun (bar (Q q)) (B q q))
 (fun (bar (R r)) (A r))
