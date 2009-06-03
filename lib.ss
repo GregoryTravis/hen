@@ -476,6 +476,7 @@
 
 (define cadr-lens (compose-lenses car-lens cdr-lens))
 (define cddr-lens (compose-lenses cdr-lens cdr-lens))
+(define caadr-lens (compose-lenses car-lens cadr-lens))
 (define caddr-lens (compose-lenses car-lens cddr-lens))
 
 (define (lensmap lens f l)
@@ -525,7 +526,7 @@
       (cons (grep (car preds) lyst)
             (group-by-preds (cdr preds) (grep (fnot (car preds)) lyst)))))
 
-(define (true-pred a) #t)
+(define (ftrue a) #t)
 
 ;; ;; maybe stuff.
 
@@ -1050,7 +1051,7 @@
    ((null? l) 'Nil)
    (#t l)))
 
-(define (smart== a b)
+(define (== a b)
   (cond
    ((null? a) (null? b))
    ((number? a) (= a b))
@@ -1061,7 +1062,7 @@
 
 (define (til-same f arg)
   (let ((result (f arg)))
-    (if (smart== arg result)
+    (if (== arg result)
         result
         (til-same f result))))
 
@@ -1254,3 +1255,10 @@
 (define (symbol++ . args) (->symbol (apply ++ args)))
 
 (define (** . args) (apply compose args))
+
+(define a-void-blah-blah (display ""))
+(define (is-void v) (eq? a-void-blah-blah is-void))
+(define (remove-voids l)
+  (grep (fnot is-void) l))
+(define (shew-no-voids . args) (apply shew (remove-voids args)))
+;(define (shew-no-voids . args) (shew args "asdf") 1000)
