@@ -15,4 +15,14 @@ asdf
 ()
 1 1 1
 0 0 0
+1
+1
+"asdf"
+1
+1
+"joe"
+1
+1
+"lap"
+1
 rm -f test *.o yeah.h yeah.c

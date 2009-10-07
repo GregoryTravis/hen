@@ -3,6 +3,9 @@
 die "MORE ARGS" unless @ARGV == 1;
 my ($typename) = @ARGV;
 
+unlink("$typename.h");
+unlink("$typename.c");
+
 open(SRC, "$typename.ctors") || die $!;
 
 while (<SRC>) {
@@ -16,6 +19,7 @@ close(SRC);
 open(H, ">$typename.h") || die $!;
 open(C, ">$typename.c") || die $!;
 
+print C "#include <stdio.h>\n";
 print C "#include \"$typename.h\"\n";
 print C "#include \"a.h\"\n";
 print C "#include \"mem.h\"\n";
@@ -78,7 +82,7 @@ while (my ($ctor, $args) = each %ctors) {
 
 # TODO: Can't have nested matches, because of single variable __vap.
 print H "#define match(e) __${typename}_vap = e; switch(__${typename}_vap->tag) { case TAG_DUMMY:\n";
-print H "#define end break; } default: { err(\"asdf\"); }\n";
+print H "#define end break; } default: { err((\"asdf\")); }\n";
 
 print H "extern $typename* __${typename}_vap;\n";
 print C "$typename* __${typename}_vap;\n";
@@ -101,6 +105,41 @@ while (my ($ctor, $args) = each %ctors) {
   }
   print H "\n";
 }
+
+# serialization
+print H "void serialize(FILE* fp, yeah* y);\n";
+print C "void serialize(FILE* fp, yeah* y) {\n";
+print C "  fprintf(fp, \"%d\\n\", TAG_$ctor);\n";
+print C "  match (y) {\n";
+
+while (my ($ctor, $args) = each %ctors) {
+  my @names = ();
+  foreach $arg (@$args) {
+    my ($type, $name) = split(/:/, $arg);
+    push(@names, $name);
+  }
+
+  my $Ctor = ucfirst($ctor);
+  print C "    $Ctor(" . join(", ", @names) . ") {\n";
+
+  foreach $arg (@$args) {
+    my ($type, $name) = split(/:/, $arg);
+    if ($type eq ($typename . "*")) {
+      # Recursive call
+      print C "      serialize(fp, $name);\n";
+    } elsif ($type eq "char*") {
+      print C "      printf(\"\\\"%s\\\"\\n\", $name);\n";
+    } elsif ($type eq "int") {
+      print C "      printf(\"%d\\n\", $name);\n";
+    }
+  }
+
+  print C "    }\n";
+}
+
+print C "    end;\n";
+print C "  }\n";
+print C "}\n";
 
 close(H);
 close(C);

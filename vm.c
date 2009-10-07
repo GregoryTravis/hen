@@ -46,5 +46,7 @@ int main(int argc, char** argv) {
   printf("%d %d %d\n", issymbol(mksymbol("asdf")), ispair(mkpair(mksymbol("asdf"), mksymbol("awer"))), isnil(mknil()));
   printf("%d %d %d\n", ispair(mksymbol("asdf")), isnil(mkpair(mksymbol("asdf"), mksymbol("awer"))), issymbol(mknil()));
 
+  serialize(stdout, mkpair(mksymbol("asdf"), mkpair(mksymbol("joe"), mkpair(mksymbol("lap"), mknil()))));
+
   return 0;
 }
