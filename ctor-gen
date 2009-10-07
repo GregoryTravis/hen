@@ -1,0 +1,104 @@
+#!/usr/bin/env perl
+
+die "MORE ARGS" unless @ARGV == 1;
+my ($typename) = @ARGV;
+
+open(SRC, "$typename.ctors") || die $!;
+
+while (<SRC>) {
+  my @foo = split(/\s/);
+  $ctor = shift(@foo);
+  $ctors{$ctor} = \@foo;
+}
+
+close(SRC);
+
+open(H, ">$typename.h") || die $!;
+open(C, ">$typename.c") || die $!;
+
+print C "#include \"$typename.h\"\n";
+print C "#include \"a.h\"\n";
+print C "#include \"mem.h\"\n";
+
+print H "typedef enum {\n";
+while (my ($ctor, $args) = each %ctors) {
+  print H "  TAG_$ctor,\n";
+}
+print H "  TAG_DUMMY\n";
+print H "} ${typename}_tag;\n";
+
+print H "typedef struct $typename $typename;\n";
+
+print H "struct $typename {\n";
+print H "  ${typename}_tag tag;\n";
+print H "  union {\n";
+
+while (my ($ctor, $args) = each %ctors) {
+  print H "    struct {\n";
+  foreach $arg (@$args) {
+    my ($type, $name) = split(/:/, $arg);
+    print H "       $type $name;\n";
+  }
+  print H "    } $ctor;\n";
+}
+
+print H "  } u;\n";
+print H "};\n";
+
+print H "\n";
+
+while (my ($ctor, $args) = each %ctors) {
+  my $proto = "";
+  $proto .= "$typename* mk$ctor(";
+  foreach $arg (@$args) {
+    my ($type, $name) = split(/:/, $arg);
+    $proto .= "$type $name";
+    if ($arg ne $args->[@args - 1]) {
+      $proto .= ", ";
+    }
+  }
+  $proto .= ")";
+
+  print H "$proto;\n";
+
+  print C "$proto {\n";
+  print C "  $typename* y = NEW($typename);\n";
+  print C "  A(y);\n";
+  print C "  y->tag = TAG_$ctor;\n";
+  foreach $arg (@$args) {
+    my ($type, $name) = split(/:/, $arg);
+    print C "  y->u.$ctor.$name = $name;\n";
+  }
+  print C "  return y;\n";
+  print C "}\n";
+  print C "\n";
+}
+
+# TODO: Can't have nested matches, because of single variable __vap.
+print H "#define match(e) __${typename}_vap = e; switch(__${typename}_vap->tag) { case TAG_DUMMY:\n";
+print H "#define end break; } default: { err(\"asdf\"); }\n";
+
+print H "extern $typename* __${typename}_vap;\n";
+print C "$typename* __${typename}_vap;\n";
+
+while (my ($ctor, $args) = each %ctors) {
+  $Ctor = ucfirst($ctor);
+  print H "#define $Ctor(";
+  my @names = ();
+  foreach $arg (@$args) {
+    my ($type, $name) = split(/:/, $arg);
+    push(@names, $name);
+  }
+  @names = map { "_$_" } @names;
+  print H join(", ", @names);
+  print H ") break; } case TAG_$ctor: { ";
+  foreach $arg (@$args) {
+    my ($type, $name) = split(/:/, $arg);
+    push(@names, $name);
+    print H "$type _$name = __${typename}_vap->u.$ctor.$name; ";
+  }
+  print H "\n";
+}
+
+close(H);
+close(C);

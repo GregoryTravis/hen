@@ -1,2 +1,2 @@
-pair yeah*:a yeah*:d
-symbol char*:s
+pair yeah*:car yeah*:cdr
+symbol char*:txt

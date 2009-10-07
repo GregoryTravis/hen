@@ -12,7 +12,7 @@ vm.i: vm.h vm.c yeah.h
 yeah.o: yeah.h yeah.c
 	gcc -g -c yeah.c
 
-yeah.h yeah.c: yeah.ctors ~/.../bin/ctor-gen
+yeah.h yeah.c: yeah.ctors ctor-gen
 	ctor-gen yeah
 
 spew.o: spew.c spew.h
