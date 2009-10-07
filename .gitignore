@@ -1,1 +1,5 @@
 misc
+*.o
+yeah.h
+yeah.c
+vm.i
