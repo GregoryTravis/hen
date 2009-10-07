@@ -1,0 +1,18 @@
+rm -f test *.o yeah.h yeah.c
+../../ctor-gen yeah
+gcc -g -c test.c
+gcc -g -c yeah.c -I../..
+gcc -g -c ../../spew.c
+gcc -g -c ../../mem.c
+gcc -g -o test test.o yeah.o spew.o mem.o
+vm!
+asdf
+(asdf . awer)
+(asdf)
+(asdf joe)
+(asdf joe lap)
+((asdf . qwer) . zxcv)
+()
+1 1 1
+0 0 0
+rm -f test *.o yeah.h yeah.c
