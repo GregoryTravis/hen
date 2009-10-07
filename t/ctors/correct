@@ -1,6 +1,6 @@
 rm -f test *.o yeah.h yeah.c
 ../../ctor-gen yeah
-gcc -g -c test.c
+gcc -g -c test.c -I../..
 gcc -g -c yeah.c -I../..
 gcc -g -c ../../spew.c
 gcc -g -c ../../mem.c
@@ -15,14 +15,22 @@ asdf
 ()
 1 1 1
 0 0 0
+2
+0
+asdf
+2
+0
+joe
+2
+0
+lap
 1
-1
-"asdf"
-1
-1
-"joe"
-1
-1
-"lap"
-1
+()
+()
+asdf
+asdf
+(asdf joe lap)
+(asdf joe lap)
+((asdf . qwer) . zxcv)
+((asdf . qwer) . zxcv)
 rm -f test *.o yeah.h yeah.c

@@ -4,6 +4,7 @@
 
 #include "vm.h"
 
+#include "a.h"
 #include "yeah.h"
 
 void dump(yeah* y);
@@ -34,19 +35,6 @@ void dump(yeah* y) {
 
 int main(int argc, char** argv) {
   printf("vm!\n");
-
-  dump(mksymbol("asdf"));
-  dump(mkpair(mksymbol("asdf"), mksymbol("awer")));
-  dump(mkpair(mksymbol("asdf"), mknil()));
-  dump(mkpair(mksymbol("asdf"), mkpair(mksymbol("joe"), mknil())));
-  dump(mkpair(mksymbol("asdf"), mkpair(mksymbol("joe"), mkpair(mksymbol("lap"), mknil()))));
-  dump(mkpair(mkpair(mksymbol("asdf"), mksymbol("qwer")), mksymbol("zxcv")));
-  dump(mknil());
-
-  printf("%d %d %d\n", issymbol(mksymbol("asdf")), ispair(mkpair(mksymbol("asdf"), mksymbol("awer"))), isnil(mknil()));
-  printf("%d %d %d\n", ispair(mksymbol("asdf")), isnil(mkpair(mksymbol("asdf"), mksymbol("awer"))), issymbol(mknil()));
-
-  serialize(stdout, mkpair(mksymbol("asdf"), mkpair(mksymbol("joe"), mkpair(mksymbol("lap"), mknil()))));
 
   return 0;
 }

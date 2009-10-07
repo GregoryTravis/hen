@@ -4,12 +4,12 @@ test: test.o yeah.o $(LIBOBJS)
 	gcc -g -o test test.o yeah.o $(LIBOBJS)
 
 test.o: test.c yeah.h
-	gcc -g -c test.c
+	gcc -g -c test.c -I../..
 
 test.i: test.h test.c yeah.h
 	gcc -g -E test.c > test.i
 
-yeah.o: yeah.h yeah.c
+yeah.o: yeah.h yeah.c ../../ctor-support.c
 	gcc -g -c yeah.c -I../..
 
 yeah.h yeah.c: yeah.ctors ../../ctor-gen
