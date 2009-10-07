@@ -1,5 +1,0 @@
-(fun (<= a b) (not (> a b)))
-(fun (>= a b) (not (< a b)))
-(fun (!= a b) (not (== a b)))
-(fun (not 'true) false)
-(fun (not 'false) true)

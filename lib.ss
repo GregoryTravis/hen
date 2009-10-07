@@ -1,12 +1,144 @@
+(require scheme/system)
+(require (lib "ports-6.ss" "rnrs/io"))
 (require (lib "32.ss" "srfi"))
 (require (lib "13.ss" "srfi"))
+(require (lib "35.ss" "srfi"))
 (require (lib "defmacro.ss"))
+(require (lib "pregexp.ss"))
 (require (lib "process.ss"))
 (require (lib "compat.ss"))
+(require (for-syntax (lib "pretty.ss")))
 (require (lib "pretty.ss"))
-(require-for-syntax (lib "list.ss"))
+;(require (lib "../errortrace/errortrace.ss"))
+;(require-for-syntax (lib "list.ss"))
+(load "mtch.ss")
+
+(define impl-tracefun-indentation 0)
+(define trace-stump-level 1000)
+(define (trace-indent) (set! impl-tracefun-indentation (+ 1 impl-tracefun-indentation)))
+(define (trace-unindent) (set! impl-tracefun-indentation (+ -1 impl-tracefun-indentation)))
+
+(define (tracing-push-print exp)
+  (display "        ")
+  (display (make-string-string impl-tracefun-indentation "| "))
+  (display "+ ")
+  (lshew exp)
+  (display "\n")
+  (flush-output)
+  (set! impl-tracefun-indentation (+ impl-tracefun-indentation 1)))
+
+(define (tracing-pop-print exp)
+  (set! impl-tracefun-indentation (- impl-tracefun-indentation 1))
+  (display "        ")
+  (display (make-string-string impl-tracefun-indentation "| "))
+  (display "-> ")
+  (lshew exp)
+  (display "\n")
+  (flush-output))
+
+(define (tracefun-hookist name f)
+  (lambda args
+    (tracing-push-print (cons name args))
+    (let ((result (apply f args)))
+      (tracing-pop-print result)
+      result)))
+
+(define (plain-ol-tracer app runner)
+  (display (make-string-string impl-tracefun-indentation "| "))
+  (display "+  ")
+  (lshew (stump app trace-stump-level))
+  (display "\n")
+  (trace-indent)
+  (flush-output)
+  (let ((r (runner)))
+    (trace-unindent)
+    (display (make-string-string impl-tracefun-indentation "| "))
+    (display "-> ")
+    (lshew (stump r trace-stump-level))
+    (display "\n")
+    (flush-output)
+    r))
+
+;; untested
+;; (define (tracer-filter f tracer)
+;;   (lambda (app runner)
+;;     (if (f app)
+;;         (tracer app runner)
+;;         (runner))))
+
+(define (trace-wrap tracer name f)
+  (lambda args
+    (let ((r '()))
+      (tracer (cons name args)
+              (lambda ()
+                (set! r (apply f args))
+                r))
+      r)))
+
+(define-macro (tracefun . funs)
+  `(tracefun-with plain-ol-tracer ,@funs))
+
+(define-macro (tracefun-with tracer . funs)
+  (cons 'begin
+        (map (lambda (f)
+               `(set! ,f (trace-wrap ,tracer ',f ,f)))
+             funs)))
+
+(define-macro (hook-with hookist . funs)
+  (cons 'begin
+        (map (lambda (f)
+               `(set! ,f (,hookist ',f ,f)))
+             funs)))
+
+(define-macro (hook-with hookist . funs)
+  (cons 'begin
+        (map (lambda (f)
+               `(set! ,f (,hookist ',f ,f)))
+             funs)))
+
+(define (args-and-result-hook cb)
+  (lambda (name f)
+    (lambda args
+      (let ((result (apply f args)))
+        (apply cb (append args (list result)))
+        result))))
+
+(define (before-and-after-hook b a)
+  (lambda (name f)
+    (lambda args
+      (apply b args)
+      (let ((result (apply f args)))
+        (apply a (append args (list result)))
+        result))))
+
+(define (nth n list)
+  (if (= 0 n)
+      (car list)
+      (nth (- n 1) (cdr list))))
+
+;; Mzscheme already has this, and the args are swapped.
+;; (define (take n lyst)
+;;   (if (> n 0)
+;;       (if (null? lyst)
+;;           (err)
+;;           (cons (car lyst) (take (1- n) (cdr lyst))))
+;;       '()))
+
+(define (nth-tail n lyst)
+  (if (= 0 n)
+      lyst
+      (nth-tail (1- n) (cdr lyst))))
+
+(define (scoop-by n lyst)
+  (if (null? lyst)
+      '()
+      (cons (take lyst n)
+            (scoop-by n (nth-tail n lyst)))))
 
 (define concat string-append)
+
+(define (applyer f)
+  (lambda (args) (apply f args)))
 
 (define (call-with-output-string pf)
   (let ((p (open-output-string)))
@@ -15,6 +147,10 @@
 
 (define (read-objects filename)
   (call-with-input-file filename read-objects-port))
+
+(define (write-string-to-file filename s)
+  (call-with-output-file filename
+    (lambda (port) (display s port))))
 
 (define (read-objects-port p)
   (letrec ((objects '())
@@ -62,18 +198,18 @@
    (string-one-line
     (call-with-output-string
      (lambda (port)
-       (map (lambda (j) (pretty-print j port)) args))))))
+       (map (lambda (j) (display j port)) args))))))
 
 (define (proper-list? l)
   (or (eq? l '()) (and (pair? l) (proper-list? (cdr l)))))
 
-(define (proper-cons? c)
-  (and (pair? c) (or (pair? (cdr c)) (null? (cdr c)))))
+;(define (proper-cons? c)
+;  (and (pair? c) (or (pair? (cdr c)) (null? (cdr c)))))
 
 (define (proper-tree? t)
   (if (pair? t)
       (and (proper-list? t)
-           (all (map proper-tree? t)))
+           (all? (map proper-tree? t)))
       #t))
 
 (define (make-dict . args)
@@ -129,7 +265,8 @@
              (null? (cddr args)))
         (let ((key (cadr args)))
           (if (not (dict 'exists key))
-              (dict 'put key (f key)))
+              (dict 'put key (f key))
+              '())
           (dict 'get key)))
        (#t (apply dict args))))))
 
@@ -158,11 +295,11 @@
 ;; the whole list.
 (define (generator-dict-map lyst generator)
   (let ((dict (make-autoadd-dict generator)))
-    (map (dict 'get _) lyst)))
+    (map (lambda (x) (dict 'get x)) lyst)))
 
 (define (fun-dict-map lyst f)
   (let ((dict (make-autoadd-fun-dict f)))
-    (map (dict 'get _) lyst)))
+    (map (lambda (x) (dict 'get x)) lyst)))
 
 (define (unique lyst)
   (cond
@@ -173,16 +310,28 @@
 (define (has-duplicates? lyst)
   (not (eq? (length lyst) (length (unique lyst)))))
 
-(define (any f lyst)
+(define (any? lyst)
   (if (null? lyst)
       #f
-      (or (f (car lyst))
-          (any f (cdr lyst)))))
+      (or (car lyst)
+          (any? (cdr lyst)))))
 
-(define (all lyst)
-  (if (null? lyst)
+(define (all? lyst)
+  (cond
+   ((null? lyst) #t)
+   ((eq? #t (car lyst)) (all? (cdr lyst)))
+   ((eq? #f (car lyst)) #f)
+   (#t (err 'all? lyst))))
+
+(define (none lyst)
+  (not (any? lyst)))
+
+(define (same lyst)
+  (if (or (null? lyst) (null? (cdr lyst)))
       #t
-      (and (car lyst) (all (cdr lyst)))))
+      (if (equal? (car lyst) (cadr lyst))
+          (same (cdr lyst))
+          #f)))
 
 (define-macro (assert exp . stuff)
   `(if ,exp
@@ -192,11 +341,13 @@
 (define (id x) x)
 
 (define (err . args)
+  (flush-output)
   (display "Error!\n")
   (shew (map show-shorten args))
-  (exit))
+(car '()))
+;  (exit))
 
-(define show-shorten-length 5)
+(define show-shorten-length 50)
 (define (show-shorten-list lyst) (show-shorten-list1 lyst 0))
 (define (show-shorten-list1 lyst acc)
   (cond
@@ -212,9 +363,14 @@
 (define (map-improper f s)
   (if (pair? s)
       (cons (f (car s))
-            (map-em f (cdr s)))
+            (map-improper f (cdr s)))
       (f s)))
-(define map-em map-improper)
+
+(define (tmap f s)
+  (if (pair? s)
+      (cons (tmap f (car s))
+            (tmap f (cdr s)))
+      (f s)))
 
 (define (sr . es)
   (apply shew es)
@@ -249,33 +405,20 @@
     '()
     (string->list s))))
 
-(define impl-tracefun-indentation 0)
+(define (string-replace-char s from to)
+  (list->string
+   (foldr
+    (lambda (a rest)
+      (cons (if (eq? a from) to a) rest))
+    '()
+    (string->list s))))
 
-(define (tracefun-hookist name f)
-  (lambda args
-    (display "        ")
-    (display (make-string-string impl-tracefun-indentation "| "))
-    (display "+ ")
-    (lshew (cons name args))
-    (display "\n")
-    (flush-output)
-    (set! impl-tracefun-indentation (+ impl-tracefun-indentation 1))
-    (let ((result (apply f args)))
-      (flush-output)
-      (set! impl-tracefun-indentation (- impl-tracefun-indentation 1))
-      (display "        ")
-      (display (make-string-string impl-tracefun-indentation "| "))
-      (display "-> ")
-      (lshew result)
-      (display "\n")
-      (flush-output)
-      result)))
-
-(define-macro (tracefun . funs)
-  (cons 'begin
-        (map (lambda (f)
-               `(set! ,f (tracefun-hookist ',f ,f)))
-             funs)))
+(define (string-replace-char-pairs s pairs)
+  (if (null? pairs)
+      s
+      (string-replace-char-pairs
+       (string-replace-char s (caar pairs) (cdar pairs))
+       (cdr pairs))))
 
 (define (find-first pred lyst)
   (cond
@@ -292,6 +435,9 @@
         (and (char>=? c #\A)
              (char<=? c #\Z)))
       #f))
+
+(define (non-ctor-symbol? o)
+  (and (symbol? o) (not (ctor? o))))
 
 (define (member-deep a lyst)
   (cond
@@ -334,9 +480,14 @@
   (map (lambda (e) (apply-through-lens lens f e)) l))
 
 (define (fnot f) (lambda (x) (not (f x))))
+(define (for a b) (lambda (x) (or (a x) (b x))))
+(define (feq? a) (lambda (b) (eq? a b)))
 
 (define (map-append f . lysts)
   (apply append (apply map (cons f lysts))))
+
+(define (map-improper-append f . lysts)
+  (apply append (apply map-improper (cons f lysts))))
 
 (define (grep pred lyst)
   (map-append
@@ -354,12 +505,23 @@
       '()
       (let* ((group-of-car (f (car lyst)))
              (divided (divide-by-pred
-                       (lambda (x) (eq? group-of-car (f x)))
+                       (lambda (x) (equal? group-of-car (f x)))
                        lyst))
              (in-group (car divided))
              (not-in-group (cdr divided)))
         (cons (cons group-of-car in-group)
               (group-by f not-in-group)))))
+
+;; Elements may match more than one predicate; they are grouped with
+;; the first one they match.  Every element must match at least one
+;; predicate.
+(define (group-by-preds preds lyst)
+  (if (null? preds)
+      (if (not (null? lyst))
+          (err "Some elements match no preds: " lyst)
+          '())
+      (cons (grep (car preds) lyst)
+            (group-by-preds (cdr preds) (grep (fnot (car preds)) lyst)))))
 
 ;; ;; maybe stuff.
 
@@ -406,10 +568,18 @@
 ;;         #f
 ;;         (apply append r))))
 
+(define (invert-listy-matrix lists)
+  (let ((ns (map null? lists)))
+    (if (any? ns)
+        (if (not (all? ns))
+            (err 'invert-listy-matrix 'uneven lists)
+            '())
+        (cons (map car lists) (invert-listy-matrix (map cdr lists))))))
+
 (define (zip f . lysts)
   ;(shew 'um-zip lysts)
-  (if (any null? lysts)
-      (if (not (all (map null? lysts)))
+  (if (any? (map null? lysts))
+      (if (not (all? (map null? lysts)))
           (err 'uneven-zip-params lysts (map null? lysts))
           '())
       (cons (apply f (map car lysts))
@@ -427,7 +597,7 @@
   (cadr o))
 
 (define (maybe-combine combiner args)
-  (if (any fail? args)
+  (if (any? (map fail? args))
       fail
       (begin
         ;(shew 'combine combiner args (map just-value args) (apply combiner (map just-value args)))
@@ -465,6 +635,53 @@
                 (apply rest args)
                 (just-value r)))))))
 
+(define (maybe-apply f args)
+  (if (fail? args)
+      fail
+      (just (apply f (just-value args)))))
+
+(define (maybe-map f as)
+  (maybe-apply reverse (maybe-list (maybe-map-1 f as '()))))
+
+(define (maybe-map-1 f as accum)
+  (if (null? as)
+      (just accum)
+      (let ((v (f (car as))))
+        (if (fail? v)
+            fail
+            (maybe-map-1 f (cdr as) (cons (just-value v) accum))))))
+
+;; (define (cons-onto-each a dses)
+;;   (if (null? dses)
+;;       '()
+;;       (cons (cons a (car dses))
+;;             (cons-onto-each a (cdr dses)))))
+
+(define (maybe-zip f . args)
+  (if (not (same (map length args)))
+      fail
+      (maybe-map (applyer f) (invert-listy-matrix args))))
+
+(define (mabify f)
+  (lambda args
+    (if (any? (map (lambda (p) (eq? 'fail p)) args))
+        'fail
+        (apply f args))))
+
+(define (map-until-not-fail f lyst)
+  (if (null? lyst)
+      'fail
+      (let ((v (f (car lyst))))
+        (if (eq? v 'fail)
+            (map-until-not-fail f (cdr lyst))
+            v))))
+
+;; (define (apply-until f pred o)
+;;   (let ((r (f o)))
+;;     (if (pred r)
+;;         r
+;;         (apply-until f pred r))))
+
 (define (++ . stuff)
   (apply concat (map (lambda (o) (->string o)) stuff)))
 
@@ -482,10 +699,12 @@
    ((char? o) (make-string 1 o))
    (#t (sdisplay o))))
 
-(define member? member)
+(define (member? a as)
+  (not (not (member a as))))
 
 (define (atom? o)
   (or
+   (null? o)
    (symbol? o)
    (number? o)
    (eq? o #t)
@@ -498,8 +717,19 @@
        (pair? (cdr o))
        (null? (cddr o))))
 
+(define (quoted-symbol? e)
+  (and (is-quote? e) (symbol? (cadr e))))
+
 (define (quote-quoted o)
   (cadr o))
+
+(define (literal? o)
+  (or ;(is-quote? o)
+      (string? o)
+      (number? o)
+      (null? o)
+      (eq? #t o)
+      (eq? #f o)))
 
 (define (rdc riap) (reverse (cdr (reverse riap))))
 (define (snoc d a) (reverse (cons a (reverse d))))
@@ -533,3 +763,469 @@
   (if (null? lyst)
       e
       (f (car lyst) (foldr f e (cdr lyst)))))
+
+(define (tagged-symbol-generator-generator)
+  (let ((serial 0))
+    (lambda (tag)
+      (let ((s serial))
+        (set! serial (1+ serial))
+        (->symbol (concat (->string tag) (number->string s)))))))
+
+(define (symbol-generator-generator)
+  (let ((tsg (tagged-symbol-generator-generator)))
+    (lambda () (tsg "a"))))
+
+(define (lambda? e)
+  (and (proper-list? e)
+       (= 3 (length e))
+       (eq? '/. (car e))))
+
+(define (scheme-lambda? e)
+  (and (proper-list? e)
+       (= 3 (length e))
+       (eq? 'lambda (car e))))
+
+(define (classic-lambda? e)
+  (and (lambda? e)
+       (symbol? (cadr e))))
+
+(define (closure? e)
+  (and (proper-list? e)
+       (= 3 (length e))
+       (eq? 'closure (car e))
+       (lambda? (cadr e))))
+
+(define (app? e)
+  (and (pair? e)
+       (not (or (is-quote? e)
+                (var? e)))))
+
+(define (1-arg-app? e)
+  (and (app? e) (= 2 (length e))))
+
+(define (compose . funs)
+  (cond
+   ((null? funs) id)
+   ((null? (cdr funs)) (car funs))
+   (#t (let ((first (car funs))
+             (rest (apply compose (cdr funs))))
+         (lambda (x) (first (rest x)))))))
+
+(define (conditional? e)
+  (and (pair? e)
+       (eq? 'if (car e))
+       (let ((l (length e)))
+         (or (eq? l 3) (eq? l 4)))))
+
+(define (boolean? x)
+  (or (eq? x 'True)
+      (eq? x 'False)))
+
+(define (pair?-exp? p)
+  (and (pair? p)
+       (eq? 'pair? (car p))
+       (eq? 2 (length p))))
+
+(define (if-pair?-exp? p)
+  (and (eq? 3 (length p))
+       (eq? 'if-pair? (car p))))
+
+(define (guard? e)
+  (and (pair? e)
+       (eq? '? (car e))
+       (proper-list? (cdr e))))
+
+(define (fun-without-guard-syntax? e)
+  (and (pair? e)
+       (eq? 'fun (car e))
+       (not (guard? (caddr e)))
+       (>= (length e) 3)))
+
+(define (fun-with-guard-syntax? e)
+  (and (pair? e)
+       (eq? 'fun (car e))
+       (guard? (caddr e))
+       (>= (length e) 4)))
+
+(define (fun-src-syntax? e)
+;(shew 'fun-src-syntax? e (fun-with-guard-syntax? e) (guard? (caddr e)) (length e)(or (fun-with-guard-syntax? e)
+;       (fun-without-guard-syntax? e)))
+   (or (fun-with-guard-syntax? e)
+       (fun-without-guard-syntax? e)))
+
+;(define (fun-with-guard? e)
+(define (fun? e)
+  (and (pair? e)
+       (eq? 'fun (car e))
+;       (guard? (caddr e))
+       (= 4 (length e))))
+
+;; (define (fun? e) (or (fun-without-guard? e)
+;;                      (fun-with-guard? e)))
+
+;; (define (guard-exp e)
+;;   (assert (guard? e))
+;;   (cadr e))
+
+(define (var? e)
+  (and (pair? e)
+       (eq? 'unquote (car e))
+       (pair? (cdr e))
+       (symbol? (cadr e))
+       (null? (cddr e))))
+
+(define (var-name e)
+  (assert (var? e))
+  (cadr e))
+
+(define (make-var name)
+  (list 'unquote name))
+
+(define (global-var? e)
+  (and (pair? e)
+       (eq? 'var (car e))
+       (= 3 (length e))))
+
+(define (global-var->binding e)
+  (assert (global-var? e))
+  (cons (cadr e) (caddr e)))
+
+(define (multi-lambda? e)
+  (and (proper-list? e)
+       (eq? '/./. (car e))
+       (all? (map proper-list? (cdr e)))))
+
+(define (tree-traverse t atom-f pair-f)
+  (cond
+   ((pair? t)
+    (let ((np (pair-f t)))
+      (cons (tree-traverse (car np) atom-f pair-f)
+            (tree-traverse (cdr np) atom-f pair-f))))
+   ((atom? t) (atom-f t))
+   (#t (err 'tree-traverse t))))
+
+(define (atom-traverse f t)
+  (tree-traverse t f id))
+
+(define (treewalk-pairs f t)
+  (if (pair? t)
+      (let ((nt (f 'pair t)))
+        (assert (pair? nt))
+        (cons (treewalk f (car nt)) (treewalk-pairs f (cdr nt))))
+      t))
+
+(define (treewalk f t)
+  (cond
+   ((pair? t)
+    (let ((nt (f 'list t)))
+      (assert (pair? nt))
+      (treewalk-pairs f nt)))
+   ((atom? t) (f 'atom t))
+   (#t (err treewalk f t))))
+
+(define (list-treewalker f)
+  (lambda (how t)
+    (if (eq? 'list how)
+        (f t)
+        t)))
+
+(define (se-treewalker f)
+  (lambda (how t)
+    (f how t)
+    t))
+
+(define (term? e)
+  (and (proper-list? e)
+       (= 2 (length e))
+       (eq? 'term (car e))))
+
+(define (begin? e)
+  (and (proper-list? e)
+       (not (null? e))
+       (eq? 'begin (car e))))
+
+(define (is-this-labeled-doublet? s e)
+  (and (list? e)
+       (= 2 (length e))
+       (equal? s (car e))))
+
+(define (primitive? e)
+  (is-this-labeled-doublet? 'Primitive e))
+
+(define (primitive2? e)
+  (is-this-labeled-doublet? ''Primitive e))
+
+(define (extract-primitive-maybe e)
+  (if (primitive2? e)
+      (cadr e)
+      e))
+
+(define (is-this-primitive? s e)
+  (and (is-this-labeled-doublet? s e)
+       (primitive? (cadr e))))
+
+(define (is-some-primitive? e)
+  (and (list? e)
+       (= 2 (length e))
+       (primitive? (cadr e))))
+
+(define (is-cons? c)
+  (and (list? c)
+       (= 3 (length c))
+       (equal? 'Cons (car c))))
+
+(define (is-quoted-cons? c)
+  (and (list? c)
+       (= 3 (length c))
+       (equal? ''Cons (car c))))
+
+(define (is-consy-list? c)
+  (or (and (is-cons? c) (is-consy-list? (caddr c)))
+      (eq? c '())))
+
+(define (conditional? e)
+  (and (list? e)
+       (= 4 (length e))
+       (equal? 'if (car e))))
+
+(define (member-improper? a lyst)
+  (or
+   (and (pair? lyst)
+        (or (eq? a (car lyst))
+            (eq? a (cdr lyst))
+            (member-improper? a (cdr lyst))))))
+
+(define (read-all-lines port)
+  (let ((line (read-line port)))
+    (if (eof-object? line)
+        '()
+        (cons (++ line "\n") (read-all-lines port)))))
+
+(define (typeof o)
+  (cond
+   ((cton? o) 'cton)
+   ((ctor? o) 'ctor)
+   ((string? o) 'string)
+   ((number? o) 'number)
+   ((symbol? o) 'symbol)
+   (#t (err 'typeof o))))
+
+(define (lookup k env)
+  (let ((v (assoc k env)))
+    (if (eq? #f v)
+        (err 'lookup k env)
+        (cdr v))))
+
+(define (lookup-or k env or-this)
+  (let ((v (assoc k env)))
+    (if (eq? #f v)
+        or-this
+        (cdr v))))
+
+(define (lookup-exists? e env)
+  (not (eq? #f (assoc e env))))
+
+(define 1st car)
+(define 2nd cadr)
+(define 3rd caddr)
+(define 4th cadddr)
+
+;; This doesn't really ever change.
+(define (consify l)
+  (cond
+   ((pair? l) `(Cons ,(consify (car l)) ,(consify (cdr l))))
+   ((null? l) 'Nil)
+   (#t l)))
+
+(define (consify-top-layer l)
+  (cond
+   ((pair? l) `(Cons ,(car l) ,(consify-top-layer (cdr l))))
+   ((null? l) 'Nil)
+   (#t l)))
+
+(define (smart== a b)
+  (or (and (number? a) (= a b))
+      (and (string? a) (string= a b))
+      (equal? a b)))
+
+(define (til-same f arg)
+  (let ((result (f arg)))
+    (if (smart== arg result)
+        result
+        (til-same f result))))
+
+(define (map-when f lyst pred)
+  (if (null? lyst)
+      '()
+      (let ((a (car lyst)))
+        (cons (if (pred a) (f a) a)
+              (map-when f (cdr lyst) pred)))))
+
+(define (stump e n)
+  (cond
+   ((= n 0) '...)
+   ((pair? e) (cons (stump (car e) (- n 1))
+                    (stump (cdr e) (- n 1))))
+   (#t e)))
+
+(define (tree-size a)
+  (if (pair? a)
+      (+ (tree-size (car a)) (tree-size (cdr a)))
+      1))
+
+(define (quoted-symbol? o)
+  (and (pair? o) (eq? (car o) 'quote) (symbol? (cadr o)) (null? (cddr o))))
+
+(define (join-things-list glue things)
+  (cond
+   ((null? things) things)
+   ((null? (cdr things)) things)
+   (#t (cons (car things) (cons glue (join-things-list glue (cdr things)))))))
+
+(define (join-things glue things)
+  (apply ++ (join-things-list glue things)))
+
+(define (cmd . stuff) (cmd1 #f #f stuff))
+(define (scmd . stuff) (cmd1 #t #f stuff))
+(define (rcmd . stuff) (cmd1 #f #t stuff))
+(define (srcmd . stuff) (cmd1 #t #t stuff))
+
+(define (cmd1 show-p die-p stuff)
+  (if show-p (begin (display "+ ") (display (join-things " " stuff)) (display "\n")) '())
+;(shew 'guh stuff)
+  (let ((retval (apply system stuff)))
+    (if (and die-p (not retval))
+        (err "Command error:" stuff)
+        retval)))
+
+(define (check . stuff)
+  (let ((bools (rdc stuff))
+        (value (rac stuff)))
+    (if (all? bools)
+        value
+        (err 'check value))))
+
+(define (remove-extension s) (list->string (reverse (remove-extension-1 (reverse (string->list s))))))
+(define (remove-extension-1 lyst)
+  (cond
+   ((null? lyst) (err))
+   ((eq? (car lyst) #\.) (cdr lyst))
+   (#t (remove-extension-1 (cdr lyst)))))
+
+(define (get-extension s) (list->string (reverse (get-extension-1 (reverse (string->list s))))))
+(define (get-extension-1 lyst)
+  (cond
+   ((null? lyst) (err))
+   ((eq? (car lyst) #\.) '())
+   (#t (cons (car lyst) (get-extension-1 (cdr lyst))))))
+
+(define make-debug #f)
+(define make-show-commands #t)
+
+(define (make-inline-implicits rule)
+  (cond
+   ((null? rule) '())
+   ((and (pair? (car rule)) (eq? (caar rule) 'implicit))
+    (append (cdar rule) (make-inline-implicits (cdr rule))))
+   (#t (cons (car rule) (make-inline-implicits (cdr rule))))))
+
+(define (make-strip-implicits rule)
+  (cond
+   ((null? rule) '())
+   ((and (pair? (car rule)) (eq? (caar rule) 'implicit))
+    (make-strip-implicits (cdr rule)))
+   (#t (cons (car rule) (make-strip-implicits (cdr rule))))))
+
+(define (make-get-annotated annotation rule)
+  (map-append (lambda (e) (if (and (pair? e) (eq? annotation (car e))) (list (cadr e)) '())) (make-inline-implicits rule)))
+
+(define (make-inputs-of-rule rule) (make-get-annotated 'input rule))
+(define (make-outputs-of-rule rule) (make-get-annotated 'output rule))
+
+(define (make-is-input-of? o rule) (member? o (make-inputs-of-rule rule)))
+(define (make-is-output-of? o rule) (member? o (make-outputs-of-rule rule)))
+
+(define (make-lookup-rule-for target rules)
+  (let ((matches (grep (lambda (rule) (make-is-output-of? target rule)) rules)))
+    (cond
+     ((= (length matches) 1) (car matches))
+     ((= (length matches) 0) '())
+     ((> (length matches) 1) (err 'too-many-rules-for target))
+     (#t (err)))))
+
+(define (make-strip-annotation e)
+  (if (and (pair? e) (member (car e) '(input output implicit)))
+      (cadr e)
+      e))
+
+(define (make-execute-rule cmd)
+  (let ((cmd (map make-strip-annotation (make-strip-implicits cmd))))
+    (cond
+     ((null? cmd) (err 'empty-command cmd))
+     ((procedure? (car cmd))
+      (begin
+        (if make-show-commands
+            (display (++ "+ " (join-things " " cmd) "\n"))
+            '())
+        (apply (car cmd) (cdr cmd))))
+     (#t ((if make-show-commands srcmd rcmd) (join-things " " cmd))))))
+
+(define (make-build-target target rules)
+  (if (file-exists? target)
+      (system (++ "rm " target))
+      '())
+  (let ((rule (make-lookup-rule-for target rules)))
+    (if (null? rule)
+        (err 'no-rule-for target)
+        (begin
+          (make-execute-rule rule)
+          (if (not (file-exists? target))
+              (err 'didn't-build target)
+              '())))))
+
+(define (make-get-dependencies target rules)
+  (map make-strip-annotation (make-inputs-of-rule (make-lookup-rule-for target rules))))
+
+(define (make-newer-than? file files)
+  (if (or (pair? files) (null? files))
+      (all? (map (lambda (f) (make-newer-than? file f)) files))
+      (> (file-or-directory-modify-seconds file)
+         (file-or-directory-modify-seconds files))))
+
+(define (make target rules)
+  (let ((dependencies (make-get-dependencies target rules)))
+    (map (lambda (target) (make target rules)) dependencies)
+    (let ((must-make (or (not (file-exists? target))
+                         (not (make-newer-than? target dependencies)))))
+      (if make-debug
+          (shew (++ target " " (if must-make "<" ">") " " dependencies))
+          '())
+      (if must-make
+          (make-build-target target rules)
+          '()))))
+
+;(tracefun make make-inline-implicits make-get-annotated make-inputs-of-rule make-outputs-of-rule make-is-input-of? make-is-output-of? make-lookup-rule-for make-strip-annotation make-execute-rule make-build-target make-get-dependencies make-newer-than? make-strip-implicits)
+
+(define _ 'f7g89f7d7f9d7fg987dfn97dfghdf87gdfog789dfg)
+(define ($-zip as bs)
+  (cond
+   ((and (pair? as) (eq? (car as) _))
+    (cons (car bs) ($-zip (cdr as) (cdr bs))))
+   ((pair? as) (cons (car as) ($-zip (cdr as) bs)))
+   ((null? as) bs)
+   (#t (err '$-zip as bs))))
+;(tracefun $-zip)
+
+(define ($ f . args0)
+  (lambda args1
+    (apply f ($-zip args0 args1))))
+
+(define-macro (pv . vars)
+  `(begin
+     ,@(apply append (map (lambda (var)
+                            `(;(display "= ")
+                              (display ',var)
+                              (display " = ")
+                              (lshew ,var)
+                              (display "\n")))
+                          vars))))
