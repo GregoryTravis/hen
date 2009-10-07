@@ -1,1 +1,4 @@
-mzscheme -g -r main.ss
+#mzscheme -g -r main.ss
+rm -f vm
+make vm
+./vm
