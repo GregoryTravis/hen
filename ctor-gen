@@ -48,6 +48,8 @@ print H "};\n";
 print H "\n";
 
 while (my ($ctor, $args) = each %ctors) {
+  print H "#define is$ctor(__poop) ((__poop)->tag == TAG_$ctor)\n";
+
   my $proto = "";
   $proto .= "$typename* mk$ctor(";
   foreach $arg (@$args) {
