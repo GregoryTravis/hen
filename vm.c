@@ -40,6 +40,7 @@ int main(int argc, char** argv) {
   dump(mkpair(mksymbol("asdf"), mknil()));
   dump(mkpair(mksymbol("asdf"), mkpair(mksymbol("joe"), mknil())));
   dump(mkpair(mksymbol("asdf"), mkpair(mksymbol("joe"), mkpair(mksymbol("lap"), mknil()))));
+  dump(mkpair(mkpair(mksymbol("asdf"), mksymbol("qwer")), mksymbol("zxcv")));
   dump(mknil());
 
   return 0;
