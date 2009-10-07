@@ -33,8 +33,30 @@ void dump(yeah* y) {
   printf("\n");
 }
 
+void write_and_read(yeah* y) {
+  FILE* fp = fopen("outout", "wb");
+  A(fp);
+  serialize(fp, y);
+  fclose(fp);
+
+  fp = fopen("outout", "r");
+  A(fp);
+  yeah* yy = unserialize(fp);
+  fclose(fp);
+
+  dump(y);
+  dump(yy);
+
+  unlink("outout");
+}
+
 int main(int argc, char** argv) {
   printf("vm!\n");
+
+  write_and_read(mknil());
+  write_and_read(mksymbol("asdf"));
+  write_and_read(mkpair(mksymbol("asdf"), mkpair(mksymbol("joe"), mkpair(mksymbol("lap"), mknil()))));
+  write_and_read(mkpair(mkpair(mksymbol("asdf"), mksymbol("qwer")), mksymbol("zxcv")));
 
   return 0;
 }
