@@ -7,7 +7,7 @@
 
 (define (compile-pseudofunction rules)
   ;(join-things "\n\n" (map compile-rule rules)))
-  `(alternatives ,(map compile-rule rules)))
+  `(sequence ,(map compile-rule rules)))
 
 (define (compile-rule rule)
   (mtch rule
@@ -45,7 +45,7 @@
 
 (define (render p)
   (mtch p
-        ('alternatives alts)
+        ('sequence alts)
         (join-things "\n" (map render alts))
 
         ('if b t)
@@ -65,7 +65,11 @@
         ('cdr e) (++ "cdr(" (render e) ")")
         ('null? e) (++ "isnil(" (render e) ")")
 
-        ('build b) (render-build b)
+        ('build b) (++ "return " (render-build b) ";")
+
+        ('function name body) (++ "yeah* " name "(yeah* r) {\n" (render body) "}\n")
+
+        ('fail) "fprintf(stderr, \"BAD\n\"); exit(1);\n"
 
         otherwise p))
 
@@ -76,5 +80,12 @@
         (a . d) (++ "mkpair(" (render-build a) ", " (render-build d) ")")
         () "nil()"))
 
-;(shew (compile-pseudofunction prog))
-(display (render (compile-pseudofunction prog)))
+;(tracefun render)
+
+(define (compile-program rules)
+  (let ((name (mtch rules (('Rule (('Lit name) . rest) body) . rest2) name)))
+    `(function ,name (sequence (,(compile-pseudofunction rules)
+                                (fail))))))
+
+;(shew (compile-program prog))
+(display (render (compile-program prog)))
