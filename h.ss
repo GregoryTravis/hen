@@ -21,7 +21,7 @@
 
 (define (compile-pat-1 var pat body)
   (mtch pat
-        ('Lit lit) `(if (eq? ,var ,lit)
+        ('Lit lit) `(if (eq? ,var (Lit ,lit))
                         ,body)
 
         ('Var a) `(assign ,a ,var ,body)
@@ -61,15 +61,18 @@
 
         ('assign var exp body) (++ (render-assignment `(,var ,exp)) "\n" (render body))
 
-        ('car e) (++ "car(" (render e) ")")
-        ('cdr e) (++ "cdr(" (render e) ")")
+        ('car e) (++ (render e) "->u.pair.car")
+        ('cdr e) (++ (render e) "->u.pair.cdr")
         ('null? e) (++ "isnil(" (render e) ")")
+        ('eq? a b) (++ (render a) " == " (render b))
+
+        ('Lit lit) (++ "mksymbol(\"" lit "\")")
 
         ('build b) (++ "return " (render-build b) ";")
 
         ('function name body) (++ "yeah* " name "(yeah* r) {\n" (render body) "}\n")
 
-        ('fail) "fprintf(stderr, \"BAD\n\"); exit(1);\n"
+        ('fail) "fprintf(stderr, \"BAD\\n\"); exit(1);\n"
 
         otherwise p))
 
@@ -78,14 +81,20 @@
         ('Lit sym) (++ "mksymbol(\"" sym "\")")
         ('Var var) var
         (a . d) (++ "mkpair(" (render-build a) ", " (render-build d) ")")
-        () "nil()"))
+        () "mknil()"))
 
 ;(tracefun render)
 
-(define (compile-program rules)
+(define (compile-rules rules)
   (let ((name (mtch rules (('Rule (('Lit name) . rest) body) . rest2) name)))
     `(function ,name (sequence (,(compile-pseudofunction rules)
                                 (fail))))))
 
+(define (render-program rules)
+  (++ "#include <stdio.h>\n"
+      "#include <stdlib.h>\n"
+      "#include \"yeah.h\"\n"
+      (render (compile-rules rules))))
+
 ;(shew (compile-program prog))
-(display (render (compile-program prog)))
+(display (render-program prog))

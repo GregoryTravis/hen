@@ -1,4 +1,5 @@
-mzscheme -r main.ss
+mzscheme -r main.ss > hoop.c
+gcc -c hoop.c
 
 #rm -f vm vm.i
 #make vm.i
