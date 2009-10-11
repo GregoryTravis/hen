@@ -68,7 +68,7 @@
 
         ('Lit lit) (++ "mksymbol(\"" lit "\")")
 
-        ('build b) (++ "return " (render-build b) ";")
+        ('build b) (++ "return " (render-data b) ";")
 
         ('function name body) (++ "yeah* " name "(yeah* r) {\n" (render body) "}\n")
 
@@ -76,11 +76,11 @@
 
         otherwise p))
 
-(define (render-build b)
+(define (render-data b)
   (mtch b
         ('Lit sym) (++ "mksymbol(\"" sym "\")")
         ('Var var) var
-        (a . d) (++ "mkpair(" (render-build a) ", " (render-build d) ")")
+        (a . d) (++ "mkpair(" (render-data a) ", " (render-data d) ")")
         () "mknil()"))
 
 ;(tracefun render)
@@ -90,11 +90,21 @@
     `(function ,name (sequence (,(compile-pseudofunction rules)
                                 (fail))))))
 
-(define (render-program rules)
+(define (render-main start-term)
+  (++ "/*\n"
+      "int main(int argv, char** argv) {\n"
+      "  foo(" (render-data start-term) ");\n"
+      "}\n"
+      "*/\n"))
+
+(define (render-program rules start)
   (++ "#include <stdio.h>\n"
       "#include <stdlib.h>\n"
       "#include \"yeah.h\"\n"
-      (render (compile-rules rules))))
+      (render (compile-rules rules))
+      (render-main start)))
+
+(define start-term '((Lit foo) (Lit but) (Lit hut)))
 
 ;(shew (compile-program prog))
-(display (render-program prog))
+(display (render-program prog start-term))
