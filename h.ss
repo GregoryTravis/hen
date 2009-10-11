@@ -3,7 +3,8 @@
 
 (define prog
   '((Rule ((Lit foo) (Var a) (Var b)) ((Lit Jerk) (Var b) (Var a)))
-    (Rule ((Lit foo) (Var a)) ((Lit Jick) (Var a) (Var a)))))
+    (Rule ((Lit foo) (Var a)) ((Lit Jick) (Var a) (Var a)))
+    (Rule ((Lit bar) (Var a) (Var b) (Var c)) ((Lit pott) (Var c)))))
 
 (define (compile-pseudofunction rules)
   ;(join-things "\n\n" (map compile-rule rules)))
@@ -35,8 +36,6 @@
                (let* ((,var-a (car ,var))
                       (,var-d (cdr ,var)))
                       ,(compile-pat-1 var-a a (compile-pat-1 var-d d body)))))))
-
-;(tracefun compile-pat-1)
 
 (define (render-assignment ass)
   (mtch ass
@@ -83,19 +82,25 @@
         (a . d) (++ "mkpair(" (render-data a) ", " (render-data d) ")")
         () "mknil()"))
 
-;(tracefun render)
-
 (define (compile-rules rules)
-  (let ((name (mtch rules (('Rule (('Lit name) . rest) body) . rest2) name)))
-    `(function ,name (sequence (,(compile-pseudofunction rules)
-                                (fail))))))
+  (let ((grouped (group-by (lambda (rule) (mtch rule ('Rule (('Lit name) . rest) body) name)) rules)))
+    (apply ++
+           (map render
+                (map (lambda (group)
+                       (let ((name (car group))
+                             (rule-group (cdr group)))
+                         `(function ,name (sequence (,(compile-pseudofunction rule-group)
+                                                     (fail))))))
+                     grouped)))))
 
 (define (render-main start-term)
-  (++ "/*\n"
-      "int main(int argv, char** argv) {\n"
-      "  foo(" (render-data start-term) ");\n"
-      "}\n"
-      "*/\n"))
+  (mtch start-term
+        (('Lit fun) . rest)
+        (++ "\n"
+            "int main(int argc, char** argv) {\n"
+            "  foo(" (render-data start-term) ");\n"
+            "}\n"
+            "\n")))
 
 (define (render-program rules start)
   (++ "#include <stdio.h>\n"
@@ -106,5 +111,4 @@
 
 (define start-term '((Lit foo) (Lit but) (Lit hut)))
 
-;(shew (compile-program prog))
 (display (render-program prog start-term))
