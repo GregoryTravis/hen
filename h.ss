@@ -1,7 +1,7 @@
 ;; (load "h.ss")
 (load "lib.ss")
 
-(define match-debug #f)
+(define match-debug #t)
 
 (define prog
   '((Rule ((Lit foo) (Var a) (Var b)) ((Lit Jerk) (Var b) (Var a)))
@@ -22,7 +22,7 @@
 (define (cdrsym o) (->symbol (++ o 'd)))
 
 (define (debug-a-match var pat)
-  (++ "printf(\"- \"); dumps(" (render-data pat) "); printf(\" : \"); dumps(" var "); printf(\"\\n\");\n"))
+  (list "printf(\"- \"); dumps(" (render-data pat) "); printf(\" :: \"); dumps(" var "); printf(\"\\n\");\n"))
 
 (define (debug-wrap var pat code)
   (if match-debug
@@ -52,47 +52,47 @@
 (define (render-assignment ass)
   (mtch ass
         (var exp)
-        (++ "yeah* " var " = " (render exp) ";")))
+        (list "yeah* " var " = " (render exp) ";")))
 
 (define (render-match-top fun-name pat)
   (if match-debug
-      (++ "printf(\"(" fun-name " \"); dumps(" (render-data pat) ");\n" "printf(\")\\n\")\n;")
+      (list "printf(\"(" fun-name " \"); dumps(" (render-data pat) ");\n" "printf(\")\\n\")\n;")
       ""))
 
 (define (render p)
   (mtch p
         ('sequence alts)
-        (join-things "\n" (map render alts))
+        (join-things-list "\n" (map render alts))
 
         ('if b t)
-        (++ "if (" (render b) ") {\n" (render t) "\n}")
+        (list "if (" (render b) ") {\n" (render t) "\n}")
 
         ('pair? var)
-        (++ "ispair(" var ")")
+        (list "ispair(" var ")")
 
         ('let* assignments body)
-        (++ (join-things "\n" (map render-assignment assignments)) "\n" (render body))
+        (list (join-things-list "\n" (map render-assignment assignments)) "\n" (render body))
 
         ('dummy) ";"
 
-        ('assign var exp body) (++ (render-assignment `(,var ,exp)) "\n" (render body))
+        ('assign var exp body) (list (render-assignment `(,var ,exp)) "\n" (render body))
 
-        ('car e) (++ (render e) "->u.pair.car")
-        ('cdr e) (++ (render e) "->u.pair.cdr")
-        ('null? e) (++ "isnil(" (render e) ")")
-        ('eq? a b) (++ "samesymbol(" (render a) ", " (render b) ")")
+        ('car e) (list (render e) "->u.pair.car")
+        ('cdr e) (list (render e) "->u.pair.cdr")
+        ('null? e) (list "isnil(" (render e) ")")
+        ('eq? a b) (list "samesymbol(" (render a) ", " (render b) ")")
 
-        ('Lit lit) (++ "mksymbol(\"" lit "\")")
+        ('Lit lit) (list "mksymbol(\"" lit "\")")
 
-        ('build b) (++ "return " (render-body b) ";")
+        ('build b) (list "return " (render-body b) ";")
 
-        ('function name body) (++ "yeah* " name "(yeah* r) {\n" (render body) "}\n")
+        ('function name body) (list "yeah* " name "(yeah* r) {\n" (render body) "}\n")
 
         ('fail) "fprintf(stderr, \"BAD\\n\"); exit(1);\n"
 
-        ('begin a b) (++ "{" (render a) (render b) "}")
+        ('begin a b) (list "{" (render a) (render b) "}")
 
-        ('match-top fun-name pat body) (++ (render-match-top fun-name pat) (render body))
+        ('match-top fun-name pat body) (list (render-match-top fun-name pat) (render body))
 
         otherwise p))
 
@@ -102,58 +102,60 @@
 
 (define (render-body b)
   (mtch b
-        ('Lit sym) (++ "mksymbol(\"" sym "\")")
+        ('Lit sym) (list "mksymbol(\"" sym "\")")
         ('Var var) var
-        ;(a . d) (++ "mkpair(" (render-body a) ", " (render-body d) ")")
+        ;(a . d) (list "mkpair(" (render-body a) ", " (render-body d) ")")
         (a . d) (if (ctor-lit? a) (render-body-list b) (render-app-list b))
         () "mknil()"))
 
 (define (render-body-list b)
   (mtch b
-        (a . d) (++ "mkpair(" (render-body a) ", " (render-body-list d) ")")
+        (a . d) (list "mkpair(" (render-body a) ", " (render-body-list d) ")")
         () "mknil()"))
 
 (define (render-app-list b)
   (mtch b
-        ((Lit a) . d) (++ a "(" (render-body-list d) ")")))
+        ((Lit a) . d) (list a "(" (render-body-list d) ")")))
 
 (define (render-data b)
   (mtch b
-        ('Lit sym) (++ "mksymbol(\"" sym "\")")
-        ('Var var) (++ "mksymbol(\"" var "\")")
-        (a . d) (++ "mkpair(" (render-data a) ", " (render-data d) ")")
+        ('Lit sym) (list "mksymbol(\"" sym "\")")
+        ('Var var) (list "mksymbol(\"" var "\")")
+        (a . d) (list "mkpair(" (render-data a) ", " (render-data d) ")")
         () "mknil()"))
 
 (define (compile-rules rules)
   (let ((grouped (group-by (lambda (rule) (mtch rule ('Rule (('Lit name) . rest) body) name)) rules)))
-    (apply ++
-           (map render
-                (map (lambda (group)
-                       (let ((name (car group))
-                             (rule-group (cdr group)))
-                         `(function ,name (sequence (,(compile-pseudofunction name rule-group)
-                                                     (fail))))))
-                     grouped)))))
+    (map render
+         (map (lambda (group)
+                (let ((name (car group))
+                      (rule-group (cdr group)))
+                  `(function ,name (sequence (,(compile-pseudofunction name rule-group)
+                                              (fail))))))
+              grouped))))
 
 (define (render-main start-term)
   (mtch start-term
         (('Lit fun) . rest)
-        (++ "\n"
+        (list "\n"
             "int main(int argc, char** argv) {\n"
             "  dump(" fun  "(" (render-data rest) "));\n"
             "}\n"
             "\n")))
 
 (define (render-program rules start)
-  (++ "#include <stdio.h>\n"
-      "#include <stdlib.h>\n"
-      "#include \"yeah.h\"\n"
-      "#include \"blip.h\"\n"
-      (render (compile-rules rules))
-      (render-main start)))
+  (+++
+   (list "#include <stdio.h>\n"
+         "#include <stdlib.h>\n"
+         "#include \"yeah.h\"\n"
+         "#include \"blip.h\"\n"
+         (render (compile-rules rules))
+         (render-main start))))
+
+;(tracefun +++ ++)
 
 (define start-term '((Lit foo) (Lit but) (Lit hut)))
 (define start-term '((Lit foo) (Lit but)))
 (define start-term '((Lit bar) (Lit aaaa) (Lit bbbb) (Lit cccc)))
 
-(display (render-program prog start-term))
+(call-with-output-file "hoop.c" (lambda (port) (display (render-program prog start-term) port)))

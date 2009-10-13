@@ -1,5 +1,5 @@
 rm -f hoop.c hoop hoop.o
-mzscheme -r main.ss > hoop.c
+mzscheme -r main.ss
 indent -i2 < hoop.c > _$$
 mv _$$ hoop.c
 #cat hoop.c
