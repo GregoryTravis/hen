@@ -1003,11 +1003,11 @@
 
 (define (typeof o)
   (cond
-   ((cton? o) 'cton)
-   ((ctor? o) 'ctor)
+   ((pair? o) 'pair)
    ((string? o) 'string)
    ((number? o) 'number)
    ((symbol? o) 'symbol)
+   ((null? o) 'nil)
    (#t (err 'typeof o))))
 
 (define (lookup k env)
@@ -1229,3 +1229,9 @@
                               (lshew ,var)
                               (display "\n")))
                           vars))))
+
+(define (+++ o)
+  (cond
+   ((pair? o) (++ (+++ (car o)) (+++ (cdr o))))
+   ((null? o) "")
+   (#t (->string o))))
