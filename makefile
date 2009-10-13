@@ -28,6 +28,7 @@ blip.o: blip.c blip.h
 	gcc -g -c blip.c
 
 hoop.c: h.ss
+	@rm -f hoop.c
 	mzscheme -r main.ss
 	@indent -i2 < hoop.c > _$$
 	@mv _$$ hoop.c
