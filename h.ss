@@ -81,7 +81,7 @@
 
         ('Lit lit) (list "mksymbol(\"" lit "\")")
 
-        ('build b) (list "return " (render-body b) ";")
+        ('build b) (list "return " (render-exp b) ";")
 
         ('function name body) (list "yeah* " name "(yeah* r) {\n" (render body) "}\n")
 
@@ -97,22 +97,22 @@
   (mtch a
         ('Lit a) (ctor? a)))
 
-(define (render-body b)
+(define (render-exp b)
   (mtch b
         ('Lit sym) (list "mksymbol(\"" sym "\")")
         ('Var var) var
-        ;(a . d) (list "mkpair(" (render-body a) ", " (render-body d) ")")
-        (a . d) (if (ctor-lit? a) (render-body-list b) (render-app-list b))
+        ;(a . d) (list "mkpair(" (render-exp a) ", " (render-exp d) ")")
+        (a . d) (if (ctor-lit? a) (render-exp-list b) (render-app-list b))
         () "mknil()"))
 
-(define (render-body-list b)
+(define (render-exp-list b)
   (mtch b
-        (a . d) (list "mkpair(" (render-body a) ", " (render-body-list d) ")")
+        (a . d) (list "mkpair(" (render-exp a) ", " (render-exp-list d) ")")
         () "mknil()"))
 
 (define (render-app-list b)
   (mtch b
-        ((Lit a) . d) (list a "(" (render-body-list d) ")")))
+        ((Lit a) . d) (list a "(" (render-exp-list d) ")")))
 
 (define (render-data b)
   (mtch b
