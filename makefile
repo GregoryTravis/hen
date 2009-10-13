@@ -21,5 +21,8 @@ spew.o: spew.c spew.h
 mem.o: mem.c mem.h
 	gcc -g -c mem.c
 
+blip.o: blip.c blip.h
+	gcc -g -c blip.c
+
 clean:
 	rm -f vm *.o yeah.h yeah.c

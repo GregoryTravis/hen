@@ -19,12 +19,15 @@ close(SRC);
 open(H, ">$typename.h") || die $!;
 open(C, ">$typename.c") || die $!;
 
-print C "#include <stdio.h>\n";
+print H "#include <stdio.h>\n";
 print C "#include \"$typename.h\"\n";
 print C "#include \"a.h\"\n";
 print C "#include \"mem.h\"\n";
 
 print C "#include \"ctor-support.c\"\n";
+
+print H "#ifndef __${typename}_h_\n";
+print H "#define __${typename}_h_\n";
 
 print H "typedef enum {\n";
 while (my ($ctor, $args) = each %ctors) {
@@ -197,6 +200,8 @@ print C "    default: err((\"????????\"));\n";
 print C "  }\n";
 print C "  err((\"??T?T?T\"));\n";
 print C "}\n";
+
+print H "#endif // ifdef __$typename_h_\n";
 
 close(H);
 close(C);
