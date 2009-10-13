@@ -1,3 +1,6 @@
+#mzscheme -r main.ss
+#exit
+
 make hoop
 ./hoop
 

@@ -3,11 +3,6 @@
 
 (define match-debug #f)
 
-(define prog
-  '((Rule ((Lit foo) (Var a) (Var b)) ((Lit Jerk) (Var b) (Var a)))
-    (Rule ((Lit foo) (Var a)) ((Lit Jick) (Var a) (Var a)))
-    (Rule ((Lit bar) (Var a) (Var b) (Var cc)) ((Lit foo) (Var cc)))))
-
 (define (compile-pseudofunction name rules)
   `(sequence ,(map compile-rule rules)))
 
@@ -154,10 +149,28 @@
          (render (compile-rules rules))
          (render-main start))))
 
-;(tracefun +++ ++)
+(define (parse src)
+  (map parse-rule src))
+
+(define (parse-rule rule)
+  (mtch rule
+        ('fun pat body)
+        `(Rule ,(parse-exp pat) ,(parse-exp body))))
+
+(define (parse-exp e)
+  (cond
+   ((and (pair? e) (symbol? (car e))) (cons `(Lit ,(car e)) (map parse-exp (cdr e))))
+   ((pair? e) (map parse-exp e))
+   ((symbol? e) `(Var ,e))
+   (#t (err e))))
+
+(define prog
+  `((fun (foo a b) (Jerk b a))
+    (fun (foo a) (Jick a a))
+    (fun (bar a b cc) (foo cc))))
 
 (define start-term '((Lit foo) (Lit but) (Lit hut)))
 (define start-term '((Lit foo) (Lit but)))
 (define start-term '((Lit bar) (Lit aaaa) (Lit bbbb) (Lit cccc)))
 
-(call-with-output-file "hoop.c" (lambda (port) (display (render-program prog start-term) port)))
+(call-with-output-file "hoop.c" (lambda (port) (display (render-program (parse prog) start-term) port)))
