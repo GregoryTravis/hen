@@ -21,8 +21,19 @@ spew.o: spew.c spew.h
 mem.o: mem.c mem.h
 	gcc -g -c mem.c
 
+hoop.o: hoop.c yeah.h
+	gcc -g -c hoop.c
+
 blip.o: blip.c blip.h
 	gcc -g -c blip.c
 
+hoop.c: h.ss
+	mzscheme -r main.ss
+	@indent -i2 < hoop.c > _$$
+	@mv _$$ hoop.c
+
+hoop: hoop.o yeah.o spew.o mem.o blip.o
+	gcc -o hoop hoop.o yeah.o spew.o mem.o blip.o
+
 clean:
-	rm -f vm *.o yeah.h yeah.c
+	rm -f vm *.o yeah.h yeah.c hoop.o hoop.c hoop

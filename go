@@ -1,7 +1,10 @@
-rm -f hoop.c hoop hoop.o
+make hoop
+./hoop
+
+exit
 mzscheme -r main.ss
-indent -i2 < hoop.c > _$$
-mv _$$ hoop.c
+indent -i2 < hoop.c > _tmp
+mv _tmp hoop.c
 #cat hoop.c
 gcc -c hoop.c
 gcc -c blip.c yeah.c spew.c mem.c
