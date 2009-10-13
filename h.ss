@@ -8,7 +8,6 @@
     (Rule ((Lit foo) (Var a)) ((Lit Jick) (Var a) (Var a)))
     (Rule ((Lit bar) (Var a) (Var b) (Var cc)) ((Lit foo) (Var cc)))))
 (define (compile-pseudofunction name rules)
-  ;(join-things "\n\n" (map compile-rule rules)))
   `(sequence ,(cons (if match-debug (++ "printf(\"fun " name "\\n\");\n") "")
                     (map compile-rule rules))))
 
