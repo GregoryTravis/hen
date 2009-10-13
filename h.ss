@@ -1,7 +1,7 @@
 ;; (load "h.ss")
 (load "lib.ss")
 
-(define match-debug #t)
+(define match-debug #f)
 
 (define prog
   '((Rule ((Lit foo) (Var a) (Var b)) ((Lit Jerk) (Var b) (Var a)))
@@ -65,7 +65,9 @@
         (join-things-list "\n" (map render alts))
 
         ('if b t)
-        (list "if (" (render b) ") {\n" (render t) "\n}")
+        (list "if (" (render b) ") {\n"
+              (if match-debug "printf(\"  - success!\\n\");\n" "")
+              (render t) "\n}" (if match-debug " else { printf(\"  - fail!\\n\"); }" ""))
 
         ('pair? var)
         (list "ispair(" var ")")

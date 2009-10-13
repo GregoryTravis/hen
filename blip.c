@@ -14,7 +14,7 @@ void dump1_list(yeah* y) {
 
 void dump1(yeah* y) {
   match (y) {
-    Symbol(txt) { printf("(Lit %s)", txt); }
+    Symbol(txt) { printf("%s", txt); }
     Pair(car, cdr) { printf("("); dump1(car); dump1_list(cdr); }
     Nil() { printf("()"); }
     end;
