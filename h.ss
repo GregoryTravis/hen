@@ -8,7 +8,7 @@
 
 (define (compile-rule rule)
   (mtch rule
-        (Rule ((Lit fun) . pat) body) `(match-top ,fun ,pat ,(compile-pat pat body))))
+        (Rule ((Sym fun) . pat) body) `(match-top ,fun ,pat ,(compile-pat pat body))))
 
 (define (compile-pat pat body)
   (compile-pat-1 'r pat `(build ,body)))
@@ -29,8 +29,11 @@
    var
    pat
    (mtch pat
-         ('Lit lit) `(if (eq? ,var (Lit ,lit))
+         ('Sym lit) `(if (eq? ,var (Sym ,lit))
                          ,body)
+
+         ('Num n) `(if (== ,var (Num ,n))
+                       ,body)
 
          ('Var a) `(assign ,a ,var ,body)
 
@@ -79,7 +82,8 @@
         ('null? e) (list "isnil(" (render e) ")")
         ('eq? a b) (list "samesymbol(" (render a) ", " (render b) ")")
 
-        ('Lit lit) (list "mksymbol(\"" lit "\")")
+        ('Sym lit) (list "mksymbol(\"" lit "\")")
+        ('Num n) (list "mknumber(" n ")")
 
         ('build b) (list "return " (render-exp b) ";")
 
@@ -95,12 +99,13 @@
 
 (define (ctor-lit? a)
   (mtch a
-        ('Lit a) (ctor? a)))
+        ('Sym a) (ctor? a)))
 
 (define (render-exp b)
   (mtch b
-        ('Lit sym) (list "mksymbol(\"" sym "\")")
+        ('Sym sym) (list "mksymbol(\"" sym "\")")
         ('Var var) var
+        ('Num n) (list "mknumber(" n ")")
         ;(a . d) (list "mkpair(" (render-exp a) ", " (render-exp d) ")")
         (a . d) (if (ctor-lit? a) (render-exp-list b) (render-app-list b))
         () "mknil()"))
@@ -112,17 +117,18 @@
 
 (define (render-app-list b)
   (mtch b
-        ((Lit a) . d) (list a "(" (render-exp-list d) ")")))
+        ((Sym a) . d) (list a "(" (render-exp-list d) ")")))
 
 (define (render-data b)
   (mtch b
-        ('Lit sym) (list "mksymbol(\"" sym "\")")
+        ('Sym sym) (list "mksymbol(\"" sym "\")")
         ('Var var) (list "mksymbol(\"" var "\")")
+        ('Num n) (list "mknumber(" n ")")
         (a . d) (list "mkpair(" (render-data a) ", " (render-data d) ")")
         () "mknil()"))
 
 (define (compile-rules rules)
-  (let ((grouped (group-by (lambda (rule) (mtch rule ('Rule (('Lit name) . rest) body) name)) rules)))
+  (let ((grouped (group-by (lambda (rule) (mtch rule ('Rule (('Sym name) . rest) body) name)) rules)))
     (map render
          (map (lambda (group)
                 (let ((name (car group))
@@ -133,7 +139,7 @@
 
 (define (render-main start-term)
   (mtch start-term
-        (('Lit fun) . rest)
+        (('Sym fun) . rest)
         (list "\n"
             "int main(int argc, char** argv) {\n"
             "  dump(" fun  "(" (render-data rest) "));\n"
@@ -159,8 +165,9 @@
 
 (define (parse-exp e)
   (cond
-   ((and (pair? e) (symbol? (car e))) (cons `(Lit ,(car e)) (map parse-exp (cdr e))))
+   ((and (pair? e) (symbol? (car e))) (cons `(Sym ,(car e)) (map parse-exp (cdr e))))
    ((pair? e) (map parse-exp e))
+   ((number? e) `(Num ,e))
    ((symbol? e) `(Var ,e))
    (#t (err e))))
 
@@ -169,8 +176,8 @@
     (fun (foo a) (Jick a a))
     (fun (bar a b cc) (foo cc))))
 
-(define start-term '((Lit foo) (Lit but) (Lit hut)))
-(define start-term '((Lit foo) (Lit but)))
-(define start-term '((Lit bar) (Lit aaaa) (Lit bbbb) (Lit cccc)))
+(define start-term '((Sym foo) (Sym but) (Sym hut)))
+(define start-term '((Sym foo) (Sym but)))
+(define start-term '((Sym bar) (Sym aaaa) (Sym bbbb) (Num 5.6)))
 
 (call-with-output-file "hoop.c" (lambda (port) (display (render-program (parse prog) start-term) port)))

@@ -136,6 +136,8 @@ while (my ($ctor, $args) = each %ctors) {
       print C "      fprintf(fp, \"%s\\n\", $name);\n";
     } elsif ($type eq "int") {
       print C "      fprintf(fp, \"%d\\n\", $name);\n";
+    } elsif ($type eq "double") {
+      print C "      fprintf(fp, \"%f\\n\", $name);\n";
     } else {
       die;
     }
@@ -184,6 +186,8 @@ while (my ($ctor, $args) = each %ctors) {
       $setter = "readstring(fp)";
     } elsif ($type eq "int") {
       $setter = "readint(fp)";
+    } elsif ($type eq "double") {
+      $setter = "readdouble(fp)";
     } else {
       die "?? $type";
     }

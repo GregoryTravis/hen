@@ -27,6 +27,12 @@ static int readint(FILE *fp) {
   return n;
 }
 
+static float readdouble(FILE *fp) {
+  float n;
+  A(sscanf(readline(fp), "%f", &n) == 1);
+  return n;
+}
+
 static char* readstring(FILE *fp) {
   char* line = readline(fp);
   A(line);
