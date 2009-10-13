@@ -21,8 +21,12 @@ void dump1(yeah* y) {
   }
 }
 
-void dump(yeah* y) {
+void dumps(yeah* y) {
   dump1(y);
+}
+
+void dump(yeah* y) {
+  dumps(y);
   printf("\n");
 }
 

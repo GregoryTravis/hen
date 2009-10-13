@@ -9,12 +9,11 @@
     (Rule ((Lit bar) (Var a) (Var b) (Var cc)) ((Lit foo) (Var cc)))))
 
 (define (compile-pseudofunction name rules)
-  `(sequence ,(cons (if match-debug (++ "printf(\"fun " name "\\n\");\n") "")
-                    (map compile-rule rules))))
+  `(sequence ,(map compile-rule rules)))
 
 (define (compile-rule rule)
   (mtch rule
-        (Rule ((Lit fun) . pat) body) `(match-top ,pat ,(compile-pat pat body))))
+        (Rule ((Lit fun) . pat) body) `(match-top ,fun ,pat ,(compile-pat pat body))))
 
 (define (compile-pat pat body)
   (compile-pat-1 'r pat `(build ,body)))
@@ -23,7 +22,7 @@
 (define (cdrsym o) (->symbol (++ o 'd)))
 
 (define (debug-a-match var pat)
-  (++ "printf(\"match:\\n\"); dump(" (render-data pat) "); dump(" var ");\n"))
+  (++ "printf(\"- \"); dumps(" (render-data pat) "); printf(\" : \"); dumps(" var "); printf(\"\\n\");\n"))
 
 (define (debug-wrap var pat code)
   (if match-debug
@@ -55,9 +54,9 @@
         (var exp)
         (++ "yeah* " var " = " (render exp) ";")))
 
-(define (render-match-top pat)
+(define (render-match-top fun-name pat)
   (if match-debug
-      (++ "printf(\"MATCH... \"); dump(" (render-data pat) ");\n")
+      (++ "printf(\"(" fun-name " \"); dumps(" (render-data pat) ");\n" "printf(\")\\n\")\n;")
       ""))
 
 (define (render p)
@@ -93,7 +92,7 @@
 
         ('begin a b) (++ "{" (render a) (render b) "}")
 
-        ('match-top pat body) (++ (render-match-top pat) (render body))
+        ('match-top fun-name pat body) (++ (render-match-top fun-name pat) (render body))
 
         otherwise p))
 
