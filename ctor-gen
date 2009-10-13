@@ -137,7 +137,7 @@ while (my ($ctor, $args) = each %ctors) {
     } elsif ($type eq "int") {
       print C "      fprintf(fp, \"%d\\n\", $name);\n";
     } elsif ($type eq "double") {
-      print C "      fprintf(fp, \"%f\\n\", $name);\n";
+      print C "      fprintf(fp, \"%g\\n\", $name);\n";
     } else {
       die;
     }

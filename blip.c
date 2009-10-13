@@ -6,6 +6,7 @@ void dump1(yeah* y);
 void dump1_list(yeah* y) {
   match(y) {
     Symbol(txt) { printf(" . "); dump1(y); printf(")"); }
+    Number(txt) { printf(" . "); dump1(y); printf(")"); }
     Pair(car, cdr) { printf(" "); dump1(car); dump1_list(cdr); }
     Nil() { printf(")"); }
     end;
@@ -16,7 +17,7 @@ void dump1(yeah* y) {
   match (y) {
     Symbol(txt) { printf("%s", txt); }
     Pair(car, cdr) { printf("("); dump1(car); dump1_list(cdr); }
-    Number(n) { printf("%f", n); }
+    Number(n) { printf("%g", n); }
     Nil() { printf("()"); }
     end;
   }

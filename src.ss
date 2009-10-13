@@ -1,0 +1,5 @@
+(fun (foo a b) (Jerk b a))
+(fun (foo a) (Jick a a))
+(fun (bar a b cc) (foo cc))
+;(fun (main) (bar 'aaaa 'bbbb 5.6))
+(fun (main) (foo 12.3))

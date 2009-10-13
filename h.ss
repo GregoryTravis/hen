@@ -87,7 +87,7 @@
 
         ('build b) (list "return " (render-exp b) ";")
 
-        ('function name body) (list "yeah* " name "(yeah* r) {\n" (render body) "}\n")
+        ('function name body) (list "yeah* __" name "(yeah* r) {\n" (render body) "}\n")
 
         ('fail) "fprintf(stderr, \"BAD\\n\"); exit(1);\n"
 
@@ -117,7 +117,7 @@
 
 (define (render-app-list b)
   (mtch b
-        ((Sym a) . d) (list a "(" (render-exp-list d) ")")))
+        ((Sym a) . d) (list "__" a "(" (render-exp-list d) ")")))
 
 (define (render-data b)
   (mtch b
@@ -142,7 +142,8 @@
         (('Sym fun) . rest)
         (list "\n"
             "int main(int argc, char** argv) {\n"
-            "  dump(" fun  "(" (render-data rest) "));\n"
+            "  dump(" (render-app-list start-term) ");\n"
+;            "  dump(" fun  "(" (render-data rest) "));\n"
             "}\n"
             "\n")))
 
@@ -165,19 +166,19 @@
 
 (define (parse-exp e)
   (cond
+   ((quoted-symbol? e) `(Sym ,(cadr e)))
    ((and (pair? e) (symbol? (car e))) (cons `(Sym ,(car e)) (map parse-exp (cdr e))))
    ((pair? e) (map parse-exp e))
    ((number? e) `(Num ,e))
    ((symbol? e) `(Var ,e))
    (#t (err e))))
+;(tracefun parse-exp)
 
 (define prog
   `((fun (foo a b) (Jerk b a))
     (fun (foo a) (Jick a a))
     (fun (bar a b cc) (foo cc))))
 
-(define start-term '((Sym foo) (Sym but) (Sym hut)))
-(define start-term '((Sym foo) (Sym but)))
-(define start-term '((Sym bar) (Sym aaaa) (Sym bbbb) (Num 5.6)))
-
-(call-with-output-file "hoop.c" (lambda (port) (display (render-program (parse prog) start-term) port)))
+(define (run-file src-file)
+  (let ((prog (read-objects src-file)))
+    (call-with-output-file "hoop.c" (lambda (port) (display (render-program (parse prog) '((Sym main))) port)))))
