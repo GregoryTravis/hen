@@ -24,7 +24,7 @@ mem.o: mem.c mem.h
 hoop.o: hoop.c yeah.h
 	gcc -g -c hoop.c
 
-blip.o: blip.c blip.h
+blip.o: blip.c blip.h yeah.h
 	gcc -g -c blip.c
 
 hoop.c: h.ss src.ss
