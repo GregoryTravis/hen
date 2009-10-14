@@ -180,7 +180,7 @@
    ((pair? e) (map parse-exp e))
    ((number? e) `(Num ,e))
    (#t (err e))))
-(tracefun preprocess-symbols parse-exp)
+;(tracefun preprocess-symbols parse-exp)
 
 (define prog
   `((fun (foo a b) (Jerk b a))
