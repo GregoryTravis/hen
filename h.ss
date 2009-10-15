@@ -141,7 +141,7 @@
         (list "\n"
             "int main(int argc, char** argv) {\n"
             "  dump(" (render-app-list start-term) ");\n"
-;            "  dump(" fun  "(" (render-data rest) "));\n"
+            "  return 0;\n";
             "}\n"
             "\n")))
 
