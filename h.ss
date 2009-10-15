@@ -31,10 +31,9 @@
    (mtch pat
          ('Sym lit) `(if (eq? ,var ,pat) ,body)
          ('Num n) `(if (eq? ,var ,pat) ,body)
+         () `(if (eq? ,var ,pat) ,body)
 
          ('Var a) `(assign ,a ,var ,body)
-
-         () `(if (null? ,var) ,body)
 
          (a . d)
          (let ((var-a (carsym var))
@@ -76,13 +75,13 @@
 
         ('car e) (list (render e) "->u.pair.car")
         ('cdr e) (list (render e) "->u.pair.cdr")
-        ('null? e) (list "isnil(" (render e) ")")
 
         ; TODO: since we know the type of the pat, this should use a specialized equality routine.
         ('eq? a b) (list "eq(" (render a) ", " (render b) ")")
 
         ('Sym lit) (list "mksymbol(\"" lit "\")")
         ('Num n) (list "mknumber(" n ")")
+        () (list "mknil()")
 
         ('build b) (list "return " (render-exp b) ";")
 

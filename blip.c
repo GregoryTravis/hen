@@ -38,6 +38,8 @@ bool eq(yeah* a, yeah* b) {
     return true;
   } else if (isnumber(a) && isnumber(b) && (a->u.number.d == b->u.number.d)) {
     return true;
+  } else if (isnil(a) && isnil(b)) {
+    return true;
   } else {
     return false;
   }
