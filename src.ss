@@ -8,4 +8,5 @@
              (foo 12.3)
              (foo 'aaa)
              (foo 'aaa 12.3)
-             (foo 12.3 'aaa)))
+             (foo 12.3 'aaa)
+             (boot (Hen 40))))
