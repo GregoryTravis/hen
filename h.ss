@@ -29,11 +29,8 @@
    var
    pat
    (mtch pat
-         ('Sym lit) `(if (eq? ,var (Sym ,lit))
-                         ,body)
-
-         ('Num n) `(if (== ,var (Num ,n))
-                       ,body)
+         ('Sym lit) `(if (eq? ,var ,pat) ,body)
+         ('Num n lit) `(if (eq? ,var ,pat) ,body)
 
          ('Var a) `(assign ,a ,var ,body)
 
@@ -80,7 +77,9 @@
         ('car e) (list (render e) "->u.pair.car")
         ('cdr e) (list (render e) "->u.pair.cdr")
         ('null? e) (list "isnil(" (render e) ")")
-        ('eq? a b) (list "samesymbol(" (render a) ", " (render b) ")")
+
+        ; TODO: since we know the type of the pat, this should use a specialized equality routine.
+        ('eq? a b) (list "eq(" (render a) ", " (render b) ")")
 
         ('Sym lit) (list "mksymbol(\"" lit "\")")
         ('Num n) (list "mknumber(" n ")")

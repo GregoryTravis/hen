@@ -32,8 +32,13 @@ void dump(yeah* y) {
   printf("\n");
 }
 
-bool samesymbol(yeah* a, yeah* b) {
-  A(issymbol(a));
-  A(issymbol(b));
-  return !strcmp(a->u.symbol.txt, a->u.symbol.txt);
+bool eq(yeah* a, yeah* b) {
+  // TODO: should intern this
+  if (issymbol(a) && issymbol(b) && !strcmp(a->u.symbol.txt, b->u.symbol.txt)) {
+    return true;
+  } else if (isnumber(a) && isnumber(b) && (a->u.number.d == b->u.number.d)) {
+    return true;
+  } else {
+    return false;
+  }
 }
