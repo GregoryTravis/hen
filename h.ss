@@ -30,7 +30,7 @@
    pat
    (mtch pat
          ('Sym lit) `(if (eq? ,var ,pat) ,body)
-         ('Num n lit) `(if (eq? ,var ,pat) ,body)
+         ('Num n) `(if (eq? ,var ,pat) ,body)
 
          ('Var a) `(assign ,a ,var ,body)
 
@@ -162,14 +162,6 @@
   (mtch rule
         ('fun pat body)
         `(Rule ,(parse-exp pat) ,(parse-exp body))))
-
-;; (define (preprocess-symbols e)
-;;   (cond
-;;    ((quoted-symbol? e) e)
-;;    ((and (pair? e) (symbol? (car e)) (not (ctor? (car e)))) (cons `(quote ,(car e)) (map preprocess-symbols (cdr e))))
-;;    ((pair? e) (map preprocess-symbols e))
-;;    ((and (symbol? e) (ctor? e)) `(quote ,e))
-;;    (#t e)))
 
 (define (parse-exp e)
   (cond
