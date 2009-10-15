@@ -162,30 +162,25 @@
 (define (parse-rule rule)
   (mtch rule
         ('fun pat body)
-        `(Rule ,(parse-exp (preprocess-symbols pat)) ,(parse-exp (preprocess-symbols body)))))
+        `(Rule ,(parse-exp pat) ,(parse-exp body))))
 
-(define (preprocess-symbols e)
-  (cond
-   ((quoted-symbol? e) e)
-   ((and (pair? e) (symbol? (car e)) (not (ctor? (car e)))) (cons `(quote ,(car e)) (map preprocess-symbols (cdr e))))
-   ((pair? e) (map preprocess-symbols e))
-   ((and (symbol? e) (ctor? e)) `(quote ,e))
-   (#t e)))
+;; (define (preprocess-symbols e)
+;;   (cond
+;;    ((quoted-symbol? e) e)
+;;    ((and (pair? e) (symbol? (car e)) (not (ctor? (car e)))) (cons `(quote ,(car e)) (map preprocess-symbols (cdr e))))
+;;    ((pair? e) (map preprocess-symbols e))
+;;    ((and (symbol? e) (ctor? e)) `(quote ,e))
+;;    (#t e)))
 
 (define (parse-exp e)
   (cond
    ((quoted-symbol? e) `(Sym ,(cadr e)))
    ((symbol? e) `(Var ,e))
-   ;((and (pair? e) (symbol? (car e))) (cons `(Sym ,(car e)) (map parse-exp (cdr e))))
+   ((and (pair? e) (symbol? (car e))) (cons `(Sym ,(car e)) (map parse-exp (cdr e))))
    ((pair? e) (map parse-exp e))
    ((number? e) `(Num ,e))
    (#t (err e))))
-;(tracefun preprocess-symbols parse-exp)
-
-(define prog
-  `((fun (foo a b) (Jerk b a))
-    (fun (foo a) (Jick a a))
-    (fun (bar a b cc) (foo cc))))
+(tracefun parse-exp)
 
 (define (run-file src-file)
   (let ((prog (read-objects src-file)))

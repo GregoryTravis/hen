@@ -1,6 +1,7 @@
 (fun (foo a b) (Jerk b a))
 (fun (foo a) (Jick a a))
 (fun (bar a b cc) (foo cc))
+(fun (boot (Hen x)) x)
 (fun (main) (Coot
              (bar 'aaaa 'bbbb 5.6)
              (bar 'aaaa 5.6 'bbbb)
