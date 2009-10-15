@@ -17,7 +17,7 @@
 (define (cdrsym o) (->symbol (++ o 'd)))
 
 (define (debug-a-match var pat)
-  (list "printf(\"- \"); dumps(" (render-data pat) "); printf(\" :: \"); dumps(" var "); printf(\"\\n\");\n"))
+  (list "printf(\"- \"); dumps(" (render-pat pat) "); printf(\" :: \"); dumps(" var "); printf(\"\\n\");\n"))
 
 (define (debug-wrap var pat code)
   (if match-debug
@@ -50,7 +50,7 @@
 
 (define (render-match-top fun-name pat)
   (if match-debug
-      (list "printf(\"(" fun-name " \"); dumps(" (render-data pat) ");\n" "printf(\")\\n\")\n;")
+      (list "printf(\"(" fun-name " \"); dumps(" (render-pat pat) ");\n" "printf(\")\\n\")\n;")
       ""))
 
 (define (render p)
@@ -117,12 +117,12 @@
   (mtch b
         ((Sym a) . d) (list "__" a "(" (render-exp-list d) ")")))
 
-(define (render-data b)
+(define (render-pat b)
   (mtch b
         ('Sym sym) (list "mksymbol(\"" sym "\")")
         ('Var var) (list "mksymbol(\"" var "\")")
         ('Num n) (list "mknumber(" n ")")
-        (a . d) (list "mkpair(" (render-data a) ", " (render-data d) ")")
+        (a . d) (list "mkpair(" (render-pat a) ", " (render-pat d) ")")
         () "mknil()"))
 
 (define (compile-rules rules)
