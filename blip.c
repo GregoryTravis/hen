@@ -5,6 +5,9 @@
 void dump(yeah* y);
 void dump1(yeah* y);
 
+yeah _True_ = { TAG_symbol, { .symbol = "True" } }, *_True = &_True_;
+yeah _False_ = { TAG_symbol, { .symbol = "False" } }, *_False = &_False_;
+
 void dump1_list(yeah* y) {
   match(y) {
     Symbol(txt) { printf(" . "); dump1(y); printf(")"); }
@@ -59,5 +62,12 @@ void listmatch2(yeah* list, yeah** a, yeah** b) {
   listmatch1(cdr(list), b);
 }
 
+#define ARGS2() yeah *a, *b; listmatch2(args, &a, &b)
+
 binop_def(plus, +)
 binop_def(minus, -)
+
+yeah* __eqeq(yeah* args) {
+  ARGS2();
+  return eq(a, b) ? _True : _False;
+}

@@ -43,6 +43,9 @@
                        (,var-d (cdr ,var)))
                   ,(compile-pat-1 var-a a (compile-pat-1 var-d d body))))))))
 
+(define primitive-function-names
+  '((== . eqeq)))
+
 (define (render-assignment ass)
   (mtch ass
         (var exp)
@@ -113,9 +116,12 @@
         (a . d) (list "mkpair(" (render-exp a) ", " (render-exp-list d) ")")
         () "mknil()"))
 
+(define (rename-fun-maybe name)
+  (translate-or-not name primitive-function-names))
+
 (define (render-app-list b)
   (mtch b
-        ((Sym a) . d) (list "__" a "(" (render-exp-list d) ")")))
+        ((Sym a) . d) (list "__" (rename-fun-maybe a) "(" (render-exp-list d) ")")))
 
 (define (render-pat b)
   (mtch b

@@ -1025,6 +1025,9 @@
 (define (lookup-exists? e env)
   (not (eq? #f (assoc e env))))
 
+(define (translate-or-not name ass)
+  (lookup-or name ass name))
+
 (define 1st car)
 (define 2nd cadr)
 (define 3rd caddr)
