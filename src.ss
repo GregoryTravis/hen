@@ -22,6 +22,8 @@
 (fun (opp) (if (== 3 4) Yes No))
 (fun (ipp a) (if (== 3 a) Yes No))
 (fun (oq a b) (if (== a b) True False))
+(fun (fact 0) 1)
+(fun (fact n) (* n (fact (- n 1))))
 (fun (main) (Coot
              (bar 'aaaa 'bbbb 5.6)
              (bar 'aaaa 5.6 'bbbb)
@@ -76,4 +78,5 @@
              (oq 'asdf 3)
              (oq 4 'zxcv)
              (ipp 4)
-             (== 3 4)))
+             (== 3 4)
+             (fact 10)))
