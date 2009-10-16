@@ -12,6 +12,8 @@ bool samesymbol(yeah* a, yeah* b);
 
 binop_decl(plus, +);
 binop_decl(minus, -);
+binop_decl(times, *);
+binop_decl(div, /);
 
 yeah* __eqeq(yeah* args);
 

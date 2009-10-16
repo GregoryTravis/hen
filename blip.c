@@ -66,6 +66,8 @@ void listmatch2(yeah* list, yeah** a, yeah** b) {
 
 binop_def(plus, +)
 binop_def(minus, -)
+binop_def(times, *)
+binop_def(div, /)
 
 yeah* __eqeq(yeah* args) {
   ARGS2();
