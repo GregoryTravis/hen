@@ -167,6 +167,7 @@
 
 (define (parse-exp e)
   (cond
+   ((ctor? e) `(Sym ,e))
    ((quoted-symbol? e) `(Sym ,(cadr e)))
    ((pair? e) (map parse-exp (quote-head-function e)))
    ((symbol? e) `(Var ,e))
