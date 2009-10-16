@@ -172,7 +172,7 @@
    ((symbol? e) `(Var ,e))
    ((number? e) `(Num ,e))
    (#t (err e))))
-(tracefun parse-exp)
+;(tracefun parse-exp)
 
 (define (run-file src-file)
   (let ((prog (read-objects src-file)))

@@ -23,4 +23,5 @@
              (gob 'asdf)
              (gob 'zxcv)
              (gob 'jones)
-             (gob 17.8)))
+             (gob 17.8)
+             (plus 3 5)))

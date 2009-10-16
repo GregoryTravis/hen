@@ -27,14 +27,17 @@ hoop.o: hoop.c yeah.h
 blip.o: blip.c blip.h yeah.h
 	gcc -g -c blip.c
 
+yeahlib.o: yeahlib.c yeahlib.h yeah.h
+	gcc -g -c yeahlib.c
+
 hoop.c: h.ss src.ss
 	@rm -f hoop.c
 	mzscheme -r main.ss
 	@indent -i2 < hoop.c > _$$
 	@mv _$$ hoop.c
 
-hoop: hoop.o yeah.o spew.o mem.o blip.o
-	gcc -o hoop hoop.o yeah.o spew.o mem.o blip.o
+hoop: hoop.o yeah.o spew.o mem.o blip.o yeahlib.o
+	gcc -o hoop hoop.o yeah.o spew.o mem.o blip.o yeahlib.o
 
 clean:
 	rm -f vm *.o yeah.h yeah.c hoop.o hoop.c hoop
