@@ -79,9 +79,9 @@
         ; TODO: since we know the type of the pat, this should use a specialized equality routine.
         ('eq? a b) (list "eq(" (render a) ", " (render b) ")")
 
-        ('Sym lit) (list "mksymbol(\"" lit "\")")
-        ('Num n) (list "mknumber(" n ")")
-        () (list "mknil()")
+        ('Sym lit) (render-exp p)
+        ('Num n) (render-exp p)
+        () (render-exp p)
 
         ('build b) (list "return " (render-exp b) ";")
 
