@@ -4,6 +4,8 @@
 #include "a.h"
 #include "yeah.h"
 
+bool eq(yeah* a, yeah* b);
+
 void dump(yeah* y);
 bool samesymbol(yeah* a, yeah* b);
 

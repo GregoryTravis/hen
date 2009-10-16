@@ -186,6 +186,26 @@
    (#t (err e))))
 ;(tracefun parse-exp)
 
-(define (run-file src-file)
-  (let ((prog (read-objects src-file)))
-    (call-with-output-file "hoop.c" (lambda (port) (display (render-program (parse prog) '((Sym main))) port)))))
+(define (compile src-stub)
+  (let* ((src-file (++ src-stub ".ss"))
+         (c-file (++ src-stub ".c"))
+         (prog (read-objects src-file)))
+    (call-with-output-file c-file (lambda (port) (display (render-program (parse prog) '((Sym main))) port)))))
+
+(define (ext f e) (++ f "." e))
+(define (exter e) ($ ext _ e))
+(define (gco f) `(gcc -std=c99 -g -c -o (output ,(ext f 'o)) (input ,(ext f 'c))))
+
+(define (co-exe main modules)
+  (let ((os (map (exter "o") (cons main modules))))
+    (cons (append `(gcc -g -o (output ,main)) (map (lambda (o) `(input ,o)) os))
+          (map gco (cons main modules)))))
+
+(define modules '(yeah spew mem blip yeahlib))
+
+(define (build src-stub)
+  (make src-stub
+    (append
+     `((,compile "src" (implicit (output "src.c")) (implicit (input "src.ss")) (implicit (input "yeah.h")))
+       ("ctor-gen" "yeah" (implicit (output "yeah.h")) (implicit (output "yeah.c")) (implicit (input "yeah.ctors"))))
+     (co-exe src-stub modules))))
