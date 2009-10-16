@@ -162,15 +162,17 @@
         ('fun pat body)
         `(Rule ,(parse-exp pat) ,(parse-exp body))))
 
+(define (quote-head-function e)
+  (cons (if (symbol? (car e)) `(quote ,(car e)) (car e)) (cdr e)))
+
 (define (parse-exp e)
   (cond
    ((quoted-symbol? e) `(Sym ,(cadr e)))
+   ((pair? e) (map parse-exp (quote-head-function e)))
    ((symbol? e) `(Var ,e))
-   ((and (pair? e) (symbol? (car e))) (cons `(Sym ,(car e)) (map parse-exp (cdr e))))
-   ((pair? e) (map parse-exp e))
    ((number? e) `(Num ,e))
    (#t (err e))))
-;(tracefun parse-exp)
+(tracefun parse-exp)
 
 (define (run-file src-file)
   (let ((prog (read-objects src-file)))
