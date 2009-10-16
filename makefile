@@ -33,8 +33,8 @@ yeahlib.o: yeahlib.c yeahlib.h yeah.h
 hoop.c: h.ss src.ss
 	@rm -f hoop.c
 	mzscheme -r main.ss
-	@indent -i2 < hoop.c > _$$
-	@mv _$$ hoop.c
+#	@indent -i2 < hoop.c > __indent_tmp
+#	@mv __indent_tmp hoop.c
 
 hoop: hoop.o yeah.o spew.o mem.o blip.o yeahlib.o
 	gcc -o hoop hoop.o yeah.o spew.o mem.o blip.o yeahlib.o

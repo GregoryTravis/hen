@@ -104,6 +104,7 @@
 
 (define (render-exp b)
   (mtch b
+        (('Sym 'if) b t f) (list "(eq(" (render-exp b) ", mksymbol(\"True\")) ? " "(" (render-exp t) ") : (" (render-exp f) "))")
         ('Sym sym) (list "mksymbol(\"" sym "\")")
         ('Var var) var
         ('Num n) (list "mknumber(" n ")")
