@@ -24,4 +24,5 @@
              (gob 'zxcv)
              (gob 'jones)
              (gob 17.8)
-             (plus 3 5)))
+             (plus 3 5)
+             (minus 3 5)))

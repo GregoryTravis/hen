@@ -59,11 +59,5 @@ void listmatch2(yeah* list, yeah** a, yeah** b) {
   listmatch1(cdr(list), b);
 }
 
-yeah* __plus(yeah* args) {
-  yeah* a;
-  yeah* b;
-  listmatch2(args, &a, &b);
-  A(isnumber(a));
-  A(isnumber(b));
-  return mknumber(a->u.number.d + b->u.number.d);
-}
+binop_def(plus, +)
+binop_def(minus, -)
