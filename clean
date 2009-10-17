@@ -1,1 +1,1 @@
-rm -f vm *.o yeah.h yeah.c hoop.o hoop.c hoop src.c src
+rm -f vm *.o yeah.h yeah.c hoop.o hoop.c hoop src.c src test-src test-src.c

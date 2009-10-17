@@ -206,6 +206,6 @@
 (define (build src-stub)
   (make src-stub
     (append
-     `((,compile "src" (implicit (output "src.c")) (implicit (input "src.ss")) (implicit (input "yeah.h")))
+     `((,compile ,src-stub (implicit (output ,(ext src-stub 'c))) (implicit (input ,(ext src-stub 'ss))) (implicit (input "yeah.h")))
        ("ctor-gen" "yeah" (implicit (output "yeah.h")) (implicit (output "yeah.c")) (implicit (input "yeah.ctors"))))
      (co-exe src-stub modules))))

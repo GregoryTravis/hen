@@ -1,2 +1,2 @@
 (load "h.ss")
-(build "src")
+(build "test-src")

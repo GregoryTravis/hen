@@ -1,3 +1,7 @@
+./clean
+./test.sh
+exit
+
 mzscheme -r main.ss
 exit
 
