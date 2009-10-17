@@ -75,3 +75,22 @@ yeah* __eqeq(yeah* args) {
   ARGS2();
   return eq(a, b) ? _True : _False;
 }
+
+primfun funlookup(yeah* sym) {
+  funly* here = &funlies[0];
+
+  A(issymbol(sym));
+
+  int i;
+  while (1) {
+    if (here->name == NULL) {
+      break;
+    } else if (!strcmp(here->name, sym->u.symbol.txt)) {
+      return here->fun;
+    } else {
+      here++;
+    }
+  }
+
+  A(0);
+}

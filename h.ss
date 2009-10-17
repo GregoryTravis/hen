@@ -113,7 +113,9 @@
         ('Var var) var
         ('Num n) (list "mknumber(" n ")")
         ;(a . d) (list "mkpair(" (render-exp a) ", " (render-exp d) ")")
-        (a . d) (if (ctor-lit? a) (render-exp-list b) (render-app-list b))
+        ;(a . d) (if (ctor-lit? a) (render-exp-list b) (render-app-list b))
+        (('Sym a) . d) (if (ctor? a) (render-exp-list b) (render-app-list b))
+        (('Var v) . d) (list "(funlookup(" v "))(" (render-exp-list d) ")")
         () "mknil()"))
 
 (define (render-exp-list b)
@@ -156,6 +158,18 @@
             "}\n"
             "\n")))
 
+(define (get-fun-names rules)
+  (unique
+   (map (lambda (rule) (mtch rule ('Rule (('Sym name) . args) body) name)) rules)))
+
+(define (gen-funlies rules)
+  (let ((fun-names (get-fun-names rules)))
+    (list
+     "funly funlies[] = {\n"
+     (map (lambda (fun-name) (list "  { \"" fun-name "\", &__" fun-name " },\n")) fun-names)
+     "  { NULL, NULL }\n"
+     "};\n")))
+
 (define (render-program rules start)
   (+++
    (list "#include <stdio.h>\n"
@@ -163,28 +177,39 @@
          "#include \"yeah.h\"\n"
          "#include \"blip.h\"\n"
          (render (compile-rules rules))
+         (render (gen-funlies rules))
          (render-main start))))
 
 (define (parse src)
   (map parse-rule src))
 
+(define (vars-of e)
+  (mtch e
+        ('Sym s) '()
+        ('Var v) (list v)
+        ('Num n) '()
+        (a . d) (map-append vars-of e)))
+
 (define (parse-rule rule)
   (mtch rule
         ('fun pat body)
-        `(Rule ,(parse-exp pat) ,(parse-exp body))))
+        (let* ((parsed-pat (parse-exp pat (lambda (v) #t)))
+               (bound-vars (vars-of parsed-pat))
+               (parsed-body (parse-exp body (lambda (v) (member? v bound-vars)))))
+          `(Rule ,parsed-pat ,parsed-body))))
 
 (define (quote-head-function e)
   (cons (if (symbol? (car e)) `(quote ,(car e)) (car e)) (cdr e)))
 
-(define (parse-exp e)
+(define (parse-exp e is-var)
   (cond
    ((ctor? e) `(Sym ,e))
    ((quoted-symbol? e) `(Sym ,(cadr e)))
-   ((pair? e) (map parse-exp (quote-head-function e)))
-   ((symbol? e) `(Var ,e))
+   ((pair? e) (map ($ parse-exp _ is-var) (if (is-var e) (quote-head-function e) e)))
+   ((symbol? e) (if (is-var e) `(Var ,e) `(Sym ,e)))
    ((number? e) `(Num ,e))
    (#t (err e))))
-;(tracefun parse-exp)
+;(tracefun parse-exp vars-of)
 
 (define (compile src-stub)
   (let* ((src-file (++ src-stub ".ss"))
@@ -206,6 +231,6 @@
 (define (build src-stub)
   (make src-stub
     (append
-     `((,compile ,src-stub (implicit (output ,(ext src-stub 'c))) (implicit (input ,(ext src-stub 'ss))) (implicit (input "yeah.h")))
+     `((,compile ,src-stub (implicit (output ,(ext src-stub 'c))) (implicit (input "h.ss")) (implicit (input ,(ext src-stub 'ss))) (implicit (input "yeah.h")))
        ("ctor-gen" "yeah" (implicit (output "yeah.h")) (implicit (output "yeah.c")) (implicit (input "yeah.ctors"))))
      (co-exe src-stub modules))))

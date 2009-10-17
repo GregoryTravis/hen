@@ -19,4 +19,15 @@ binop_decl(div, /);
 
 yeah* __eqeq(yeah* args);
 
+typedef yeah* (*primfun)(yeah*);
+
+typedef struct {
+  char* name;
+  primfun fun;
+} funly;
+
+extern funly funlies[];
+
+primfun funlookup(yeah* sym);
+
 #endif // __blip_h_
