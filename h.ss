@@ -165,7 +165,6 @@
 (define (gen-funlies rules)
   (let* ((fun-names (append (map car primitive-function-names) (get-fun-names rules)))
          (fun-cnames (append (map cdr primitive-function-names) (get-fun-names rules))))
-(shew fun-names fun-cnames)
     (list
      "funly funlies[] = {\n"
      (map (lambda (fun-name fun) (list "  { \"" fun-name "\", &__" fun " },\n")) fun-names fun-cnames)
