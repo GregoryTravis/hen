@@ -1238,3 +1238,8 @@
    ((pair? o) (++ (+++ (car o)) (+++ (cdr o))))
    ((null? o) "")
    (#t (->string o))))
+
+(define (set-difference a b)
+  (if (null? b)
+      a
+      (set-difference (remove (car b) a) (cdr b))))

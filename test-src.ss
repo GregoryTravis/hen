@@ -36,6 +36,9 @@
 (fun (fold f e (Cons a d)) (f a (fold f e d)))
 (fun (fold f e Nil) e)
 
+(fun (vook a b c d) (Hoot d c b a))
+(fun (joe a q) ((/. (b c) (vook b c a q)) a 1))
+
 (fun (main) (Coot
              (bar 'aaaa 'bbbb 5.6)
              (bar 'aaaa 5.6 'bbbb)
@@ -96,4 +99,5 @@
              (rebuild (Cons 1 (Cons 2 (Cons 3 (Cons 4 Nil)))))
              (map dbl (Cons 1 (Cons 2 (Cons 3 (Cons 4 Nil)))))
              (fold + 0 (Cons 1 (Cons 2 (Cons 3 (Cons 4 Nil)))))
-             (fold * 1 (Cons 1 (Cons 2 (Cons 3 (Cons 4 Nil)))))))
+             (fold * 1 (Cons 1 (Cons 2 (Cons 3 (Cons 4 Nil)))))
+             (joe 10 20)))

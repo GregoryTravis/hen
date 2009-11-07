@@ -3,6 +3,8 @@
 
 (define match-debug #f)
 
+(define sg (tagged-symbol-generator-generator))
+
 (define (compile-pseudofunction name rules)
   `(sequence ,(map compile-rule rules)))
 
@@ -102,12 +104,17 @@
 
         otherwise p))
 
+(define (render-declarations p)
+  (mtch p
+        ('function name body) (list "yeah* __" name "(yeah* r);\n")))
+
 (define (ctor-lit? a)
   (mtch a
         ('Sym a) (ctor? a)))
 
 (define (render-exp b)
   (mtch b
+        (('Closure name ('ClosedOverArgs . closed-over-args)) . orig-args) (render-exp `(,name ((Sym ClosureAppPair) ((Sym OrigArgs) . ,orig-args) ((Sym ClosedOverArgs) . ,closed-over-args))))
         (('Sym 'if) b t f) (list "(eq(" (render-exp b) ", mksymbol(\"True\")) ? " "(" (render-exp t) ") : (" (render-exp f) "))")
         ('Sym sym) (list "mksymbol(\"" sym "\")")
         ('Var var) var
@@ -140,13 +147,13 @@
 
 (define (compile-rules rules)
   (let ((grouped (group-by (lambda (rule) (mtch rule ('Rule (('Sym name) . rest) body) name)) rules)))
-    (map render
-         (map (lambda (group)
-                (let ((name (car group))
-                      (rule-group (cdr group)))
-                  `(function ,name (sequence (,(compile-pseudofunction name rule-group)
-                                              (fail))))))
-              grouped))))
+    (let ((functions (map (lambda (group)
+                            (let ((name (car group))
+                                  (rule-group (cdr group)))
+                              `(function ,name (sequence (,(compile-pseudofunction name rule-group)
+                                                          (fail))))))
+                          grouped)))
+      (append (map render-declarations functions) (map render functions)))))
 
 (define (render-main start-term)
   (mtch start-term
@@ -191,6 +198,8 @@
         ('Num n) '()
         (a . d) (map-append vars-of e)))
 
+(define (extend-is-var more-vars is-var) (lambda (v) (or (member? v more-vars) (is-var v))))
+
 (define (parse-rule rule)
   (mtch rule
         ('fun pat body)
@@ -202,21 +211,72 @@
 (define (quote-head-function e)
   (cons (if (symbol? (car e)) `(quote ,(car e)) (car e)) (cdr e)))
 
+(define (simplify-program prog)
+  (lift-lambdas prog))
+
+(define (lift-lambdas rules)
+  (let* ((marked (map mark-lambda-rule rules))
+         (lifted-rules (map lift-marked-rule marked))
+         (additional-rules (map-append lift-gather-additional-rule marked)))
+    (append additional-rules lifted-rules)))
+
+(define (mark-lambda-rule rule)
+  (mtch rule
+        ('Rule args body) `(Rule ,args ,(mark-lambda-exp body (vars-of args)))))
+
+(define (mark-lambda-exp e bound-vars)
+  (mtch e
+   ('Sym s) e
+   ('Var v) e
+   ('Num n) e
+   ('Lambda args body) (let* ((lift-id (sg 'lambda_))
+                              (lifted-body (mark-lambda-exp body (append bound-vars (vars-of args))))
+                              (vars-to-close-over (map (lambda (x) `(Var ,x))
+                                                       (set-difference (vars-of lifted-body) (vars-of args)))))
+                         `(MarkedLambda ,args ,lift-id ,vars-to-close-over ,lifted-body))
+   (a . d) (map ($ mark-lambda-exp _ bound-vars) e)))
+
+(define (lift-marked-rule rule)
+  (mtch rule
+        ('Rule args body) `(Rule ,args ,(lift-marked-rule-exp body))))
+
+(define (lift-marked-rule-exp e)
+  (mtch e
+   ('Sym s) e
+   ('Var v) e
+   ('Num n) e
+   ('MarkedLambda args id vars-to-close-over body) `(Closure (Sym ,id) (ClosedOverArgs . ,vars-to-close-over))
+   (a . d) (map lift-marked-rule-exp e)))
+
+(define (lift-gather-additional-rule rule)
+  (mtch rule
+        ('Rule args body) (lift-gather-additional-exp body)))
+
+(define (lift-gather-additional-exp e)
+  (mtch e
+   ('Sym s) '()
+   ('Var v) '()
+   ('Num n) '()
+   ('MarkedLambda args id vars-to-close-over body) (list `(Rule ((Sym ,id) ((Sym ClosureAppPair) ((Sym OrigArgs) . ,args) ((Sym ClosedOverArgs) . ,vars-to-close-over))) ,body))
+   (a . d) (map-append lift-gather-additional-exp e)))
+
 (define (parse-exp e is-var)
   (cond
+   ((lambda? e) (mtch e ('/. args body)
+                      (let ((parsed-args (map ($ parse-exp _ (lambda (v) #t)) args)))
+                        `(Lambda ,parsed-args ,(parse-exp body (extend-is-var (vars-of parsed-args) is-var))))))
    ((ctor? e) `(Sym ,e))
    ((quoted-symbol? e) `(Sym ,(cadr e)))
    ((pair? e) (map ($ parse-exp _ is-var) (if (is-var e) (quote-head-function e) e)))
    ((symbol? e) (if (is-var e) `(Var ,e) `(Sym ,e)))
    ((number? e) `(Num ,e))
    (#t (err e))))
-;(tracefun parse-exp vars-of)
 
 (define (compile src-stub)
   (let* ((src-file (++ src-stub ".ss"))
          (c-file (++ src-stub ".c"))
          (prog (read-objects src-file)))
-    (call-with-output-file c-file (lambda (port) (display (render-program (parse prog) '((Sym main))) port)))))
+    (call-with-output-file c-file (lambda (port) (display (render-program (simplify-program (parse prog)) '((Sym main))) port)))))
 
 (define (ext f e) (++ f "." e))
 (define (exter e) ($ ext _ e))
