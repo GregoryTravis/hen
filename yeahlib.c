@@ -20,3 +20,11 @@ yeah* cadr(yeah* y) {
 yeah* cddr(yeah* y) {
   return cdr(cdr(y));
 }
+
+int length(yeah* y) {
+  if (isnil(y)) {
+    return 0;
+  } else {
+    return 1 + length(cdr(y));
+  }
+}

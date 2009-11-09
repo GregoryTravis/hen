@@ -10,4 +10,6 @@ yeah* cdr(yeah* y);
 yeah* cadr(yeah* y);
 yeah* cddr(yeah* y);
 
+int length(yeah* y);
+
 #endif /* _yeahlib_h_ */
