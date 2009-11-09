@@ -53,6 +53,10 @@ bool eq(yeah* a, yeah* b) {
   }
 }
 
+yeah* mklist0(void) {
+  return mknil();
+}
+
 yeah* mklist1(yeah* a) {
   return mkpair(a, mknil());
 }
@@ -63,6 +67,10 @@ yeah* mklist2(yeah* a, yeah* b) {
 
 yeah* mklist3(yeah* a, yeah* b, yeah* c) {
   return mkpair(a, mklist2(b, c));
+}
+
+yeah* mklist4(yeah* a, yeah* b, yeah* c, yeah* d) {
+  return mkpair(a, mklist3(b, c, d));
 }
 
 void listmatch1(yeah* list, yeah** a) {

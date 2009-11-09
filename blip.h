@@ -6,6 +6,12 @@
 
 bool eq(yeah* a, yeah* b);
 
+yeah* mklist0(void);
+yeah* mklist1(yeah* a);
+yeah* mklist2(yeah* a, yeah* b);
+yeah* mklist3(yeah* a, yeah* b, yeah* c);
+yeah* mklist4(yeah* a, yeah* b, yeah* c, yeah* d);
+
 void dump(yeah* y);
 void dumps(yeah* y);
 bool samesymbol(yeah* a, yeah* b);
