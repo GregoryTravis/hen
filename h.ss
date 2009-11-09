@@ -19,7 +19,7 @@
 (define (cdrsym o) (->symbol (++ o 'd)))
 
 (define (debug-a-match var pat)
-  (list "printf(\"- \"); dumps(" (render-pat pat) "); printf(\" :: \"); dumps(" var "); printf(\"\\n\");\n"))
+  (list "printf(\"- \"); dumps(" (render-pat pat) "); printf(\" :: \"); dump(" var ");\n"))
 
 (define (debug-wrap var pat code)
   (if match-debug
@@ -59,7 +59,7 @@
 
 (define (render-match-top fun-name pat)
   (if match-debug
-      (list "printf(\"(" fun-name " \"); dumps(" (render-pat pat) ");\n" "printf(\")\\n\")\n;")
+      (list "printf(\"* (" fun-name " \"); dumps(" (render-pat pat) "); printf(\")\\n\");")
       ""))
 
 (define (render p)
@@ -69,8 +69,9 @@
 
         ('if b t)
         (list "if (" (render b) ") {\n"
-              (if match-debug "printf(\"  - success!\\n\");\n" "")
-              (render t) "\n}" (if match-debug " else { printf(\"  - fail!\\n\"); }" ""))
+              (if match-debug "printf(\"  - success: !\\n\");\n" "")
+              (render t) "\n}"
+              (if match-debug (list " else { printf(\"  - fail: line %d %s !\\n\", __LINE__, \"" b "\"); }\n") ""))
 
         ('pair? var)
         (list "ispair(" var ")")
@@ -114,15 +115,14 @@
 
 (define (render-exp b)
   (mtch b
-        (('Closure name ('ClosedOverArgs . closed-over-args)) . orig-args) (render-exp `(,name ((Sym ClosureAppPair) ((Sym OrigArgs) . ,orig-args) ((Sym ClosedOverArgs) . ,closed-over-args))))
+        ('Closure name ('ClosedOverArgs . closed-over-args)) (render-exp `((Sym Closure) ,name ((Sym ClosedOverArgs) . ,closed-over-args)))
         (('Sym 'if) b t f) (list "(eq(" (render-exp b) ", mksymbol(\"True\")) ? " "(" (render-exp t) ") : (" (render-exp f) "))")
         ('Sym sym) (list "mksymbol(\"" sym "\")")
         ('Var var) var
         ('Num n) (list "mknumber(" n ")")
-        ;(a . d) (list "mkpair(" (render-exp a) ", " (render-exp d) ")")
-        ;(a . d) (if (ctor-lit? a) (render-exp-list b) (render-app-list b))
         (('Sym a) . d) (if (ctor? a) (render-exp-list b) (render-app-list b))
-        (('Var v) . d) (list "(funlookup(" v "))(" (render-exp-list d) ")")
+        (('Var v) . d) (list "apply(" v ", " (render-exp-list d) ")")
+        (('Closure name closed-over-args) . args) (list "apply(" (render-exp `(Closure ,name ,closed-over-args)) ", " (render-exp-list args) ")")
         () "mknil()"))
 
 (define (render-exp-list b)
@@ -191,12 +191,14 @@
 (define (parse src)
   (map parse-rule src))
 
-(define (vars-of e)
+(define (vars-of1 e)
   (mtch e
         ('Sym s) '()
         ('Var v) (list v)
         ('Num n) '()
-        (a . d) (map-append vars-of e)))
+        (a . d) (map-append vars-of1 e)))
+
+(define (vars-of e) (unique (vars-of1 e)))
 
 (define (extend-is-var more-vars is-var) (lambda (v) (or (member? v more-vars) (is-var v))))
 
@@ -295,3 +297,6 @@
      `((,compile ,src-stub (implicit (output ,(ext src-stub 'c))) (implicit (input "h.ss")) (implicit (input ,(ext src-stub 'ss))) (implicit (input "yeah.h")))
        ("ctor-gen" "yeah" (implicit (output "yeah.h")) (implicit (output "yeah.c")) (implicit (input "yeah.ctors"))))
      (co-exe src-stub modules))))
+
+;(tracefun render-exp render)
+;(tracefun parse simplify-program render-program)

@@ -7,6 +7,7 @@
 bool eq(yeah* a, yeah* b);
 
 void dump(yeah* y);
+void dumps(yeah* y);
 bool samesymbol(yeah* a, yeah* b);
 
 #define binop_decl(_name, _op) yeah* __##_name(yeah* args)
@@ -29,5 +30,6 @@ typedef struct {
 extern funly funlies[];
 
 primfun funlookup(yeah* sym);
+yeah* apply(yeah* f, yeah* args);
 
 #endif // __blip_h_

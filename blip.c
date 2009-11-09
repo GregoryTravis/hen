@@ -40,6 +40,7 @@ void dump(yeah* y) {
 }
 
 bool eq(yeah* a, yeah* b) {
+  //printf("EQ "); dumps(a); printf(" "); dumps(b); printf("\n");
   // TODO: should intern this
   if (issymbol(a) && issymbol(b) && !strcmp(a->u.symbol.txt, b->u.symbol.txt)) {
     return true;
@@ -50,6 +51,18 @@ bool eq(yeah* a, yeah* b) {
   } else {
     return false;
   }
+}
+
+yeah* mklist1(yeah* a) {
+  return mkpair(a, mknil());
+}
+
+yeah* mklist2(yeah* a, yeah* b) {
+  return mkpair(a, mklist1(b));
+}
+
+yeah* mklist3(yeah* a, yeah* b, yeah* c) {
+  return mkpair(a, mklist2(b, c));
 }
 
 void listmatch1(yeah* list, yeah** a) {
@@ -64,6 +77,12 @@ void listmatch2(yeah* list, yeah** a, yeah** b) {
   listmatch1(cdr(list), b);
 }
 
+void listmatch3(yeah* list, yeah** a, yeah** b, yeah** c) {
+  A(ispair(list));
+  *a = car(list);
+  listmatch2(cdr(list), b, c);
+}
+
 #define ARGS2() yeah *a, *b; listmatch2(args, &a, &b)
 
 binop_def(plus, +)
@@ -74,6 +93,14 @@ binop_def(div, /)
 yeah* __eqeq(yeah* args) {
   ARGS2();
   return eq(a, b) ? _True : _False;
+}
+
+bool isthissymbol(yeah* o, char *name) {
+  return issymbol(o) && !strcmp(o->u.symbol.txt, name);
+}
+
+bool isclosure(yeah* o) {
+  return ispair(o) && isthissymbol(car(o), "Closure");
 }
 
 primfun funlookup(yeah* sym) {
@@ -93,4 +120,17 @@ primfun funlookup(yeah* sym) {
   }
 
   A(0);
+}
+
+yeah* apply(yeah* f, yeah* args) {
+  if (issymbol(f)) {
+    return (*(funlookup(f)))(args);
+  } else if (isclosure(f)) {
+    yeah* dummy, *name, *closedOverArgsContainer, *closedOverArgs;
+    listmatch3(f, &dummy, &name, &closedOverArgsContainer);
+    closedOverArgs = cdr(closedOverArgsContainer);
+    return (*(funlookup(name)))(mklist1(mklist3(mksymbol("ClosureAppPair"), mkpair(mksymbol("OrigArgs"), args), mkpair(mksymbol("ClosedOverArgs"), closedOverArgs))));
+  } else {
+    A(0);
+  }
 }
