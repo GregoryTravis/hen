@@ -115,7 +115,7 @@
 
 (define (render-exp b)
   (mtch b
-        ('Closure name ('ClosedOverArgs . closed-over-args)) (render-exp `((Sym Closure) ,name ((Sym ClosedOverArgs) . ,closed-over-args)))
+        ('Closure name ('ClosedOverArgs . closed-over-args)) (render-exp `((Sym Closure) ,name . ,closed-over-args))
         (('Sym 'if) b t f) (list "(eq(" (render-exp b) ", mksymbol(\"True\")) ? " "(" (render-exp t) ") : (" (render-exp f) "))")
         ('Sym sym) (list "mksymbol(\"" sym "\")")
         ('Var var) var
@@ -126,6 +126,7 @@
         () "mknil()"))
 
 (define (render-exp-list b)
+;  (list "mklist" (length b) "(" (join-things ", " b) ")"))
   (mtch b
         (a . d) (list "mkpair(" (render-exp a) ",\n " (render-exp-list d) ")")
         () "mknil()"))
@@ -259,7 +260,7 @@
    ('Sym s) '()
    ('Var v) '()
    ('Num n) '()
-   ('MarkedLambda args id vars-to-close-over body) (list `(Rule ((Sym ,id) ((Sym ClosureAppPair) ((Sym OrigArgs) . ,args) ((Sym ClosedOverArgs) . ,vars-to-close-over))) ,body))
+   ('MarkedLambda args id vars-to-close-over body) (list `(Rule ((Sym ,id) ,vars-to-close-over ,args) ,body))
    (a . d) (map-append lift-gather-additional-exp e)))
 
 (define (parse-exp e is-var)

@@ -126,10 +126,9 @@ yeah* apply(yeah* f, yeah* args) {
   if (issymbol(f)) {
     return (*(funlookup(f)))(args);
   } else if (isclosure(f)) {
-    yeah* dummy, *name, *closedOverArgsContainer, *closedOverArgs;
-    listmatch3(f, &dummy, &name, &closedOverArgsContainer);
-    closedOverArgs = cdr(closedOverArgsContainer);
-    return (*(funlookup(name)))(mklist1(mklist3(mksymbol("ClosureAppPair"), mkpair(mksymbol("OrigArgs"), args), mkpair(mksymbol("ClosedOverArgs"), closedOverArgs))));
+    yeah* name = cadr(f);
+    yeah* closedOverArgs = cddr(f);
+    return (*(funlookup(name)))(mklist2(closedOverArgs, args));
   } else {
     A(0);
   }
