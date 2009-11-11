@@ -1,5 +1,7 @@
+;(fun (ponce x) 10)
+(fun (id x) x)
+(fun (doublerer f) (/. (x) (* 2 (f x))))
 (fun (main) (Coot
-            ((/. (x) x) 5)
-            ((/. (f) (f 5)) (/. (p) p))
-            ((/. (x) (* x x)) 11)
+             ((id id) 3)
+             ((doublerer id) 4)
             ))

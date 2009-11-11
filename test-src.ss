@@ -1,3 +1,4 @@
+(fun (id x) x)
 (fun (foo a b) (Jerk b a))
 (fun (foo a) (Jick a a))
 (fun (bar a b cc) (foo cc))
@@ -38,6 +39,8 @@
 
 (fun (vook a b c d) (Hoot d c b a))
 (fun (joe a q) ((/. (b c) (vook b c a q)) a 1))
+
+(fun (doublerer f) (/. (x) (* 2 (f x))))
 
 (fun (main) (Coot
              (bar 'aaaa 'bbbb 5.6)
@@ -106,4 +109,6 @@
              (map (/. (x) (+ x x)) (Cons 1 (Cons 2 (Cons 3 (Cons 4 Nil)))))
              (map (/. (x) (* x x)) (Cons 1 (Cons 2 (Cons 3 (Cons 4 Nil)))))
              ((/. (x) (* x x)) 11)
+             ((id id) 3)
+             ((doublerer id) 4)
              ))

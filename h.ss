@@ -123,6 +123,7 @@
         (('Sym a) . d) (if (ctor? a) (render-exp-list b) (render-app-list b))
         (('Var v) . d) (list "apply(" v ", " (render-exp-list d) ")")
         (('Closure name closed-over-args) . args) (list "apply(" (render-exp `(Closure ,name ,closed-over-args)) ", " (render-exp-list args) ")")
+        (a . d) (list "apply(" (render-exp a) ", " (render-exp-list d) ")")
         () "mknil()"))
 
 (define (render-exp-list b)
