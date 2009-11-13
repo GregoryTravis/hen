@@ -190,9 +190,6 @@
          (render-main start)
          (render (gen-funlies rules)))))
 
-(define (parse src)
-  (map parse-rule src))
-
 (define (vars-of1 e)
   (mtch e
         ('Sym s) '()
@@ -276,11 +273,25 @@
    ((number? e) `(Num ,e))
    (#t (err e))))
 
+(define (fun? f)
+  (mtch f
+        ('fun args body) #t
+        _ #f))
+
+(define (split-program p)
+  (mtch (group-by-preds (list fun?) p)
+        (funs) `(Parts (Funs ,funs))))
+
+(define (compile-program p)
+  (mtch (split-program p)
+        (Parts (Funs funs))
+        (render-program (simplify-program (map parse-rule funs)) '((Sym main)))))
+
 (define (compile src-stub)
   (let* ((src-file (++ src-stub ".ss"))
          (c-file (++ src-stub ".c"))
          (prog (read-objects src-file)))
-    (call-with-output-file c-file (lambda (port) (display (render-program (simplify-program (parse prog)) '((Sym main))) port)))))
+    (call-with-output-file c-file (lambda (port) (display (compile-program prog) port)))))
 
 (define (ext f e) (++ f "." e))
 (define (exter e) ($ ext _ e))
