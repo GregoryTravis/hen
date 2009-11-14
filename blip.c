@@ -53,6 +53,16 @@ bool eq(yeah* a, yeah* b) {
   }
 }
 
+bool isbooltrue(yeah* b, yeah* t, yeah* f) {
+  if (eq(b, t)) {
+    return true;
+  } else if (eq(b, f)) {
+    return false;
+  } else {
+    err(("bool"));
+  }
+}
+
 yeah* mklist0(void) {
   return mknil();
 }

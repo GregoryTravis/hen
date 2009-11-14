@@ -5,6 +5,7 @@
 #include "yeah.h"
 
 bool eq(yeah* a, yeah* b);
+bool isbooltrue(yeah* b, yeah* t, yeah* f);
 
 yeah* mklist0(void);
 yeah* mklist1(yeah* a);

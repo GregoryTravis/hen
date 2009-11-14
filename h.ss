@@ -127,7 +127,7 @@
   (mtch p
         ('function name body) (list "yeah* __" (encode-nonalpha name) "(yeah* r);\n")))
 
-(define start-symbols '(True))
+(define start-symbols '(True False))
 (define symbols start-symbols)
 (define (add-symbol s) (set! symbols (cons s symbols)))
 (define (render-symbol-defs)
@@ -139,7 +139,7 @@
 (define (render-exp b)
   (mtch b
         ('Closure name ('ClosedOverArgs . closed-over-args)) (render-exp `((Sym Closure) ,name . ,closed-over-args))
-        (('Sym 'if) b t f) (list "(eq(" (render-exp b) ", _sym_True) ? " "(" (render-exp t) ") : (" (render-exp f) "))")
+        (('Sym 'if) b t f) (list "(isbooltrue(" (render-exp b) ", _sym_True, _sym_False) ? " "(" (render-exp t) ") : (" (render-exp f) "))")
         ('Sym sym) (begin (add-symbol sym) (list "_sym_" (encode-nonalpha sym)))
         ('Var var) var
         ('Num n) (list "mknumber(" n ")")
