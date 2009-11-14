@@ -147,14 +147,18 @@
         (a . d) (list "mkpair(" (render-pat a) ", " (render-pat d) ")")
         () "mknil()"))
 
+(define (group-rules-by-name rules)
+  (group-by (lambda (rule) (mtch rule ('Rule (('Sym name) . rest) body) name)) rules))
+
+(define (grouped-rule->C group)
+  (let ((name (car group))
+        (rule-group (cdr group)))
+    `(function ,name (sequence (,(compile-pseudofunction name rule-group)
+                                (fail))))))
+
 (define (compile-rules rules)
-  (let ((grouped (group-by (lambda (rule) (mtch rule ('Rule (('Sym name) . rest) body) name)) rules)))
-    (let ((functions (map (lambda (group)
-                            (let ((name (car group))
-                                  (rule-group (cdr group)))
-                              `(function ,name (sequence (,(compile-pseudofunction name rule-group)
-                                                          (fail))))))
-                          grouped)))
+  (let ((grouped (group-rules-by-name rules)))
+    (let ((functions (map grouped-rule->C grouped)))
       (append (map render-declarations functions) (map render functions)))))
 
 (define (render-main start-term)
