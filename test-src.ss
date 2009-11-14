@@ -42,6 +42,9 @@
 
 (fun (doublerer f) (/. (x) (* 2 (f x))))
 
+(fun (length (Cons a d)) (+ 1 (length d)))
+(fun (length Nil) 0)
+
 (fun (main) (Coot
              (bar 'aaaa 'bbbb 5.6)
              (bar 'aaaa 5.6 'bbbb)
@@ -101,6 +104,7 @@
              (apply dbl 10)
              (rebuild (Cons 1 (Cons 2 (Cons 3 (Cons 4 Nil)))))
              (map dbl (Cons 1 (Cons 2 (Cons 3 (Cons 4 Nil)))))
+             (length (Cons 1 (Cons 2 (Cons 3 (Cons 4 Nil)))))
              (fold + 0 (Cons 1 (Cons 2 (Cons 3 (Cons 4 Nil)))))
              (fold * 1 (Cons 1 (Cons 2 (Cons 3 (Cons 4 Nil)))))
              (joe 10 20)
