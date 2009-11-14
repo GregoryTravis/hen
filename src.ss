@@ -7,6 +7,15 @@
 (fun (id x) x)
 (fun (doublerer f) (/. (x) (* 2 (f x))))
 
+(fun (fact 0) 1)
+(fun (fact n) (* n (fact (- n 1))))
+
+(fun (length (Cons a d)) (+ 1 (length d)))
+(fun (length Nil) 0)
+
+(fun (ntimes 0 thunk) Nil)
+(fun (ntimes n thunk) (Cons (thunk 1) (ntimes (- n 1) thunk)))
+
 (fun (main) (Coot
              ((id id) 3)
              ((doublerer id) 4)
@@ -14,4 +23,8 @@
              joe
              joe
              (ulp-panties 1)
+             (fact 10)
+             (length (Cons 1 (Cons 2 Nil)))
+             (length (ntimes 10 (/. (dummy) (fact 10))))
+             (ntimes 10 (/. (dummy) (fact 10)))
             ))
