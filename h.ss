@@ -129,18 +129,20 @@
 
 (define start-symbols '(True False))
 (define symbols start-symbols)
-(define (add-symbol s) (set! symbols (cons s symbols)))
+(define (add-symbol s) (set! symbols (cons (->symbol s) symbols)))
 (define (render-symbol-defs)
   (map render-symbol-def (unique symbols)))
+(define (csym s) (begin (add-symbol s) (list "_sym_" (encode-nonalpha s))))
 (define (render-symbol-def s)
-  (list "static yeah _sym_" (encode-nonalpha s) "_ = { TAG_symbol, { .symbol = { " (qt s) " } } };\n"
-        "static yeah* _sym_" (encode-nonalpha s) " = &_sym_" (encode-nonalpha s) "_;\n"))
+  (list "static yeah " (csym s) "_ = { TAG_symbol, { .symbol = { " (qt s) " } } };\n"
+        "static yeah* " (csym s) " = &" (csym s) "_;\n"))
+
 
 (define (render-exp b)
   (mtch b
         ('Closure name ('ClosedOverArgs . closed-over-args)) (render-exp `((Sym Closure) ,name . ,closed-over-args))
-        (('Sym 'if) b t f) (list "(isbooltrue(" (render-exp b) ", _sym_True, _sym_False) ? " "(" (render-exp t) ") : (" (render-exp f) "))")
-        ('Sym sym) (begin (add-symbol sym) (list "_sym_" (encode-nonalpha sym)))
+        (('Sym 'if) b t f) (list "(isbooltrue(" (render-exp b) ", " (csym 'True) ", " (csym 'False) ") ? " "(" (render-exp t) ") : (" (render-exp f) "))")
+        ('Sym sym) (csym sym)
         ('Var var) var
         ('Num n) (list "mknumber(" n ")")
         (('Sym a) . d) (if (ctor? a) (render-exp-list b) (render-app-list b))
