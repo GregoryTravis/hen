@@ -14,7 +14,7 @@
 (fun (length Nil) 0)
 
 (fun (ntimes 0 thunk) Nil)
-(fun (ntimes n thunk) (Cons (thunk 1) (ntimes (- n 1) thunk)))
+(fun (ntimes n thunk) (Cons (thunk) (ntimes (- n 1) thunk)))
 
 (fun (main) (Coot
              ((id id) 3)
@@ -25,6 +25,8 @@
              (ulp-panties 1)
              (fact 10)
              (length (Cons 1 (Cons 2 Nil)))
-             (length (ntimes 10 (/. (dummy) (fact 10))))
-             (ntimes 10 (/. (dummy) (fact 10)))
+             (length (ntimes 10 (/. () (fact 10))))
+             ((/. () 5))
+             ((/. (x) (x)) (/. () 11))
+             ;(ntimes 10 (/. () (fact 10)))
             ))

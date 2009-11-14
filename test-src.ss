@@ -45,6 +45,9 @@
 (fun (length (Cons a d)) (+ 1 (length d)))
 (fun (length Nil) 0)
 
+(fun (ntimes 0 thunk) Nil)
+(fun (ntimes n thunk) (Cons (thunk) (ntimes (- n 1) thunk)))
+
 (fun (main) (Coot
              (bar 'aaaa 'bbbb 5.6)
              (bar 'aaaa 5.6 'bbbb)
@@ -115,4 +118,7 @@
              ((/. (x) (* x x)) 11)
              ((id id) 3)
              ((doublerer id) 4)
+             (length (ntimes 10 (/. () (fact 10))))
+             (ntimes 2 (/. () (fact 10)))
+             (ntimes 3 (/. () 33))
              ))

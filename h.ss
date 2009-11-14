@@ -227,7 +227,8 @@
         ('Sym s) '()
         ('Var v) (list v)
         ('Num n) '()
-        (a . d) (map-append vars-of1 e)))
+        (a . d) (map-append vars-of1 e)
+        () '()))
 
 (define (vars-of e) (unique (vars-of1 e)))
 
