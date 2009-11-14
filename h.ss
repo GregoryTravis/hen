@@ -2,8 +2,11 @@
 (load "lib.ss")
 
 (define match-debug #f)
+(define symbols '())
 
 (define sg (tagged-symbol-generator-generator))
+
+(define (qt s) (list "\"" s "\""))
 
 (define (compile-pseudofunction name rules)
   `(sequence ,(map compile-rule rules)))
@@ -17,6 +20,21 @@
 
 (define (carsym o) (->symbol (++ o 'a)))
 (define (cdrsym o) (->symbol (++ o 'd)))
+
+(define nonalpha-encodings
+  '((#\+ . "plus")
+    (#\- . "minus")
+    (#\* . "times")
+    (#\/ . "div")))
+
+(define (encode-nonalpha-char c)
+  (let ((a (assoc c nonalpha-encodings)))
+    (if (eq? a #f)
+        c
+        (cdr a))))
+
+(define (encode-nonalpha s)
+  (apply ++ (map encode-nonalpha-char (string->list (->string s)))))
 
 (define (debug-a-match var pat)
   (list "printf(\"- \"); dumps(" (render-pat pat) "); printf(\" :: \"); dump(" var ");\n"))
@@ -95,7 +113,7 @@
 
         ('build b) (list "return " (render-exp b) ";")
 
-        ('function name body) (list "yeah* __" name "(yeah* r) {\n" (render body) "}\n")
+        ('function name body) (list "yeah* __" (encode-nonalpha name) "(yeah* r) {\n" (render body) "}\n")
 
         ('fail) "fprintf(stderr, \"BAD\\n\"); exit(1);\n"
 
@@ -107,17 +125,20 @@
 
 (define (render-declarations p)
   (mtch p
-        ('function name body) (list "yeah* __" name "(yeah* r);\n")))
+        ('function name body) (list "yeah* __" (encode-nonalpha name) "(yeah* r);\n")))
 
-(define (ctor-lit? a)
-  (mtch a
-        ('Sym a) (ctor? a)))
+(define (add-symbol s) (set! symbols (cons s symbols)))
+(define (render-symbol-defs)
+  (map render-symbol-def (unique symbols)))
+(define (render-symbol-def s)
+  (list "static yeah _sym_" (encode-nonalpha s) "_ = { TAG_symbol, { .symbol = { " (qt s) " } } };\n"
+        "static yeah* _sym_" (encode-nonalpha s) " = &_sym_" (encode-nonalpha s) "_;\n"))
 
 (define (render-exp b)
   (mtch b
         ('Closure name ('ClosedOverArgs . closed-over-args)) (render-exp `((Sym Closure) ,name . ,closed-over-args))
         (('Sym 'if) b t f) (list "(eq(" (render-exp b) ", mksymbol(\"True\")) ? " "(" (render-exp t) ") : (" (render-exp f) "))")
-        ('Sym sym) (list "mksymbol(\"" sym "\")")
+        ('Sym sym) (begin (add-symbol sym) (list "_sym_" (encode-nonalpha sym)))
         ('Var var) var
         ('Num n) (list "mknumber(" n ")")
         (('Sym a) . d) (if (ctor? a) (render-exp-list b) (render-app-list b))
@@ -137,7 +158,7 @@
 
 (define (render-app-list b)
   (mtch b
-        ((Sym a) . d) (list "__" (rename-fun-maybe a) "(" (render-exp-list d) ")")))
+        ((Sym a) . d) (list "__" (encode-nonalpha (rename-fun-maybe a)) "(" (render-exp-list d) ")")))
 
 (define (render-pat b)
   (mtch b
@@ -177,7 +198,7 @@
 
 (define (gen-funlies rules)
   (let* ((fun-names (append (map car primitive-function-names) (get-fun-names rules)))
-         (fun-cnames (append (map cdr primitive-function-names) (get-fun-names rules))))
+         (fun-cnames (map encode-nonalpha (append (map cdr primitive-function-names) (get-fun-names rules)))))
     (list
      "funly funlies[] = {\n"
      (map (lambda (fun-name fun) (list "  { \"" fun-name "\", &__" fun " },\n")) fun-names fun-cnames)
@@ -185,14 +206,21 @@
      "};\n")))
 
 (define (render-program rules start)
-  (+++
-   (list "#include <stdio.h>\n"
-         "#include <stdlib.h>\n"
-         "#include \"yeah.h\"\n"
-         "#include \"blip.h\"\n"
-         (render (compile-rules rules))
-         (render-main start)
-         (render (gen-funlies rules)))))
+  (let ((compiled-rules (compile-rules rules))
+        (funlies (gen-funlies rules)))
+    (+++
+     (list "#include <stdio.h>\n"
+           "#include <stdlib.h>\n"
+           "#include \"yeah.h\"\n"
+           "#include \"blip.h\"\n"
+           "\n"
+           (render-symbol-defs)
+           "\n"
+           (render compiled-rules)
+           "\n"
+           (render-main start)
+           "\n"
+           (render funlies)))))
 
 (define (vars-of1 e)
   (mtch e
