@@ -15,22 +15,4 @@ asdf
 ()
 1 1 1
 0 0 0
-2
-0
-asdf
-2
-0
-joe
-2
-0
-lap
-1
-()
-()
-asdf
-asdf
-(asdf joe lap)
-(asdf joe lap)
-((asdf . qwer) . zxcv)
-((asdf . qwer) . zxcv)
 rm -f test *.o yeah.h yeah.c

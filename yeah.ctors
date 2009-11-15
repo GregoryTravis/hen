@@ -2,3 +2,4 @@ pair yeah*:car yeah*:cdr
 symbol char*:txt
 nil
 number double:d
+function primfunn:f

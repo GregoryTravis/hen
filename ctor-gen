@@ -20,6 +20,7 @@ open(H, ">$typename.h") || die $!;
 open(C, ">$typename.c") || die $!;
 
 print H "#include <stdio.h>\n";
+print H "#include \"$typename-defines.h\"\n";
 print C "#include \"$typename.h\"\n";
 print C "#include \"a.h\"\n";
 print C "#include \"mem.h\"\n";
@@ -110,100 +111,6 @@ while (my ($ctor, $args) = each %ctors) {
   }
   print H "\n";
 }
-
-# serialization
-print H "void serialize(FILE* fp, yeah* y);\n";
-print C "void serialize(FILE* fp, yeah* y) {\n";
-print C "  fprintf(fp, \"%d\\n\", y->tag);\n";
-print C "  match (y) {\n";
-
-while (my ($ctor, $args) = each %ctors) {
-  my @names = ();
-  foreach $arg (@$args) {
-    my ($type, $name) = split(/:/, $arg);
-    push(@names, $name);
-  }
-
-  my $Ctor = ucfirst($ctor);
-  print C "    $Ctor(" . join(", ", @names) . ") {\n";
-
-  foreach $arg (@$args) {
-    my ($type, $name) = split(/:/, $arg);
-    if ($type eq ($typename . "*")) {
-      # Recursive call
-      print C "      serialize(fp, $name);\n";
-    } elsif ($type eq "char*") {
-      print C "      fprintf(fp, \"%s\\n\", $name);\n";
-    } elsif ($type eq "int") {
-      print C "      fprintf(fp, \"%d\\n\", $name);\n";
-    } elsif ($type eq "double") {
-      print C "      fprintf(fp, \"%g\\n\", $name);\n";
-    } else {
-      die;
-    }
-  }
-
-  print C "    }\n";
-}
-
-
-print C "    end;\n";
-print C "  }\n";
-print C "}\n";
-
-print C "\n";
-
-# unserialization
-print H "yeah* unserialize(FILE* fp);\n";
-print C "yeah* unserialize(FILE* fp) {\n";
-
-#print C "  printf(\"GET TAG\\n\");\n";
-#print C "  ${typename}_tag tag;\n";
-#print C "  A(fscanf(fp, \"%d\", &tag) == 1);\n";
-print C "  ${typename}_tag tag = readint(fp);\n";
-#print C "  printf(\"GOT TAG %d\\n\", tag);\n";
-print C "  switch (tag) {\n";
-
-while (my ($ctor, $args) = each %ctors) {
-  my $Ctor = ucfirst($ctor);
-
-  print C "    case TAG_$ctor: {\n";
-  #print C "      printf(\"IT IS $ctor (%d)\\n\", tag);\n";
-
-  my @names = ();
-  foreach $arg (@$args) {
-    my ($type, $name) = split(/:/, $arg);
-    push(@names, $name);
-  }
-
-  foreach $arg (@$args) {
-    my ($type, $name) = split(/:/, $arg);
-
-    my $setter = "";
-    if ($type eq "$typename*") {
-      $setter = "unserialize(fp)";
-    } elsif ($type eq "char*") {
-      $setter = "readstring(fp)";
-    } elsif ($type eq "int") {
-      $setter = "readint(fp)";
-    } elsif ($type eq "double") {
-      $setter = "readdouble(fp)";
-    } else {
-      die "?? $type";
-    }
-
-    print C "      $type $name = $setter;\n";
-  }
-
-  print C "      return mk$ctor(" . join(", ", @names) . ");\n";
-  print C "      break;\n";
-  print C "    }\n";
-}
-
-print C "    default: err((\"????????\"));\n";
-print C "  }\n";
-print C "  err((\"??T?T?T\"));\n";
-print C "}\n";
 
 print H "#endif // ifdef __$typename_h_\n";
 

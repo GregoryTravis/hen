@@ -31,6 +31,7 @@ void dump(yeah* y) {
   printf("\n");
 }
 
+#if 0
 void write_and_read(yeah* y) {
   FILE* fp = fopen("outout", "wb");
   A(fp);
@@ -47,6 +48,7 @@ void write_and_read(yeah* y) {
 
   unlink("outout");
 }
+#endif
 
 int main(int argc, char** argv) {
   printf("vm!\n");
@@ -61,13 +63,6 @@ int main(int argc, char** argv) {
 
   printf("%d %d %d\n", issymbol(mksymbol("asdf")), ispair(mkpair(mksymbol("asdf"), mksymbol("awer"))), isnil(mknil()));
   printf("%d %d %d\n", ispair(mksymbol("asdf")), isnil(mkpair(mksymbol("asdf"), mksymbol("awer"))), issymbol(mknil()));
-
-  serialize(stdout, mkpair(mksymbol("asdf"), mkpair(mksymbol("joe"), mkpair(mksymbol("lap"), mknil()))));
-
-  write_and_read(mknil());
-  write_and_read(mksymbol("asdf"));
-  write_and_read(mkpair(mksymbol("asdf"), mkpair(mksymbol("joe"), mkpair(mksymbol("lap"), mknil()))));
-  write_and_read(mkpair(mkpair(mksymbol("asdf"), mksymbol("qwer")), mksymbol("zxcv")));
 
   return 0;
 }
