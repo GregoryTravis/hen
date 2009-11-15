@@ -166,8 +166,8 @@
 
 (define (render-pat b)
   (mtch b
-        ('Sym sym) (list "mksymbol(\"" sym "\")")
-        ('Var var) (list "mksymbol(\"" var "\")")
+        ('Sym sym) (list (csym sym))
+        ('Var var) (list (csym var))
         ('Num n) (list "mknumber(" n ")")
         (a . d) (list "mkpair(" (render-pat a) ", " (render-pat d) ")")
         () "mknil()"))
