@@ -7,6 +7,8 @@
 
 (define (qt s) (list "\"" s "\""))
 
+(define autoincludes '("overture.ss"))
+
 (define (compile-pseudofunction name rules)
   `(sequence ,(map compile-rule rules)))
 
@@ -333,7 +335,7 @@
 (define (compile src-stub)
   (let* ((src-file (++ src-stub ".ss"))
          (c-file (++ src-stub ".c"))
-         (prog (read-objects src-file)))
+         (prog (map-append read-objects (cons src-file autoincludes))))
     (call-with-output-file c-file (lambda (port) (display (compile-program prog) port)))))
 
 (define (ext f e) (++ f "." e))
@@ -347,12 +349,16 @@
 
 (define modules '(yeah spew mem blip yeahlib))
 
+(define autoinclude-rules '((implicit overture.ss)))
+
+(define (make-rules src-stub)
+  (append
+   `((,compile ,src-stub (implicit (output ,(ext src-stub 'c))) (implicit (input "h.ss")) (implicit (input ,(ext src-stub 'ss))) (implicit (input "yeah.h")) ,@autoinclude-rules)
+     ("ctor-gen" "yeah" (implicit (output "yeah.h")) (implicit (output "yeah.c")) (implicit (input "yeah.ctors"))))
+   (co-exe src-stub modules)))
+
 (define (build src-stub)
-  (make src-stub
-    (append
-     `((,compile ,src-stub (implicit (output ,(ext src-stub 'c))) (implicit (input "h.ss")) (implicit (input ,(ext src-stub 'ss))) (implicit (input "yeah.h")))
-       ("ctor-gen" "yeah" (implicit (output "yeah.h")) (implicit (output "yeah.c")) (implicit (input "yeah.ctors"))))
-     (co-exe src-stub modules))))
+  (make src-stub (make-rules src-stub)))
 
 ;(tracefun render-exp render)
 ;(tracefun parse simplify-program render-program)

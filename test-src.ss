@@ -1,4 +1,3 @@
-(fun (id x) x)
 (fun (foo a b) (Jerk b a))
 (fun (foo a) (Jick a a))
 (fun (bar a b cc) (foo cc))
@@ -14,8 +13,6 @@
 (fun (lep Tup r) (R r))
 (fun (lep (Dag Dig)) Dog)
 (fun (pip a) (== a True))
-(fun (not True) False)
-(fun (not False) True)
 (fun (nun) 12)
 (fun (ipp) (if (== 3 3) Yes No))
 (fun (ig) (if False 1 2) )
@@ -23,30 +20,11 @@
 (fun (opp) (if (== 3 4) Yes No))
 (fun (ipp a) (if (== 3 a) Yes No))
 (fun (oq a b) (if (== a b) True False))
-(fun (fact 0) 1)
-(fun (fact n) (* n (fact (- n 1))))
-(fun (apply f arg) (f arg))
-(fun (dbl x) (+ x x))
-
-(fun (rebuild (Cons a d)) (Cons a (rebuild d)))
-(fun (rebuild Nil) Nil)
-
-(fun (map f (Cons a d)) (Cons (f a) (map f d)))
-(fun (map f Nil) Nil)
-
-(fun (fold f e (Cons a d)) (f a (fold f e d)))
-(fun (fold f e Nil) e)
 
 (fun (vook a b c d) (Hoot d c b a))
 (fun (joe a q) ((/. (b c) (vook b c a q)) a 1))
 
 (fun (doublerer f) (/. (x) (* 2 (f x))))
-
-(fun (length (Cons a d)) (+ 1 (length d)))
-(fun (length Nil) 0)
-
-(fun (ntimes 0 thunk) Nil)
-(fun (ntimes n thunk) (Cons (thunk) (ntimes (- n 1) thunk)))
 
 (fun (main) (Coot
              (bar 'aaaa 'bbbb 5.6)
