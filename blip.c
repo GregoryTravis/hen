@@ -137,6 +137,7 @@ primfun funlookup(yeah* sym) {
     }
   }
 
+  dump(sym);
   A(0);
 }
 

@@ -269,8 +269,8 @@
    ('Num n) e
    ('Lambda args body) (let* ((lift-id (sg 'lambda_))
                               (lifted-body (mark-lambda-exp body (append bound-vars (vars-of args))))
-                              (vars-to-close-over (map (lambda (x) `(Var ,x))
-                                                       (set-difference (vars-of lifted-body) (vars-of args)))))
+                              (vars-to-close-over (map (lambda (x) `(Var ,x)) bound-vars)))
+                                                       ;(set-difference (vars-of lifted-body) (vars-of args)))))
                          `(MarkedLambda ,args ,lift-id ,vars-to-close-over ,lifted-body))
    (a . d) (map ($ mark-lambda-exp _ bound-vars) e)))
 
@@ -295,8 +295,14 @@
    ('Sym s) '()
    ('Var v) '()
    ('Num n) '()
-   ('MarkedLambda args id vars-to-close-over body) (list `(Rule ((Sym ,id) ,vars-to-close-over ,args) ,body))
+   ('MarkedLambda args id vars-to-close-over body) (append
+                                                    (list `(Rule ((Sym ,id) ,vars-to-close-over ,args) ,(lift-marked-rule-exp body)))
+                                                    (lift-gather-additional-exp body))
    (a . d) (map-append lift-gather-additional-exp e)))
+
+;(tracefun render-exp)
+
+;(tracefun lift-gather-additional-exp lift-gather-additional-rule lift-marked-rule-exp lift-marked-rule mark-lambda-exp mark-lambda-rule lift-lambdas simplify-program)
 
 (define (parse-exp e is-var)
   (cond
