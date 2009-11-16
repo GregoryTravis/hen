@@ -10,6 +10,36 @@ void dump1(yeah* y);
 yeah _True_ = { TAG_symbol, { .symbol = "True" } }, *_True = &_True_;
 yeah _False_ = { TAG_symbol, { .symbol = "False" } }, *_False = &_False_;
 
+yeah* list_syntax_unpreprocess(yeah* y);
+
+yeah* list_syntax_unpreprocess_list1(yeah* y) {
+  if (ispair(y) && isthissymbol(car(y), "Cons") && length(y) == 3) {
+    return cons(list_syntax_unpreprocess(nth(y, 1)), list_syntax_unpreprocess_list1(nth(y, 2)));
+  } else if (isthissymbol(y, "Nil")) {
+    return mknil();
+  } else {
+    return y;
+  }
+}
+
+yeah* list_syntax_unpreprocess_list(yeah* y) {
+  return cons(mksymbol("$"), list_syntax_unpreprocess_list1(y));
+}
+
+yeah* list_syntax_unpreprocess(yeah* y) {
+  if (ispair(y) && isthissymbol(car(y), "Cons") && length(y) == 3) {
+    return list_syntax_unpreprocess_list(y);
+  } else if (ispair(y)) {
+    return map(list_syntax_unpreprocess, y);
+  } else {
+    return y;
+  }
+}
+
+yeah* unpreprocess(yeah* y) {
+  return list_syntax_unpreprocess(y);
+}
+
 void dump1_list(yeah* y) {
   match(y) {
     Symbol(txt) { printf(" . "); dump1(y); printf(")"); }
@@ -31,6 +61,7 @@ void dump1(yeah* y) {
 }
 
 void dumps(yeah* y) {
+  y = unpreprocess(y);
   dump1(y);
 }
 
@@ -111,10 +142,6 @@ binop_def(div, /)
 yeah* __eqeq(yeah* args) {
   ARGS2();
   return eq(a, b) ? _True : _False;
-}
-
-bool isthissymbol(yeah* o, char *name) {
-  return issymbol(o) && !strcmp(o->u.symbol.txt, name);
 }
 
 bool isclosure(yeah* o) {

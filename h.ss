@@ -328,7 +328,7 @@
         (funs) `(Parts (Funs ,funs))))
 
 (define (compile-program p)
-  (mtch (split-program p)
+  (mtch (split-program (syntax-preprocess p))
         (Parts (Funs funs))
         (render-program (simplify-program (map parse-rule funs)) '((Sym main)))))
 
@@ -359,6 +359,38 @@
 
 (define (build src-stub)
   (make src-stub (make-rules src-stub)))
+
+(define (syntax-preprocess e)
+  (list-syntax-preprocess e))
+
+(define (syntax-unpreprocess e)
+  (list-syntax-unpreprocess e))
+
+(define (list-syntax-preprocess e)
+  (mtch e
+        ('$ . rest) (list-syntax-preprocess-list rest)
+        (a . d) (map list-syntax-preprocess e)
+        x x))
+
+(define (list-syntax-preprocess-list e)
+  (cond
+   ((pair? e) `(Cons ,(list-syntax-preprocess (car e)) ,(list-syntax-preprocess-list (cdr e))))
+   ((null? e) 'Nil)
+   (#t e)))
+
+(define (list-syntax-unpreprocess e)
+  (mtch e
+        ('Cons a b) (list-syntax-unpreprocess-list e)
+        (a . d) (map list-syntax-unpreprocess-list e)
+        x x))
+
+(define (list-syntax-unpreprocess-list e)
+  `($ . ,(list-syntax-unpreprocess-list1 e)))
+(define (list-syntax-unpreprocess-list1 e)
+  (mtch e
+        ('Cons a d) (cons (list-syntax-unpreprocess a) (list-syntax-unpreprocess-list1 d))
+        'Nil '()
+        x x))
 
 ;(tracefun render-exp render)
 ;(tracefun parse simplify-program render-program)
