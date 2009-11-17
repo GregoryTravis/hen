@@ -27,7 +27,8 @@
     (#\- . "minus")
     (#\* . "times")
     (#\/ . "div")
-    (#\= . "eq")))
+    (#\= . "eq")
+    (#\$ . "buck")))
 
 (define (encode-nonalpha-char c)
   (let ((a (assoc c nonalpha-encodings)))
@@ -129,15 +130,15 @@
   (mtch p
         ('function name body) (list "yeah* __" (encode-nonalpha name) "(yeah* r);\n")))
 
-(define start-symbols '(True False))
+(define start-symbols '(True False $))
 (define symbols start-symbols)
 (define (add-symbol s) (set! symbols (cons (->symbol s) symbols)))
 (define (render-symbol-defs)
   (map render-symbol-def (unique symbols)))
 (define (csym s) (begin (add-symbol s) (list "_sym_" (encode-nonalpha s))))
 (define (render-symbol-def s)
-  (list "static yeah " (csym s) "_ = { TAG_symbol, { .symbol = { " (qt s) " } } };\n"
-        "static yeah* " (csym s) " = &" (csym s) "_;\n"))
+  (list "yeah " (csym s) "_ = { TAG_symbol, { .symbol = { " (qt s) " } } };\n"
+        "yeah* " (csym s) " = &" (csym s) "_;\n"))
 
 
 (define (render-exp b)

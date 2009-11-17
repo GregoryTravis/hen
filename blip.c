@@ -7,8 +7,9 @@
 void dump(yeah* y);
 void dump1(yeah* y);
 
-yeah _True_ = { TAG_symbol, { .symbol = "True" } }, *_True = &_True_;
-yeah _False_ = { TAG_symbol, { .symbol = "False" } }, *_False = &_False_;
+extern yeah* _sym_True;
+extern yeah* _sym_False;
+extern yeah* _sym_buck;
 
 yeah* list_syntax_unpreprocess(yeah* y);
 
@@ -23,7 +24,7 @@ yeah* list_syntax_unpreprocess_list1(yeah* y) {
 }
 
 yeah* list_syntax_unpreprocess_list(yeah* y) {
-  return cons(mksymbol("$"), list_syntax_unpreprocess_list1(y));
+  return cons(_sym_buck, list_syntax_unpreprocess_list1(y));
 }
 
 yeah* list_syntax_unpreprocess(yeah* y) {
@@ -143,7 +144,7 @@ binop_def(div, /)
 
 yeah* __eqeq(yeah* args) {
   ARGS2();
-  return eq(a, b) ? _True : _False;
+  return eq(a, b) ? _sym_True : _sym_False;
 }
 
 bool isclosure(yeah* o) {
