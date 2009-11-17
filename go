@@ -1,5 +1,5 @@
 rm -f src src.c
-hen src
+hen src.ss
 ./src
 exit
 

@@ -358,8 +358,9 @@
      ("ctor-gen" "yeah" (implicit (output "yeah.h")) (implicit (output "yeah.c")) (implicit (input "yeah.ctors"))))
    (co-exe src-stub modules)))
 
-(define (build src-stub)
-  (make src-stub (make-rules src-stub)))
+(define (build src)
+  (let ((src-stub (remove-extension src)))
+    (make src-stub (make-rules src-stub))))
 
 (define (syntax-preprocess e)
   (list-syntax-preprocess e))
