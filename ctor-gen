@@ -74,14 +74,21 @@ while (my ($ctor, $args) = each %ctors) {
   print H "$proto;\n";
 
   print C "$proto {\n";
-  print C "  $typename* y = BNEW($typename);\n";
-  print C "  A(y);\n";
-  print C "  y->tag = TAG_$ctor;\n";
-  foreach $arg (@$args) {
-    my ($type, $name) = split(/:/, $arg);
-    print C "  y->u.$ctor.$name = $name;\n";
+
+  if (@$args > 0) {
+    print C "  $typename* y = BNEW($typename);\n";
+    print C "  A(y);\n";
+    print C "  y->tag = TAG_$ctor;\n";
+    foreach $arg (@$args) {
+      my ($type, $name) = split(/:/, $arg);
+      print C "  y->u.$ctor.$name = $name;\n";
+    }
+    print C "  return y;\n";
+  } else {
+    # No args, so just return the same one every time.
+    print C "  static $typename _y = { TAG_$ctor, { .$ctor = {} } };\n";
+    print C "  return &_y;\n";
   }
-  print C "  return y;\n";
   print C "}\n";
   print C "\n";
 }
