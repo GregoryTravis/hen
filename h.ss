@@ -381,6 +381,7 @@
 (define (list-syntax-unpreprocess e)
   (mtch e
         ('Cons a b) (list-syntax-unpreprocess-list e)
+        'Nil (list-syntax-unpreprocess-list e)
         (a . d) (map list-syntax-unpreprocess-list e)
         x x))
 

@@ -29,6 +29,8 @@ yeah* list_syntax_unpreprocess_list(yeah* y) {
 yeah* list_syntax_unpreprocess(yeah* y) {
   if (ispair(y) && isthissymbol(car(y), "Cons") && length(y) == 3) {
     return list_syntax_unpreprocess_list(y);
+  } else if (isthissymbol(y, "Nil")) {
+    return list_syntax_unpreprocess_list(y);
   } else if (ispair(y)) {
     return map(list_syntax_unpreprocess, y);
   } else {
