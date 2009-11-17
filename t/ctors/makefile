@@ -1,4 +1,4 @@
-LIBOBJS = spew.o mem.o
+LIBOBJS = spew.o bmem.o
 
 test: test.o yeah.o $(LIBOBJS)
 	gcc -g -o test test.o yeah.o $(LIBOBJS)
@@ -20,6 +20,9 @@ spew.o: ../../spew.c ../../spew.h
 
 mem.o: ../../mem.c ../../mem.h
 	gcc -g -c ../../mem.c
+
+bmem.o: ../../bmem.c ../../bmem.h
+	gcc -g -c ../../bmem.c
 
 clean:
 	rm -f test *.o yeah.h yeah.c

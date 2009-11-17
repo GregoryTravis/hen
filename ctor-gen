@@ -23,7 +23,7 @@ print H "#include <stdio.h>\n";
 print H "#include \"$typename-defines.h\"\n";
 print C "#include \"$typename.h\"\n";
 print C "#include \"a.h\"\n";
-print C "#include \"mem.h\"\n";
+print C "#include \"bmem.h\"\n";
 
 print C "#include \"ctor-support.c\"\n";
 
@@ -74,7 +74,7 @@ while (my ($ctor, $args) = each %ctors) {
   print H "$proto;\n";
 
   print C "$proto {\n";
-  print C "  $typename* y = NEW($typename);\n";
+  print C "  $typename* y = BNEW($typename);\n";
   print C "  A(y);\n";
   print C "  y->tag = TAG_$ctor;\n";
   foreach $arg (@$args) {

@@ -3,8 +3,8 @@ rm -f test *.o yeah.h yeah.c
 gcc -g -c test.c -I../..
 gcc -g -c yeah.c -I../..
 gcc -g -c ../../spew.c
-gcc -g -c ../../mem.c
-gcc -g -o test test.o yeah.o spew.o mem.o
+gcc -g -c ../../bmem.c
+gcc -g -o test test.o yeah.o spew.o bmem.o
 vm!
 asdf
 (asdf . awer)

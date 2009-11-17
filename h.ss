@@ -348,7 +348,7 @@
     (cons (append `(gcc -g -o (output ,main)) (map (lambda (o) `(input ,o)) os))
           (map gco (cons main modules)))))
 
-(define modules '(yeah spew mem blip yeahlib))
+(define modules '(yeah spew bmem blip yeahlib))
 
 (define autoinclude-rules '((implicit overture.ss)))
 
