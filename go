@@ -1,5 +1,5 @@
 rm -f src src.c
-mzscheme -r main.ss
+hen src
 ./src
 exit
 

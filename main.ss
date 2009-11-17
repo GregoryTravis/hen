@@ -1,4 +1,4 @@
 (load "h.ss")
-;(run-file "src.ss")
 (set! make-show-commands #t)
-(build "src")
+(let ((src (vector-ref (current-command-line-arguments) 0)))
+  (build src))

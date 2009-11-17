@@ -1,3 +1,3 @@
-rm -f src
-mzscheme -r test-main.ss
+rm -f test-src
+hen test-src > /dev/null
 ./test-src
