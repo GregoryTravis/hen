@@ -75,8 +75,7 @@ void dump(yeah* y) {
 
 bool eq(yeah* a, yeah* b) {
   //printf("EQ "); dumps(a); printf(" "); dumps(b); printf("\n");
-  // TODO: should intern this
-  if (issymbol(a) && issymbol(b) && !strcmp(a->u.symbol.txt, b->u.symbol.txt)) {
+  if (a == b) {
     return true;
   } else if (isnumber(a) && isnumber(b) && (a->u.number.d == b->u.number.d)) {
     return true;
