@@ -28,7 +28,8 @@
     (#\* . "times")
     (#\/ . "div")
     (#\= . "eq")
-    (#\$ . "buck")))
+    (#\$ . "buck")
+    (#\. . "dot")))
 
 (define (encode-nonalpha-char c)
   (let ((a (assoc c nonalpha-encodings)))
@@ -132,14 +133,22 @@
 
 (define start-objects '((Sym True) (Sym False) (Sym $)))
 (define objects start-objects)
-(define (add-symbol s) (set! objects (cons `(Sym ,(->symbol s)) objects)))
+
+(define (add-object tag o) (set! objects (cons `(,tag ,o) objects)))
+(define (cobj tag o) (begin (add-object tag o) (list "_sym_" (encode-nonalpha o))))
+
+(define (csym s) (cobj 'Sym s))
+(define (cnum n) (cobj 'Num n))
+
 (define (render-object-defs)
   (map render-object-def (unique objects)))
-(define (csym s) (begin (add-symbol s) (list "_sym_" (encode-nonalpha s))))
-(define (render-object-def s)
-  (mtch s
-        (Sym s) (list "yeah " (csym s) "_ = { TAG_symbol, { .symbol = { " (qt s) " } } };\n"
-                      "yeah* " (csym s) " = &" (csym s) "_;\n")))
+
+(define (render-object-def o)
+  (mtch o
+        ('Sym s) (list "yeah " (csym s) "_ = { TAG_symbol, { .symbol = { " (qt s) " } } };\n"
+                       "yeah* " (csym s) " = &" (csym s) "_;\n")
+        ('Num n) (list "yeah " (cnum n) "_ = { TAG_number, { .number = { " n " } } };\n"
+                       "yeah* " (cnum n) " = &" (cnum n) "_;\n")))
 
 (define (render-exp b)
   (mtch b
@@ -147,7 +156,7 @@
         (('Sym 'if) b t f) (list "(isbooltrue(" (render-exp b) ", " (csym 'True) ", " (csym 'False) ") ? " "(" (render-exp t) ") : (" (render-exp f) "))")
         ('Sym sym) (csym sym)
         ('Var var) var
-        ('Num n) (list "mknumber(" n ")")
+        ('Num n) (list (cnum n))
         (('Sym a) . d) (if (ctor? a) (render-exp-list b) (render-app-list b))
         (('Var v) . d) (list "apply(" v ", " (render-exp-list d) ")")
         (('Closure name closed-over-args) . args) (list "apply(" (render-exp `(Closure ,name ,closed-over-args)) ", " (render-exp-list args) ")")
@@ -171,7 +180,7 @@
   (mtch b
         ('Sym sym) (list (csym sym))
         ('Var var) (list (csym var))
-        ('Num n) (list "mknumber(" n ")")
+        ('Num n) (list (cnum n))
         (a . d) (list "mkpair(" (render-pat a) ", " (render-pat d) ")")
         () "mknil()"))
 
