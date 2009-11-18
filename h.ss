@@ -130,16 +130,16 @@
   (mtch p
         ('function name body) (list "yeah* __" (encode-nonalpha name) "(yeah* r);\n")))
 
-(define start-symbols '(True False $))
-(define symbols start-symbols)
-(define (add-symbol s) (set! symbols (cons (->symbol s) symbols)))
-(define (render-symbol-defs)
-  (map render-symbol-def (unique symbols)))
+(define start-objects '((Sym True) (Sym False) (Sym $)))
+(define objects start-objects)
+(define (add-symbol s) (set! objects (cons `(Sym ,(->symbol s)) objects)))
+(define (render-object-defs)
+  (map render-object-def (unique objects)))
 (define (csym s) (begin (add-symbol s) (list "_sym_" (encode-nonalpha s))))
-(define (render-symbol-def s)
-  (list "yeah " (csym s) "_ = { TAG_symbol, { .symbol = { " (qt s) " } } };\n"
-        "yeah* " (csym s) " = &" (csym s) "_;\n"))
-
+(define (render-object-def s)
+  (mtch s
+        (Sym s) (list "yeah " (csym s) "_ = { TAG_symbol, { .symbol = { " (qt s) " } } };\n"
+                      "yeah* " (csym s) " = &" (csym s) "_;\n")))
 
 (define (render-exp b)
   (mtch b
@@ -221,7 +221,7 @@
            "#include \"yeah.h\"\n"
            "#include \"blip.h\"\n"
            "\n"
-           (render-symbol-defs)
+           (render-object-defs)
            "\n"
            (render compiled-rules)
            "\n"
