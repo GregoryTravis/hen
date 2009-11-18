@@ -1,7 +1,7 @@
-## rm -f src src.c
-## hen src.ss
-## ./src
-## exit
+rm -f src src.c
+hen src.ss
+./src
+exit
 
 rm -f speed-test
 hen speed-test.ss

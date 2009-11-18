@@ -348,13 +348,14 @@
          (prog (map-append read-objects (cons src-file autoincludes))))
     (call-with-output-file c-file (lambda (port) (display (compile-program prog) port)))))
 
+(define gcc-options "-g")
 (define (ext f e) (++ f "." e))
 (define (exter e) ($ ext _ e))
-(define (gco f) `(gcc -std=c99 -g -c -o (output ,(ext f 'o)) (input ,(ext f 'c))))
+(define (gco f) `(gcc -std=c99 ,gcc-options -c -o (output ,(ext f 'o)) (input ,(ext f 'c))))
 
 (define (co-exe main modules)
   (let ((os (map (exter "o") (cons main modules))))
-    (cons (append `(gcc -g -o (output ,main)) (map (lambda (o) `(input ,o)) os))
+    (cons (append `(gcc ,gcc-options -o (output ,main)) (map (lambda (o) `(input ,o)) os))
           (map gco (cons main modules)))))
 
 (define modules '(yeah spew bmem blip yeahlib))
