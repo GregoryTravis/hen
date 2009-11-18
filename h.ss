@@ -193,10 +193,9 @@
     `(function ,name (sequence (,(compile-pseudofunction name rule-group)
                                 (fail))))))
 
-(define (compile-rules rules)
+(define (rules->c-functions rules)
   (let ((grouped (group-rules-by-name rules)))
-    (let ((functions (map grouped-rule->C grouped)))
-      (append (map render-declarations functions) (map render functions)))))
+    (map grouped-rule->C grouped)))
 
 (define (render-main start-term)
   (mtch start-term
@@ -222,8 +221,10 @@
      "};\n")))
 
 (define (render-program rules start)
-  (let ((compiled-rules (compile-rules rules))
-        (funlies (gen-funlies rules)))
+  (let* ((c-functions (rules->c-functions rules))
+         (rendered-functions (map render c-functions))
+         (rendered-declarations (map render-declarations c-functions))
+         (funlies (gen-funlies rules)))
     (+++
      (list "#include <stdio.h>\n"
            "#include <stdlib.h>\n"
@@ -232,7 +233,8 @@
            "\n"
            (render-object-defs)
            "\n"
-           (render compiled-rules)
+           rendered-declarations
+           rendered-functions
            "\n"
            (render-main start)
            "\n"
