@@ -47,6 +47,7 @@ void dump1_list(yeah* y) {
   match(y) {
     Symbol(txt) { printf(" . "); dump1(y); printf(")"); }
     Number(txt) { printf(" . "); dump1(y); printf(")"); }
+    Function(f) { printf(" . "); dump1(y); printf(")"); }
     Pair(car, cdr) { printf(" "); dump1(car); dump1_list(cdr); }
     Nil() { printf(")"); }
     end;
@@ -58,6 +59,7 @@ void dump1(yeah* y) {
     Symbol(txt) { printf("%s", txt); }
     Pair(car, cdr) { printf("("); dump1(car); dump1_list(cdr); }
     Number(n) { printf("%g", n); }
+    Function(f) { printf("[func %d]", f); }
     Nil() { printf("()"); }
     end;
   }
@@ -173,11 +175,15 @@ primfun funlookup(yeah* sym) {
 yeah* apply(yeah* f, yeah* args) {
   if (issymbol(f)) {
     return (*(funlookup(f)))(args);
+  } else if (isfunction(f)) {
+    return (*f->u.function.f)(args);
   } else if (isclosure(f)) {
     yeah* name = cadr(f);
     yeah* closedOverArgs = cddr(f);
     return (*(funlookup(name)))(mklist2(closedOverArgs, args));
   } else {
+    dump(f);
+    dump(args);
     A(0);
   }
 }

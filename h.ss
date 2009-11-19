@@ -7,6 +7,13 @@
 
 (define (qt s) (list "\"" s "\""))
 
+(define primitive-function-names
+  '((== . eqeq)
+    (+ . plus)
+    (- . minus)
+    (* . times)
+    (/ . div)))
+
 (define autoincludes '("overture.ss"))
 
 (define (compile-pseudofunction name rules)
@@ -38,7 +45,8 @@
         (cdr a))))
 
 (define (encode-nonalpha s)
-  (apply ++ (map encode-nonalpha-char (string->list (->string s)))))
+  (->symbol (apply ++ (map encode-nonalpha-char (string->list (->string s))))))
+;(tracefun encode-nonalpha)
 
 (define (debug-a-match var pat)
   (list "printf(\"- \"); dumps(" (render-pat pat) "); printf(\" :: \"); dump(" var ");\n"))
@@ -66,13 +74,6 @@
                 (let* ((,var-a (car ,var))
                        (,var-d (cdr ,var)))
                   ,(compile-pat-1 var-a a (compile-pat-1 var-d d body))))))))
-
-(define primitive-function-names
-  '((== . eqeq)
-    (+ . plus)
-    (- . minus)
-    (* . times)
-    (/ . div)))
 
 (define (render-assignment ass)
   (mtch ass
@@ -131,31 +132,56 @@
   (mtch p
         ('function name body) (list "yeah* __" (encode-nonalpha name) "(yeah* r);\n")))
 
-(define start-objects '((Sym True) (Sym False) (Sym $)))
+(define start-objects
+  (append
+   '((symbol True) (symbol False) (symbol $))
+   (map (lambda (primfun) `(function ,primfun)) (map cdr primitive-function-names))))
 (define objects start-objects)
 
-(define (add-object tag o) (set! objects (cons `(,tag ,o) objects)))
-(define (cobj tag o) (begin (add-object tag o) (list "_sym_" (encode-nonalpha o))))
+(define (name-c-global x) (list '_sym_ x))
 
-(define (csym s) (cobj 'Sym s))
-(define (cnum n) (cobj 'Num n))
+(define (add-object tag o) (set! objects (cons `(,tag ,o) objects)))
+(define (cobj tag o) (begin (add-object tag o) (name-c-global (encode-nonalpha o))))
+
+(define (csym s) (cobj 'symbol (encode-nonalpha s)))
+(define (cnum n) (cobj 'number n))
+(define (cfunction f) (cobj 'function f))
+
+;; (define (cglobal g)
+;; (shew 'globals global-funs global-defs)
+;;   (set! g (rename-fun-maybe g))
+;;   (cond
+;;    ((member? g global-funs) (cfunction g))
+;;    ((member? g global-defs) (cdef g))
+;;    (#t (err g))))
+
+(define (gather-globals tlfs)
+  (map gather-global tlfs))
+
+(define (gather-global tlf)
+  (mtch tlf
+        ('fun (name . blah) . blah) (cfunction name)
+        ('def name x) (if (number? x) (cnum x) (csym x))))
 
 (define (render-object-defs)
   (map render-object-def (unique objects)))
 
 (define (render-object-def o)
   (mtch o
-        ('Sym s) (list "yeah " (csym s) "_ = { TAG_symbol, { .symbol = { " (qt s) " } } };\n"
-                       "yeah* " (csym s) " = &" (csym s) "_;\n")
-        ('Num n) (list "yeah " (cnum n) "_ = { TAG_number, { .number = { " n " } } };\n"
-                       "yeah* " (cnum n) " = &" (cnum n) "_;\n")))
+        ('symbol s) (list "yeah " (csym s) "_ = { TAG_symbol, { .symbol = { " (qt s) " } } };\n"
+                          "yeah* " (csym s) " = &" (csym s) "_;\n")
+        ('number n) (list "yeah " (cnum n) "_ = { TAG_number, { .number = { " n " } } };\n"
+                          "yeah* " (cnum n) " = &" (cnum n) "_;\n")
+        ('function f) (list "yeah " (cfunction f) "_ = { TAG_function, { .function = { &__" f " } } };\n"
+                            "yeah* " (cfunction f) " = &" (cfunction f) "_;\n")))
 
 (define (render-exp b)
   (mtch b
         ('Closure name ('ClosedOverArgs . closed-over-args)) (render-exp `((Sym Closure) ,name . ,closed-over-args))
-        (('Sym 'if) b t f) (list "(isbooltrue(" (render-exp b) ", " (csym 'True) ", " (csym 'False) ") ? " "(" (render-exp t) ") : (" (render-exp f) "))")
+        (('GVar 'if) b t f) (list "(isbooltrue(" (render-exp b) ", " (csym 'True) ", " (csym 'False) ") ? " "(" (render-exp t) ") : (" (render-exp f) "))")
         ('Sym sym) (csym sym)
         ('Var var) var
+        ('GVar var) (name-c-global var)
         ('Num n) (list (cnum n))
         (('Sym a) . d) (if (ctor? a) (render-exp-list b) (render-app-list b))
         (('Var v) . d) (list "apply(" v ", " (render-exp-list d) ")")
@@ -166,7 +192,7 @@
 (define (render-exp-list b)
 ;  (list "mklist" (length b) "(" (join-things ", " b) ")"))
   (mtch b
-        (a . d) (list "mkpair(" (render-exp a) ",\n " (render-exp-list d) ")")
+        (a . d) (list "mkpair(\n" (render-exp a) ",\n " (render-exp-list d) ")")
         () "mknil()"))
 
 (define (rename-fun-maybe name)
@@ -181,7 +207,7 @@
         ('Sym sym) (list (csym sym))
         ('Var var) (list (csym var))
         ('Num n) (list (cnum n))
-        (a . d) (list "mkpair(" (render-pat a) ", " (render-pat d) ")")
+        (a . d) (list "mkpair(\n" (render-pat a) ",\n" (render-pat d) ")")
         () "mknil()"))
 
 (define (group-rules-by-name rules)
@@ -231,9 +257,10 @@
            "#include \"yeah.h\"\n"
            "#include \"blip.h\"\n"
            "\n"
+           rendered-declarations
+           "\n"
            (render-object-defs)
            "\n"
-           rendered-declarations
            rendered-functions
            "\n"
            (render-main start)
@@ -244,6 +271,7 @@
   (mtch e
         ('Sym s) '()
         ('Var v) (list v)
+        ('GVar v) '()
         ('Num n) '()
         (a . d) (map-append vars-of1 e)
         () '()))
@@ -280,6 +308,7 @@
   (mtch e
    ('Sym s) e
    ('Var v) e
+   ('GVar v) e
    ('Num n) e
    ('Lambda args body) (let* ((lift-id (sg 'lambda_))
                               (lifted-body (mark-lambda-exp body (append bound-vars (vars-of args))))
@@ -296,6 +325,7 @@
   (mtch e
    ('Sym s) e
    ('Var v) e
+   ('GVar v) e
    ('Num n) e
    ('MarkedLambda args id vars-to-close-over body) `(Closure (Sym ,id) (ClosedOverArgs . ,vars-to-close-over))
    (a . d) (map lift-marked-rule-exp e)))
@@ -308,27 +338,29 @@
   (mtch e
    ('Sym s) '()
    ('Var v) '()
+   ('GVar v) '()
    ('Num n) '()
    ('MarkedLambda args id vars-to-close-over body) (append
                                                     (list `(Rule ((Sym ,id) ,vars-to-close-over ,args) ,(lift-marked-rule-exp body)))
                                                     (lift-gather-additional-exp body))
    (a . d) (map-append lift-gather-additional-exp e)))
 
-;(tracefun render-exp)
-
 ;(tracefun lift-gather-additional-exp lift-gather-additional-rule lift-marked-rule-exp lift-marked-rule mark-lambda-exp mark-lambda-rule lift-lambdas simplify-program)
+
+(define (divdot? e) (mtch e ('divdot . rest) #t _ #f))
 
 (define (parse-exp e is-var)
   (cond
-   ((lambda? e) (mtch e ('/. args body)
+   ((divdot? e) (mtch e ('divdot args body)
                       (let ((parsed-args (map ($ parse-exp _ (lambda (v) #t)) args)))
                         `(Lambda ,parsed-args ,(parse-exp body (extend-is-var (vars-of parsed-args) is-var))))))
    ((ctor? e) `(Sym ,e))
    ((quoted-symbol? e) `(Sym ,(cadr e)))
    ((pair? e) (map ($ parse-exp _ is-var) (if (is-var e) (quote-head-function e) e)))
-   ((symbol? e) (if (is-var e) `(Var ,e) `(Sym ,e)))
+   ((symbol? e) (if (is-var e) `(Var ,e) `(GVar ,e)))
    ((number? e) `(Num ,e))
-   (#t (err e))))
+;   ((null? e) e)
+   (#t (err 'parse-exp e))))
 
 (define (fun? f)
   (mtch f
@@ -340,9 +372,11 @@
         (funs) `(Parts (Funs ,funs))))
 
 (define (compile-program p)
-  (mtch (split-program (syntax-preprocess p))
-        (Parts (Funs funs))
-        (render-program (simplify-program (map parse-rule funs)) '((Sym main)))))
+  (let ((preprocessed (syntax-preprocess p)))
+    (gather-globals preprocessed)
+    (mtch (split-program preprocessed)
+          (Parts (Funs funs))
+          (render-program (simplify-program (map parse-rule funs)) '((Sym main))))))
 
 (define (compile src-stub)
   (let* ((src-file (++ src-stub ".ss"))
@@ -375,10 +409,18 @@
     (make src-stub (make-rules src-stub))))
 
 (define (syntax-preprocess e)
-  (list-syntax-preprocess e))
+  (operator-rename-preprocess (list-syntax-preprocess e)))
 
 (define (syntax-unpreprocess e)
-  (list-syntax-unpreprocess e))
+  (operator-rename-unpreprocess (list-syntax-unpreprocess e)))
+
+(define (operator-rename-preprocess e)
+  (mtch e
+        (a . d) (cons (operator-rename-preprocess a) (operator-rename-preprocess d))
+        e (if (symbol? e) (encode-nonalpha e) e)))
+
+(define (operator-rename-unpreprocess e) e)
+;(tracefun syntax-preprocess)
 
 (define (list-syntax-preprocess e)
   (mtch e
@@ -408,4 +450,8 @@
         x x))
 
 ;(tracefun render-exp render)
-;(tracefun parse simplify-program render-program)
+;(tracefun parse-rule parse-exp simplify-program)
+;(tracefun syntax-preprocess syntax-unpreprocess)
+;(tracefun list-syntax-unpreprocess-list1 list-syntax-unpreprocess list-syntax-unpreprocess-list list-syntax-preprocess-list list-syntax-preprocess)
+;(tracefun operator-rename-unpreprocess operator-rename-preprocess)
+;(tracefun list-syntax-preprocess)
