@@ -46,7 +46,7 @@
 
 (define (encode-nonalpha s)
   (->symbol (apply ++ (map encode-nonalpha-char (string->list (->string s))))))
-;(tracefun encode-nonalpha)
+
 
 (define (debug-a-match var pat)
   (list "printf(\"- \"); dumps(" (render-pat pat) "); printf(\" :: \"); dump(" var ");\n"))
@@ -156,12 +156,13 @@
 ;;    (#t (err g))))
 
 (define (gather-globals tlfs)
+;(shew 'global-defs tlfs)
   (map gather-global tlfs))
 
 (define (gather-global tlf)
   (mtch tlf
-        ('fun (name . blah) . blah) (cfunction name)
-        ('def name x) (if (number? x) (cnum x) (csym x))))
+        ('Rule (('Sym name) . rest) body) (cfunction name)))
+;        ('def name x) (if (number? x) (cnum x) (csym x))))
 
 (define (render-object-defs)
   (map render-object-def (unique objects)))
@@ -327,7 +328,7 @@
    ('Var v) e
    ('GVar v) e
    ('Num n) e
-   ('MarkedLambda args id vars-to-close-over body) `(Closure (Sym ,id) (ClosedOverArgs . ,vars-to-close-over))
+   ('MarkedLambda args id vars-to-close-over body) `(Closure (GVar ,id) (ClosedOverArgs . ,vars-to-close-over))
    (a . d) (map lift-marked-rule-exp e)))
 
 (define (lift-gather-additional-rule rule)
@@ -373,10 +374,11 @@
 
 (define (compile-program p)
   (let ((preprocessed (syntax-preprocess p)))
-    (gather-globals preprocessed)
     (mtch (split-program preprocessed)
           (Parts (Funs funs))
-          (render-program (simplify-program (map parse-rule funs)) '((Sym main))))))
+          (let ((simplified (simplify-program (map parse-rule funs))))
+            (gather-globals simplified)
+            (render-program simplified '((Sym main)))))))
 
 (define (compile src-stub)
   (let* ((src-file (++ src-stub ".ss"))
@@ -449,7 +451,8 @@
         'Nil '()
         x x))
 
-;(tracefun render-exp render)
+;(tracefun render-exp render render-object-def)
+;(tracefun render-pat csym)
 ;(tracefun parse-rule parse-exp simplify-program)
 ;(tracefun syntax-preprocess syntax-unpreprocess)
 ;(tracefun list-syntax-unpreprocess-list1 list-syntax-unpreprocess list-syntax-unpreprocess-list list-syntax-preprocess-list list-syntax-preprocess)

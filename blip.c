@@ -178,9 +178,9 @@ yeah* apply(yeah* f, yeah* args) {
   } else if (isfunction(f)) {
     return (*f->u.function.f)(args);
   } else if (isclosure(f)) {
-    yeah* name = cadr(f);
+    yeah* (*fun)(yeah*) = cadr(f)->u.function.f;
     yeah* closedOverArgs = cddr(f);
-    return (*(funlookup(name)))(mklist2(closedOverArgs, args));
+    return (*fun)(mklist2(closedOverArgs, args));
   } else {
     dump(f);
     dump(args);
