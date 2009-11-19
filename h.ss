@@ -138,7 +138,7 @@
    (map (lambda (primfun) `(function ,primfun)) (map cdr primitive-function-names))))
 (define objects start-objects)
 
-(define (name-c-global x) (list '_sym_ x))
+(define (name-c-global x) (list '_blargh_ x))
 
 (define (add-object tag o) (set! objects (cons `(,tag ,o) objects)))
 (define (cobj tag o) (begin (add-object tag o) (name-c-global (encode-nonalpha o))))
