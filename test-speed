@@ -1,0 +1,5 @@
+rm -f speed-test
+hen speed-test.ss
+time ./speed-test
+time ./speed-test
+exit
