@@ -238,20 +238,10 @@
   (unique
    (map (lambda (rule) (mtch rule ('Rule (('Sym name) . args) body) name)) rules)))
 
-(define (gen-funlies rules)
-  (let* ((fun-names (append (map car primitive-function-names) (get-fun-names rules)))
-         (fun-cnames (map encode-nonalpha (append (map cdr primitive-function-names) (get-fun-names rules)))))
-    (list
-     "funly funlies[] = {\n"
-     (map (lambda (fun-name fun) (list "  { \"" fun-name "\", &__" fun " },\n")) fun-names fun-cnames)
-     "  { NULL, NULL }\n"
-     "};\n")))
-
 (define (render-program rules start)
   (let* ((c-functions (rules->c-functions rules))
          (rendered-functions (map render c-functions))
-         (rendered-declarations (map render-declarations c-functions))
-         (funlies (gen-funlies rules)))
+         (rendered-declarations (map render-declarations c-functions)))
     (+++
      (list "#include <stdio.h>\n"
            "#include <stdlib.h>\n"
@@ -264,9 +254,7 @@
            "\n"
            rendered-functions
            "\n"
-           (render-main start)
-           "\n"
-           (render funlies)))))
+           (render-main start)))))
 
 (define (vars-of1 e)
   (mtch e

@@ -34,9 +34,6 @@ typedef struct {
   primfun fun;
 } funly;
 
-extern funly funlies[];
-
-primfun funlookup(yeah* sym);
 yeah* apply(yeah* f, yeah* args);
 
 #endif // __blip_h_

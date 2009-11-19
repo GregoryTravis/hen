@@ -152,30 +152,8 @@ bool isclosure(yeah* o) {
   return ispair(o) && isthissymbol(car(o), "Closure");
 }
 
-primfun funlookup(yeah* sym) {
-  funly* here = &funlies[0];
-
-  A(issymbol(sym));
-
-  int i;
-  while (1) {
-    if (here->name == NULL) {
-      break;
-    } else if (!strcmp(here->name, sym->u.symbol.txt)) {
-      return here->fun;
-    } else {
-      here++;
-    }
-  }
-
-  dump(sym);
-  A(0);
-}
-
 yeah* apply(yeah* f, yeah* args) {
-  if (issymbol(f)) {
-    return (*(funlookup(f)))(args);
-  } else if (isfunction(f)) {
+  if (isfunction(f)) {
     return (*f->u.function.f)(args);
   } else if (isclosure(f)) {
     yeah* (*fun)(yeah*) = cadr(f)->u.function.f;
