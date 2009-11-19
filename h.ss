@@ -147,16 +147,7 @@
 (define (cnum n) (cobj 'number n))
 (define (cfunction f) (cobj 'function f))
 
-;; (define (cglobal g)
-;; (shew 'globals global-funs global-defs)
-;;   (set! g (rename-fun-maybe g))
-;;   (cond
-;;    ((member? g global-funs) (cfunction g))
-;;    ((member? g global-defs) (cdef g))
-;;    (#t (err g))))
-
 (define (gather-globals tlfs)
-;(shew 'global-defs tlfs)
   (map gather-global tlfs))
 
 (define (gather-global tlf)
