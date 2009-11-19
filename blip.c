@@ -4,19 +4,25 @@
 
 #include "yeahlib.h"
 
-void dump(yeah* y);
 void dump1(yeah* y);
+void ldump(yeah* y);
 
-extern yeah* _blargh_True;
-extern yeah* _blargh_False;
-extern yeah* _blargh_buck;
+#define OBJ(name) (_blargh_ ## name)
+#define DEFOBJ(name) extern yeah* _blargh_ ## name
+
+DEFOBJ(True);
+DEFOBJ(False);
+DEFOBJ(Closure);
+DEFOBJ(Cons);
+DEFOBJ(Nil);
+DEFOBJ(buck);
 
 yeah* list_syntax_unpreprocess(yeah* y);
 
 yeah* list_syntax_unpreprocess_list1(yeah* y) {
-  if (ispair(y) && isthissymbol(car(y), "Cons") && length(y) == 3) {
+  if (ispair(y) && car(y) == OBJ(Cons) && length(y) == 3) {
     return cons(list_syntax_unpreprocess(nth(y, 1)), list_syntax_unpreprocess_list1(nth(y, 2)));
-  } else if (isthissymbol(y, "Nil")) {
+  } else if (y == OBJ(Nil)) {
     return mknil();
   } else {
     return y;
@@ -24,13 +30,13 @@ yeah* list_syntax_unpreprocess_list1(yeah* y) {
 }
 
 yeah* list_syntax_unpreprocess_list(yeah* y) {
-  return cons(_blargh_buck, list_syntax_unpreprocess_list1(y));
+  return cons(OBJ(buck), list_syntax_unpreprocess_list1(y));
 }
 
 yeah* list_syntax_unpreprocess(yeah* y) {
-  if (ispair(y) && isthissymbol(car(y), "Cons") && length(y) == 3) {
+  if (ispair(y) && car(y) == OBJ(Cons) && length(y) == 3) {
     return list_syntax_unpreprocess_list(y);
-  } else if (isthissymbol(y, "Nil")) {
+  } else if (y == OBJ(Nil)) {
     return list_syntax_unpreprocess_list(y);
   } else if (ispair(y)) {
     return map(list_syntax_unpreprocess, y);
@@ -72,6 +78,11 @@ void dumps(yeah* y) {
 
 void dump(yeah* y) {
   dumps(y);
+  printf("\n");
+}
+
+void ldump(yeah* y) {
+  dump1(y);
   printf("\n");
 }
 
@@ -149,7 +160,7 @@ yeah* __eqeq(yeah* args) {
 }
 
 bool isclosure(yeah* o) {
-  return ispair(o) && isthissymbol(car(o), "Closure");
+  return ispair(o) && car(o) == OBJ(Closure);
 }
 
 yeah* apply(yeah* f, yeah* args) {

@@ -134,7 +134,7 @@
 
 (define start-objects
   (append
-   '((symbol True) (symbol False) (symbol $))
+   '((symbol True) (symbol False) (symbol $) (symbol Closure))
    (map (lambda (primfun) `(function ,primfun)) (map cdr primitive-function-names))))
 (define objects start-objects)
 
