@@ -183,7 +183,6 @@
         () "mknil()"))
 
 (define (render-exp-list b)
-;  (list "mklist" (length b) "(" (join-things ", " b) ")"))
   (mtch b
         (a . d) (list "mkpair(\n" (render-exp a) ",\n " (render-exp-list d) ")")
         () "mknil()"))
