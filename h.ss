@@ -378,7 +378,7 @@
 
 (define modules '(yeah spew bmem blip yeahlib))
 
-(define autoinclude-rules '((implicit overture.ss)))
+(define autoinclude-rules (map (lambda (file) `(implicit ,file)) autoincludes))
 
 (define (make-rules src-stub)
   (append
