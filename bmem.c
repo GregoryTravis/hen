@@ -7,19 +7,20 @@
 #define BLOCKSIZE (1024 * 1024)
 
 static void* current_block = NULL;
-static int block_cursor = 0;
+static int bytes_left = 0;
 
 void* bmalik(int n) {
-  if (current_block == NULL || block_cursor + n > BLOCKSIZE) {
+  if (n > bytes_left) {
     A(n <= BLOCKSIZE);
 
     current_block = malloc(BLOCKSIZE);
     A(current_block);
-    block_cursor = 0;
+    bytes_left = BLOCKSIZE;
   }
 
-  void* ret = current_block + block_cursor;
-  block_cursor += n;
+  void* ret = current_block;
+  bytes_left -= n;
+  current_block += n;
 
   return ret;
 }

@@ -1,4 +1,4 @@
-rm -f speed-test
+./clean
 hen speed-test.ss
 time ./speed-test
 time ./speed-test
