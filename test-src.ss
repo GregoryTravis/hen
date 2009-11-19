@@ -101,4 +101,6 @@
              (ntimes 3 (/. () 33))
              (ntimes 2 (/. () (ntimes 2 (/. () (+ 10 10)))))
              Nil
+             id
+             fact
              ))

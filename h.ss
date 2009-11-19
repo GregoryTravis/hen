@@ -164,7 +164,7 @@
                           "yeah* " (csym s) " = &" (csym s) "_;\n")
         ('number n) (list "yeah " (cnum n) "_ = { TAG_number, { .number = { " n " } } };\n"
                           "yeah* " (cnum n) " = &" (cnum n) "_;\n")
-        ('function f) (list "yeah " (cfunction f) "_ = { TAG_function, { .function = { &__" f " } } };\n"
+        ('function f) (list "yeah " (cfunction f) "_ = { TAG_function, { .function = { &__" f ", \"" f "\" } } };\n"
                             "yeah* " (cfunction f) " = &" (cfunction f) "_;\n")))
 
 (define (render-exp b)

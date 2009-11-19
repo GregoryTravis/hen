@@ -1,1 +1,1 @@
-(fun (main) ((/. (x) x) 10))
+(fun (main) (/. (x) x))

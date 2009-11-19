@@ -47,7 +47,7 @@ void dump1_list(yeah* y) {
   match(y) {
     Symbol(txt) { printf(" . "); dump1(y); printf(")"); }
     Number(txt) { printf(" . "); dump1(y); printf(")"); }
-    Function(f) { printf(" . "); dump1(y); printf(")"); }
+    Function(f, name) { printf(" . "); dump1(y); printf(")"); }
     Pair(car, cdr) { printf(" "); dump1(car); dump1_list(cdr); }
     Nil() { printf(")"); }
     end;
@@ -59,7 +59,7 @@ void dump1(yeah* y) {
     Symbol(txt) { printf("%s", txt); }
     Pair(car, cdr) { printf("("); dump1(car); dump1_list(cdr); }
     Number(n) { printf("%g", n); }
-    Function(f) { printf("[func %d]", f); }
+    Function(f, name) { printf("[func %s]", name); }
     Nil() { printf("()"); }
     end;
   }
