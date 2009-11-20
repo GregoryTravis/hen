@@ -69,6 +69,7 @@ while (my ($ctor, $args) = each %ctors) {
     push(@argnames, $name);
     push(@argtypednames, "$type $name");
   }
+  my @uargnames = map { "_$_"; } @argnames;
 
   my $proto .= "$typename* mk$ctor(" . join(", ", @argtypednames) . ")";
 
@@ -91,8 +92,16 @@ while (my ($ctor, $args) = each %ctors) {
   $mkfun .= "}\n";
 
   my $mkmacro = "";
+  $mkmacro .= "#define mk$ctor(" . join(", ", @uargnames) . ") ({";
 
-  $mkmacro .= "#define mk$ctor(" . join(", ", @argnames) . ") ({yeah* y = { TAG_$ctor, { .$ctor = { " . join(", ", @argnames) . " } } } })\n";
+  $mkmacro .= "  $typename* y = BNEW($typename); ";
+  #$mkmacro .= "  A(y); ";
+  $mkmacro .= "  y->tag = TAG_$ctor; ";
+  foreach $name (@argnames) {
+    $mkmacro .= "  y->u.$ctor.$name = (_$name); ";
+  }
+  $mkmacro .= "  y; ";
+  $mkmacro .= "})\n";
 
   $use_macros = 0;
   if ($use_macros) {

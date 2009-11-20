@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "a.h"
+#include "bmem.h"
 #include "yeahlib.h"
 
 yeah* car(yeah* y) {

@@ -1,7 +1,7 @@
 #include <string.h>
 
 #include "blip.h"
-
+#include "bmem.h"
 #include "yeahlib.h"
 
 void dump1(yeah* y);
