@@ -237,6 +237,7 @@
      (list "#include <stdio.h>\n"
            "#include <stdlib.h>\n"
            "#include \"yeah.h\"\n"
+           "#include \"bmem.h\"\n"
            "#include \"blip.h\"\n"
            "\n"
            rendered-declarations

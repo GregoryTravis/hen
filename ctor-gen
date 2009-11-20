@@ -60,36 +60,48 @@ print H "\n";
 while (my ($ctor, $args) = each %ctors) {
   print H "#define is$ctor(__poop) ((__poop)->tag == TAG_$ctor)\n";
 
-  my $proto = "";
-  $proto .= "$typename* mk$ctor(";
+  my @argtypes = ();
+  my @argnames = ();
+  my @argtypednames = ();
   foreach $arg (@$args) {
     my ($type, $name) = split(/:/, $arg);
-    $proto .= "$type $name";
-    if ($arg ne $args->[@args - 1]) {
-      $proto .= ", ";
-    }
+    push(@argtypes, $type);
+    push(@argnames, $name);
+    push(@argtypednames, "$type $name");
   }
-  $proto .= ")";
 
-  print H "$proto;\n";
+  my $proto .= "$typename* mk$ctor(" . join(", ", @argtypednames) . ")";
 
-  print C "$proto {\n";
+  my $mkfun = "";
+  $mkfun .= "$proto {\n";
 
   if (@$args > 0) {
-    print C "  $typename* y = BNEW($typename);\n";
-#    print C "  A(y);\n";
-    print C "  y->tag = TAG_$ctor;\n";
-    foreach $arg (@$args) {
-      my ($type, $name) = split(/:/, $arg);
-      print C "  y->u.$ctor.$name = $name;\n";
+    $mkfun .= "  $typename* y = BNEW($typename);\n";
+    #$mkfun .= "  A(y);\n";
+    $mkfun .= "  y->tag = TAG_$ctor;\n";
+    foreach $name (@argnames) {
+      $mkfun .= "  y->u.$ctor.$name = $name;\n";
     }
-    print C "  return y;\n";
+    $mkfun .= "  return y;\n";
   } else {
     # No args, so just return the same one every time.
-    print C "  static $typename _y = { TAG_$ctor, { .$ctor = {} } };\n";
-    print C "  return &_y;\n";
+    $mkfun .= "  static $typename _y = { TAG_$ctor, { .$ctor = {} } };\n";
+    $mkfun .= "  return &_y;\n";
   }
-  print C "}\n";
+  $mkfun .= "}\n";
+
+  my $mkmacro = "";
+
+  $mkmacro .= "#define mk$ctor(" . join(", ", @argnames) . ") ({yeah* y = { TAG_$ctor, { .$ctor = { " . join(", ", @argnames) . " } } } })\n";
+
+  $use_macros = 0;
+  if ($use_macros) {
+    print H $mkmacro;
+  } else {
+    print H "$proto;\n";
+    print C $mkfun;
+  }
+
   print C "\n";
 }
 

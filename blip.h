@@ -36,4 +36,6 @@ typedef struct {
 
 yeah* apply(yeah* f, yeah* args);
 
+//#define mmkpair(a, d) ({yeah* y = BNEW(yeah); y->tag = TAG_pair; y->u.pair.car = (a); y->u.pair.cdr = (d); y;})
+
 #endif // __blip_h_
