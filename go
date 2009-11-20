@@ -1,4 +1,3 @@
-clean
 rm -f src src.c
 hen src.ss
 ./src
