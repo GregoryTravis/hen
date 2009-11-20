@@ -368,7 +368,7 @@
          (prog (map-append read-objects (cons src-file autoincludes))))
     (call-with-output-file c-file (lambda (port) (display (compile-program prog) port)))))
 
-(define gcc-options "-g -O6")
+(define gcc-options "-g -O6 -Wall -Wno-unused-variable")
 (define (ext f e) (++ f "." e))
 (define (exter e) ($ ext _ e))
 (define (gco f) `(gcc -std=c99 ,gcc-options -c -o (output ,(ext f 'o)) (input ,(ext f 'c))))

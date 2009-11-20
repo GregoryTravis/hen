@@ -104,9 +104,10 @@ bool isbooltrue(yeah* b, yeah* t, yeah* f) {
     return true;
   } else if (eq(b, f)) {
     return false;
-  } else {
-    err(("bool"));
   }
+
+  err(("bool"));
+  return false; // Unreached.
 }
 
 yeah* mklist0(void) {
@@ -170,9 +171,10 @@ yeah* apply(yeah* f, yeah* args) {
     yeah* (*fun)(yeah*) = cadr(f)->u.function.f;
     yeah* closedOverArgs = cddr(f);
     return (*fun)(mklist2(closedOverArgs, args));
-  } else {
-    dump(f);
-    dump(args);
-    A(0);
   }
+
+  dump(f);
+  dump(args);
+  A(0);
+  return NULL; // Unreached.
 }
