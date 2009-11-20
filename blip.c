@@ -156,7 +156,7 @@ binop_def(div, /)
 
 yeah* __eqeq(yeah* args) {
   ARGS2();
-  return eq(a, b) ? _blargh_True : _blargh_False;
+  return eq(a, b) ? OBJ(True) : OBJ(False);
 }
 
 bool isclosure(yeah* o) {
