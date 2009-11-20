@@ -2,6 +2,7 @@
 (load "lib.ss")
 
 (define match-debug #f)
+(define atexit #f)
 
 (define sg (tagged-symbol-generator-generator))
 
@@ -220,6 +221,7 @@
         (('Sym fun) . rest)
         (list "\n"
             "int main(int argc, char** argv) {\n"
+            (if atexit "  atexit(&yeah_atexit);\n" "")
             "  dump(" (render-app-list start-term) ");\n"
             "  return 0;\n";
             "}\n"
@@ -237,7 +239,7 @@
      (list "#include <stdio.h>\n"
            "#include <stdlib.h>\n"
            "#include \"yeah.h\"\n"
-           "#include \"bmem.h\"\n"
+           "#include \"mem.h\"\n"
            "#include \"blip.h\"\n"
            "\n"
            rendered-declarations
@@ -366,7 +368,7 @@
          (prog (map-append read-objects (cons src-file autoincludes))))
     (call-with-output-file c-file (lambda (port) (display (compile-program prog) port)))))
 
-(define gcc-options "-g")
+(define gcc-options "-g -O6")
 (define (ext f e) (++ f "." e))
 (define (exter e) ($ ext _ e))
 (define (gco f) `(gcc -std=c99 ,gcc-options -c -o (output ,(ext f 'o)) (input ,(ext f 'c))))
@@ -376,7 +378,7 @@
     (cons (append `(gcc ,gcc-options -o (output ,main)) (map (lambda (o) `(input ,o)) os))
           (map gco (cons main modules)))))
 
-(define modules '(yeah spew bmem blip yeahlib))
+(define modules '(yeah spew mem blip yeahlib))
 
 (define autoinclude-rules (map (lambda (file) `(implicit ,file)) autoincludes))
 

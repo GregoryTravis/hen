@@ -20,12 +20,11 @@ open(H, ">$typename.h") || die $!;
 open(C, ">$typename.c") || die $!;
 
 print H "#include <stdio.h>\n";
+print H "#include <stdlib.h>\n";
 print H "#include \"$typename-defines.h\"\n";
 print C "#include \"$typename.h\"\n";
 print C "#include \"a.h\"\n";
-print C "#include \"bmem.h\"\n";
-
-print C "#include \"ctor-support.c\"\n";
+print C "#include \"mem.h\"\n";
 
 print H "#ifndef __${typename}_h_\n";
 print H "#define __${typename}_h_\n";
@@ -57,6 +56,46 @@ print H "};\n";
 
 print H "\n";
 
+# Allocator
+
+$blocksize = "${typename}BLOCKSIZE";
+$block = "${typename}block";
+$blocks_left = "${typename}blocks_left";
+$blocks_allocated = "${typename}blocks_allocated";
+
+print H <<EOF;
+#define $blocksize (1024 * 1024)
+extern yeah* $block;
+extern int $blocks_left;
+extern int $blocks_allocated;
+//#define NEWYEAH() ({if ($blocks_left == 0) { $block = NEWC(yeah, $blocksize); $blocks_left = $blocksize; $blocks_allocated++; } $blocks_left--; $block++;})
+//#define NEWYEAH() (($blocks_left == 0 ? (($block = NEWC(yeah, $blocksize)), ($blocks_left = $blocksize), ($blocks_allocated++)) : 0), ($blocks_left--), ($block++))
+#define NEWYEAH() newyeah()
+
+EOF
+
+print C <<EOF;
+yeah* $block = 0;
+int $blocks_left = 0;
+int $blocks_allocated = 0;
+
+yeah* newyeah() {
+  if ($blocks_left == 0) {
+    $block = (yeah*)malloc(sizeof(yeah) * $blocksize); //NEWC(yeah, $blocksize);
+    $blocks_left = $blocksize;
+    $blocks_allocated++;
+  }
+  $blocks_left--;
+  return $block++;
+}
+
+static void alloc_atexit(void) {
+  fprintf(stderr, "Allocated %d cells.\\n", $blocksize * $blocks_allocated - $blocks_left);
+}
+
+EOF
+
+
 while (my ($ctor, $args) = each %ctors) {
   print H "#define is$ctor(__poop) ((__poop)->tag == TAG_$ctor)\n";
 
@@ -77,7 +116,7 @@ while (my ($ctor, $args) = each %ctors) {
   $mkfun .= "$proto {\n";
 
   if (@$args > 0) {
-    $mkfun .= "  $typename* y = BNEW($typename);\n";
+    $mkfun .= "  $typename* y = NEWYEAH();\n";
     #$mkfun .= "  A(y);\n";
     $mkfun .= "  y->tag = TAG_$ctor;\n";
     foreach $name (@argnames) {
@@ -94,7 +133,7 @@ while (my ($ctor, $args) = each %ctors) {
   my $mkmacro = "";
   $mkmacro .= "#define mk$ctor(" . join(", ", @uargnames) . ") ({";
 
-  $mkmacro .= "  $typename* y = BNEW($typename); ";
+  $mkmacro .= "  $typename* y = NEWYEAH(); ";
   #$mkmacro .= "  A(y); ";
   $mkmacro .= "  y->tag = TAG_$ctor; ";
   foreach $name (@argnames) {
@@ -141,6 +180,16 @@ while (my ($ctor, $args) = each %ctors) {
 }
 
 print H "#endif // ifdef __$typename_h_\n";
+
+print H <<EOF;
+extern void ${typename}_atexit(void);
+EOF
+
+print C <<EOF;
+void ${typename}_atexit(void) {
+  alloc_atexit();
+}
+EOF
 
 close(H);
 close(C);
