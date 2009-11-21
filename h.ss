@@ -135,7 +135,7 @@
 
 (define start-objects
   (append
-   '((symbol True) (symbol False) (symbol $) (symbol Closure))
+   '((symbol True) (symbol False) (symbol $) (symbol Closure) (symbol Command) (function prim_putchar) (function prim_getchar))
    (map (lambda (primfun) `(function ,primfun)) (map cdr primitive-function-names))))
 (define objects start-objects)
 
@@ -222,7 +222,7 @@
         (list "\n"
             "int main(int argc, char** argv) {\n"
             (if atexit "  atexit(&yeah_atexit);\n" "")
-            "  dump(" (render-app-list start-term) ");\n"
+            "  dump(driver(" (render-app-list start-term) "));\n"
             "  return 0;\n";
             "}\n"
             "\n")))

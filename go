@@ -1,6 +1,6 @@
 rm -f src src.c
 hen src.ss
-./src
+./src < input
 exit
 
 rm -f speed-test

@@ -35,6 +35,10 @@ typedef struct {
 } funly;
 
 yeah* apply(yeah* f, yeah* args);
+yeah* driver(yeah* command);
+
+yeah* __prim_putchar(yeah* i);
+yeah* __prim_getchar(yeah* nil);
 
 //#define mmkpair(a, d) ({yeah* y = BNEW(yeah); y->tag = TAG_pair; y->u.pair.car = (a); y->u.pair.cdr = (d); y;})
 

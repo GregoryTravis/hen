@@ -16,6 +16,7 @@ DEFOBJ(Closure);
 DEFOBJ(Cons);
 DEFOBJ(Nil);
 DEFOBJ(buck);
+DEFOBJ(Command);
 
 yeah* list_syntax_unpreprocess(yeah* y);
 
@@ -148,6 +149,12 @@ void listmatch3(yeah* list, yeah** a, yeah** b, yeah** c) {
   listmatch2(cdr(list), b, c);
 }
 
+void listmatch4(yeah* list, yeah** a, yeah** b, yeah** c, yeah** d) {
+  A(ispair(list));
+  *a = car(list);
+  listmatch3(cdr(list), b, c, d);
+}
+
 #define ARGS2() yeah *a, *b; listmatch2(args, &a, &b)
 
 binop_def(plus, +)
@@ -164,6 +171,10 @@ bool isclosure(yeah* o) {
   return ispair(o) && car(o) == OBJ(Closure);
 }
 
+bool isfunctionish(yeah* o) {
+  return isfunction(o) || isclosure(o);
+}
+
 yeah* apply(yeah* f, yeah* args) {
   if (isfunction(f)) {
     return (*f->u.function.f)(args);
@@ -177,4 +188,29 @@ yeah* apply(yeah* f, yeah* args) {
   dump(args);
   A(0);
   return NULL; // Unreached.
+}
+
+yeah* driver(yeah* command) {
+  while (1) {
+    //printf("Command: "); dump(command);
+    yeah *dummy, *a, *b, *c;
+    if (ispair(command) && length(command) == 4 && car(command) == OBJ(Command)) {
+      listmatch4(command, &dummy, &a, &b, &c);
+      command = apply(c, mklist1(apply(a, b)));
+    } else {
+      // Not really a command, so it's a value, so just return.
+      return command;
+    }
+  }
+}
+
+yeah* __prim_putchar(yeah* i) {
+  A(isnumber(i));
+  putchar((int)i->u.number.d);
+  return mknil();
+}
+
+yeah* __prim_getchar(yeah* nil) {
+  A(nil == OBJ(Nil));
+  return mknumber(getchar());
 }
