@@ -2,3 +2,4 @@
 (set! make-show-commands #t)
 (let ((src (vector-ref (current-command-line-arguments) 0)))
   (build src))
+;(skiff "ref")

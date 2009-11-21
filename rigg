@@ -703,6 +703,11 @@ sub impl_h($) {
   $s .= "extern void ${module}_impl_register();\n";
 }
 
+sub blick($$$) {
+  my ($src, $module, $dcls) = @_;
+  writeFile("$module.blick", perl2sexp(\@_));
+}
+
 sub stub($$$) {
   my ($src, $module, $dcls) = @_;
   my $s = "";
@@ -790,6 +795,8 @@ sub go() {
   my $funs = read_dump($src, $base_includes);
   impl($files, $module, $funs);
   stub($src, $module, $funs);
+
+  blick($src, $module, $funs);
 }
 
 sub blipp($) {
@@ -874,6 +881,17 @@ sub gen_defines($) {
   #print (scalar keys %$values);
   #print " constants.\n";
   return hen_render_defines($values);
+}
+
+sub perl2sexp($) {
+  my ($o) = @_;
+  if (ref($o) eq "ARRAY") {
+    return "(" . join(" ", (map { perl2sexp($_); } @$o)) . ")";
+  } elsif (ref($o) eq "HASH") {
+    return "(" . join(" ", (map { "($_ . " . perl2sexp($o->{$_}) . ")"; } keys %$o)) . ")";
+  } else {
+    return "$o";
+  }
 }
 
 go();

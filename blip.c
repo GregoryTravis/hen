@@ -193,10 +193,10 @@ yeah* apply(yeah* f, yeah* args) {
 yeah* driver(yeah* command) {
   while (1) {
     //printf("Command: "); dump(command);
-    yeah *dummy, *a, *b, *c;
-    if (ispair(command) && length(command) == 4 && car(command) == OBJ(Command)) {
-      listmatch4(command, &dummy, &a, &b, &c);
-      command = apply(c, mklist1(apply(a, b)));
+    yeah *dummy, *thunk, *continuation;
+    if (ispair(command) && length(command) == 3 && car(command) == OBJ(Command)) {
+      listmatch3(command, &dummy, &thunk, &continuation);
+      command = apply(continuation, mklist1(apply(thunk, mknil())));
     } else {
       // Not really a command, so it's a value, so just return.
       return command;
@@ -204,13 +204,14 @@ yeah* driver(yeah* command) {
   }
 }
 
-yeah* __prim_putchar(yeah* i) {
-  A(isnumber(i));
+yeah* __prim_putchar(yeah* args) {
+  yeah *i;
+  listmatch1(args, &i);
   putchar((int)i->u.number.d);
   return mknil();
 }
 
-yeah* __prim_getchar(yeah* nil) {
-  A(nil == OBJ(Nil));
+yeah* __prim_getchar(yeah* args) {
+  A(isnil(args));
   return mknumber(getchar());
 }

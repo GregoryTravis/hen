@@ -1,3 +1,8 @@
+# clean
+# rigg ref
+# hen src.ss
+# exit
+
 rm -f src src.c
 hen src.ss
 ./src < input

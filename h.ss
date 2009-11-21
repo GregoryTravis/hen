@@ -135,7 +135,7 @@
 
 (define start-objects
   (append
-   '((symbol True) (symbol False) (symbol $) (symbol Closure) (symbol Command) (function prim_putchar) (function prim_getchar))
+   '((symbol True) (symbol False) (symbol $) (symbol Closure) (symbol Command) (function prim_putchar) (function prim_getchar) (symbol Cons) (symbol Nil))
    (map (lambda (primfun) `(function ,primfun)) (map cdr primitive-function-names))))
 (define objects start-objects)
 
@@ -441,8 +441,9 @@
 
 (define (rewrite-doos doos)
   (mtch doos
-        (var (command-function arg) . rest) `(Command ,command-function ,arg (/. (,var) ,(rewrite-doos rest)))
+        (var (command-function . args) . rest) `(Command (/. () (,command-function . ,args)) (/. (,var) ,(rewrite-doos rest)))
         '() 45))
+(tracefun rewrite-doos)
 
 ;(tracefun render-exp render render-object-def)
 ;(tracefun render-pat csym)
@@ -451,3 +452,9 @@
 ;(tracefun list-syntax-unpreprocess-list1 list-syntax-unpreprocess list-syntax-unpreprocess-list list-syntax-preprocess-list list-syntax-preprocess)
 ;(tracefun operator-rename-unpreprocess operator-rename-preprocess)
 ;(tracefun list-syntax-preprocess)
+
+(define (skiff stub)
+  (mtch (read-objects (++ stub ".blick"))
+        ((src stub funs))
+        (let ((ffuns (map (lambda (props) (list (lookup 'name props) props)) funs)))
+          (shew ffuns))))
