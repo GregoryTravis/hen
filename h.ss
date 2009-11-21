@@ -443,7 +443,6 @@
   (mtch doos
         (var (command-function arg) . rest) `(Command ,command-function ,arg (/. (,var) ,(rewrite-doos rest)))
         '() 45))
-(tracefun rewrite-doos)
 
 ;(tracefun render-exp render render-object-def)
 ;(tracefun render-pat csym)
