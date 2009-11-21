@@ -1,0 +1,879 @@
+#!/usr/bin/env perl
+
+$|=1;
+
+use strict;
+
+use Carp;
+use Data::Dumper;
+
+my @integer_types = ("unsigned", "int", "unsigned char", "GLboolean", "GLenum", "GLsizei", "GLint", "GLuint", "GLbitfield");
+my @float_types = ("float", "double", "GLfloat", "GLdouble", "GLclampf", "GLclampd");
+my @string_types = ("char*", "const char*");
+my @void_types = ("void", "GLvoid");
+
+my @ext_includes = ("glGenFramebuffersEXT", "glGenRenderbuffersEXT",
+"glBindFramebufferEXT", "glBindFramebufferEXT",
+"glBindRenderbufferEXT", "glCheckFramebufferStatusEXT",
+"glDeleteFramebuffersEXT", "glDeleteRenderbuffersEXT",
+"glFramebufferRenderbufferEXT", "glFramebufferTexture2DEXT",
+"glGenFramebuffersEXT", "glGenRenderbuffersEXT",
+"glRenderbufferStorageEXT");
+
+my @files = ();
+
+my $c_header = <<EOF;
+#include "a.h"
+#include "mem.h"
+#include "vor.h"
+#include "cvt.h"
+EOF
+
+sub c_identifier_safe($) {
+  my ($s) = @_;
+  $s =~ s/-/_/g;
+  return $s;
+}
+
+# Write contents of string.
+sub writeFile( $$ )
+{
+  my ($filename,$contents) = @_;
+  open( FILE, ">$filename" ) || die "Can't open $filename: $!";
+  print FILE $contents;
+  close( FILE );
+}
+
+sub readFile( $ )
+{
+  my ($filename) = @_;
+  open( FILE, $filename ) || die "Can't open $filename: $!";
+  my $s = join( '', (<FILE>) );
+  close( FILE );
+  return $s;
+}
+
+sub readFileLines( $ )
+{
+  my ($filename) = @_;
+  open( FILE, $filename ) || die "$!: $filename";
+  my @lines = <FILE>;
+  map { chomp; } @lines;
+  close( FILE );
+  return \@lines;
+}
+
+sub member($$) {
+  my ($e, $list) = @_;
+  foreach my $ee (@$list) {
+    return 1 if ($e eq $ee);
+  }
+  return 0;
+}
+
+sub psshew
+{
+  my @things = @_;
+  my $s = "";
+
+  foreach my $thing (@things) {
+    my $dumped;
+
+    local $Data::Dumper::Terse = 1;
+    local $Data::Dumper::Indent = 1;
+    #local $Data::Dumper::Maxdepth = 2;
+    local $Data::Dumper::Sortkeys = 1;
+
+    $dumped = +Dumper( $thing );
+    $dumped =~ s/\n$//;
+
+    $s .= "$dumped\n";
+  }
+  return $s;
+}
+
+sub nshew {
+  my ($depth, $thing) = @_;
+  my $s = "";
+
+  my $dumped;
+
+  local $Data::Dumper::Terse = 1;
+  local $Data::Dumper::Indent = 1;
+  local $Data::Dumper::Maxdepth = $depth;
+  local $Data::Dumper::Sortkeys = 1;
+
+  $dumped = +Dumper( $thing );
+  $dumped =~ s/\n$//;
+
+  $s .= "$dumped\n";
+  print $s;
+}
+
+sub shew( @ )
+{
+  foreach (@_) {
+    print psshew($_);
+  }
+}
+
+sub zip($$) {
+  my ($a, $b) = @_;
+  die (@$a . "!=" . @$b) unless (@$a == @$b);
+  my @z = ();
+  for (my $i = 0; $i < @$a; ++$i) {
+    $z[$i] = [ $a->[$i], $b->[$i] ];
+  }
+  return \@z;
+}
+
+sub trim($) {
+  my $s = shift;
+  $s =~ s/^\s*//;
+  $s =~ s/\s*$//;
+  return $s;
+}
+
+# Turn "unsigned char" to "unsigned_char", e.g., to prevent 'char'
+# from seeming like it's in a different column.
+sub burp($) {
+  my ($s) = @_;
+  $s =~ s/unsigned char/unsigned_char/;
+  return $s;
+}
+
+sub unburp($) {
+  my ($s) = @_;
+  $s =~ s/unsigned_char/unsigned char/;
+  return $s;
+}
+
+sub build_tree_1($$$) {
+  my ($abnodes, $index, $seen) = @_;
+
+  if (defined ($seen->{$index})) {
+    return $seen->{$index};
+  }
+
+  my $node;
+  if (!(defined $abnodes->{$index})) {
+    return "DANGLING $index";
+  }
+  my $abnode = $abnodes->{$index};
+  my $node = {};
+  $seen->{$index} = $node;
+  while (my ($k, $v) = each %$abnode) {
+    if ($v =~ /^\@/ && $k ne "index") {
+      $v = build_tree_1($abnodes, $v, $seen);
+    }
+    $node->{$k} = $v;
+  }
+
+  return $node;
+}
+
+sub build_tree($$) {
+  my ($abnodes, $index) = @_;
+  my %tnodes = (); # HEY not using this.
+  return build_tree_1($abnodes, $index, \%tnodes);
+}
+
+sub lookup($$) {
+  my ($node, $path) = @_;
+  my $v = mlookup($node, $path);
+  if (!defined($v)) {
+    print "==============\n";
+    nshew(3, $node);
+    croak "lookup $path" 
+  }
+  return $v;
+}
+
+sub tlookup($$) {
+  my ($node, $paths) = @_;
+  foreach my $path (@$paths) {
+    my $v = mlookup($node, $path);
+    return $v if defined($v);
+  }
+  print "==============\n";
+  nshew(3, $node);
+  shew($paths);
+  croak "tlookup";
+}
+
+sub mlookup($$) {
+  my ($node, $path) = @_;
+  my @path = split(/\//, $path);
+  while (@path > 0) {
+    my $k = shift(@path);
+    if (!defined $node->{$k}) {
+      return undef;
+    }
+    $node = $node->{$k};
+  }
+  return $node;
+}
+
+sub defd($$) {
+  my ($node, $path) = @_;
+  my @path = split(/\//, $path);
+  while (@path > 0) {
+    my $k = shift(@path);
+    if (!defined($node->{$k})) {
+      return 0;
+    }
+    $node = $node->{$k};
+  }
+  return 1;
+}
+
+sub chanwalk($) {
+  my ($node) = @_;
+  my $here = $node;
+  my @rs = ();
+  while (1) {
+    push @rs, $here;
+    if (ref $here eq "HASH" && defined $here->{"chan"}) {
+      $here = $here->{"chan"};
+    } else {
+      last;
+    }
+  }
+  return \@rs; 
+}
+
+sub id($) {
+  my ($v) = @_;
+  return $v;
+}
+
+my $unique_serial = 0;
+sub unique($) {
+  my ($prefix) = @_;
+  return $prefix . ($unique_serial++);
+}
+
+sub name_undef($$) {
+  my ($prefix, $v) = @_;
+  if (!defined($v)) {
+    return unique($prefix);
+  } else {
+    return $v;
+  }
+}
+
+my @callback_funs = ();
+
+sub get_param_type($) {
+  my ($f) = @_;
+
+  if (lookup($f, "nodetype") eq "pointer_type" &&
+      lookup($f, "ptd/nodetype") eq "function_type") {
+    my $ft = get_function_type(lookup($f, "ptd"));
+    push(@callback_funs, $ft);
+    return $ft;
+  }
+
+  my $s = "";
+
+  while (defd($f, "ptd")) {
+    $s .= "*";
+    $f = lookup($f, "ptd");
+  }
+
+  $s = lookup($f, "name/name/strg") . $s;
+  if (mlookup($f, "qual") eq "c") {
+    $s = "const $s";
+  }
+  return $s;
+}
+
+sub get_function_type($) {
+  my ($fun) = @_;
+  my $stuff = {};
+
+  $stuff->{"name"} = name_undef("anonf", mlookup($fun, "name/strg"));
+  #print "NAME $stuff->{name}\n";
+
+  my @nameses;
+  my @typeses;
+  if (defd($fun, "args")) {
+    my $ipp = chanwalk(lookup($fun, "args"));
+    @typeses = map { get_param_type(lookup($_, "argt")) } @$ipp;
+    @nameses = map { name_undef("anonp", mlookup($_, "name/strg")) } @$ipp;
+  } else {
+    @typeses = map { get_param_type($_) } (map { lookup($_, "valu") } @{chanwalk(tlookup($fun, ["type/prms", "prms"]))});
+    member(pop(@typeses), \@void_types) || die;
+    @nameses = map { unique("anonp") } @typeses;
+  }
+  $stuff->{"params"} = zip(\@typeses, \@nameses);
+
+  $stuff->{"return_type"} = get_param_type(tlookup($fun, ["type/retn", "retn"]));
+
+  return $stuff;
+}
+
+sub function_decls($) {
+  my ($t) = @_;
+  my $dcls = chanwalk(lookup($t, "dcls"));
+  $dcls = [grep { $_->{"nodetype"} eq "function_decl"; } @$dcls];
+  return $dcls;
+}
+
+sub funfile($) {
+  my ($fun) = @_;
+  my $filename = lookup($fun, "srcp");
+  $filename =~ s/\:\d+$//;
+  return $filename;
+}
+
+sub readem($) {
+  my ($src) = @_;
+  #print "READING...\n";
+  my $dumpfile = "$src.t00.tu";
+  open(DUMP, $dumpfile) || die "$dumpfile: $!";
+  my @lines = <DUMP>;
+  close(DUMP);
+
+  my %nodes;
+  my $current;
+  my $current_id;
+  foreach my $line (@lines) {
+    chomp($line);
+
+    $line = burp($line);
+
+    if ($line =~ /^(\@\d+)\s+(\S+)/) {
+      if ($current_id) {
+        $nodes{$current_id} = $current;
+      }
+      $current_id = $1;
+      $current = {};
+      $current->{"nodetype"} = $2;
+      $current->{"index"} = $current_id;
+    } else {
+      die if (!defined($current) || !defined($current_id));
+    }
+
+    my %stuff;
+    foreach my $gark (55, 40, 25) {
+      #print "-- $line\n";
+      #print "- " . substr($line, $gark - 1) . "\n";
+      if (substr($line, ($gark - 1)) =~ /^ \S/) {
+        my $bluh = substr($line, $gark);
+        if ($bluh =~ /^(\S...): (.*)$/) {
+          my $k = $1;
+          my $v = $2;
+          $v = unburp($v);
+          #print "$k=$v\n";
+          $stuff{trim($k)} = trim($v);
+        } else {
+          $bluh = trim($bluh);
+          $stuff{$bluh} = 1;
+        }
+        $line = substr($line, 0, $gark);
+      }
+    }
+
+    $current = {%$current, %stuff};
+  }
+  if ($current_id) {
+    $nodes{$current_id} = $current;
+  }
+  return \%nodes;
+}
+
+# Copy name to cname, but prepend _ to name if it starts with a
+# capital.
+sub fixup_function($) {
+  my ($fun) = @_;
+  my $fun = \%$fun;
+  my $name = $fun->{"name"};
+  $fun->{"cname"} = $name;
+  if ($name =~ /^[A-Z]/) {
+    $name = "_$name";
+  }
+  $fun->{"name"} = $name;
+  return $fun;
+}
+
+sub exclude_fun($) {
+  my ($fun) = @_;
+  return $fun->{"name"} =~ /EXT$/ && !member($fun->{"name"}, \@ext_includes);
+}
+
+sub read_dump($$) {
+  my ($src, $files) = @_;
+  my $abnodes = readem($src);
+
+  #print "BUILDING TREE...\n";
+  my $tree = build_tree($abnodes, "\@1");
+
+  my $dcls = function_decls($tree);
+
+  my @funs = ();
+  my $count = 0;
+  for (my $i = 0; $i < @$dcls; ++$i) {
+    my $fun = $dcls->[$i];
+    if (member(funfile($fun), $files)) {
+      #shew($i);
+      my $stuff = get_function_type($fun);
+      $stuff = fixup_function($stuff);
+      if (!exclude_fun($stuff)) {
+        $count++;
+        push(@funs, $stuff);
+      }
+    }
+  }
+  #print "$count functions.\n";
+
+  return \@funs;
+}
+
+sub sig($) {
+  my ($fun) = @_;
+  my $sig = "";
+
+  my $params = join(", ",
+                    map { "$_->[0] $_->[1]" } @{$fun->{"params"}});
+
+  $sig .= $fun->{"return_type"};
+  $sig .= " ";
+  $sig .= $fun->{"name"};
+  $sig .= "(";
+  $sig .= $params;
+  $sig .= ")";
+
+  return $sig;
+}
+
+sub opaque_wrap($$) {
+  my ($type, $var) = @_;
+  if (member($type, \@integer_types)) {
+    return "integer((int)$var)";
+  } elsif (member($type, \@float_types)) {
+    return "flote((float)$var)";
+  } elsif (member($type, \@string_types)) {
+    return "string((char*)$var)";
+  } else {
+    return "opaque((void*)$var)";
+  }
+}
+
+sub opaque_unwrap($$) {
+  my ($type, $var) = @_;
+  if (member($type, \@integer_types)) {
+    return "getint($var)";
+#  } elsif ($type eq "float" || $type eq "double" || $type eq "GLdouble" || $type eq "GLfloat") {
+  } elsif (member($type, \@float_types)) {
+    return "getfloatcvt($var)";
+  } elsif (member($type, \@string_types)) {
+    return "stringval($var)";
+  } else {
+    return "opaqueval($var)";
+  }
+}
+
+sub declare_var($$) {
+  my ($type, $name) = @_;
+  if (ref($type) eq "") {
+    return "$type $name";
+  } else {
+    # Assume it's a fun.
+    $type = {%$type};
+    $type->{"name"} = "(*$name)";
+    return sig($type);
+  }
+}
+
+sub castit($) {
+  my ($type) = @_;
+  if (ref($type) eq "") {
+    return $type;
+  } else {
+    # Assume it's a fun.
+    $type = {%$type};
+    $type->{"name"} = "(*)";
+    return sig($type);
+  }
+}
+
+sub gen_cbody($) {
+  my ($fun) = @_;
+  #print sig($fun);
+
+  my $s = "";
+
+  my $name = $fun->{"name"};
+  my $cname = $fun->{"cname"};
+  my $return_type = $fun->{"return_type"};
+  my $arg = unique("arg");
+
+  $s .= "yeah* foop_$name(yeah* $arg) {\n";
+
+  my $here = unique("here");
+  $s .= "  yeah* $here = $arg;\n";
+
+  my @names = ();
+  foreach my $p (@{$fun->{"params"}}) {
+    my ($type, $name) = @$p;
+    my $decl = declare_var($type, $name);
+    my $unwrappy;
+    my $caster = castit($type);
+
+    my $harg = unique("harg");
+
+    if (ref($type) eq "") {
+      $unwrappy = "($caster)" . opaque_unwrap($type, $harg);
+    } else {
+      my $sig = gen_signature_string($type);
+      $unwrappy = "${sig}_wrap($harg)";
+    }
+
+    push(@names, $name);
+
+    $s .= "  yeah* $harg = hcar($here);\n";
+    $s .= "  $decl = $unwrappy;\n";
+    $s .= "  $here = hcdr($here);\n";
+  }
+  $s .= "  A(isnil($here));\n";
+
+  my $funcall = "$cname(" . join(", ", @names) . ")";
+  if (member($return_type, \@void_types)) {
+    $s .= "  $funcall;\n";
+    $s .= "  return Nil;\n";
+  } else {
+    my $ret = unique("ret");
+    my $rdecl = declare_var($return_type, $ret);
+    $s .= "  $rdecl = $funcall;\n";
+    $s .= "  return " . opaque_wrap($return_type, $ret) . ";\n";
+  }
+  $s .= "}\n";
+
+  return $s;
+}
+
+sub genregisterer($$) {
+  my ($module, $dcls) = @_;
+  $module = c_identifier_safe($module);
+  my $s = "";
+  $s .= "void ${module}_impl_register() {\n";
+  for (my $i = 0; $i < @$dcls; ++$i) {
+    my $fun = $dcls->[$i];
+    my $name = $fun->{"name"};
+    $s .= "  register_command(\"$name\", &foop_$name);\n";
+  }
+  $s .= "}\n";
+  return $s;
+}
+
+sub gen_signature_string($) {
+  my ($f) = @_;
+  my $params = $f->{"params"};
+  if (ref($params->[0]) eq "ARRAY") {
+    $params = [map { $_->[0] } @$params];
+  }
+  my $s = join("_", (@{$params}, $f->{"return_type"}));
+  $s =~ s/ /_/g;
+  if ($s eq "void") { $s = "void_void"; }
+  $s = "uu$s";
+  return $s;
+}
+
+sub extract_callback_types() {
+  my @ncallback_funs = ();
+  foreach my $f (@callback_funs) {
+    my $f = {%$f};
+    delete $f->{"name"};
+    $f->{"params"} = [map { $_->[0] } @{$f->{"params"}}];
+    push(@ncallback_funs, $f);
+  }
+  @callback_funs = @ncallback_funs;
+  my %sigs = ();
+  foreach my $f (@callback_funs) {
+    $sigs{gen_signature_string($f)} = $f;
+  }
+  return [values %sigs];
+}
+
+sub listup($) {
+  my ($names) = @_;
+  if (@$names == 0) {
+    return "Nil";
+  } else {
+    my $car = $names->[0];
+    my @cdr = @$names;
+    shift(@cdr);
+    my $cdr = listup(\@cdr);
+    return "pair($car, $cdr)";
+  }
+}
+
+my $num_callback_copies = 4;
+
+sub gen_callbackers() {
+  my $cts = extract_callback_types();
+  my $ss = "";
+  my $tops = "";
+  foreach my $ct (@$cts) {
+    #shew($ct);
+    my $s = "";
+    my $sig = gen_signature_string($ct);
+    my $name = "cb_$sig";
+    $name =~ s/\*/P/g;
+    my $types = $ct->{"params"};
+    my @names = map { unique("bloot") } @$types;
+    my $params = zip($types, \@names);
+    #shew($params);
+    my @paramstrs = map { $_->[0] . " " . $_->[1] } @$params;
+    my $paramstr = join(", ", @paramstrs);
+    my $return_type = $ct->{"return_type"};
+    my $type_paramstr = join(", ", @$types);
+
+#    my $cbarr = "${sig}_cbs";
+    $tops .= "typedef $return_type (*$sig)($type_paramstr);\n";
+
+    for (my $i = 0; $i < $num_callback_copies; ++$i) {
+      $s .= "static $return_type ${name}_$i($paramstr);\n";
+    }
+
+    $s .= "static $sig ${sig}_cbs"."[$num_callback_copies] = {\n";
+    for (my $i = 0; $i < $num_callback_copies; ++$i) {
+      $s .= "  &" . "${name}_$i,\n";
+    }
+    $s .= "};\n";
+    $s .= <<EOF;
+    static yeah* hen_cbs_${sig}[$num_callback_copies];
+EOF
+
+    for (my $i = 0; $i < $num_callback_copies; ++$i) {
+      $s .= "static $return_type ${name}_$i($paramstr) {\n";
+      foreach my $param (@$params) {
+        my ($type, $name) = @$param;
+        $s .= "  yeah* _$name = " . opaque_wrap($type, $name) . ";\n";
+      }
+      $s .= "  yeah* __arg = " . listup([map { "_" . $_->[1] } @$params ]) . ";\n";
+      die $return_type unless member($return_type, \@void_types);
+      $s .= "  evl_from_callback(app(hen_cbs_${sig}" . "[$i], __arg));\n";
+      $s .= "}\n";
+    }
+
+    my $wrapsig = "$sig ${sig}_wrap(yeah* fun)";
+    $s .= "static int ${sig}_cbs_inx = 0;\n";
+    $s .= "static $wrapsig {\n";
+    $s .= "  int inx = ${sig}_cbs_inx++;\n";
+    $s .= "  A(inx < $num_callback_copies);\n";
+    $s .= "  hen_cbs_${sig}[inx] = fun;\n";
+    $s .= "  return ${sig}_cbs" . "[inx];\n";
+    $s .= "}\n";
+
+    $tops .= "static $wrapsig;\n";
+
+    $ss .= $s;
+  }
+  $ss = "$tops$ss";
+  return $ss;
+}
+
+sub impl_c($$$) {
+  my ($files, $module, $dcls) = @_;
+  my $s = "";
+  $s .= $c_header;
+  $files = [map { "#include $_" } @$files];
+  $s .= join("\n", @$files) . "\n";
+  $s .= qq[#include "butt.h"\n];
+  if (-e "$module.h") {
+    $s .= qq[#include "$module.h"\n];
+  }
+  $s .= qq[#include "$module.impl.h"\n];
+  $s .= gen_callbackers();
+  for (my $i = 0; $i < @$dcls; ++$i) {
+    my $fun = $dcls->[$i];
+    $s .= gen_cbody($fun);
+  }
+  $s .= genregisterer($module, $dcls);
+  return $s;
+}
+
+sub impl_h($) {
+  my ($module) = @_;
+  $module = c_identifier_safe($module);
+  my $s = "";
+#  $s .= $c_header;
+  $s .= "extern void ${module}_impl_register();\n";
+}
+
+sub stub($$$) {
+  my ($src, $module, $dcls) = @_;
+  my $s = "";
+  for (my $i = 0; $i < @$dcls; ++$i) {
+    my $fun = $dcls->[$i];
+    my $name = $fun->{"name"};
+    my $hname = $name;
+    $hname =~ s/_/-/g;
+    $hname =~ s/^-/_/;
+    my @param_names = map { $_->[1] } @{$fun->{"params"}};
+    my @ha = ($hname, @param_names);
+    my $ha = join(" ", @ha);
+    my @ho = ("\$", @param_names);
+    my $ho = join(" ", @ho);
+    $s .= "(fun ($ha) (Command \'$name ($ho)))\n";
+  }
+  $s .= gen_defines($src);
+  writeFile("$module.stub.ss", $s);
+}
+
+sub impl($$$) {
+  my ($files, $module, $funs) = @_;
+  my $c = impl_c($files, $module, $funs);
+  my $h = impl_h($module);
+  writeFile("$module.impl.c", $c);
+  writeFile("$module.impl.h", $h);
+}
+
+sub extract_header_file_from_import_string($) {
+  my ($is) = @_;
+  $is =~ s/^<//;
+  $is =~ s/>$//;
+  $is =~ s/.*\///;
+  return $is;
+}
+
+sub get_include_basefile($) {
+  my ($include) = @_;
+  $include =~ s/^<//;
+  $include =~ s/>$//;
+  $include =~ s/"//g;
+  $include =~ s/.*\///;
+  return $include;
+}
+
+sub get_includes($) {
+  my ($filename) = @_;
+  my $lines = readFileLines($filename);
+  my @includes;
+  foreach my $line (@$lines) {
+    if ($line =~ /^#\s*include\s+(.*)\s*$/) {
+      my $include = $1;
+#      $include =~ s/^<//;
+#      $include =~ s/>$//;
+#      $include =~ s/"//g;
+#      $include =~ s/.*\///;
+      push(@includes, $include);
+    }
+  }
+  return \@includes;
+}
+
+sub get_include_basefiles($) {
+  my ($filename) = @_;
+  my $includes = get_includes($filename);
+  my @includes = @$includes;
+  @includes = map { get_include_basefile($_); } @includes;
+  return \@includes;
+}
+
+sub go() {
+  @ARGV == 1 || die;
+
+  my $module = $ARGV[0];
+#  my $import_string = $ARGV[1];
+#  push(@files, extract_header_file_from_import_string($import_string));
+
+  my $src = $module . ".c";
+  my $files = get_includes($src);
+  my $base_includes = get_include_basefiles($src);
+  push(@$base_includes, $src);
+#shew($files);
+#shew($base_includes);
+  print `g++ -c -fdump-translation-unit $src`;
+  my $funs = read_dump($src, $base_includes);
+  impl($files, $module, $funs);
+  stub($src, $module, $funs);
+}
+
+sub blipp($) {
+  my ($s) = @_;
+#print "HO $s\n";
+  $s =~ s/\"/\\"/g;
+#print "HA $s\n";
+  return $s;
+}
+
+sub gen_value_getter($) {
+  my ($defs) = @_;
+  my $s = "";
+  $s .= "#include <stdio.h>\n";
+  $s .= "#include <GLUT/glut.h>\n";
+  $s .= "int main() {\n";
+  while (my ($k, $v) = each %$defs) {
+    $s .= "#ifdef $k\n";
+    $v = blipp($v);
+    if ($v =~ /^\d+$/ || $v =~ /^0[xX][\da-fA-F]+$/) {
+      $s .= qq[printf("$k %d\\n", $v);\n];
+    } else {
+      # Just don't even do non-numeric types.
+      #$s .= qq[printf("$k %s\\n", \"$v\");\n];
+    }
+    $s .= "#endif\n";
+  }
+  $s .= "}\n";
+  return $s;
+}
+
+sub parse_values($) {
+  my ($s) = @_;
+  my %vals = ();
+  foreach my $p (split(/\n/, $s)) {
+    chomp($p);
+    $p =~ /^(\S+) (.*)$/ || die $p;
+    my $k = $1;
+    my $v = $2;
+    $vals{$k} = $v;
+  }
+  return \%vals;
+}
+
+sub hen_render_defines($) {
+  my ($vals) = @_;
+  my $s = "";
+  while (my ($k, $v) = each %$vals) {
+    if ($k =~ /^[A-Z]/) {
+      $k = "_$k";
+    }
+    $s .= "(def $k $v)\n";
+  }
+  return $s;
+}
+
+sub gen_defines($) {
+  my ($src) = @_;
+  my $lines = `gcc -E -dM $src`;
+  my @lines = split(/\n/, $lines);
+  my %defs = ();
+  foreach my $line (@lines) {
+    chomp($line);
+    if ($line =~ /^\#define\s+\S+\(/) {
+      #print "MAC $line\n";
+    } elsif ($line =~ /^\#define\s+(\S+)\s+(.*)$/) {
+      my $k = $1;
+      my $v = $2;
+      $v = trim($v);
+      if ($v ne "") {
+        $defs{$k} = $v;
+      }
+    } else {
+      die "?? $line";
+    }
+  }
+  my $definer = "$src.defs.c";
+  writeFile($definer, gen_value_getter(\%defs));
+  (!`gcc -o $definer.exe $definer`) || die $!;
+  my $output = `./$definer.exe` || die $!;
+  my $values = parse_values($output);
+  #print (scalar keys %$values);
+  #print " constants.\n";
+  return hen_render_defines($values);
+}
+
+go();
