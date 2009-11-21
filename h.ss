@@ -393,7 +393,7 @@
     (make src-stub (make-rules src-stub))))
 
 (define (syntax-preprocess e)
-  (operator-rename-preprocess (list-syntax-preprocess e)))
+  (operator-rename-preprocess (doo-preprocess (list-syntax-preprocess e))))
 
 (define (syntax-unpreprocess e)
   (operator-rename-unpreprocess (list-syntax-unpreprocess e)))
@@ -432,6 +432,18 @@
         ('Cons a d) (cons (list-syntax-unpreprocess a) (list-syntax-unpreprocess-list1 d))
         'Nil '()
         x x))
+
+(define (doo-preprocess e)
+  (mtch e
+        ('doo . doos) (rewrite-doos doos)
+        (a . d) (map doo-preprocess e)
+        e e))
+
+(define (rewrite-doos doos)
+  (mtch doos
+        (var (command-function arg) . rest) `(Command ,command-function ,arg (/. (,var) ,(rewrite-doos rest)))
+        '() 45))
+(tracefun rewrite-doos)
 
 ;(tracefun render-exp render render-object-def)
 ;(tracefun render-pat csym)

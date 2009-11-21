@@ -1,1 +1,7 @@
-(fun (main) (Command prim_getchar Nil (/. (c) (Command prim_getchar Nil (/. (c2) (Command prim_putchar c2 (/. (dummy) (Command prim_putchar c (/. (dummy2) (Command prim_putchar 10 (/. (dummy3) 45)))))))))))
+(fun (main)
+     (doo
+      c (prim_getchar Nil)
+      c2 (prim_getchar Nil)
+      dummy (prim_putchar c2)
+      dummy2 (prim_putchar c)
+      dummy3 (prim_putchar 10)))
