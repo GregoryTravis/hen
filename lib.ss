@@ -1046,7 +1046,7 @@
    ((null? l) 'Nil)
    (#t l)))
 
-(define (smart== a b)
+(define (== a b)
   (or (and (number? a) (= a b))
       (and (string? a) (string= a b))
       (equal? a b)))

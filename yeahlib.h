@@ -4,6 +4,7 @@
 #define _yeahlib_h_
 
 #include "yeah.h"
+#include "a.h"
 
 yeah* car(yeah* y);
 yeah* cdr(yeah* y);

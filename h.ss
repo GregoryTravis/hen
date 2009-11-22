@@ -156,6 +156,94 @@
         ('Rule (('Sym name) . rest) body) (cfunction name)))
 ;        ('def name x) (if (number? x) (cnum x) (csym x))))
 
+(define global-refs '())
+
+(define (gather-global-refs tlfs)
+  (set! global-refs (append global-refs (unique (map-append gather-global-refs-tlf tlfs)))))
+
+(define (gather-global-refs-tlf tlf)
+  (mtch tlf
+        ('Rule pat body) (gather-global-refs-exp body)))
+
+(define (gather-global-refs-exp body)
+  (mtch body
+        ('GVar gvar) (list gvar)
+        ('Num n) '()
+        ('Sym s) '()
+        ('Closure name env) '()
+        ('Var v) '()
+        (a . d) (map-append gather-global-refs-exp body)))
+
+(define ffi-info #f)
+
+(define (gather-ffi-info ffi-decls)
+  (set! ffi-info (map-append (lambda (d) (mtch d ('ffi stub) (read-and-maybe-generate-ffi-info stub))) ffi-decls)))
+(define (read-and-maybe-generate-ffi-info stub)
+  (let ((blick (++ stub ".blick")))
+    (if (not (file-exists? blick))
+        (cmd "rigg" stub)
+        '())
+    (car (read-objects blick))))
+
+;(define (find-ffi name) (lookup name ffi-info))
+
+(define (get-undefined-globals)
+  (set-difference global-refs (map cadr objects)))
+
+(define (generate-foreign-stub-declarations)
+  (map generate-foreign-stub-declaration (get-undefined-globals)))
+
+(define (generate-foreign-stub-declaration name)
+;  (list "yeah* __" name "(yeah* args);\n"))
+  (list (generate-foreign-stub-declaration-1 name) ";\n"))
+
+(define (generate-foreign-stubs)
+  (map generate-foreign-stub (get-undefined-globals)))
+
+(define (generate-foreign-stub-declaration-1 name)
+  (list "yeah* __" name "(yeah* args)"))
+;;   (let ((info (lookup name ffi-info)))
+;;     (list (lookup 'return_type info) __ name "("
+;;           (lookup 'params info) ")")))
+
+(define (generate-foreign-stub name)
+  (list (generate-foreign-stub-declaration-1 name) "{\n"
+        (generate-foreign-stub-body name)
+        "}\n\n"))
+
+(define (generate-foreign-stub-body name)
+  (let* ((info (lookup name ffi-info))
+         (params (lookup 'params info))
+         (return_type (lookup 'return_type info)))
+    (list "  yeah* here = args;\n"
+          (map (lambda (param)
+                 (mtch param
+                       (type param-name)
+                       (list "  A(ispair(here));\n"
+                             (param-extractor param-name type "car(here)")
+                             "  here = cdr(here);\n")))
+               params)
+          "  A(isnil(here));\n"
+          "  " (if (== (->string return_type) "void") "" (list return_type " __ret = ")) name "(" (join-things ", " (map cadr params)) ");\n"
+          "  return " (param-builder return_type "__ret") ";\n")))
+
+(define (param-extractor name type e)
+  (mtch type
+        'float* (list "  A(isopaque(" e "));\n" "  float* " name " = (float*)"e "->u.opaque.o;\n")
+        'float (list "  A(isnumber(" e "));\n" "  float " name " = " e "->u.number.d;\n")
+        'void* (list "  A(isopaque(" e "));\n" "  float* " name " = (void*)"e "->u.opaque.o;\n")
+        'void (list "  A(isnil(" e "));\n" "  float* " name " = mknil()")))
+
+(define (param-builder type e)
+  (mtch type
+        'float* (list "mkopaque((void*)" e ")")
+        'float (list "mknumber(" e ")")
+        'void* (list "mkopaque((void*)" e ")")
+        'void (list "mknil()")))
+
+(define (ffi-includes decls)
+  (map (lambda (stub) (list "#include \"" stub ".h\"\n")) (map cadr decls)))
+
 (define (render-object-defs)
   (map render-object-def (unique objects)))
 
@@ -231,22 +319,30 @@
   (unique
    (map (lambda (rule) (mtch rule ('Rule (('Sym name) . args) body) name)) rules)))
 
-(define (render-program rules start)
+(define (render-program rules ffi-decls start)
   (let* ((c-functions (rules->c-functions rules))
          (rendered-functions (map render c-functions))
-         (rendered-declarations (map render-declarations c-functions)))
+         (rendered-declarations (map render-declarations c-functions))
+         (foreign-declarations (generate-foreign-stub-declarations))
+         (foreign-stubs (generate-foreign-stubs)))
     (+++
      (list "#include <stdio.h>\n"
            "#include <stdlib.h>\n"
            "#include \"yeah.h\"\n"
+           "#include \"yeahlib.h\"\n"
            "#include \"mem.h\"\n"
            "#include \"blip.h\"\n"
+           (ffi-includes ffi-decls)
            "\n"
            rendered-declarations
+           "\n"
+           foreign-declarations
            "\n"
            (render-object-defs)
            "\n"
            rendered-functions
+           "\n"
+           foreign-stubs
            "\n"
            (render-main start)))))
 
@@ -350,17 +446,25 @@
         ('fun args body) #t
         _ #f))
 
+(define (ffi-decl? f)
+  (mtch f
+        ('ffi stub) #t
+        _ #f))
+
 (define (split-program p)
-  (mtch (group-by-preds (list fun?) p)
-        (funs) `(Parts (Funs ,funs))))
+  (mtch (group-by-preds (list fun? ffi-decl?) p)
+        (funs ffi-decls) `(Parts (Funs ,funs) (FFIDecls ,ffi-decls))))
 
 (define (compile-program p)
   (let ((preprocessed (syntax-preprocess p)))
     (mtch (split-program preprocessed)
-          (Parts (Funs funs))
+          ('Parts ('Funs funs) ('FFIDecls ffi-decls))
           (let ((simplified (simplify-program (map parse-rule funs))))
+            (gather-ffi-info ffi-decls)
             (gather-globals simplified)
-            (render-program simplified '((Sym main)))))))
+            (gather-global-refs simplified)
+            ;(shew objects global-refs (get-undefined-globals))
+            (render-program simplified ffi-decls '((Sym main)))))))
 
 (define (compile src-stub)
   (let* ((src-file (++ src-stub ".ss"))
@@ -378,7 +482,7 @@
     (cons (append `(gcc ,gcc-options -o (output ,main)) (map (lambda (o) `(input ,o)) os))
           (map gco (cons main modules)))))
 
-(define modules '(yeah spew mem blip yeahlib))
+(define modules '(yeah spew mem blip yeahlib ref shew))
 
 (define autoinclude-rules (map (lambda (file) `(implicit ,file)) autoincludes))
 
@@ -443,7 +547,6 @@
   (mtch doos
         (var (command-function . args) . rest) `(Command (/. () (,command-function . ,args)) (/. (,var) ,(rewrite-doos rest)))
         '() 45))
-(tracefun rewrite-doos)
 
 ;(tracefun render-exp render render-object-def)
 ;(tracefun render-pat csym)

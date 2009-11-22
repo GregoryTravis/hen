@@ -3,3 +3,4 @@ symbol char*:txt
 nil
 number double:d
 function primfunn:f char*:name
+opaque void*:o

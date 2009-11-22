@@ -686,7 +686,7 @@ sub impl_c($$$) {
     $s .= qq[#include "$module.h"\n];
   }
   $s .= qq[#include "$module.impl.h"\n];
-  $s .= gen_callbackers();
+#  $s .= gen_callbackers();
   for (my $i = 0; $i < @$dcls; ++$i) {
     my $fun = $dcls->[$i];
     $s .= gen_cbody($fun);
@@ -705,7 +705,8 @@ sub impl_h($) {
 
 sub blick($$$) {
   my ($src, $module, $dcls) = @_;
-  writeFile("$module.blick", perl2sexp(\@_));
+  my @funs = map { my %dcl = %$_; $dcl{"module"} = $module; [ $dcl{"name"}, ".", \%dcl ] } @$dcls;
+  writeFile("$module.blick", perl2sexp(\@funs));
 }
 
 sub stub($$$) {
@@ -886,7 +887,7 @@ sub gen_defines($) {
 sub perl2sexp($) {
   my ($o) = @_;
   if (ref($o) eq "ARRAY") {
-    return "(" . join(" ", (map { perl2sexp($_); } @$o)) . ")";
+    return "(" . join(" ", (map { perl2sexp($_); } @$o)) . ")\n";
   } elsif (ref($o) eq "HASH") {
     return "(" . join(" ", (map { "($_ . " . perl2sexp($o->{$_}) . ")"; } keys %$o)) . ")";
   } else {
