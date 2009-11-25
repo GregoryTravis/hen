@@ -1,3 +1,4 @@
 rm -f vm *.o yeah.h yeah.c hoop.o hoop.c hoop src.c src test-src \
 test-src.c speed-test.c speed-test
-rm *.c.defs.c* *.c.t00.tu *.impl.c *.impl.h *.stub.ss
+rm -f *.c.defs.c* *.c.t00.tu *.impl.c *.impl.h *.stub.ss
+rm -f *.blick

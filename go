@@ -1,3 +1,7 @@
+# rigg shew
+# exit
+
+
 # clean
 # rigg ref
 # hen src.ss

@@ -181,7 +181,7 @@
 (define (read-and-maybe-generate-ffi-info stub)
   (let ((blick (++ stub ".blick")))
     (if (not (file-exists? blick))
-        (cmd "rigg" stub)
+        (cmd (++ "rigg " stub))
         '())
     (car (read-objects blick))))
 
@@ -228,14 +228,14 @@
           "  return " (param-builder return_type "__ret") ";\n")))
 
 (define (param-extractor name type e)
-  (mtch type
+  (mtch (->symbol type)
         'float* (list "  A(isopaque(" e "));\n" "  float* " name " = (float*)"e "->u.opaque.o;\n")
         'float (list "  A(isnumber(" e "));\n" "  float " name " = " e "->u.number.d;\n")
         'void* (list "  A(isopaque(" e "));\n" "  float* " name " = (void*)"e "->u.opaque.o;\n")
         'void (list "  A(isnil(" e "));\n" "  float* " name " = mknil()")))
 
 (define (param-builder type e)
-  (mtch type
+  (mtch (->symbol type)
         'float* (list "mkopaque((void*)" e ")")
         'float (list "mknumber(" e ")")
         'void* (list "mkopaque((void*)" e ")")
@@ -472,10 +472,10 @@
          (prog (map-append read-objects (cons src-file autoincludes))))
     (call-with-output-file c-file (lambda (port) (display (compile-program prog) port)))))
 
-(define gcc-options "-g -O6 -Wall -Wno-unused-variable")
+(define gcc-options "-g -O6 -Wall -std=c99 -Wno-unused-variable")
 (define (ext f e) (++ f "." e))
 (define (exter e) ($ ext _ e))
-(define (gco f) `(gcc -std=c99 ,gcc-options -c -o (output ,(ext f 'o)) (input ,(ext f 'c))))
+(define (gco f) `(gcc ,gcc-options -c -o (output ,(ext f 'o)) (input ,(ext f 'c))))
 
 (define (co-exe main modules)
   (let ((os (map (exter "o") (cons main modules))))
