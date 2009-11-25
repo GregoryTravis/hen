@@ -705,7 +705,15 @@ sub impl_h($) {
 
 sub blick($$$) {
   my ($src, $module, $dcls) = @_;
+  my @dcls = @$dcls;
   my @funs = map { my %dcl = %$_; $dcl{"module"} = $module; [ $dcl{"name"}, ".", \%dcl ] } @$dcls;
+  map { my $dcl = $_->[2];
+        my $params = $dcl->{"params"};
+        map { $_->[0] = "\"" . $_->[0] . "\""; } @$params;
+        $dcl->{"return_type"} = "\"" . $dcl->{"return_type"} . "\"";
+        #shew($params);
+      } @funs;
+
   writeFile("$module.blick", perl2sexp(\@funs));
 }
 
@@ -793,6 +801,7 @@ sub go() {
 #shew($files);
 #shew($base_includes);
   print `g++ -c -fdump-translation-unit $src`;
+  print `rm $module.o`;
   my $funs = read_dump($src, $base_includes);
   impl($files, $module, $funs);
   stub($src, $module, $funs);
