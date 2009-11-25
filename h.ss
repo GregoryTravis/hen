@@ -167,6 +167,7 @@
 
 (define (gather-global-refs-exp body)
   (mtch body
+        ('GVar 'if) '()
         ('GVar gvar) (list gvar)
         ('Num n) '()
         ('Sym s) '()
