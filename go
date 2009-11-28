@@ -1,6 +1,6 @@
-# rigg shew
-# exit
-
+#rm joe.blick *stub* *impl*
+#rigg joe "-I/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include/"
+#exit
 
 # clean
 # rigg ref

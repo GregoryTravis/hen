@@ -191,15 +191,32 @@
 (define (get-undefined-globals)
   (set-difference global-refs (map cadr objects)))
 
-(define (generate-foreign-stub-declarations)
-  (map generate-foreign-stub-declaration (get-undefined-globals)))
+(define (generate-foreign)
+  (map (lambda (name)
+         (let ((what (lookup name ffi-info)))
+           (mtch what
+                 ('Fun stuff) (generate-foreign-stub name stuff)
+                 ('Def name value) (generate-define name value))))
+       (get-undefined-globals)))
 
-(define (generate-foreign-stub-declaration name)
-;  (list "yeah* __" name "(yeah* args);\n"))
-  (list (generate-foreign-stub-declaration-1 name) ";\n"))
+;; (define (generate-foreign-stub-declarations)
+;;   (map generate-foreign-stub-declaration (get-undefined-globals)))
 
-(define (generate-foreign-stubs)
-  (map generate-foreign-stub (get-undefined-globals)))
+;; (define (generate-foreign-stub-declaration name)
+;; ;  (list "yeah* __" name "(yeah* args);\n"))
+;;   (list (generate-foreign-stub-declaration-1 name) ";\n"))
+
+;; (define (generate-foreign-stubs)
+;;   (map generate-foreign-stub (get-undefined-globals)))
+
+(define (eh-lord o)
+  (cond
+   ((number? o) `(number ,o))
+   (#t (err o))))
+
+(define (generate-define name value)
+  (list "static yeah _blargh_" name "_ = " (render-object-yeah-initializer (eh-lord value)) ";\n"
+        "static yeah* _blargh_" name " = &_blargh_" name "_;\n"))
 
 (define (generate-foreign-stub-declaration-1 name)
   (list "yeah* __" name "(yeah* args)"))
@@ -207,14 +224,13 @@
 ;;     (list (lookup 'return_type info) __ name "("
 ;;           (lookup 'params info) ")")))
 
-(define (generate-foreign-stub name)
+(define (generate-foreign-stub name info)
   (list (generate-foreign-stub-declaration-1 name) "{\n"
-        (generate-foreign-stub-body name)
+        (generate-foreign-stub-body name info)
         "}\n\n"))
 
-(define (generate-foreign-stub-body name)
-  (let* ((info (lookup name ffi-info))
-         (params (lookup 'params info))
+(define (generate-foreign-stub-body name info)
+  (let* ((params (lookup 'params info))
          (return_type (lookup 'return_type info)))
     (list "  yeah* here = args;\n"
           (map (lambda (param)
@@ -227,6 +243,8 @@
           "  A(isnil(here));\n"
           "  " (if (== (->string return_type) "void") "" (list return_type " __ret = ")) name "(" (join-things ", " (map cadr params)) ");\n"
           "  return " (param-builder return_type "__ret") ";\n")))
+
+;(tracefun generate-foreign-stub-body generate-foreign-stub-declaration-1 generate-foreign-stub generate-define)
 
 (define (param-extractor name type e)
   (mtch (->symbol type)
@@ -248,13 +266,19 @@
 (define (render-object-defs)
   (map render-object-def (unique objects)))
 
+(define (render-object-yeah-initializer o)
+  (mtch o
+        ('symbol s) (list "{ TAG_symbol, { .symbol = { " (qt s) " } } }")
+        ('number n) (list "{ TAG_number, { .number = { " n " } } }")
+        ('function f) (list "{ TAG_function, { .function = { &__" f ", \"" f "\" } } }")))
+
 (define (render-object-def o)
   (mtch o
-        ('symbol s) (list "yeah " (csym s) "_ = { TAG_symbol, { .symbol = { " (qt s) " } } };\n"
+        ('symbol s) (list "yeah " (csym s) "_ = " (render-object-yeah-initializer o) ";\n"
                           "yeah* " (csym s) " = &" (csym s) "_;\n")
-        ('number n) (list "yeah " (cnum n) "_ = { TAG_number, { .number = { " n " } } };\n"
+        ('number n) (list "yeah " (cnum n) "_ = " (render-object-yeah-initializer o) ";\n"
                           "yeah* " (cnum n) " = &" (cnum n) "_;\n")
-        ('function f) (list "yeah " (cfunction f) "_ = { TAG_function, { .function = { &__" f ", \"" f "\" } } };\n"
+        ('function f) (list "yeah " (cfunction f) "_ = " (render-object-yeah-initializer o) ";\n"
                             "yeah* " (cfunction f) " = &" (cfunction f) "_;\n")))
 
 (define (render-exp b)
@@ -324,8 +348,9 @@
   (let* ((c-functions (rules->c-functions rules))
          (rendered-functions (map render c-functions))
          (rendered-declarations (map render-declarations c-functions))
-         (foreign-declarations (generate-foreign-stub-declarations))
-         (foreign-stubs (generate-foreign-stubs)))
+         (foreign (generate-foreign)))
+;         (foreign-declarations (generate-foreign-stub-declarations))
+;         (foreign-stubs (generate-foreign-stubs)))
     (+++
      (list "#include <stdio.h>\n"
            "#include <stdlib.h>\n"
@@ -337,13 +362,14 @@
            "\n"
            rendered-declarations
            "\n"
-           foreign-declarations
+           ;foreign-declarations
+           foreign
            "\n"
            (render-object-defs)
            "\n"
            rendered-functions
            "\n"
-           foreign-stubs
+           ;foreign-stubs
            "\n"
            (render-main start)))))
 

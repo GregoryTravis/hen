@@ -2,7 +2,7 @@
 (ffi "shew")
 (fun (main)
      (doo
-      ref (create_float_ref 10)
+      ref (create_float_ref poop)
       val (read_float_ref ref)
       _ (shew_float val)
       _ (write_float_ref ref 20)

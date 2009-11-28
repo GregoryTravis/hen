@@ -7,6 +7,8 @@ use strict;
 use Carp;
 use Data::Dumper;
 
+my $verbose = 0;
+
 my @integer_types = ("unsigned", "int", "unsigned char", "GLboolean", "GLenum", "GLsizei", "GLint", "GLuint", "GLbitfield");
 my @float_types = ("float", "double", "GLfloat", "GLdouble", "GLclampf", "GLclampd");
 my @string_types = ("char*", "const char*");
@@ -28,6 +30,12 @@ my $c_header = <<EOF;
 #include "vor.h"
 #include "cvt.h"
 EOF
+
+sub ocmd($) {
+  my ($cmd) = (@_);
+  print "+ $cmd\n" if ($verbose);
+  return `$cmd`;
+}
 
 sub c_identifier_safe($) {
   my ($s) = @_;
@@ -703,22 +711,30 @@ sub impl_h($) {
   $s .= "extern void ${module}_impl_register();\n";
 }
 
-sub blick($$$) {
-  my ($src, $module, $dcls) = @_;
+sub blick($$$$) {
+  my ($src, $module, $dcls, $constants) = @_;
   my @dcls = @$dcls;
-  my @funs = map { my %dcl = %$_; $dcl{"module"} = $module; [ $dcl{"name"}, ".", \%dcl ] } @$dcls;
-  map { my $dcl = $_->[2];
+  my @funs = map { my %dcl = %$_; $dcl{"module"} = $module; [ $dcl{"name"}, ".", [ "Fun", \%dcl ] ] } @$dcls;
+  map { my $dcl = $_->[2]->[1];
         my $params = $dcl->{"params"};
         map { $_->[0] = "\"" . $_->[0] . "\""; } @$params;
         $dcl->{"return_type"} = "\"" . $dcl->{"return_type"} . "\"";
         #shew($params);
       } @funs;
 
-  writeFile("$module.blick", perl2sexp(\@funs));
+  my @constants = map {
+    my $name = $_;
+    my $value = $constants->{$name};
+    [ $name, ".", [ "Def", $name, $value ] ];
+  } keys %$constants;
+
+  my @all = (@funs, @constants);
+
+  writeFile("$module.blick", perl2sexp(\@all));
 }
 
-sub stub($$$) {
-  my ($src, $module, $dcls) = @_;
+sub stub($$$$) {
+  my ($src, $module, $dcls, $lib_path_options) = @_;
   my $s = "";
   for (my $i = 0; $i < @$dcls; ++$i) {
     my $fun = $dcls->[$i];
@@ -733,7 +749,7 @@ sub stub($$$) {
     my $ho = join(" ", @ho);
     $s .= "(fun ($ha) (Command \'$name ($ho)))\n";
   }
-  $s .= gen_defines($src);
+  $s .= hen_render_defines(gen_defines($src, $lib_path_options));
   writeFile("$module.stub.ss", $s);
 }
 
@@ -788,25 +804,23 @@ sub get_include_basefiles($) {
 }
 
 sub go() {
-  @ARGV == 1 || die;
+  @ARGV == 1 || @ARGV == 2 || die;
 
-  my $module = $ARGV[0];
-#  my $import_string = $ARGV[1];
-#  push(@files, extract_header_file_from_import_string($import_string));
+  my $module = $ARGV[$0];
+  my $lib_path_options = $ARGV[1] || "";
 
   my $src = $module . ".c";
   my $files = get_includes($src);
   my $base_includes = get_include_basefiles($src);
   push(@$base_includes, $src);
-#shew($files);
-#shew($base_includes);
-  print `g++ -c -fdump-translation-unit $src`;
-  print `rm $module.o`;
+  print ocmd("g++ -c -fdump-translation-unit $src $lib_path_options");
+  print ocmd("rm $module.o");
   my $funs = read_dump($src, $base_includes);
   impl($files, $module, $funs);
-  stub($src, $module, $funs);
+  stub($src, $module, $funs, $lib_path_options);
 
-  blick($src, $module, $funs);
+  my $constants = gen_defines($src, $lib_path_options);
+  blick($src, $module, $funs, $constants);
 }
 
 sub blipp($) {
@@ -863,9 +877,9 @@ sub hen_render_defines($) {
   return $s;
 }
 
-sub gen_defines($) {
-  my ($src) = @_;
-  my $lines = `gcc -E -dM $src`;
+sub gen_defines($$) {
+  my ($src, $lib_path_options) = @_;
+  my $lines = ocmd("gcc -E -dM $src $lib_path_options");
   my @lines = split(/\n/, $lines);
   my %defs = ();
   foreach my $line (@lines) {
@@ -884,13 +898,20 @@ sub gen_defines($) {
     }
   }
   my $definer = "$src.defs.c";
-  writeFile($definer, gen_value_getter(\%defs));
-  (!`gcc -o $definer.exe $definer`) || die $!;
-  my $output = `./$definer.exe` || die $!;
+  my $includes == "";
+  my $src_stub = $src;
+  $src_stub =~ s/\.c$//;
+  my $hfile = $src_stub . ".h";
+  if (-e $hfile) {
+    $includes .= "#include \"$hfile\"\n";
+  }
+  writeFile($definer, $includes . gen_value_getter(\%defs));
+  (!ocmd("gcc -o $definer.exe $definer")) || die $!;
+  my $output = ocmd("./$definer.exe") || die $!;
   my $values = parse_values($output);
   #print (scalar keys %$values);
   #print " constants.\n";
-  return hen_render_defines($values);
+  return $values;
 }
 
 sub perl2sexp($) {
