@@ -537,7 +537,6 @@
   (let* ((src-file (++ src-stub ".ss"))
          (c-file (++ src-stub ".c"))
          (prog (map-append read-objects (cons src-file autoincludes))))
-;(shew 'prog (read-objects src-file) (read-objects "blap"))
     (call-with-output-file c-file (lambda (port) (display (compile-program prog) port)))))
 
 ;(tracefun read-objects)
@@ -626,7 +625,6 @@
 ;(tracefun operator-rename-unpreprocess operator-rename-preprocess)
 ;(tracefun list-syntax-preprocess)
 
-;(shew 'ippp #\g (symbol? #\g) (read-objects "blap") (map symbol? (read-objects "blap")))
 (define (skiff stub)
   (mtch (read-objects (++ stub ".blick"))
         ((src stub funs))
