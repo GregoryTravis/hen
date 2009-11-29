@@ -5,7 +5,7 @@
 
 #define REFFIE(_type) _type* create_##_type##_ref(_type i) {_type* ip = NEW(_type); *ip = i; return ip;} _type read_##_type##_ref(_type* ip) {return *ip;} void write_##_type##_ref(_type* ip, _type i) {*ip = i;} void destroy_##_type##_ref(_type* ip ) {fri(ip);} 
 
-//REFFIE(int)
+REFFIE(int)
 REFFIE(float)
 //REFFIE(charp)
 

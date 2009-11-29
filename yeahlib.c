@@ -56,3 +56,7 @@ yeah* map(yeah* (*f)(yeah*), yeah* list) {
 bool isthissymbol(yeah* o, char *name) {
   return issymbol(o) && !strcmp(o->u.symbol.txt, name);
 }
+
+bool isnumber(yeah* o) {
+  return isinteger(o) || isflote(o);
+}

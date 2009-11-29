@@ -18,7 +18,24 @@ void dumps(yeah* y);
 bool samesymbol(yeah* a, yeah* b);
 
 #define binop_decl(_name, _op) yeah* __##_name(yeah* args)
-#define binop_def(_name, _op) binop_decl(_name, _op) { yeah* a; yeah* b; listmatch2(args, &a, &b); A(isnumber(a)); A(isnumber(b)); return mknumber(a->u.number.d _op b->u.number.d); }
+#define binop_def(_name, _op) binop_decl(_name, _op) { \
+  yeah* a; yeah* b; \
+  listmatch2(args, &a, &b); \
+  if (isinteger(a) && isinteger(b)) { \
+    return mkinteger(a->u.integer.i _op b->u.integer.i); \
+  } else if (isinteger(a) && isflote(b)) { \
+    return mkflote(a->u.integer.i _op b->u.flote.d); \
+  } else if (isflote(a) && isinteger(b)) { \
+    return mkflote(a->u.flote.d _op b->u.integer.i); \
+  } else if (isflote(a) && isflote(b)) { \
+    return mkflote(a->u.flote.d _op b->u.flote.d); \
+  } \
+  dump(a); \
+  dump(b); \
+  printf("%d %d\n", isinteger(a), isinteger(b)); \
+  err(("Bad binop args")); \
+  return NULL; \
+}
 
 binop_decl(plus, +);
 binop_decl(minus, -);

@@ -53,7 +53,9 @@ yeah* unpreprocess(yeah* y) {
 void dump1_list(yeah* y) {
   match(y) {
     Symbol(txt) { printf(" . "); dump1(y); printf(")"); }
-    Number(txt) { printf(" . "); dump1(y); printf(")"); }
+    Integer(txt) { printf(" . "); dump1(y); printf(")"); }
+    Flote(txt) { printf(" . "); dump1(y); printf(")"); }
+    Character(txt) { printf(" . "); dump1(y); printf(")"); }
     Function(f, name) { printf(" . "); dump1(y); printf(")"); }
     Pair(car, cdr) { printf(" "); dump1(car); dump1_list(cdr); }
     Nil() { printf(")"); }
@@ -65,7 +67,9 @@ void dump1(yeah* y) {
   match (y) {
     Symbol(txt) { printf("%s", txt); }
     Pair(car, cdr) { printf("("); dump1(car); dump1_list(cdr); }
-    Number(n) { printf("%g", n); }
+    Flote(n) { printf("%g", n); }
+    Integer(n) { printf("%d", n); }
+    Character(n) { printf("%c", n); }
     Function(f, name) { printf("[func %s]", name); }
     Nil() { printf("()"); }
     end;
@@ -91,7 +95,13 @@ bool eq(yeah* a, yeah* b) {
   //printf("EQ "); dumps(a); printf(" "); dumps(b); printf("\n");
   if (a == b) {
     return true;
-  } else if (isnumber(a) && isnumber(b) && (a->u.number.d == b->u.number.d)) {
+  } else if (isinteger(a) && isinteger(b) && (a->u.integer.i == b->u.integer.i)) {
+    return true;
+  } else if (isinteger(a) && isflote(b) && (a->u.integer.i == b->u.flote.d)) {
+    return true;
+  } else if (isflote(a) && isinteger(b) && (a->u.flote.d == b->u.integer.i)) {
+    return true;
+  } else if (isflote(a) && isflote(b) && (a->u.flote.d == b->u.flote.d)) {
     return true;
   } else if (isnil(a) && isnil(b)) {
     return true;
@@ -205,13 +215,14 @@ yeah* driver(yeah* command) {
 }
 
 yeah* __prim_putchar(yeah* args) {
-  yeah *i;
-  listmatch1(args, &i);
-  putchar((int)i->u.number.d);
+  yeah *c;
+  listmatch1(args, &c);
+  A(ischaracter(c));
+  putchar(c->u.character.c);
   return mknil();
 }
 
 yeah* __prim_getchar(yeah* args) {
   A(isnil(args));
-  return mknumber(getchar());
+  return mkcharacter(getchar());
 }

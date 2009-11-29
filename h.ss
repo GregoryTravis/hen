@@ -63,7 +63,9 @@
    pat
    (mtch pat
          ('Sym lit) `(if (eq? ,var ,pat) ,body)
-         ('Num n) `(if (eq? ,var ,pat) ,body)
+         ('Float n) `(if (eq? ,var ,pat) ,body)
+         ('Integer n) `(if (eq? ,var ,pat) ,body)
+         ('Char n) `(if (eq? ,var ,pat) ,body)
          () `(if (eq? ,var ,pat) ,body)
 
          ('Var a) `(assign ,a ,var ,body)
@@ -114,7 +116,9 @@
         ('eq? a b) (list "eq(" (render a) ", " (render b) ")")
 
         ('Sym lit) (render-exp p)
-        ('Num n) (render-exp p)
+        ('Float n) (render-exp p)
+        ('Integer n) (render-exp p)
+        ('Character n) (render-exp p)
         () (render-exp p)
 
         ('build b) (list "return " (render-exp b) ";")
@@ -145,7 +149,9 @@
 (define (cobj tag o) (begin (add-object tag o) (name-c-global (encode-nonalpha o))))
 
 (define (csym s) (cobj 'symbol (encode-nonalpha s)))
-(define (cnum n) (cobj 'number n))
+(define (cfloat n) (cobj 'float n))
+(define (cint i) (cobj 'integer i))
+(define (cchar c) (cobj 'character c))
 (define (cfunction f) (cobj 'function f))
 
 (define (gather-globals tlfs)
@@ -169,11 +175,15 @@
   (mtch body
         ('GVar 'if) '()
         ('GVar gvar) (list gvar)
-        ('Num n) '()
+        ('Float n) '()
+        ('Integer n) '()
+        ('Character n) '()
         ('Sym s) '()
         ('Closure name env) '()
         ('Var v) '()
         (a . d) (map-append gather-global-refs-exp body)))
+
+;(tracefun gather-global-refs-exp)
 
 (define ffi-info #f)
 
@@ -192,6 +202,7 @@
   (set-difference global-refs (map cadr objects)))
 
 (define (generate-foreign)
+  ;(shew (get-undefined-globals) ffi-info)
   (map (lambda (name)
          (let ((what (lookup name ffi-info)))
            (mtch what
@@ -211,7 +222,9 @@
 
 (define (eh-lord o)
   (cond
-   ((number? o) `(number ,o))
+   ((inexact? o) `(float ,o))
+   ((number? o) `(integer ,o))
+   ((char? o) `(character ,o))
    (#t (err o))))
 
 (define (generate-define name value)
@@ -249,14 +262,18 @@
 (define (param-extractor name type e)
   (mtch (->symbol type)
         'float* (list "  A(isopaque(" e "));\n" "  float* " name " = (float*)"e "->u.opaque.o;\n")
-        'float (list "  A(isnumber(" e "));\n" "  float " name " = " e "->u.number.d;\n")
+        'float (list "  A(isflote(" e "));\n" "  float " name " = " e "->u.flote.d;\n")
+        'int* (list "  A(isopaque(" e "));\n" "  int* " name " = (int*)"e "->u.opaque.o;\n")
+        'int (list "  A(isinteger(" e "));\n" "  int " name " = " e "->u.integer.i;\n")
         'void* (list "  A(isopaque(" e "));\n" "  float* " name " = (void*)"e "->u.opaque.o;\n")
         'void (list "  A(isnil(" e "));\n" "  float* " name " = mknil()")))
 
 (define (param-builder type e)
   (mtch (->symbol type)
         'float* (list "mkopaque((void*)" e ")")
-        'float (list "mknumber(" e ")")
+        'float (list "mkflote(" e ")")
+        'int* (list "mkopaque((void*)" e ")")
+        'int (list "mkinteger(" e ")")
         'void* (list "mkopaque((void*)" e ")")
         'void (list "mknil()")))
 
@@ -269,15 +286,21 @@
 (define (render-object-yeah-initializer o)
   (mtch o
         ('symbol s) (list "{ TAG_symbol, { .symbol = { " (qt s) " } } }")
-        ('number n) (list "{ TAG_number, { .number = { " n " } } }")
+        ('integer n) (list "{ TAG_integer, { .integer = { " n " } } }")
+        ('float n) (list "{ TAG_flote, { .flote = { " n " } } }")
+        ('character n) (list "{ TAG_character, { .character = { '" n "' } } }")
         ('function f) (list "{ TAG_function, { .function = { &__" f ", \"" f "\" } } }")))
 
 (define (render-object-def o)
   (mtch o
         ('symbol s) (list "yeah " (csym s) "_ = " (render-object-yeah-initializer o) ";\n"
                           "yeah* " (csym s) " = &" (csym s) "_;\n")
-        ('number n) (list "yeah " (cnum n) "_ = " (render-object-yeah-initializer o) ";\n"
-                          "yeah* " (cnum n) " = &" (cnum n) "_;\n")
+        ('integer n) (list "yeah " (cint n) "_ = " (render-object-yeah-initializer o) ";\n"
+                           "yeah* " (cint n) " = &" (cint n) "_;\n")
+        ('float n) (list "yeah " (cfloat n) "_ = " (render-object-yeah-initializer o) ";\n"
+                         "yeah* " (cfloat n) " = &" (cfloat n) "_;\n")
+        ('character n) (list "yeah " (cchar n) "_ = " (render-object-yeah-initializer o) ";\n"
+                        "yeah* " (cchar n) " = &" (cchar n) "_;\n")
         ('function f) (list "yeah " (cfunction f) "_ = " (render-object-yeah-initializer o) ";\n"
                             "yeah* " (cfunction f) " = &" (cfunction f) "_;\n")))
 
@@ -288,13 +311,16 @@
         ('Sym sym) (csym sym)
         ('Var var) var
         ('GVar var) (name-c-global var)
-        ('Num n) (list (cnum n))
+        ('Float n) (list (cfloat n))
+        ('Integer n) (list (cint n))
+        ('Character n) (list (cchar n))
         (('Sym a) . d) (if (ctor? a) (render-exp-list b) (render-app-list b))
         (('Var v) . d) (list "apply(" v ", " (render-exp-list d) ")")
         (('Closure name closed-over-args) . args) (list "apply(" (render-exp `(Closure ,name ,closed-over-args)) ", " (render-exp-list args) ")")
         (('GVar name) . d) (list "__" name "(" (render-exp-list d) ")")
         (a . d) (list "apply(" (render-exp a) ", " (render-exp-list d) ")")
         () "mknil()"))
+;(tracefun render-exp)
 
 (define (render-exp-list b)
   (mtch b
@@ -378,7 +404,9 @@
         ('Sym s) '()
         ('Var v) (list v)
         ('GVar v) '()
-        ('Num n) '()
+        ('Float n) '()
+        ('Integer n) '()
+        ('Character n) '()
         (a . d) (map-append vars-of1 e)
         () '()))
 
@@ -415,7 +443,9 @@
    ('Sym s) e
    ('Var v) e
    ('GVar v) e
-   ('Num n) e
+   ('Float n) e
+   ('Integer n) e
+   ('Character n) e
    ('Lambda args body) (let* ((lift-id (sg 'lambda_))
                               (lifted-body (mark-lambda-exp body (append bound-vars (vars-of args))))
                               (vars-to-close-over (map (lambda (x) `(Var ,x)) bound-vars)))
@@ -432,7 +462,9 @@
    ('Sym s) e
    ('Var v) e
    ('GVar v) e
-   ('Num n) e
+   ('Float n) e
+   ('Integer n) e
+   ('Character n) e
    ('MarkedLambda args id vars-to-close-over body) `(Closure (GVar ,id) (ClosedOverArgs . ,vars-to-close-over))
    (a . d) (map lift-marked-rule-exp e)))
 
@@ -445,7 +477,9 @@
    ('Sym s) '()
    ('Var v) '()
    ('GVar v) '()
-   ('Num n) '()
+   ('Float n) '()
+   ('Integer n) '()
+   ('Character n) '()
    ('MarkedLambda args id vars-to-close-over body) (append
                                                     (list `(Rule ((Sym ,id) ,vars-to-close-over ,args) ,(lift-marked-rule-exp body)))
                                                     (lift-gather-additional-exp body))
@@ -456,6 +490,8 @@
 (define (divdot? e) (mtch e ('divdot . rest) #t _ #f))
 
 (define (parse-exp e is-var)
+;(shew 'lap e (symbol? e))
+;(shew 'lap2 #\g (symbol? #\g))
   (cond
    ((divdot? e) (mtch e ('divdot args body)
                       (let ((parsed-args (map ($ parse-exp _ (lambda (v) #t)) args)))
@@ -464,9 +500,13 @@
    ((quoted-symbol? e) `(Sym ,(cadr e)))
    ((pair? e) (map ($ parse-exp _ is-var) (if (is-var e) (quote-head-function e) e)))
    ((symbol? e) (if (is-var e) `(Var ,e) `(GVar ,e)))
-   ((number? e) `(Num ,e))
+   ((and (number? e) (inexact? e)) `(Float ,e))
+   ((number? e) `(Integer ,e))
+   ((char? e) `(Character ,e))
 ;   ((null? e) e)
    (#t (err 'parse-exp e))))
+
+;(tracefun parse-exp)
 
 (define (fun? f)
   (mtch f
@@ -497,7 +537,10 @@
   (let* ((src-file (++ src-stub ".ss"))
          (c-file (++ src-stub ".c"))
          (prog (map-append read-objects (cons src-file autoincludes))))
+;(shew 'prog (read-objects src-file) (read-objects "blap"))
     (call-with-output-file c-file (lambda (port) (display (compile-program prog) port)))))
+
+;(tracefun read-objects)
 
 (define gcc-options "-g -O6 -Wall -std=c99 -Wno-unused-variable")
 (define (ext f e) (++ f "." e))
@@ -583,6 +626,7 @@
 ;(tracefun operator-rename-unpreprocess operator-rename-preprocess)
 ;(tracefun list-syntax-preprocess)
 
+;(shew 'ippp #\g (symbol? #\g) (read-objects "blap") (map symbol? (read-objects "blap")))
 (define (skiff stub)
   (mtch (read-objects (++ stub ".blick"))
         ((src stub funs))

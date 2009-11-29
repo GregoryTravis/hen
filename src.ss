@@ -2,13 +2,13 @@
 (ffi "shew")
 (fun (main)
      (doo
-      ref (create_float_ref poop)
-      val (read_float_ref ref)
-      _ (shew_float val)
-      _ (write_float_ref ref 20)
-      val (read_float_ref ref)
-      _ (shew_float val)
-      _ (destroy_float_ref ref)))
+      ref (create_int_ref poop)
+      val (read_int_ref ref)
+      _ (shew_int val)
+      _ (write_int_ref ref 20)
+      val (read_int_ref ref)
+      _ (shew_int val)
+      _ (destroy_int_ref ref)))
 
 ;; (fun (main)
 ;;      (doo

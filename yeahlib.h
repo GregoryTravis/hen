@@ -20,4 +20,6 @@ yeah* map(yeah* (*f)(yeah*), yeah* list);
 
 bool isthissymbol(yeah* o, char *name);
 
+bool isnumber(yeah* o);
+
 #endif /* _yeahlib_h_ */

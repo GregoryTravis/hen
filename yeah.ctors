@@ -1,6 +1,8 @@
 pair yeah*:car yeah*:cdr
 symbol char*:txt
 nil
-number double:d
+flote double:d
+integer int:i
+character char:c
 function primfunn:f char*:name
 opaque void*:o
