@@ -1003,11 +1003,11 @@
 
 (define (typeof o)
   (cond
-   ((cton? o) 'cton)
-   ((ctor? o) 'ctor)
+   ((pair? o) 'pair)
    ((string? o) 'string)
    ((number? o) 'number)
    ((symbol? o) 'symbol)
+   ((null? o) 'nil)
    (#t (err 'typeof o))))
 
 (define (lookup k env)
@@ -1024,6 +1024,9 @@
 
 (define (lookup-exists? e env)
   (not (eq? #f (assoc e env))))
+
+(define (translate-or-not name ass)
+  (lookup-or name ass name))
 
 (define 1st car)
 (define 2nd cadr)
@@ -1043,7 +1046,7 @@
    ((null? l) 'Nil)
    (#t l)))
 
-(define (smart== a b)
+(define (== a b)
   (or (and (number? a) (= a b))
       (and (string? a) (string= a b))
       (equal? a b)))
@@ -1120,7 +1123,7 @@
    (#t (cons (car lyst) (get-extension-1 (cdr lyst))))))
 
 (define make-debug #f)
-(define make-show-commands #t)
+(define make-show-commands #f)
 
 (define (make-inline-implicits rule)
   (cond
@@ -1229,3 +1232,14 @@
                               (lshew ,var)
                               (display "\n")))
                           vars))))
+
+(define (+++ o)
+  (cond
+   ((pair? o) (++ (+++ (car o)) (+++ (cdr o))))
+   ((null? o) "")
+   (#t (->string o))))
+
+(define (set-difference a b)
+  (if (null? b)
+      a
+      (set-difference (remove (car b) a) (cdr b))))
