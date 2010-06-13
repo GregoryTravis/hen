@@ -1,1 +1,1 @@
-mzscheme -g -r main.ss
+petite --script tower.ss
