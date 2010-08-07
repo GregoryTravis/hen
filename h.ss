@@ -3,6 +3,7 @@
 (define pat '(Cons a (Barf c d 12)))
 (define body '(Joe d c a))
 (define clause `(clause ,pat ,body))
+(define clauses `((,pat ,body))) ;`(clauses (,clause)))
 
 (define make-var (symbol-generator-generator))
 
@@ -19,8 +20,10 @@
    ((pair? pat) `(list ,(map pat->explicit-terms pat)))))
 (define (clause->explicit-terms clause)
   (mtch clause
-        ('clause pat body) `(clause ,(pat->explicit-terms pat)
+        (pat body) `(clause ,(pat->explicit-terms pat)
                             ,(pat->explicit-terms body))))
+(define (clauses->explicit-terms clauses)
+  `(clauses ,(map clause->explicit-terms clauses)))
 
 (define (compile-pat pat exp body)
   (mtch pat
@@ -42,6 +45,12 @@
         ('clause pat body) (let ((new-v (make-var)))
                              `(/. (,new-v) ,(compile-pat pat new-v (compile-body body))))))
 
+(define (compile-clauses var clauses)
+  (mtch clauses
+        ('clauses (clause . clauses)) `(let ((fail (/. () (,(compile-clauses var `(clauses ,clauses)) ,var))))
+                                         (,(compile-clause clause) ,var))
+        ('clauses ()) `(begin (display 'fail) (exit))))
+
 (define (->scheme e)
   (mtch e
         ('quote lit) e
@@ -59,12 +68,19 @@
 ;(shew body)
 ;(compile-body (pat->explicit-terms body))
 
-(shew clause)
-(compile-clause (clause->explicit-terms clause))
-(->scheme (compile-clause (clause->explicit-terms clause)))
-(define term (list (->scheme (compile-clause (clause->explicit-terms clause))) ''(Cons 10 (Barf 20 30 12))))
-(shew term)
-(eval term)
+;(shew clause)
+;(compile-clause (clause->explicit-terms clause))
+;(->scheme (compile-clause (clause->explicit-terms clause)))
+;(define term (list (->scheme (compile-clause (clause->explicit-terms clause))) ''(Cons 10 (Barf 20 30 12))))
+;(shew term)
+;(eval term)
+
+(shew clauses)
+;(clauses->explicit-terms clauses)
+(->scheme (compile-clauses 'joe (clauses->explicit-terms clauses)))
+
+;(shew fun)
+;(fun->explicit-terms fun)
 
 ;; (cond
 ;;    ((pat-literal? pat)
