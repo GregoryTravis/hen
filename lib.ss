@@ -509,7 +509,7 @@
                        lyst))
              (in-group (car divided))
              (not-in-group (cdr divided)))
-        (cons (cons group-of-car in-group)
+        (cons (list group-of-car in-group)
               (group-by f not-in-group)))))
 
 ;; Elements may match more than one predicate; they are grouped with

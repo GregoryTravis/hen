@@ -29,9 +29,9 @@
   (mtch pat
         ('literal lit) `(if (equal? ',lit ,exp) ,body (fail))
         ('variable v) `(let ((,v ,exp)) ,body)
-        ('list (pat . pats)) (let ((new-v (make-var)))
-                               `(let ((,new-v ,exp))
-                                  ,(compile-pat pat `(car ,new-v) (compile-pat `(list ,pats) `(cdr ,new-v) body))))
+        ('list (pat . pats)) (let ((new-var (make-var)))
+                               `(let ((,new-var ,exp))
+                                  ,(compile-pat pat `(car ,new-var) (compile-pat `(list ,pats) `(cdr ,new-var) body))))
         ('list ()) body))
 
 (define (compile-body body)
@@ -42,8 +42,8 @@
 
 (define (compile-clause clause)
   (mtch clause
-        ('clause pat body) (let ((new-v (make-var)))
-                             `(/. (,new-v) ,(compile-pat pat new-v (compile-body body))))))
+        ('clause pat body) (let ((new-var (make-var)))
+                             `(/. (,new-var) ,(compile-pat pat new-var (compile-body body))))))
 
 (define (compile-clauses var clauses)
   (mtch clauses
@@ -52,8 +52,8 @@
         ('clauses ()) `(begin (display 'fail) (exit))))
 
 (define (function->scheme name clauses)
-  (let ((new-v (make-var)))
-    `(define (,name ,new-v) ,(->scheme (compile-clauses new-v clauses)))))
+  (let ((new-var (make-var)))
+    `(define (,name ,new-var) ,(->scheme (compile-clauses new-var clauses)))))
 
 (define (->scheme e)
   (mtch e
@@ -62,6 +62,19 @@
         ('let bindings body) `(let ,(lensmap cadr-lens ->scheme bindings) ,(->scheme body))
         (a . d) (map ->scheme e)
         x x))
+
+;; ((fun ...) (fun ...) ...) => ((name clauses) (name clauses) ...)
+(define (funs->named-clause-lists src)
+  (let* ((single-named-clauses
+          (map (lambda (tlf)
+                 (mtch tlf
+                       ('fun (name . pat) body) `(,name (,pat ,body))))
+               src))
+         (grouped-but-with-redundant-fun-name (group-by car single-named-clauses))
+         (names-and-clauses (lensmap cadr-lens
+                                     (lambda (bluh) (map cadr bluh))
+                                     grouped-but-with-redundant-fun-name)))
+    names-and-clauses))
 
 ;(pat->explicit-terms pat)
 ;(tracefun pat->explicit-terms compile-pat)
@@ -79,17 +92,27 @@
 ;(shew term)
 ;(eval term)
 
-(shew clauses)
+;(shew clauses)
 ;(clauses->explicit-terms clauses)
 ;(->scheme (compile-clauses 'joe (clauses->explicit-terms clauses)))
 
-(define func (function->scheme 'joe (clauses->explicit-terms clauses)))
-(shew func)
-(eval func)
-(shew joe)
-(define term '(joe '(Cons 10 (Barf 20 30 12))))
-(shew term)
-(eval term)
+;; (define func (function->scheme 'joe (clauses->explicit-terms clauses)))
+;; (shew func)
+;; (eval func)
+;; (shew joe)
+;; (define term '(joe '(Cons 10 (Barf 20 30 12))))
+;; (shew term)
+;; (eval term)
+
+(define src
+  '(
+    (fun (foo (Cons a (Barf c d 12))) (Joe d c a))
+    (fun (foo (Cons a (Tween t))) (Ack t t t))
+    (fun (bar a b) (Blech b a))
+    ))
+
+(shew src)
+(funs->named-clause-lists src)
 
 ;(shew fun)
 ;(fun->explicit-terms fun)
