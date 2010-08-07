@@ -72,6 +72,12 @@
 (define (funs->named-clause-lists src)
   (lensmap cadr-lens ($ map fun->clause _) (group-by fun-name src)))
 
+(define (src->defines src)
+  (map (lambda (blah) (mtch blah (name clauses) (function->scheme name (clauses->explicit-terms clauses))))
+       (funs->named-clause-lists src)))
+
+(tracefun function->scheme)
+
 ;(pat->explicit-terms pat)
 ;(tracefun pat->explicit-terms compile-pat)
 
@@ -108,7 +114,8 @@
     ))
 
 (shew src)
-(funs->named-clause-lists src)
+(shew (funs->named-clause-lists src))
+(shew (src->defines src))
 
 ;(shew fun)
 ;(fun->explicit-terms fun)
