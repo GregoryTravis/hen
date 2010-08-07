@@ -51,6 +51,10 @@
                                          (,(compile-clause clause) ,var))
         ('clauses ()) `(begin (display 'fail) (exit))))
 
+(define (function->scheme name clauses)
+  (let ((new-v (make-var)))
+    `(define (,name ,new-v) ,(->scheme (compile-clauses new-v clauses)))))
+
 (define (->scheme e)
   (mtch e
         ('quote lit) e
@@ -77,7 +81,15 @@
 
 (shew clauses)
 ;(clauses->explicit-terms clauses)
-(->scheme (compile-clauses 'joe (clauses->explicit-terms clauses)))
+;(->scheme (compile-clauses 'joe (clauses->explicit-terms clauses)))
+
+(define func (function->scheme 'joe (clauses->explicit-terms clauses)))
+(shew func)
+(eval func)
+(shew joe)
+(define term '(joe '(Cons 10 (Barf 20 30 12))))
+(shew term)
+(eval term)
 
 ;(shew fun)
 ;(fun->explicit-terms fun)
