@@ -1,6 +1,8 @@
 (load "lib.ss")
 
 (define pat '(Cons a (Barf c d 12)))
+(define body '(Joe d c a))
+(define clause `(clause ,pat ,body))
 
 (define make-var (symbol-generator-generator))
 
@@ -15,20 +17,42 @@
    ((pat-ctor? pat) `(literal ,pat))
    ((pat-variable? pat) `(variable ,pat))
    ((pair? pat) `(list ,(map pat->explicit-terms pat)))))
+(define (clause->explicit-terms clause)
+  (mtch clause
+        ('clause pat body) `(clause ,(pat->explicit-terms pat)
+                            ,(pat->explicit-terms body))))
 
-(define (pat->/. pat exp body)
+(define (compile-pat pat exp body)
   (mtch pat
         ('literal lit) `(if (equals? ',lit ,exp) ,body (fail))
         ('variable v) `(let ((,v ,exp)) ,body)
         ('list (pat . pats)) (let ((new-v (make-var)))
                                `(let ((,new-v ,exp))
-                                  ,(pat->/. pat `(car ,new-v) (pat->/. `(list ,pats) `(cdr ,new-v) body))))
+                                  ,(compile-pat pat `(car ,new-v) (compile-pat `(list ,pats) `(cdr ,new-v) body))))
         ('list ()) body))
 
+(define (compile-body body)
+  (mtch body
+        ('literal lit) `',lit
+        ('variable v) v
+        ('list exps) `(list . ,(map compile-body exps))))
+
+(define (compile-clause clause)
+  (mtch clause
+        ('clause pat body) (let ((new-v (make-var)))
+                             `(/. (,new-v) ,(compile-pat pat new-v (compile-body body))))))
+
 ;(pat->explicit-terms pat)
-;(tracefun pat->explicit-terms pat->/.)
-(shew pat)
-(pat->/. (pat->explicit-terms pat) 'v 'yeah)
+;(tracefun pat->explicit-terms compile-pat)
+
+;(shew pat)
+;(compile-pat (pat->explicit-terms pat) 'v 'yeah)
+
+;(shew body)
+;(compile-body (pat->explicit-terms body))
+
+(shew clause)
+(compile-clause (clause->explicit-terms clause))
 
 ;; (cond
 ;;    ((pat-literal? pat)
