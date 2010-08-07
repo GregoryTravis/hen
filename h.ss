@@ -24,7 +24,7 @@
 
 (define (compile-pat pat exp body)
   (mtch pat
-        ('literal lit) `(if (equals? ',lit ,exp) ,body (fail))
+        ('literal lit) `(if (equal? ',lit ,exp) ,body (fail))
         ('variable v) `(let ((,v ,exp)) ,body)
         ('list (pat . pats)) (let ((new-v (make-var)))
                                `(let ((,new-v ,exp))
@@ -42,6 +42,14 @@
         ('clause pat body) (let ((new-v (make-var)))
                              `(/. (,new-v) ,(compile-pat pat new-v (compile-body body))))))
 
+(define (->scheme e)
+  (mtch e
+        ('quote lit) e
+        ('/. vars body) `(lambda ,vars ,(->scheme body))
+        ('let bindings body) `(let ,(lensmap cadr-lens ->scheme bindings) ,(->scheme body))
+        (a . d) (map ->scheme e)
+        x x))
+
 ;(pat->explicit-terms pat)
 ;(tracefun pat->explicit-terms compile-pat)
 
@@ -53,6 +61,10 @@
 
 (shew clause)
 (compile-clause (clause->explicit-terms clause))
+(->scheme (compile-clause (clause->explicit-terms clause)))
+(define term (list (->scheme (compile-clause (clause->explicit-terms clause))) ''(Cons 10 (Barf 20 30 12))))
+(shew term)
+(eval term)
 
 ;; (cond
 ;;    ((pat-literal? pat)
