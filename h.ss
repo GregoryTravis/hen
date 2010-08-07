@@ -12,6 +12,11 @@
 (define (pat-variable? x) (and (symbol? x) (not (ctor? x))))
 (define (pat-ctor? x) (ctor? x))
 
+(define (fun-name fun)
+  (mtch fun ('fun (name . pat) body) name))
+(define (fun->clause fun)
+  (mtch fun ('fun (name . pat) body) `(,pat ,body)))
+
 (define (pat->explicit-terms pat)
   (cond
    ((pat-literal? pat) `(literal ,pat))
@@ -65,16 +70,7 @@
 
 ;; ((fun ...) (fun ...) ...) => ((name clauses) (name clauses) ...)
 (define (funs->named-clause-lists src)
-  (let* ((single-named-clauses
-          (map (lambda (tlf)
-                 (mtch tlf
-                       ('fun (name . pat) body) `(,name (,pat ,body))))
-               src))
-         (grouped-but-with-redundant-fun-name (group-by car single-named-clauses))
-         (names-and-clauses (lensmap cadr-lens
-                                     ($ map cadr _)
-                                     grouped-but-with-redundant-fun-name)))
-    names-and-clauses))
+  (lensmap cadr-lens ($ map fun->clause _) (group-by fun-name src)))
 
 ;(pat->explicit-terms pat)
 ;(tracefun pat->explicit-terms compile-pat)
