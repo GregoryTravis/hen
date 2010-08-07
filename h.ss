@@ -72,7 +72,7 @@
                src))
          (grouped-but-with-redundant-fun-name (group-by car single-named-clauses))
          (names-and-clauses (lensmap cadr-lens
-                                     (lambda (bluh) (map cadr bluh))
+                                     ($ map cadr _)
                                      grouped-but-with-redundant-fun-name)))
     names-and-clauses))
 
