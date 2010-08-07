@@ -1,1 +1,1 @@
-mzscheme -r h.ss
+mzscheme -e "(load \"h.ss\")"
