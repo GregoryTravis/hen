@@ -13,14 +13,6 @@
 (define (fun->clause fun) (mtch fun ('fun (name . pat) body) `(,pat ,body)))
 (define (is-fun? fun) (mtch fun ('fun (name . pat) body) #t _ #f))
 
-(define (pat->explicit-terms pat) pat)
-(define (clause->explicit-terms clause)
-  (mtch clause
-        (pat body) `(,(pat->explicit-terms pat)
-                     ,(pat->explicit-terms body))))
-(define (clauses->explicit-terms clauses)
-  (map clause->explicit-terms clauses))
-
 (define (compile-pat pat exp body)
   (cond
    ((pat-literal? pat) `(if (equal? ',pat ,exp) ,body (fail)))
@@ -68,14 +60,14 @@
   (lensmap cadr-lens ($ map fun->clause _) (group-by fun-name src)))
 
 (define (src->defines src)
-  (map (lambda (blah) (mtch blah (name clauses) (function->scheme name (clauses->explicit-terms clauses))))
+  (map (lambda (blah) (mtch blah (name clauses) (function->scheme name clauses)))
        (funs->named-clause-lists (grep is-fun? src))))
 (define (src->tles src)
   (grep (fnot is-fun?) src))
 
 (define (src->scheme src)
   (let ((defines (src->defines src))
-        (main `(begin . ,(map compile-body (map pat->explicit-terms (src->tles src))))))
+        (main `(begin . ,(map compile-body (src->tles src)))))
     (append defines (list main))))
 
 (define (run-src src)
