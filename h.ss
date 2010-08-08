@@ -58,7 +58,7 @@
 
 (define (function->scheme name clauses)
   (let ((new-var (make-var)))
-    `(define (,name ,new-var) ,(->scheme (compile-clauses new-var clauses)))))
+    `(define (,name . ,new-var) ,(->scheme (compile-clauses new-var clauses)))))
 
 (define (->scheme e)
   (mtch e
@@ -114,8 +114,13 @@
     ))
 
 (shew src)
-(shew (funs->named-clause-lists src))
-(shew (src->defines src))
+;(shew (funs->named-clause-lists src))
+;(shew (src->defines src))
+(define term '(foo '(Cons 10 (Barf 20 30 12))))
+(if (file-exists? "obj.ss") (delete-file "obj.ss") '())
+(write-objects-to-file "obj.ss" (append (src->defines src) (list term)))
+(shew (load "obj.ss"))
+(delete-file "obj.ss")
 
 ;(shew fun)
 ;(fun->explicit-terms fun)

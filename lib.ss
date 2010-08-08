@@ -13,6 +13,20 @@
 ;(require-for-syntax (lib "list.ss"))
 (load "mtch.ss")
 
+(define _ 'f7g89f7d7f9d7fg987dfn97dfghdf87gdfog789dfg)
+(define ($-zip as bs)
+  (cond
+   ((and (pair? as) (eq? (car as) _))
+    (cons (car bs) ($-zip (cdr as) (cdr bs))))
+   ((pair? as) (cons (car as) ($-zip (cdr as) bs)))
+   ((null? as) bs)
+   (#t (err '$-zip as bs))))
+;(tracefun $-zip)
+
+(define ($ f . args0)
+  (lambda args1
+    (apply f ($-zip args0 args1))))
+
 (define impl-tracefun-indentation 0)
 (define trace-stump-level 1000)
 (define (trace-indent) (set! impl-tracefun-indentation (+ 1 impl-tracefun-indentation)))
@@ -163,6 +177,11 @@
                       (set! objects (cons object objects))
                       (read-em)))))))
     (reverse (read-em))))
+
+(define (write-objects-to-file filename os)
+  (call-with-output-file filename
+    (lambda (port)
+      (map ($ pretty-print _ port) os))))
 
 (define (pp . rest)
   (map pretty-print rest))
@@ -1208,20 +1227,6 @@
           '()))))
 
 ;(tracefun make make-inline-implicits make-get-annotated make-inputs-of-rule make-outputs-of-rule make-is-input-of? make-is-output-of? make-lookup-rule-for make-strip-annotation make-execute-rule make-build-target make-get-dependencies make-newer-than? make-strip-implicits)
-
-(define _ 'f7g89f7d7f9d7fg987dfn97dfghdf87gdfog789dfg)
-(define ($-zip as bs)
-  (cond
-   ((and (pair? as) (eq? (car as) _))
-    (cons (car bs) ($-zip (cdr as) (cdr bs))))
-   ((pair? as) (cons (car as) ($-zip (cdr as) bs)))
-   ((null? as) bs)
-   (#t (err '$-zip as bs))))
-;(tracefun $-zip)
-
-(define ($ f . args0)
-  (lambda args1
-    (apply f ($-zip args0 args1))))
 
 (define-macro (pv . vars)
   `(begin
