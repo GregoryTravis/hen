@@ -16,6 +16,8 @@
   (mtch fun ('fun (name . pat) body) name))
 (define (fun->clause fun)
   (mtch fun ('fun (name . pat) body) `(,pat ,body)))
+(define (is-fun? fun)
+  (mtch fun ('fun (name . pat) body) #t _ #f))
 
 (define (pat->explicit-terms pat)
   (cond
@@ -74,7 +76,14 @@
 
 (define (src->defines src)
   (map (lambda (blah) (mtch blah (name clauses) (function->scheme name (clauses->explicit-terms clauses))))
-       (funs->named-clause-lists src)))
+       (funs->named-clause-lists (grep is-fun? src))))
+(define (src->tles src)
+  (grep (fnot is-fun?) src))
+
+(define (src->scheme src)
+  (let ((defines (src->defines src))
+        (main `(begin . ,(src->tles src))))
+    (append defines (list main))))
 
 ;(tracefun function->scheme)
 
@@ -109,10 +118,9 @@
 (define src (read-objects "src.ss"))
 
 (define (run-src src)
-  (let ((obj-file "obj.ss")
-        (term '(foo '(Cons 10 (Barf 20 30 12)))))
+  (let ((obj-file "obj.ss"))
     (if (file-exists? obj-file) (delete-file obj-file) '())
-    (write-objects-to-file obj-file (append (src->defines src) (list term)))
+    (write-objects-to-file obj-file (src->scheme src))
     (shew (load obj-file))
     (delete-file obj-file)))
 
