@@ -4,25 +4,16 @@
 
 (define make-var (symbol-generator-generator))
 
-(define (pat-literal? x) (or (number? x) (is-quote? x) (string? x)))
-(define (literal-value x) (if (is-quote? x) (quote-quoted x) x))
-(define (pat-variable? x) (and (symbol? x) (not (ctor? x))))
 (define (pat-ctor? x) (ctor? x))
+(define (pat-literal? x) (or (pat-ctor? x)(number? x) (is-quote? x) (string? x)))
+(define (pat-variable? x) (and (symbol? x) (not (ctor? x))))
 (define (explicit-ctor? x) (mtch x ('literal s) (ctor? s) _ #f))
 
-(define (fun-name fun)
-  (mtch fun ('fun (name . pat) body) name))
-(define (fun->clause fun)
-  (mtch fun ('fun (name . pat) body) `(,pat ,body)))
-(define (is-fun? fun)
-  (mtch fun ('fun (name . pat) body) #t _ #f))
+(define (fun-name fun) (mtch fun ('fun (name . pat) body) name))
+(define (fun->clause fun) (mtch fun ('fun (name . pat) body) `(,pat ,body)))
+(define (is-fun? fun) (mtch fun ('fun (name . pat) body) #t _ #f))
 
-(define (pat->explicit-terms pat)
-  (cond
-   ((pat-literal? pat) `(literal ,pat))
-   ((pat-ctor? pat) `(literal ,pat))
-   ((pat-variable? pat) `(variable ,pat))
-   ((pair? pat) `(list ,(map pat->explicit-terms pat)))))
+(define (pat->explicit-terms pat) pat)
 (define (clause->explicit-terms clause)
   (mtch clause
         (pat body) `(,(pat->explicit-terms pat)
@@ -31,23 +22,23 @@
   (map clause->explicit-terms clauses))
 
 (define (compile-pat pat exp body)
-  (mtch pat
-        ('literal lit) `(if (equal? ',lit ,exp) ,body (fail))
-        ('variable v) `(let ((,v ,exp)) ,body)
-        ('list (pat . pats)) (let ((new-var (make-var)))
+  (cond
+   ((pat-literal? pat) `(if (equal? ',pat ,exp) ,body (fail)))
+   ((pat-variable? pat) `(let ((,pat ,exp)) ,body))
+   ((pair? pat) (let ((new-var (make-var)))
                                `(let ((,new-var ,exp))
                                   (if (pair? ,new-var)
-                                      ,(compile-pat pat `(car ,new-var) (compile-pat `(list ,pats) `(cdr ,new-var) body))
-                                      (fail))))
-        ('list ()) body))
+                                      ,(compile-pat (car pat) `(car ,new-var) (compile-pat (cdr pat) `(cdr ,new-var) body))
+                                      (fail)))))
+   ((null? pat) body)))
 
 (define (compile-body body)
-  (mtch body
-        ('literal lit) `',lit
-        ('variable v) v
-        ('list exps) (if (explicit-ctor? (car exps))
-                         `(list . ,(map compile-body exps))
-                         (map compile-body exps))))
+  (cond
+   ((pat-literal? body) `',body)
+   ((pat-variable? body) body)
+   ((pair? body) (if (ctor? (car body))
+                     `(list . ,(map compile-body body))
+                     (map compile-body body)))))
 
 (define (compile-clause clause)
   (mtch clause
