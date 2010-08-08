@@ -1,10 +1,5 @@
 (load "lib.ss")
 
-(define pat '(Cons a (Barf c d 12)))
-(define body '(Joe d c a))
-(define clause `(clause ,pat ,body))
-(define clauses `((,pat ,body))) ;`(clauses (,clause)))
-
 (define make-var (symbol-generator-generator))
 
 (define (pat-literal? x) (or (number? x) (is-quote? x) (string? x)))
@@ -85,36 +80,6 @@
         (main `(begin . ,(src->tles src))))
     (append defines (list main))))
 
-;(tracefun function->scheme)
-
-;(pat->explicit-terms pat)
-;(tracefun pat->explicit-terms compile-pat)
-
-;(shew pat)
-;(compile-pat (pat->explicit-terms pat) 'v 'yeah)
-
-;(shew body)
-;(compile-body (pat->explicit-terms body))
-
-;(shew clause)
-;(compile-clause (clause->explicit-terms clause))
-;(->scheme (compile-clause (clause->explicit-terms clause)))
-;(define term (list (->scheme (compile-clause (clause->explicit-terms clause))) ''(Cons 10 (Barf 20 30 12))))
-;(shew term)
-;(eval term)
-
-;(shew clauses)
-;(clauses->explicit-terms clauses)
-;(->scheme (compile-clauses 'joe (clauses->explicit-terms clauses)))
-
-;; (define func (function->scheme 'joe (clauses->explicit-terms clauses)))
-;; (shew func)
-;; (eval func)
-;; (shew joe)
-;; (define term '(joe '(Cons 10 (Barf 20 30 12))))
-;; (shew term)
-;; (eval term)
-
 (define src (read-objects "src.ss"))
 
 (define (run-src src)
@@ -124,25 +89,4 @@
     (shew (load obj-file))
     (delete-file obj-file)))
 
-;(shew src)
-;(shew (funs->named-clause-lists src))
-;(shew (src->defines src))
-
-;; (define term '(foo '(Cons 10 (Barf 20 30 12))))
-;; (if (file-exists? "obj.ss") (delete-file "obj.ss") '())
-;; (write-objects-to-file "obj.ss" (append (src->defines src) (list term)))
-;; (shew (load "obj.ss"))
-;; (delete-file "obj.ss")
 (run-src src)
-
-;(shew fun)
-;(fun->explicit-terms fun)
-
-;; (cond
-;;    ((pat-literal? pat)
-;;     `(if (equals? ,pat ',exp) ,body (fail)))
-;;    ((pat-variable? pat)
-;;     `(let ((,pat ,exp)) ,body))
-;;    ((pat-ctor?
-
-;(pat->explicit-terms pat)
