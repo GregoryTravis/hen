@@ -76,7 +76,7 @@
   (map (lambda (blah) (mtch blah (name clauses) (function->scheme name (clauses->explicit-terms clauses))))
        (funs->named-clause-lists src)))
 
-(tracefun function->scheme)
+;(tracefun function->scheme)
 
 ;(pat->explicit-terms pat)
 ;(tracefun pat->explicit-terms compile-pat)
@@ -113,14 +113,24 @@
     (fun (bar a b) (Blech b a))
     ))
 
-(shew src)
+(define (run-src src)
+  (let ((obj-file "obj.ss")
+        (term '(foo '(Cons 10 (Barf 20 30 12)))))
+    (if (file-exists? obj-file) (delete-file obj-file) '())
+    (write-objects-to-file obj-file (append (src->defines src) (list term)))
+    (shew (load obj-file))
+    (delete-file obj-file)))
+
+;(shew src)
 ;(shew (funs->named-clause-lists src))
 ;(shew (src->defines src))
-(define term '(foo '(Cons 10 (Barf 20 30 12))))
-(if (file-exists? "obj.ss") (delete-file "obj.ss") '())
-(write-objects-to-file "obj.ss" (append (src->defines src) (list term)))
-(shew (load "obj.ss"))
-(delete-file "obj.ss")
+
+;; (define term '(foo '(Cons 10 (Barf 20 30 12))))
+;; (if (file-exists? "obj.ss") (delete-file "obj.ss") '())
+;; (write-objects-to-file "obj.ss" (append (src->defines src) (list term)))
+;; (shew (load "obj.ss"))
+;; (delete-file "obj.ss")
+(run-src src)
 
 ;(shew fun)
 ;(fun->explicit-terms fun)
