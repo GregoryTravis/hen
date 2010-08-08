@@ -28,14 +28,11 @@
   (cond
    ((pat-literal? body) `',body)
    ((pat-variable? body) body)
-   ((pair? body) (if (ctor? (car body))
-                     `(list . ,(map compile-body body))
-                     (map compile-body body)))))
+   ((pair? body) (if (ctor? (car body)) `(list . ,(map compile-body body)) (map compile-body body)))))
 
 (define (compile-clause clause)
   (mtch clause
-        (pat body) (let ((new-var (make-var)))
-                     `(/. (,new-var) ,(compile-pat pat new-var (compile-body body))))))
+        (pat body) (let ((new-var (make-var))) `(/. (,new-var) ,(compile-pat pat new-var (compile-body body))))))
 
 (define (compile-clauses var clauses)
   (mtch clauses
