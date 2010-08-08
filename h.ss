@@ -23,7 +23,11 @@
                                   (if (pair? ,new-var)
                                       ,(compile-pat (car pat) `(car ,new-var) (compile-pat (cdr pat) `(cdr ,new-var) body))
                                       (fail)))))
-   ((null? pat) body)))
+   ((null? pat) (let ((new-var (make-var)))
+                               `(let ((,new-var ,exp))
+                                  (if (null? ,new-var)
+                                      ,body
+                                      (fail)))))))
 
 (define (compile-exp body)
   (cond
