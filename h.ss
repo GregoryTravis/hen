@@ -25,10 +25,10 @@
    ((pair? pat) `(list ,(map pat->explicit-terms pat)))))
 (define (clause->explicit-terms clause)
   (mtch clause
-        (pat body) `(clause ,(pat->explicit-terms pat)
-                            ,(pat->explicit-terms body))))
+        (pat body) `(,(pat->explicit-terms pat)
+                     ,(pat->explicit-terms body))))
 (define (clauses->explicit-terms clauses)
-  `(clauses ,(map clause->explicit-terms clauses)))
+  (map clause->explicit-terms clauses))
 
 (define (compile-pat pat exp body)
   (mtch pat
@@ -51,14 +51,14 @@
 
 (define (compile-clause clause)
   (mtch clause
-        ('clause pat body) (let ((new-var (make-var)))
-                             `(/. (,new-var) ,(compile-pat pat new-var (compile-body body))))))
+        (pat body) (let ((new-var (make-var)))
+                     `(/. (,new-var) ,(compile-pat pat new-var (compile-body body))))))
 
 (define (compile-clauses var clauses)
   (mtch clauses
-        ('clauses (clause . clauses)) `(let ((fail (/. () ,(compile-clauses var `(clauses ,clauses)))))
-                                         (,(compile-clause clause) ,var))
-        ('clauses ()) `(begin (display 'fail) (exit))))
+        (clause . clauses) `(let ((fail (/. () ,(compile-clauses var clauses))))
+                              (,(compile-clause clause) ,var))
+        () `(begin (display 'fail) (exit))))
 
 (define (function->scheme name clauses)
   (let ((new-var (make-var)))
