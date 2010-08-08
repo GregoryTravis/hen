@@ -42,12 +42,6 @@
                               (,(compile-clause clause) ,var))
         () `(begin (display 'fail) (exit))))
 
-(define (named-clauses->define named-clauses)
-  (mtch named-clauses
-        (name clauses)
-        (let ((new-var (make-var)))
-          `(define (,name . ,new-var) ,(->scheme (compile-clauses new-var clauses))))))
-
 (define (->scheme e)
   (mtch e
         ('quote lit) e
@@ -55,6 +49,12 @@
         ('let bindings body) `(let ,(lensmap cadr-lens ->scheme bindings) ,(->scheme body))
         (a . d) (map ->scheme e)
         x x))
+
+(define (named-clauses->define named-clauses)
+  (mtch named-clauses
+        (name clauses)
+        (let ((new-var (make-var)))
+          `(define (,name . ,new-var) ,(->scheme (compile-clauses new-var clauses))))))
 
 ;; ((fun ...) (fun ...) ...) => ((name clauses) (name clauses) ...)
 (define (funs->named-clauseses src)
