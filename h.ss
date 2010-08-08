@@ -25,16 +25,16 @@
                                       (fail)))))
    ((null? pat) body)))
 
-(define (compile-body body)
+(define (compile-exp body)
   (cond
-   ((lambda? body) (mtch body ('/. v body) `(/. ,v ,(compile-body body))))
+   ((lambda? body) (mtch body ('/. v body) `(/. ,v ,(compile-exp body))))
    ((pat-literal? body) `',body)
    ((pat-variable? body) body)
-   ((pair? body) (if (ctor? (car body)) `(list . ,(map compile-body body)) (map compile-body body)))))
+   ((pair? body) (if (ctor? (car body)) `(list . ,(map compile-exp body)) (map compile-exp body)))))
 
 (define (compile-clause clause)
   (mtch clause
-        (pat body) (let ((new-var (make-var))) `(/. (,new-var) ,(compile-pat pat new-var (compile-body body))))))
+        (pat body) (let ((new-var (make-var))) `(/. (,new-var) ,(compile-pat pat new-var (compile-exp body))))))
 
 (define (compile-clauses var clauses)
   (mtch clauses
@@ -57,13 +57,13 @@
         x x))
 
 ;; ((fun ...) (fun ...) ...) => ((name clauses) (name clauses) ...)
-(define (funs->named-clause-lists src)
+(define (funs->named-clauseses src)
   (lensmap cadr-lens ($ map fun->clause _) (group-by fun-name src)))
 
 (define (src->defines src)
-  (map named-clauses->define (funs->named-clause-lists (grep is-fun? src))))
+  (map named-clauses->define (funs->named-clauseses (grep is-fun? src))))
 (define (src->main src)
-  `(begin . ,(map ->scheme (map compile-body (grep (fnot is-fun?) src)))))
+  `(begin . ,(map ->scheme (map compile-exp (grep (fnot is-fun?) src)))))
 
 ;; hen src -> defines and tle
 (define (src->scheme src) (snoc (src->defines src) (src->main src)))
