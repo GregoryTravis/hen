@@ -1,11 +1,14 @@
 (load "lib.ss")
 
+(define keep-generated #f)
+
 (define make-var (symbol-generator-generator))
 
 (define (pat-literal? x) (or (number? x) (is-quote? x) (string? x)))
 (define (literal-value x) (if (is-quote? x) (quote-quoted x) x))
 (define (pat-variable? x) (and (symbol? x) (not (ctor? x))))
 (define (pat-ctor? x) (ctor? x))
+(define (explicit-ctor? x) (mtch x ('literal s) (ctor? s) _ #f))
 
 (define (fun-name fun)
   (mtch fun ('fun (name . pat) body) name))
@@ -40,7 +43,9 @@
   (mtch body
         ('literal lit) `',lit
         ('variable v) v
-        ('list exps) `(list . ,(map compile-body exps))))
+        ('list exps) (if (explicit-ctor? (car exps))
+                         `(list . ,(map compile-body exps))
+                         (map compile-body exps))))
 
 (define (compile-clause clause)
   (mtch clause
@@ -77,7 +82,7 @@
 
 (define (src->scheme src)
   (let ((defines (src->defines src))
-        (main `(begin . ,(src->tles src))))
+        (main `(begin . ,(map compile-body (map pat->explicit-terms (src->tles src))))))
     (append defines (list main))))
 
 (define (run-src src)
@@ -85,7 +90,7 @@
     (if (file-exists? obj-file) (delete-file obj-file) '())
     (write-objects-to-file obj-file (src->scheme src))
     (shew (load obj-file))
-    (delete-file obj-file)))
+    (if (not keep-generated) (delete-file obj-file) '())))
 
 (define (run-file filename) (run-src (read-objects filename)))
 
