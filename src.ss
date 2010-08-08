@@ -12,4 +12,6 @@
  (bar 1 2)
  (mapp dubble (Cons 1 (Cons 2 Nil)))
  (aply dubble 66)
+ ;(/. (x) 1)
+ ((/. (x) 1) 4)
 )

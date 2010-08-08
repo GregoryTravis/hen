@@ -8,6 +8,7 @@
 (define (pat-literal? x) (or (pat-ctor? x)(number? x) (is-quote? x) (string? x)))
 (define (pat-variable? x) (and (symbol? x) (not (ctor? x))))
 (define (explicit-ctor? x) (mtch x ('literal s) (ctor? s) _ #f))
+(define (lambda? x) (mtch x ('/. v body) #t _ #f))
 
 (define (fun-name fun) (mtch fun ('fun (name . pat) body) name))
 (define (fun->clause fun) (mtch fun ('fun (name . pat) body) `(,pat ,body)))
@@ -26,6 +27,7 @@
 
 (define (compile-body body)
   (cond
+   ((lambda? body) (mtch body ('/. v body) `(/. ,v ,(compile-body body))))
    ((pat-literal? body) `',body)
    ((pat-variable? body) body)
    ((pair? body) (if (ctor? (car body)) `(list . ,(map compile-body body)) (map compile-body body)))))
@@ -64,7 +66,7 @@
 
 (define (src->scheme src)
   (let ((defines (src->defines src))
-        (main `(begin . ,(map compile-body (src->tles src)))))
+        (main `(begin . ,(map ->scheme (map compile-body (src->tles src))))))
     (append defines (list main))))
 
 (define (run-src src)
