@@ -80,8 +80,6 @@
         (main `(begin . ,(src->tles src))))
     (append defines (list main))))
 
-(define src (read-objects "src.ss"))
-
 (define (run-src src)
   (let ((obj-file "obj.ss"))
     (if (file-exists? obj-file) (delete-file obj-file) '())
@@ -89,4 +87,6 @@
     (shew (load obj-file))
     (delete-file obj-file)))
 
-(run-src src)
+(define (run-file filename) (run-src (read-objects filename)))
+
+(run-file "src.ss")
