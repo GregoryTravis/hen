@@ -13,6 +13,8 @@
 ;(require-for-syntax (lib "list.ss"))
 (load "mtch.ss")
 
+(define void (display ""))
+
 (define _ 'f7g89f7d7f9d7fg987dfn97dfghdf87gdfog789dfg)
 (define ($-zip as bs)
   (cond

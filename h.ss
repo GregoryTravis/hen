@@ -92,7 +92,7 @@
     (if (file-exists? obj-file) (delete-file obj-file) '())
     (write-objects-to-file obj-file (src->scheme src))
     (shew (load obj-file))
-    (if (not keep-generated) (delete-file obj-file) '())))
+    (if (not keep-generated) (delete-file obj-file) void)))
 
 (define (run-file filename) (run-src (read-objects filename)))
 
