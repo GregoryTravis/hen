@@ -1,6 +1,6 @@
 (load "lib.ss")
 
-(define keep-generated #t)
+(define keep-generated #f)
 
 (define make-var (symbol-generator-generator))
 
