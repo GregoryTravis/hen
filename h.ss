@@ -42,9 +42,11 @@
                               (,(compile-clause clause) ,var))
         () `(begin (display 'fail) (exit))))
 
-(define (function->scheme name clauses)
-  (let ((new-var (make-var)))
-    `(define (,name . ,new-var) ,(->scheme (compile-clauses new-var clauses)))))
+(define (named-clauses->define named-clauses)
+  (mtch named-clauses
+        (name clauses)
+        (let ((new-var (make-var)))
+          `(define (,name . ,new-var) ,(->scheme (compile-clauses new-var clauses))))))
 
 (define (->scheme e)
   (mtch e
@@ -59,15 +61,12 @@
   (lensmap cadr-lens ($ map fun->clause _) (group-by fun-name src)))
 
 (define (src->defines src)
-  (map (lambda (blah) (mtch blah (name clauses) (function->scheme name clauses)))
-       (funs->named-clause-lists (grep is-fun? src))))
-(define (src->tles src)
-  (grep (fnot is-fun?) src))
+  (map named-clauses->define (funs->named-clause-lists (grep is-fun? src))))
+(define (src->main src)
+  `(begin . ,(map ->scheme (map compile-body (grep (fnot is-fun?) src)))))
 
-(define (src->scheme src)
-  (let ((defines (src->defines src))
-        (main `(begin . ,(map ->scheme (map compile-body (src->tles src))))))
-    (append defines (list main))))
+;; hen src -> defines and tle
+(define (src->scheme src) (snoc (src->defines src) (src->main src)))
 
 (define (run-src src)
   (let ((obj-file "obj.ss"))
