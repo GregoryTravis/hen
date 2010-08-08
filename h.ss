@@ -1,6 +1,6 @@
 (load "lib.ss")
 
-(define keep-generated #f)
+(define keep-generated #t)
 
 (define make-var (symbol-generator-generator))
 
@@ -36,7 +36,9 @@
         ('variable v) `(let ((,v ,exp)) ,body)
         ('list (pat . pats)) (let ((new-var (make-var)))
                                `(let ((,new-var ,exp))
-                                  ,(compile-pat pat `(car ,new-var) (compile-pat `(list ,pats) `(cdr ,new-var) body))))
+                                  (if (pair? ,new-var)
+                                      ,(compile-pat pat `(car ,new-var) (compile-pat `(list ,pats) `(cdr ,new-var) body))
+                                      (fail))))
         ('list ()) body))
 
 (define (compile-body body)
@@ -54,7 +56,7 @@
 
 (define (compile-clauses var clauses)
   (mtch clauses
-        ('clauses (clause . clauses)) `(let ((fail (/. () (,(compile-clauses var `(clauses ,clauses)) ,var))))
+        ('clauses (clause . clauses)) `(let ((fail (/. () ,(compile-clauses var `(clauses ,clauses)))))
                                          (,(compile-clause clause) ,var))
         ('clauses ()) `(begin (display 'fail) (exit))))
 

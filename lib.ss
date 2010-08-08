@@ -357,6 +357,9 @@
        '()
        (err "Assertion failure" ',exp ,@stuff)))
 
+;; Mysteriously, this must follow the definition of assert.
+(require errortrace)
+
 (define (id x) x)
 
 (define (err . args)
