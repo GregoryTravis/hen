@@ -5,13 +5,21 @@
     (fun (boot (Cons a Nil)) (Cons a (Cons a Nil)))
     ))
 
+(define (rewrite e src)
+  (let ((new-e (rewrite-this e src)))
+    (if (equal? new-e e)
+        (if (pair? new-e)
+            (cons (rewrite (car new-e) src) (rewrite (cdr new-e) src))
+            new-e)
+        (rewrite e src))))
+
 (define (rewrite-this e src)
   (if (null? src)
       e
       (mtch src
             (('fun pat body) . the-rest)
             (mtch (match-maybe e pat)
-                  'fail (rewrite-this e the-rest)
+                  'fail e
                   ('just bindings) (apply-bindings body bindings)))))
 
 (define (match-maybe e pat)
