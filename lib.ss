@@ -735,20 +735,20 @@
    (eq? o #f)
    (string? o)))
 
-(define (is-quote? o)
+(define (quote? o)
   (and (pair? o)
        (eq? (car o) 'quote)
        (pair? (cdr o))
        (null? (cddr o))))
 
 (define (quoted-symbol? e)
-  (and (is-quote? e) (symbol? (cadr e))))
+  (and (quote? e) (symbol? (cadr e))))
 
 (define (quote-quoted o)
   (cadr o))
 
 (define (literal? o)
-  (or ;(is-quote? o)
+  (or ;(quote? o)
       (string? o)
       (number? o)
       (null? o)
@@ -821,7 +821,7 @@
 
 (define (app? e)
   (and (pair? e)
-       (not (or (is-quote? e)
+       (not (or (quote? e)
                 (var? e)))))
 
 (define (1-arg-app? e)

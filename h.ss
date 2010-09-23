@@ -1,17 +1,10 @@
 (load "lib.ss")
 
-(define src
-  '(
-    (fun (boot (Cons a Nil)) (Cons a (Cons a Nil)))
-    ))
-
 (define (rewrite e src)
   (let ((new-e (rewrite-this e src)))
     (if (equal? new-e e)
-        (if (pair? new-e)
-            (cons (rewrite (car new-e) src) (rewrite (cdr new-e) src))
-            new-e)
-        (rewrite e src))))
+        (if (pair? new-e) (map ($ rewrite _ src) new-e) new-e)
+        (rewrite new-e src))))
 
 (define (rewrite-this e src)
   (if (null? src)
@@ -24,11 +17,13 @@
 
 (define (match-maybe e pat)
   (cond
-   ((and (pair? e) (pair? pat)) (maybe-append (match-maybe (car e) (car pat))
+   ((quote? pat) (if (equal? e pat) (just '()) 'fail))
+   ((and (pair? pat) (pair? e)) (maybe-append (match-maybe (car e) (car pat))
                                               (match-maybe (cdr e) (cdr pat))))
-   ((ctor? e) (if (eq? e pat) (just '()) fail))
-   ((and (null? e) (null? pat)) (just '()))
-   (#t (just `((,pat . ,e))))))
+   ((ctor? pat) (if (eq? e pat) (just '()) fail))
+   ((and (null? pat) (null? e)) (just '()))
+   ((symbol? pat) (just `((,pat . ,e))))
+   (#t fail)))
 
 (define (apply-bindings e bindings)
   (cond
@@ -48,4 +43,5 @@
 ;;    (Cons q (Cons q Nil)))
 ;;   )
 
-(rewrite-this '(boot (Cons q Nil)) src)
+(tracefun rewrite-this rewrite match-maybe)
+(rewrite '('boot (Cons Dop Nil)) '((fun ('boot (Cons a Nil)) (Cons a (Cons a Nil)))))
