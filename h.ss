@@ -27,6 +27,7 @@
 
 (define (apply-bindings e bindings)
   (cond
+   ((quote? e) e)
    ((pair? e) (cons (apply-bindings (car e) bindings) (apply-bindings (cdr e) bindings)))
    ((ctor? e) e)
    ((null? e) e)
@@ -60,5 +61,12 @@
                                          (fun (boote (Cons a Nil)) (Cons a (Cons a Jerk))))) (Cons Dop (Cons Dop Jerk)))
          (,(run '(boote (Cons Dop Nil)) '((fun (boote (Cons a Nil)) (Cons a (Cons a Jerk)))
                                          (fun (boot (Cons a Nil)) (Cons a (Cons a Nil))))) (Cons Dop (Cons Dop Jerk)))
+         (,(run '(dumbify (Cons A (Cons B (Cons C Nil))))
+                '(
+                  (fun (dumbify Nil) Nil)
+                  (fun (dumbify (Cons a d)) (Cons (Cons Dumb a) (dumbify d)))
+                  ))
+          (Cons (Cons Dumb A) (Cons (Cons Dumb B) (Cons (Cons Dumb C) Nil))))
          )))
+
 (test)
