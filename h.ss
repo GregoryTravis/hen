@@ -12,7 +12,7 @@
       (mtch src
             (('fun pat body) . the-rest)
             (mtch (match-maybe e pat)
-                  'fail e
+                  'fail (rewrite-this e the-rest)
                   ('just bindings) (apply-bindings body bindings)))))
 
 (define (match-maybe e pat)
@@ -34,7 +34,7 @@
    (#t (err 'unbound e bindings))))
 
 (define (preprocess src)
-  (map (lambda (rule) (mtch rule ('fun pat body) `(fun ,pat ,(preprocess-exp body)))) src))
+  (map (lambda (rule) (mtch rule ('fun pat body) `(fun ,(preprocess-exp pat) ,(preprocess-exp body)))) src))
 
 (define (preprocess-exp e)
   (cond
@@ -50,10 +50,15 @@
        `(
          (,(match-maybe '(a B R c e) '(d B R f g)) (just ((d . a) (f . c) (g . e))))
          (,(match-maybe '(a B R c e) '(d B Rr f g)) fail)
-         (,(map ($ apply-bindings _ '((d . a) (f . c) (g . e))) '(d f g Joe (d f g Joe)))
-          (a c e Joe (a c e Joe)))
-         (,(run '(boot (Cons Dop Nil)) '((fun (boot (Cons a Nil)) (Cons a (Cons a Nil)))))
-          (Cons Dop (Cons Dop Nil)))
+         (,(map ($ apply-bindings _ '((d . a) (f . c) (g . e))) '(d f g Joe (d f g Joe))) (a c e Joe (a c e Joe)))
+         (,(run '(boot (Cons Dop Nil)) '((fun (boot (Cons a Nil)) (Cons a (Cons a Nil))))) (Cons Dop (Cons Dop Nil)))
+         (,(run '(boot (Cons Dop Nil)) '((fun (boot (Cons a Nil)) (Cons a (Cons a Nil)))
+                                         (fun (boote (Cons a Nil)) (Cons a (Cons a Nil))))) (Cons Dop (Cons Dop Nil)))
+         (,(run '(boot (Cons Dop Nil)) '((fun (boote (Cons a Nil)) (Cons a (Cons a Nil)))
+                                         (fun (boot (Cons a Nil)) (Cons a (Cons a Nil))))) (Cons Dop (Cons Dop Nil)))
+         (,(run '(boote (Cons Dop Nil)) '((fun (boot (Cons a Nil)) (Cons a (Cons a Nil)))
+                                         (fun (boote (Cons a Nil)) (Cons a (Cons a Jerk))))) (Cons Dop (Cons Dop Jerk)))
+         (,(run '(boote (Cons Dop Nil)) '((fun (boote (Cons a Nil)) (Cons a (Cons a Jerk)))
+                                         (fun (boot (Cons a Nil)) (Cons a (Cons a Nil))))) (Cons Dop (Cons Dop Jerk)))
          )))
-
 (test)
