@@ -35,11 +35,16 @@
 (define (preprocess src)
   (map (lambda (rule) (mtch rule ('fun pat body) `(fun ,(preprocess-exp pat) ,(preprocess-exp body)))) src))
 
+(define (quote-funtion-name e)
+  (cons (if (non-ctor-symbol? (car e)) `(quote ,(car e)) (car e))
+        (cdr e)))
+
 (define (preprocess-exp e)
   (cond
-   ((pair? e) (cons (if (non-ctor-symbol? (car e)) `(quote ,(car e)) (preprocess-exp (car e)))
-                    (map preprocess-exp (cdr e))))
+   ((constant? e) e)
+   ((pair? e) (map preprocess-exp (quote-funtion-name e)))
    (#t e)))
+
 
 (define (run e src) (rewrite (preprocess-exp e) (preprocess src)))
 
