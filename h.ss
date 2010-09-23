@@ -17,20 +17,16 @@
 
 (define (match-maybe e pat)
   (cond
-   ((quote? pat) (if (equal? e pat) (just '()) 'fail))
+   ((or (quote? pat) (ctor? pat) (null? pat)) (if (equal? e pat) (just '()) fail))
    ((and (pair? pat) (pair? e)) (maybe-append (match-maybe (car e) (car pat))
                                               (match-maybe (cdr e) (cdr pat))))
-   ((ctor? pat) (if (eq? e pat) (just '()) fail))
-   ((and (null? pat) (null? e)) (just '()))
    ((symbol? pat) (just `((,pat . ,e))))
    (#t fail)))
 
 (define (apply-bindings e bindings)
   (cond
-   ((quote? e) e)
+   ((or (quote? e) (ctor? e) (null? e)) e)
    ((pair? e) (cons (apply-bindings (car e) bindings) (apply-bindings (cdr e) bindings)))
-   ((ctor? e) e)
-   ((null? e) e)
    ((symbol? e) (lookup e bindings))
    (#t (err 'unbound e bindings))))
 
@@ -39,7 +35,7 @@
 
 (define (preprocess-exp e)
   (cond
-   ((pair? e) (cons (if (and (symbol? (car e)) (not (ctor? (car e)))) `(quote ,(car e)) (preprocess-exp (car e)))
+   ((pair? e) (cons (if (non-ctor-symbol? (car e)) `(quote ,(car e)) (preprocess-exp (car e)))
                     (map preprocess-exp (cdr e))))
    (#t e)))
 
