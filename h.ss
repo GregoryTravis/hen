@@ -1,5 +1,7 @@
 (load "lib.ss")
 
+(define (constant? e) (or (quote? e) (ctor? e) (null? e)))
+
 (define (rewrite e src)
   (let ((new-e (rewrite-this e src)))
     (if (equal? new-e e)
@@ -17,7 +19,7 @@
 
 (define (match-maybe e pat)
   (cond
-   ((or (quote? pat) (ctor? pat) (null? pat)) (if (equal? e pat) (just '()) fail))
+   ((constant? pat) (if (equal? e pat) (just '()) fail))
    ((and (pair? pat) (pair? e)) (maybe-append (match-maybe (car e) (car pat))
                                               (match-maybe (cdr e) (cdr pat))))
    ((symbol? pat) (just `((,pat . ,e))))
@@ -25,7 +27,7 @@
 
 (define (apply-bindings e bindings)
   (cond
-   ((or (quote? e) (ctor? e) (null? e)) e)
+   ((constant? e) e)
    ((pair? e) (cons (apply-bindings (car e) bindings) (apply-bindings (cdr e) bindings)))
    ((symbol? e) (lookup e bindings))
    (#t (err 'unbound e bindings))))
