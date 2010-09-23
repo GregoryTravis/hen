@@ -19,8 +19,7 @@
 (define (match-maybe e pat)
   (cond
    ((constant? pat) (if (equal? e pat) (just '()) fail))
-   ((and (pair? pat) (pair? e)) (maybe-append (match-maybe (car e) (car pat))
-                                              (match-maybe (cdr e) (cdr pat))))
+   ((and (pair? pat) (pair? e)) (maybe-append (match-maybe (car e) (car pat)) (match-maybe (cdr e) (cdr pat))))
    ((symbol? pat) (just `((,pat . ,e))))
    (#t fail)))
 
