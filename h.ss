@@ -33,15 +33,16 @@
    ((symbol? e) (lookup e bindings))
    (#t (err 'unbound e bindings))))
 
-;; ; tests
-;; '(
-;;   ((bindings-maybe '(a B R c e) '(d B R f g))) (just ((d a) (f c) (g e)))
-;;   ((bindings-maybe '(a B R c e) '(d B Rr f g)) fail)
-;;   ((map ($ apply-bindings _ '((d a) (f c) (g e))) '(d f g Joe (d f g Joe)))
-;;    (a c e Joe (a c e Joe)))
-;;   ((rewrite-this '(boot (Cons q Nil)) src)
-;;    (Cons q (Cons q Nil)))
-;;   )
+; tests
+(define (test)
+  (map (lambda (test) (mtch test (a b) (if (equal? a b) 'ok `(fail ,a ,b))))
+       `(
+         (,(match-maybe '(a B R c e) '(d B R f g)) (just ((d . a) (f . c) (g . e))))
+         (,(match-maybe '(a B R c e) '(d B Rr f g)) fail)
+         (,(map ($ apply-bindings _ '((d . a) (f . c) (g . e))) '(d f g Joe (d f g Joe)))
+          (a c e Joe (a c e Joe)))
+         (,(rewrite-this '('boot (Cons Dop Nil)) '((fun ('boot (Cons a Nil)) (Cons a (Cons a Nil)))))
+          (Cons Dop (Cons Dop Nil)))
+         )))
 
-(tracefun rewrite-this rewrite match-maybe)
-(rewrite '('boot (Cons Dop Nil)) '((fun ('boot (Cons a Nil)) (Cons a (Cons a Nil)))))
+(test)
