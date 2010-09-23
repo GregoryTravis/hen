@@ -9,13 +9,12 @@
         (rewrite new-e src))))
 
 (define (rewrite-this e src)
-  (if (null? src)
-      e
-      (mtch src
-            (('fun pat body) . the-rest)
-            (mtch (match-maybe e pat)
-                  'fail (rewrite-this e the-rest)
-                  ('just bindings) (apply-bindings body bindings)))))
+  (mtch src
+        '() e
+        (('fun pat body) . the-rest)
+        (mtch (match-maybe e pat)
+              'fail (rewrite-this e the-rest)
+              ('just bindings) (apply-bindings body bindings))))
 
 (define (match-maybe e pat)
   (cond
