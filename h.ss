@@ -1,20 +1,28 @@
 (load "lib.ss")
 
+(load "prim.ss")
+
 (define (constant? e) (or (quote? e) (ctor? e) (null? e)))
 
 (define (rewrite e src)
-  (let ((new-e (rewrite-this e src)))
+  (let ((new-e (rewrite-this-rule-list e src)))
     (if (equal? new-e e)
         (if (pair? new-e) (map ($ rewrite _ src) new-e) new-e)
         (rewrite new-e src))))
 
-(define (rewrite-this e src)
+(define (rewrite-this-rule-list e src)
   (mtch src
         '() e
-        (('fun pat body) . the-rest)
+        (rule . rules) (mtch (rewrite-this e rule)
+                             'fail (rewrite-this-rule-list e rules)
+                             ('just result) result)))
+
+(define (rewrite-this e rule)
+  (mtch rule
+        ('fun pat body)
         (mtch (match-maybe e pat)
-              'fail (rewrite-this e the-rest)
-              ('just bindings) (apply-bindings body bindings))))
+               'fail 'fail
+               ('just bindings) (just (apply-bindings body bindings)))))
 
 (define (match-maybe e pat)
   (cond
