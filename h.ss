@@ -5,10 +5,15 @@
 (define (constant? e) (or (quote? e) (ctor? e) (null? e)))
 
 (define (rewrite e src)
-  (let ((new-e (rewrite-this-rule-list e src)))
-    (if (equal? new-e e)
-        (if (pair? new-e) (map ($ rewrite _ src) new-e) new-e)
-        (rewrite new-e src))))
+  (cond
+   ((quote? e) e)
+   ((constant? e) e)
+   ((pair? e)
+    (let ((new-e (rewrite-this-rule-list (map ($ rewrite _ src) e) src)))
+      (if (equal? new-e e)
+          new-e
+          (rewrite new-e src))))
+   (#t (err 'rewrite e src))))
 
 (define (rewrite-this-rule-list e src)
   (mtch src
@@ -77,5 +82,8 @@
                   ))
           (Cons (Cons Dumb A) (Cons (Cons Dumb B) (Cons (Cons Dumb C) Nil))))
          )))
+
+;(tracefun rewrite rewrite-this rewrite-this-rule-list)
+;(tracefun match-maybe apply-bindings)
 
 (test)
