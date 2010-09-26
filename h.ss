@@ -16,18 +16,23 @@
    (#t (err 'rewrite e src))))
 
 (define (rewrite-this-rule-list e src)
-  (mtch src
-        '() e
-        (rule . rules) (mtch (rewrite-this e rule)
-                             'fail (rewrite-this-rule-list e rules)
-                             ('just result) result)))
+  (mtch (try-primitive-rewrite e)
+        (just result)
+        result
+
+        _
+        (mtch src
+              '() e
+              (rule . rules) (mtch (rewrite-this e rule)
+                                   'fail (rewrite-this-rule-list e rules)
+                                   ('just result) result))))
 
 (define (rewrite-this e rule)
   (mtch rule
         ('fun pat body)
         (mtch (match-maybe e pat)
-               'fail 'fail
-               ('just bindings) (just (apply-bindings body bindings)))))
+              'fail 'fail
+              ('just bindings) (just (apply-bindings body bindings)))))
 
 (define (match-maybe e pat)
   (cond
@@ -81,6 +86,7 @@
                   (fun (dumbify (Cons a d)) (Cons (Cons Dumb a) (dumbify d)))
                   ))
           (Cons (Cons Dumb A) (Cons (Cons Dumb B) (Cons (Cons Dumb C) Nil))))
+         (,(run '(= Joe Joe) '()) True)
          )))
 
 ;(tracefun rewrite rewrite-this rewrite-this-rule-list)
