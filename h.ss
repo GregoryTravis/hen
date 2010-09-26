@@ -91,6 +91,8 @@
          (,(run '(car (Cons Haha (Cons HoHo Nil))) '((fun (car (Cons a d)) a) (fun (cdr (Cons a d)) d) (fun (cons a d) (Cons a d)))) Haha)
          (,(run '(cdr (Cons Haha Nil)) '((fun (car (Cons a d)) a) (fun (cdr (Cons a d)) d) (fun (cons a d) (Cons a d)))) Nil)
          (,(run '(cdr (Cons Haha (Cons HoHo Nil))) '((fun (car (Cons a d)) a) (fun (cdr (Cons a d)) d) (fun (cons a d) (Cons a d)))) (Cons HoHo Nil))
+         (,(run '(ctor? Haha) '()) True)
+         (,(run '(ctor? 'haha) '()) False)
          )))
 
 ;(tracefun rewrite rewrite-this rewrite-this-rule-list)
