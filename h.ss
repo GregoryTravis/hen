@@ -87,6 +87,10 @@
                   ))
           (Cons (Cons Dumb A) (Cons (Cons Dumb B) (Cons (Cons Dumb C) Nil))))
          (,(run '(= Joe Joe) '()) True)
+         (,(run '(car (Cons Haha Nil)) '((fun (car (Cons a d)) a) (fun (cdr (Cons a d)) d) (fun (cons a d) (Cons a d)))) Haha)
+         (,(run '(car (Cons Haha (Cons HoHo Nil))) '((fun (car (Cons a d)) a) (fun (cdr (Cons a d)) d) (fun (cons a d) (Cons a d)))) Haha)
+         (,(run '(cdr (Cons Haha Nil)) '((fun (car (Cons a d)) a) (fun (cdr (Cons a d)) d) (fun (cons a d) (Cons a d)))) Nil)
+         (,(run '(cdr (Cons Haha (Cons HoHo Nil))) '((fun (car (Cons a d)) a) (fun (cdr (Cons a d)) d) (fun (cons a d) (Cons a d)))) (Cons HoHo Nil))
          )))
 
 ;(tracefun rewrite rewrite-this rewrite-this-rule-list)
