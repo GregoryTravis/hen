@@ -51,14 +51,14 @@
 (define (preprocess src)
   (map (lambda (rule) (mtch rule ('fun pat body) `(fun ,(preprocess-exp pat) ,(preprocess-exp body)))) src))
 
-(define (quote-funtion-name e)
+(define (quote-function-name e)
   (cons (if (non-ctor-symbol? (car e)) `(quote ,(car e)) (car e))
         (cdr e)))
 
 (define (preprocess-exp e)
   (cond
    ((constant? e) e)
-   ((pair? e) (map preprocess-exp (quote-funtion-name e)))
+   ((pair? e) (map preprocess-exp (quote-function-name e)))
    (#t e)))
 
 
@@ -99,3 +99,4 @@
 ;(tracefun match-maybe apply-bindings)
 
 (test)
+;(run '(boot (Cons Dop Nil)) '((fun (boot (Cons a Nil)) (Cons a (Cons a Nil)))))
