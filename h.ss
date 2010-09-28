@@ -64,8 +64,9 @@
 
 (define (consify e)
   (cond
+   ((or (constant? e) (symbol? e)) e)
    ((pair? e) `(Cons ,(consify (car e)) ,(consify (cdr e))))
-   (#t e)))
+   (#t (err 'consify e))))
 
 (define (run e src) (rewrite (preprocess-exp e) (preprocess src)))
 
@@ -99,6 +100,12 @@
          (,(run '(ctor? Haha) '()) True)
          (,(run '(ctor? 'haha) '()) False)
          (,(run 'Foo '()) Foo)
+         (,(run '(current-program) '((fun (boote (Cons a Nil)) (Cons a (Cons a Jerk)))
+                                     (fun (boot (Cons a Nil)) (Cons a (Cons a Nil)))))
+          (Cons (Cons fun (Cons (Cons 'boote (Cons (Cons Cons (Cons a (Cons Nil ()))) ()))
+                                (Cons (Cons Cons (Cons a (Cons (Cons Cons (Cons a (Cons Jerk ()))) ()))) ())))
+                (Cons (Cons fun (Cons (Cons 'boot (Cons (Cons Cons (Cons a (Cons Nil ()))) ()))
+                                      (Cons (Cons Cons (Cons a (Cons (Cons Cons (Cons a (Cons Nil ()))) ()))) ()))) ())))
          )))
 
 ;(tracefun rewrite rewrite-this rewrite-this-rule-list)
