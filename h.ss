@@ -6,8 +6,9 @@
 
 (define (rewrite e src)
   (cond
-   ((quote? e) e)
+   ((equal? e '('current-program)) (consify src))
    ((constant? e) e)
+   ((symbol? e) e)
    ((pair? e)
     (let ((new-e (rewrite-this-rule-list (map ($ rewrite _ src) e) src)))
       (if (equal? new-e e)
@@ -61,6 +62,10 @@
    ((pair? e) (map preprocess-exp (quote-function-name e)))
    (#t e)))
 
+(define (consify e)
+  (cond
+   ((pair? e) `(Cons ,(consify (car e)) ,(consify (cdr e))))
+   (#t e)))
 
 (define (run e src) (rewrite (preprocess-exp e) (preprocess src)))
 
@@ -79,7 +84,7 @@
          (,(run '(boote (Cons Dop Nil)) '((fun (boot (Cons a Nil)) (Cons a (Cons a Nil)))
                                          (fun (boote (Cons a Nil)) (Cons a (Cons a Jerk))))) (Cons Dop (Cons Dop Jerk)))
          (,(run '(boote (Cons Dop Nil)) '((fun (boote (Cons a Nil)) (Cons a (Cons a Jerk)))
-                                         (fun (boot (Cons a Nil)) (Cons a (Cons a Nil))))) (Cons Dop (Cons Dop Jerk)))
+                                          (fun (boot (Cons a Nil)) (Cons a (Cons a Nil))))) (Cons Dop (Cons Dop Jerk)))
          (,(run '(dumbify (Cons A (Cons B (Cons C Nil))))
                 '(
                   (fun (dumbify Nil) Nil)
@@ -93,10 +98,13 @@
          (,(run '(cdr (Cons Haha (Cons HoHo Nil))) '((fun (car (Cons a d)) a) (fun (cdr (Cons a d)) d) (fun (cons a d) (Cons a d)))) (Cons HoHo Nil))
          (,(run '(ctor? Haha) '()) True)
          (,(run '(ctor? 'haha) '()) False)
+         (,(run 'Foo '()) Foo)
          )))
 
 ;(tracefun rewrite rewrite-this rewrite-this-rule-list)
 ;(tracefun match-maybe apply-bindings)
+;(tracefun preprocess preprocess-exp)
 
 (test)
-;(run '(boot (Cons Dop Nil)) '((fun (boot (Cons a Nil)) (Cons a (Cons a Nil)))))
+;; (run '(current-program) '((fun (boote (Cons a Nil)) (Cons a (Cons a Jerk)))
+;;                           (fun (boot (Cons a Nil)) (Cons a (Cons a Nil)))))
