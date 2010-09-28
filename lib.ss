@@ -750,6 +750,9 @@
 (define (quoted-symbol? e)
   (and (quote? e) (symbol? (cadr e))))
 
+(define (unquoted-symbol? e)
+  (and (unquote? e) (symbol? (cadr e))))
+
 (define (quote-quoted o)
   (cadr o))
 
@@ -1106,8 +1109,8 @@
       (+ (tree-size (car a)) (tree-size (cdr a)))
       1))
 
-(define (quoted-symbol? o)
-  (and (pair? o) (eq? (car o) 'quote) (symbol? (cadr o)) (null? (cddr o))))
+;(define (quoted-symbol? o)
+;  (and (pair? o) (eq? (car o) 'quote) (symbol? (cadr o)) (null? (cddr o))))
 
 (define (join-things-list glue things)
   (cond

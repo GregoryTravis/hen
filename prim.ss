@@ -1,12 +1,12 @@
 (define (ctorize-predicate p)
   (lambda args
-    (if (apply p args) ''True ''False)))
+    (if (apply p args) 'True 'False)))
 
 (define primitives
   `(
-    ('= . ,(ctorize-predicate equal?))
-    ('data? . ,(ctorize-predicate data?))
-    ('var? . ,(ctorize-predicate var?))
+    (= . ,(ctorize-predicate equal?))
+    (data? . ,(ctorize-predicate data?))
+    (var? . ,(ctorize-predicate var?))
     ))
 
 (define (try-primitive-rewrite e)
