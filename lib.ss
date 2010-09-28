@@ -741,6 +741,12 @@
        (pair? (cdr o))
        (null? (cddr o))))
 
+(define (unquote? o)
+  (and (pair? o)
+       (eq? (car o) 'unquote)
+       (pair? (cdr o))
+       (null? (cddr o))))
+
 (define (quoted-symbol? e)
   (and (quote? e) (symbol? (cadr e))))
 
