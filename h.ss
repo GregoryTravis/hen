@@ -80,9 +80,10 @@
 
 ; tests
 (define (test)
-  (let ((map-src '((fun (map ,f Nil) (,f Nil))
+  (let ((some-funs '((fun (map ,f Nil) (,f Nil))
                    (fun (map ,f (Cons ,a ,d)) (Cons (,f ,a) (map ,f ,d)))
-                   (fun (swap (P ,a ,d)) (P ,d ,a)))))
+                   (fun (swap (P ,a ,d)) (P ,d ,a))
+                   (fun (apply ,f . ,a) (,f . ,a)))))
     (map (lambda (test) (mtch test (a b) (if (equal? a b) 'ok `(fail ,a ,b))))
          `(
            ,(list (match-maybe '(a B R c e) '(,d B R ,f ,g)) '(just ((,d . a) (,f . c) (,g . e))))
@@ -116,7 +117,8 @@
                                          (Cons (Cons Cons (Cons ,a (Cons (Cons Cons (Cons ,a (Cons Jerk Nil))) Nil))) Nil)))
                          (Cons (Cons fun (Cons (Cons boot (Cons (Cons Cons (Cons ,a (Cons Nil Nil))) Nil))
                                                (Cons (Cons Cons (Cons ,a (Cons (Cons Cons (Cons ,a (Cons Nil Nil))) Nil))) Nil))) Nil)))
-           (,(run '(map swap (Cons (P A B) (Cons (P C D) Nil))) map-src) (Cons (P B A) (Cons (P D C) (swap Nil))))
+           (,(run '(map swap (Cons (P A B) (Cons (P C D) Nil))) some-funs) (Cons (P B A) (Cons (P D C) (swap Nil))))
+           (,(run '(apply swap (P A B)) some-funs) (P B A))
            ))))
 
 ;(tracefun rewrite rewrite-this rewrite-this-rule-list)
@@ -124,4 +126,3 @@
 ;(tracefun reify-src)
 
 (test)
-;(run '(map swap (Cons (P A B) (Cons (P C D) Nil))) map-src)
