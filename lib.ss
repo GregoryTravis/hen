@@ -1066,18 +1066,18 @@
 (define 3rd caddr)
 (define 4th cadddr)
 
-;; This doesn't really ever change.
-(define (consify l)
-  (cond
-   ((pair? l) `(Cons ,(consify (car l)) ,(consify (cdr l))))
-   ((null? l) 'Nil)
-   (#t l)))
+;; ;; This doesn't really ever change.
+;; (define (consify l)
+;;   (cond
+;;    ((pair? l) `(Cons ,(consify (car l)) ,(consify (cdr l))))
+;;    ((null? l) 'Nil)
+;;    (#t l)))
 
-(define (consify-top-layer l)
-  (cond
-   ((pair? l) `(Cons ,(car l) ,(consify-top-layer (cdr l))))
-   ((null? l) 'Nil)
-   (#t l)))
+;; (define (consify-top-layer l)
+;;   (cond
+;;    ((pair? l) `(Cons ,(car l) ,(consify-top-layer (cdr l))))
+;;    ((null? l) 'Nil)
+;;    (#t l)))
 
 (define (== a b)
   (or (and (number? a) (= a b))

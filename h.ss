@@ -16,16 +16,18 @@
    (#t (err 'rewrite e src))))
 
 (define (rewrite-this-rule-list e src)
-  (mtch (try-primitive-rewrite e)
-        (just result)
-        result
+  (if (equal? e '(current-program))
+      (reify-src src)
+      (mtch (try-primitive-rewrite e)
+            (just result)
+            result
 
-        _
-        (mtch src
-              '() e
-              (rule . rules) (mtch (rewrite-this e rule)
-                                   'fail (rewrite-this-rule-list e rules)
-                                   ('just result) result))))
+            _
+            (mtch src
+                  '() e
+                  (rule . rules) (mtch (rewrite-this e rule)
+                                       'fail (rewrite-this-rule-list e rules)
+                                       ('just result) result)))))
 
 (define (rewrite-this e rule)
   (mtch rule
@@ -67,6 +69,15 @@
   (assert (check-src src))
   (rewrite e src))
 
+(define (consify e)
+  (cond
+   ((or (symbol? e) (unquoted-symbol? e)) e)
+   ((null? e) 'Nil)
+   ((pair? e) `(Cons ,(consify (car e)) ,(consify (cdr e))))
+   (#t (err 'consify e))))
+
+(define reify-src consify) ; (reify-src e) (foldr (lambda (a d) `(Cons ,a ,d)) 'Nil e))
+
 ; tests
 (define (test)
   (map (lambda (test) (mtch test (a b) (if (equal? a b) 'ok `(fail ,a ,b))))
@@ -96,16 +107,18 @@
          (,(run '(data? ,e) '()) False)
          (,(run '(data? e) '()) True)
          (,(run 'Foo '()) Foo)
-;;          (,(run '(current-program) '((fun ('boote ('Cons a 'Nil)) ('Cons a ('Cons a 'Jerk)))
-;;                                      (fun ('boot ('Cons a 'Nil)) ('Cons a ('Cons a 'Nil)))))
-;;           ('Cons ('Cons fun ('Cons ('Cons 'boote ('Cons ('Cons 'Cons ('Cons a ('Cons 'Nil ()))) ()))
-;;                                 ('Cons ('Cons 'Cons ('Cons a ('Cons ('Cons 'Cons ('Cons a ('Cons 'Jerk ()))) ()))) ())))
-;;                 ('Cons ('Cons fun ('Cons ('Cons 'boot ('Cons ('Cons 'Cons ('Cons a ('Cons 'Nil ()))) ()))
-;;                                       ('Cons ('Cons 'Cons ('Cons a ('Cons ('Cons 'Cons ('Cons a ('Cons 'Nil ()))) ()))) ()))) ())))
+         ,(list (run '(current-program) '((fun (boote (Cons ,a Nil)) (Cons ,a (Cons ,a Jerk)))
+                                          (fun (boot (Cons ,a Nil)) (Cons ,a (Cons ,a Nil)))))
+                '(Cons (Cons fun (Cons (Cons boote (Cons (Cons Cons (Cons ,a (Cons Nil Nil))) Nil))
+                                       (Cons (Cons Cons (Cons ,a (Cons (Cons Cons (Cons ,a (Cons Jerk Nil))) Nil))) Nil)))
+                       (Cons (Cons fun (Cons (Cons boot (Cons (Cons Cons (Cons ,a (Cons Nil Nil))) Nil))
+                                             (Cons (Cons Cons (Cons ,a (Cons (Cons Cons (Cons ,a (Cons Nil Nil))) Nil))) Nil))) Nil)))
          )))
 
 ;(tracefun rewrite rewrite-this rewrite-this-rule-list)
 ;(tracefun match-maybe apply-bindings)
-;(tracefun preprocess preprocess-exp)
+;(tracefun reify-src)
 
 (test)
+;(run '(current-program) '((fun (boote (Cons ,a Nil)) (Cons ,a (Cons ,a Jerk)))
+;                                     (fun (boot (Cons ,a Nil)) (Cons ,a (Cons ,a Nil)))))
