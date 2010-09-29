@@ -54,19 +54,14 @@
 
 (define (check-exp e)
   (or
+   (null? e)
+   (and (pair? e) (check-exp (car e)) (check-exp (cdr e)))
    (data? e)
-   (var? e)
-   (all? (map check-exp e))))
-
-(define (check-src src)
-  (map (lambda (rule) (mtch rule
-                            ('fun pat body)
-                            (and (check-exp pat) (check-exp body))))
-       src))
+   (var? e)))
 
 (define (run e src)
   (assert (check-exp e))
-  (assert (check-src src))
+  (assert (check-exp src))
   (rewrite e src))
 
 (define (consify e)
