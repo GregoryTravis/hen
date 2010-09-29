@@ -91,7 +91,7 @@
          (,(run '(boot (Cons Dop Nil)) '((fun (boote (Cons ,a Nil)) (Cons ,a (Cons ,a Nil)))
                                          (fun (boot (Cons ,a Nil)) (Cons ,a (Cons ,a Nil))))) (Cons Dop (Cons Dop Nil)))
          (,(run '(boote (Cons Dop Nil)) '((fun (boot (Cons ,a Nil)) (Cons ,a (Cons ,a Nil)))
-                                         (fun (boote (Cons ,a Nil)) (Cons ,a (Cons ,a Jerk))))) (Cons Dop (Cons Dop Jerk)))
+                                          (fun (boote (Cons ,a Nil)) (Cons ,a (Cons ,a Jerk))))) (Cons Dop (Cons Dop Jerk)))
          (,(run '(boote (Cons Dop Nil)) '((fun (boote (Cons ,a Nil)) (Cons ,a (Cons ,a Jerk)))
                                           (fun (boot (Cons ,a Nil)) (Cons ,a (Cons ,a Nil))))) (Cons Dop (Cons Dop Jerk)))
          (,(run '(dumbify (Cons A (Cons B (Cons C Nil))))
@@ -120,5 +120,3 @@
 ;(tracefun reify-src)
 
 (test)
-;(run '(current-program) '((fun (boote (Cons ,a Nil)) (Cons ,a (Cons ,a Jerk)))
-;                                     (fun (boot (Cons ,a Nil)) (Cons ,a (Cons ,a Nil)))))
