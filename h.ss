@@ -71,7 +71,7 @@
 
 (define (consify e)
   (cond
-   ((or (symbol? e) (unquoted-symbol? e)) e)
+   ((or (var? e) (data? e)) e)
    ((null? e) 'Nil)
    ((pair? e) `(Cons ,(consify (car e)) ,(consify (cdr e))))
    (#t (err 'consify e))))
