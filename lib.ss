@@ -804,9 +804,15 @@
         (set! serial (1+ serial))
         (->symbol (concat (->string tag) (number->string s)))))))
 
-(define (symbol-generator-generator)
+(define (symbol-generator-generator prefix)
   (let ((tsg (tagged-symbol-generator-generator)))
-    (lambda () (tsg "a"))))
+    (lambda () (tsg prefix))))
+
+(define (build-mapping-for-list l symbol-generator)
+  (if (null? l)
+      '()
+      (let ((new-symbol (symbol-generator)))
+        (cons (cons (car l) new-symbol) (build-mapping-for-list (cdr l) symbol-generator)))))
 
 (define (lambda? e)
   (and (proper-list? e)

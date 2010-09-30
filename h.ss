@@ -73,13 +73,15 @@
 
 (define reify-src consify) ; (reify-src e) (foldr (lambda (a d) `(Cons ,a ,d)) 'Nil e))
 
+(define (run-test test) (mtch test (a b) (if (equal? a b) 'ok `(fail ,a ,b))))
+
 ; tests
 (define (test)
   (let ((some-funs '((fun (map ,f Nil) (,f Nil))
                    (fun (map ,f (Cons ,a ,d)) (Cons (,f ,a) (map ,f ,d)))
                    (fun (swap (P ,a ,d)) (P ,d ,a))
                    (fun (apply ,f . ,a) (,f . ,a)))))
-    (map (lambda (test) (mtch test (a b) (if (equal? a b) 'ok `(fail ,a ,b))))
+    (map run-test
          `(
            ,(list (match-maybe '(a B R c e) '(,d B R ,f ,g)) '(just ((,d . a) (,f . c) (,g . e))))
            (,(match-maybe '('a 'B 'R 'c 'e) '(d 'B 'Rr f g)) fail)
@@ -120,4 +122,39 @@
 ;(tracefun match-maybe apply-bindings)
 ;(tracefun reify-src)
 
+;(test)
+
+(define (gather-vars e)
+  (cond
+   ((var? e) (list e))
+   ((pair? e) (unique (append (gather-vars (car e)) (gather-vars (cdr e)))))
+   (#t '())))
+
+(define (alpha-rename-exp e symbol-generator)
+  (let ((bindings (build-mapping-for-list (gather-vars e) symbol-generator)))
+    (list bindings (apply-bindings e bindings))))
+
+(define (alpha-rename-rule rule symbol-generator)
+  (mtch rule
+        ('fun pattern body)
+        (mtch (alpha-rename-exp (list pattern body) symbol-generator)
+              (bindings (pattern body))
+              `(,bindings (fun ,pattern body)))))
+
+;; (define (unify-rules left right)
+;;   (mtch (list left (alpha-rename-rule right))
+;;         (('fun left-pattern left-body) ('fun right-pattern right-body))
+;;         (let* ((
+
+(define (test)
+  (map run-test
+       `(
+         (,(build-mapping-for-list '(1 2 3) (symbol-generator-generator 'a)) ((1 . a0) (2 . a1) (3 . a2)))
+         ,(list (gather-vars '(A (B ,c ,c (R ,u ,v ,d) ,d) ,j)) '(,c ,u ,v ,d ,j))
+         ,(list (alpha-rename-exp '(A ,c) (symbol-generator-generator 'a)) '(((,c . a0)) (A a0)))
+         ,(list (alpha-rename-exp '(A (B ,c ,c (R ,u ,v ,d) ,d) ,j) (symbol-generator-generator 'a))
+                '(((,c . a0) (,u . a1) (,v . a2) (,d . a3) (,j . a4)) (A (B a0 a0 (R a1 a2 a3) a3) a4)))
+;         (,(alpha-rename-variable 'g) _g)
+;         ,(alpha-rename-exp '(A ,a)
+         )))
 (test)
