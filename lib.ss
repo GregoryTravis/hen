@@ -1060,6 +1060,12 @@
         (err 'lookup k env)
         (cdr v))))
 
+(define (lookup-or-key k env)
+  (let ((v (assoc k env)))
+    (if (eq? #f v)
+        k
+        (cdr v))))
+
 (define (lookup-or k env or-this)
   (let ((v (assoc k env)))
     (if (eq? #f v)

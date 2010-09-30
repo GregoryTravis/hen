@@ -52,6 +52,14 @@
    ((pair? e) (cons (apply-bindings (car e) bindings) (apply-bindings (cdr e) bindings)))
    (#t (err 'apply-bindings e bindings))))
 
+(define (apply-bindings-friendly e bindings)
+  (cond
+   ((null? e) e)
+   ((data? e) e)
+   ((var? e) (lookup-or-key e bindings))
+   ((pair? e) (cons (apply-bindings-friendly (car e) bindings) (apply-bindings-friendly (cdr e) bindings)))
+   (#t (err 'apply-bindings-friendly e bindings))))
+
 (define (check-exp e)
   (or
    (null? e)
@@ -223,6 +231,12 @@
          ,(list (blurg '(bar (B ,a          (P ,j ,i) ) )
                        '(bar (B (C ,d ,e)   ,q        ) ))
                 '(just ((,a C ,d ,e) (,q P ,j ,i))))
+         ,(list (apply-bindings-friendly '(bar (B ,a          (P ,j ,i) ) )
+                                         (just-value (blurg '(bar (B ,a          (P ,j ,i) ) ) '(bar (B (C ,d ,e)   ,q        ) ))))
+                '(bar (B (C ,d ,e) (P ,j ,i))))
+         ,(list (apply-bindings-friendly '(bar (B (C ,d ,e)   ,q        ) )
+                                         (just-value (blurg '(bar (B ,a          (P ,j ,i) ) ) '(bar (B (C ,d ,e)   ,q        ) ))))
+                '(bar (B (C ,d ,e) (P ,j ,i))))
 
          )))
 
