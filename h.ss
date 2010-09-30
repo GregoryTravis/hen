@@ -127,19 +127,16 @@
 (define (gather-vars e)
   (cond
    ((var? e) (list e))
-   ((pair? e) (unique (append (gather-vars (car e)) (gather-vars (cdr e)))))
+   ((pair? e) (let* ((a-vars (gather-vars (car e)))
+                     (d-vars (gather-vars (cdr e))))
+                (unique (append a-vars d-vars))))
    (#t '())))
-
-(define (alpha-rename-exp e symbol-generator)
-  (let ((bindings (build-mapping-for-list (gather-vars e) symbol-generator)))
-    (list bindings (apply-bindings e bindings))))
 
 (define (alpha-rename-rule rule symbol-generator)
   (mtch rule
         ('fun pattern body)
-        (mtch (alpha-rename-exp (list pattern body) symbol-generator)
-              (bindings (pattern body))
-              `(,bindings (fun ,pattern body)))))
+        (let ((bindings (build-mapping-for-list (gather-vars (list pattern body)) symbol-generator)))
+          `(,bindings (fun ,(apply-bindings pattern bindings) ,(apply-bindings body bindings))))))
 
 ;; (define (unify-rules left right)
 ;;   (mtch (list left (alpha-rename-rule right))
@@ -151,9 +148,14 @@
        `(
          (,(build-mapping-for-list '(1 2 3) (symbol-generator-generator 'a)) ((1 . a0) (2 . a1) (3 . a2)))
          ,(list (gather-vars '(A (B ,c ,c (R ,u ,v ,d) ,d) ,j)) '(,c ,u ,v ,d ,j))
-         ,(list (alpha-rename-exp '(A ,c) (symbol-generator-generator 'a)) '(((,c . a0)) (A a0)))
-         ,(list (alpha-rename-exp '(A (B ,c ,c (R ,u ,v ,d) ,d) ,j) (symbol-generator-generator 'a))
-                '(((,c . a0) (,u . a1) (,v . a2) (,d . a3) (,j . a4)) (A (B a0 a0 (R a1 a2 a3) a3) a4)))
+         ,(list (alpha-rename-rule '(fun (foo (A (B ,c ,c (R ,u ,v ,d) ,d) ,j)) (Bart ,u ,v ,j ,c ,c))
+                                   (symbol-generator-generator 'a))
+                '(((,d . a0) (,u . a1) (,v . a2) (,j . a3) (,c . a4))
+                  (fun (foo (A (B a4 a4 (R a1 a2 a0) a0) a3)) (Bart a1 a2 a3 a4 a4))))
+         ,(list (build-mapping-for-list '(1 2 3) (symbol-generator-generator 'a))
+                '((1 . a0) (2 . a1) (3 . a2)))
+         ,(list (gather-vars '(A (B ,c ,c (R ,u ,v ,d) ,d) ,j))
+                '(,c ,u ,v ,d ,j))
 ;         (,(alpha-rename-variable 'g) _g)
 ;         ,(alpha-rename-exp '(A ,a)
          )))

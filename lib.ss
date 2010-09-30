@@ -1268,3 +1268,8 @@
   (if (null? b)
       a
       (set-difference (remove (car b) a) (cdr b))))
+
+(define (unquote-list l)
+  (if (null? l)
+      '()
+      (cons (list 'unquote (car l)) (unquote-list (cdr l)))))
