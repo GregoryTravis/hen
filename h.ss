@@ -175,10 +175,17 @@
 (define (unify-rules left right)
   (mtch (list left (alpha-rename-rule right (var-generator-generator 'a)))
         (('fun left-pattern left-body) ('fun right-pattern right-body))
-        (mtch (sr (unify left-body right-pattern))
+        (mtch (blurg left-body right-pattern)
               (just bindings)
-              `((fun ,(apply-bindings left-pattern bindings) ,(apply-bindings left-body bindings))
-                (fun ,(apply-bindings right-pattern bindings) ,(apply-bindings right-body bindings))))))
+              `((fun ,(apply-bindings-friendly left-pattern bindings) ,(apply-bindings-friendly left-body bindings))
+                (fun ,(apply-bindings-friendly right-pattern bindings) ,(apply-bindings-friendly right-body bindings))))))
+
+(define (chain-rules left right)
+  (mtch (unify-rules left right)
+        (('fun left-pattern left-body) ('fun right-pattern right-body))
+        (begin
+          (assert (equal? left-body right-pattern))
+          `(fun ,left-pattern ,right-body))))
 
 (define (unify e0 e1)
   (cond
@@ -204,19 +211,15 @@
 (define (test)
   (map run-test
        `(
-;;              ,(list (unify-rules '(fun (foo (A ,a       ) (G (H ,i ,j)) ) (bar (B ,a        (P ,j ,i) )))
-;;                                  '(fun                                    (bar (B (C ,d ,e)   ,q        ) )  (T ,q        ,e ,d) ))
-;;                     '(fun (bar (B (C a2 a1) a0)) (T a0 a1 a2)))
-
-             ,(list (unify 'a 'a) (just 'a))
-             ,(list (unify 'a 'b) 'fail)
-             ,(list (unify '(a . b) '(a . b)) (just '(a . b)))
-             ,(list (unify '(a . b) '(a . x)) 'fail)
-             ,(list (unify '(a . x) '(a . b)) 'fail)
-             ,(list (unify '(a . (b . c)) '(a . (b . c))) (just '(a . (b . c))))
-             ,(list (unify '(a . (b . c)) '(x . (b . c))) fail)
-             ,(list (unify '(a . (b . c)) '(a . (x . c))) fail)
-             ,(list (unify '(a . (b . c)) '(a . (b . x))) fail)
+         ,(list (unify 'a 'a) (just 'a))
+         ,(list (unify 'a 'b) 'fail)
+         ,(list (unify '(a . b) '(a . b)) (just '(a . b)))
+         ,(list (unify '(a . b) '(a . x)) 'fail)
+         ,(list (unify '(a . x) '(a . b)) 'fail)
+         ,(list (unify '(a . (b . c)) '(a . (b . c))) (just '(a . (b . c))))
+         ,(list (unify '(a . (b . c)) '(x . (b . c))) fail)
+         ,(list (unify '(a . (b . c)) '(a . (x . c))) fail)
+         ,(list (unify '(a . (b . c)) '(a . (b . x))) fail)
          ,(list (unify ',v 'a) (just 'a))
          ,(list (unify 'a '(unquote v)) (just 'a))
          ,(list (unify ',v '(a . b)) (just '(a . b)))
@@ -238,6 +241,14 @@
                                          (just-value (blurg '(bar (B ,a          (P ,j ,i) ) ) '(bar (B (C ,d ,e)   ,q        ) ))))
                 '(bar (B (C ,d ,e) (P ,j ,i))))
 
+         ,(list (unify-rules '(fun (foo (A ,a       ) (G (H ,i ,j)) ) (bar (B ,a        (P ,j ,i) )))
+                             '(fun                                    (bar (B (C ,d ,e)   ,q        ) )  (T ,q        ,e ,d) ))
+                '((fun (foo (A (C ,a2 ,a1)) (G (H ,i ,j))) (bar (B (C ,a2 ,a1) (P ,j ,i))))
+                  (fun (bar (B (C ,a2 ,a1) (P ,j ,i))) (T (P ,j ,i) ,a1 ,a2))))
+
+         ,(list (chain-rules '(fun (foo (A ,a       ) (G (H ,i ,j)) ) (bar (B ,a        (P ,j ,i) )))
+                             '(fun                                    (bar (B (C ,d ,e)   ,q        ) )  (T ,q        ,e ,d) ))
+                '(fun (foo (A (C ,a2 ,a1)) (G (H ,i ,j))) (T (P ,j ,i) ,a1 ,a2)))
          )))
 
 ;(tracefun unify var? data?)
