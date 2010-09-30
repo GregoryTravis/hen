@@ -160,6 +160,8 @@
                 '(,c ,u ,v ,d ,j))
          ,(list (match-maybe '(bar (B (C ,d ,e))) '(bar (B ,a)))
                 '(just ((,a C ,d ,e))))
+         ,(list (match-maybe '(bar (B ,a)) '(bar (B (C ,d ,e))))
+                'fail)
          ,(list (apply-bindings '(bar (B ,a)) (just-value (match-maybe '(bar (B (C ,d ,e))) '(bar (B ,a)))))
                 '(bar (B (C ,d ,e))))
          )))
