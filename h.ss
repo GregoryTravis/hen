@@ -166,8 +166,9 @@
                 '(bar (B (C ,d ,e))))
          )))
 (test)
-;; left: (fun (foo (A a)) (bar (B a)))
-;; right: (fun (bar (B (C d e))) 
-;; (foo (A (C X Y)))
 
-;(apply-bindings '(bar (B ,a)) (just-value (match-maybe '(bar (B (C ,d ,e))) '(bar (B ,a)))))
+;;  left: (fun (foo (A ,a       ) (G (H ,i ,j)) ) (bar (B ,a        (P ,j ,i) )))
+;; right: (fun                                    (bar (B (C d e)   ,q        )    (T ,q        ,e ,d) ))
+;;  red0:      (foo (A (C  X  Y)) (G (H  W  Z)) ) (bar (B (C X Y)   (P Z W)   ) )
+;;  red1:                                         (bar (B (C X Y)   (P Z W)   ) )  (T (P  Z  W)  Y  X)
+;;  both: (fun (foo (A (C ,x ,y)) (G (H ,i ,j)) )                                  (T (P ,j ,i) ,y ,x) )
