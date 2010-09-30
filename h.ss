@@ -132,6 +132,10 @@
                 (unique (append a-vars d-vars))))
    (#t '())))
 
+(define (var-generator-generator prefix)
+  (let ((symbol-generator (symbol-generator-generator prefix)))
+    (lambda () (list 'unquote (symbol-generator)))))
+
 (define (alpha-rename-rule rule symbol-generator)
   (mtch rule
         ('fun pattern body)
@@ -142,13 +146,13 @@
 (define (test)
   (map run-test
        `(
-         (,(build-mapping-for-list '(1 2 3) (symbol-generator-generator 'a)) ((1 . a0) (2 . a1) (3 . a2)))
+         (,(build-mapping-for-list '(1 2 3) (var-generator-generator 'a)) ((1 . a0) (2 . a1) (3 . a2)))
          ,(list (gather-vars '(A (B ,c ,c (R ,u ,v ,d) ,d) ,j)) '(,c ,u ,v ,d ,j))
          ,(list (alpha-rename-rule '(fun (foo (A (B ,c ,c (R ,u ,v ,d) ,d) ,j)) (Bart ,u ,v ,j ,c ,c))
-                                   (symbol-generator-generator 'a))
+                                   (var-generator-generator 'a))
                 '(((,d . a0) (,u . a1) (,v . a2) (,j . a3) (,c . a4))
                   (fun (foo (A (B a4 a4 (R a1 a2 a0) a0) a3)) (Bart a1 a2 a3 a4 a4))))
-         ,(list (build-mapping-for-list '(1 2 3) (symbol-generator-generator 'a))
+         ,(list (build-mapping-for-list '(1 2 3) (var-generator-generator 'a))
                 '((1 . a0) (2 . a1) (3 . a2)))
          ,(list (gather-vars '(A (B ,c ,c (R ,u ,v ,d) ,d) ,j))
                 '(,c ,u ,v ,d ,j))
@@ -161,11 +165,12 @@
          )))
 
 (define (unify-rules left right)
-  (mtch (list left (alpha-rename-rule right (symbol-generator-generator 'a)))
+  (mtch (list left (alpha-rename-rule right (var-generator-generator 'a)))
         (('fun left-pattern left-body) ('fun right-pattern right-body))
-        (let ((bindings (unify left-body right-pattern)))
-          `((fun ,(apply-bindings left-pattern bindings) ,(apply-bindings left-body bindings))
-            (fun ,(apply-bindings right-pattern bindings) ,(apply-bindings right-body bindings))))))
+        (mtch (sr (unify left-body right-pattern))
+              (just bindings)
+              `((fun ,(apply-bindings left-pattern bindings) ,(apply-bindings left-body bindings))
+                (fun ,(apply-bindings right-pattern bindings) ,(apply-bindings right-body bindings))))))
 
 (define (unify e0 e1)
   (cond
@@ -177,12 +182,23 @@
    ((and (pair? e0) (pair? e1)) (maybe-cons (unify (car e0) (car e1)) (unify (cdr e0) (cdr e1))))
    (#t (err 'unify e0 e1))))
 
+;; Bindings (substitution, really) to make two terms identical
+(define (blurg e0 e1)
+  (cond
+   ((and (null? e0) (null? e1)) (just '()))
+   ((and (var? e0) (var? e1)) (just `((,e0 . ,e0))))
+   ((var? e0) (just `((,e0 . ,e1))))
+   ((var? e1) (just `((,e1 . ,e0))))
+   ((and (data? e0) (data? e1)) (just '()))
+   ((and (pair? e0) (pair? e1)) (maybe-append (blurg (car e0) (car e1)) (blurg (cdr e0) (cdr e1))))
+   (#t (err 'blurg e0 e1))))
+
 (define (test)
   (map run-test
        `(
-         ;;     ,(list (unify-rules '(fun (foo (A ,a       ) (G (H ,i ,j)) ) (bar (B ,a        (P ,j ,i) )))
-         ;;                         '(fun                                    (bar (B (C ,d ,e)   ,q        ) )  (T ,q        ,e ,d) ))
-         ;;            '(fun (bar (B (C a2 a1) a0)) (T a0 a1 a2)))
+;;              ,(list (unify-rules '(fun (foo (A ,a       ) (G (H ,i ,j)) ) (bar (B ,a        (P ,j ,i) )))
+;;                                  '(fun                                    (bar (B (C ,d ,e)   ,q        ) )  (T ,q        ,e ,d) ))
+;;                     '(fun (bar (B (C a2 a1) a0)) (T a0 a1 a2)))
 
              ,(list (unify 'a 'a) (just 'a))
              ,(list (unify 'a 'b) 'fail)
@@ -203,12 +219,17 @@
          ,(list (unify '(bar (B ,a          (P ,j ,i) ) )
                        '(bar (B (C ,d ,e)   ,q        ) ))
                 '(just (bar (B (C ,d ,e) (P ,j ,i)))))
-                       
+
+         ,(list (blurg '(bar (B ,a          (P ,j ,i) ) )
+                       '(bar (B (C ,d ,e)   ,q        ) ))
+                '(just ((,a C ,d ,e) (,q P ,j ,i))))
+
          )))
 
 ;(tracefun unify var? data?)
 
 (test)
+;(build-mapping-for-list '(1 2 3) (var-generator-generator 'a))
 
 ;;  left: (fun (foo (A ,a       ) (G (H ,i ,j)) ) (bar (B ,a          (P ,j ,i) ) )                      )
 ;; right: (fun                                    (bar (B (C ,d ,e)   ,q        ) )  (T ,q        ,e ,d) )
