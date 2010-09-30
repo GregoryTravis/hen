@@ -139,9 +139,11 @@
           `(,bindings (fun ,(apply-bindings pattern bindings) ,(apply-bindings body bindings))))))
 
 ;; (define (unify-rules left right)
-;;   (mtch (list left (alpha-rename-rule right))
+;;   (mtch (list left (alpha-rename-rule right (symbol-generator 'a)))
 ;;         (('fun left-pattern left-body) ('fun right-pattern right-body))
-;;         (let* ((
+;;         (let ((left-bindings (match-maybe right-pattern left-body))
+;;               (right-bindings (match-maybe left-body right-pattern)))
+;;           (if (just? left-bindings)
 
 (define (test)
   (map run-test
@@ -156,7 +158,14 @@
                 '((1 . a0) (2 . a1) (3 . a2)))
          ,(list (gather-vars '(A (B ,c ,c (R ,u ,v ,d) ,d) ,j))
                 '(,c ,u ,v ,d ,j))
-;         (,(alpha-rename-variable 'g) _g)
-;         ,(alpha-rename-exp '(A ,a)
+         ,(list (match-maybe '(bar (B (C ,d ,e))) '(bar (B ,a)))
+                '(just ((,a C ,d ,e))))
+         ,(list (apply-bindings '(bar (B ,a)) (just-value (match-maybe '(bar (B (C ,d ,e))) '(bar (B ,a)))))
+                '(bar (B (C ,d ,e))))
          )))
 (test)
+;; left: (fun (foo (A a)) (bar (B a)))
+;; right: (fun (bar (B (C d e))) 
+;; (foo (A (C X Y)))
+
+;(apply-bindings '(bar (B ,a)) (just-value (match-maybe '(bar (B (C ,d ,e))) '(bar (B ,a)))))
