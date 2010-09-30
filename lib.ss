@@ -633,6 +633,11 @@
 (define (maybe-list . things)
   (maybe-combine list things))
 
+(define (maybe-cons a d)
+  (if (and (just? a) (just? d))
+      (just (cons (just-value a) (just-value d)))
+      fail))
+
 (define (maybe-compose . fs)
   (assert (not (null? fs)))
   (if (null? (cdr fs))

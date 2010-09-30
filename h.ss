@@ -136,14 +136,8 @@
   (mtch rule
         ('fun pattern body)
         (let ((bindings (build-mapping-for-list (gather-vars (list pattern body)) symbol-generator)))
-          `(,bindings (fun ,(apply-bindings pattern bindings) ,(apply-bindings body bindings))))))
-
-;; (define (unify-rules left right)
-;;   (mtch (list left (alpha-rename-rule right (symbol-generator 'a)))
-;;         (('fun left-pattern left-body) ('fun right-pattern right-body))
-;;         (let ((left-bindings (match-maybe right-pattern left-body))
-;;               (right-bindings (match-maybe left-body right-pattern)))
-;;           (if (just? left-bindings)
+          `(fun ,(apply-bindings pattern bindings) ,(apply-bindings body bindings)))))
+;          `(,bindings (fun ,(apply-bindings pattern bindings) ,(apply-bindings body bindings))))))
 
 (define (test)
   (map run-test
@@ -165,10 +159,59 @@
          ,(list (apply-bindings '(bar (B ,a)) (just-value (match-maybe '(bar (B (C ,d ,e))) '(bar (B ,a)))))
                 '(bar (B (C ,d ,e))))
          )))
+
+(define (unify-rules left right)
+  (mtch (list left (alpha-rename-rule right (symbol-generator-generator 'a)))
+        (('fun left-pattern left-body) ('fun right-pattern right-body))
+        (let ((bindings (unify left-body right-pattern)))
+          `((fun ,(apply-bindings left-pattern bindings) ,(apply-bindings left-body bindings))
+            (fun ,(apply-bindings right-pattern bindings) ,(apply-bindings right-body bindings))))))
+
+(define (unify e0 e1)
+  (cond
+   ((and (null? e0) (null? e1)) (just '()))
+   ((and (var? e0) (var? e1)) (just e0))
+   ((var? e0) (just e1))
+   ((var? e1) (just e0))
+   ((and (data? e0) (data? e1)) (if (equal? e0 e1) (just e0) fail))
+   ((and (pair? e0) (pair? e1)) (maybe-cons (unify (car e0) (car e1)) (unify (cdr e0) (cdr e1))))
+   (#t (err 'unify e0 e1))))
+
+(define (test)
+  (map run-test
+       `(
+         ;;     ,(list (unify-rules '(fun (foo (A ,a       ) (G (H ,i ,j)) ) (bar (B ,a        (P ,j ,i) )))
+         ;;                         '(fun                                    (bar (B (C ,d ,e)   ,q        ) )  (T ,q        ,e ,d) ))
+         ;;            '(fun (bar (B (C a2 a1) a0)) (T a0 a1 a2)))
+
+             ,(list (unify 'a 'a) (just 'a))
+             ,(list (unify 'a 'b) 'fail)
+             ,(list (unify '(a . b) '(a . b)) (just '(a . b)))
+             ,(list (unify '(a . b) '(a . x)) 'fail)
+             ,(list (unify '(a . x) '(a . b)) 'fail)
+             ,(list (unify '(a . (b . c)) '(a . (b . c))) (just '(a . (b . c))))
+             ,(list (unify '(a . (b . c)) '(x . (b . c))) fail)
+             ,(list (unify '(a . (b . c)) '(a . (x . c))) fail)
+             ,(list (unify '(a . (b . c)) '(a . (b . x))) fail)
+         ,(list (unify ',v 'a) (just 'a))
+         ,(list (unify 'a '(unquote v)) (just 'a))
+         ,(list (unify ',v '(a . b)) (just '(a . b)))
+         ,(list (unify '(a . b) ',v) (just '(a . b)))
+         ,(list (unify ',u ',v) (just ',u))
+         ,(list (unify '(,a . (,c . ,d)) '((,e . ,f) . ,g))
+                (just '((,e . ,f) . (,c . ,d))))
+         ,(list (unify '(bar (B ,a          (P ,j ,i) ) )
+                       '(bar (B (C ,d ,e)   ,q        ) ))
+                '(just (bar (B (C ,d ,e) (P ,j ,i)))))
+                       
+         )))
+
+;(tracefun unify var? data?)
+
 (test)
 
-;;  left: (fun (foo (A ,a       ) (G (H ,i ,j)) ) (bar (B ,a        (P ,j ,i) )))
-;; right: (fun                                    (bar (B (C d e)   ,q        )    (T ,q        ,e ,d) ))
-;;  red0:      (foo (A (C  X  Y)) (G (H  W  Z)) ) (bar (B (C X Y)   (P Z W)   ) )
-;;  red1:                                         (bar (B (C X Y)   (P Z W)   ) )  (T (P  Z  W)  Y  X)
-;;  both: (fun (foo (A (C ,x ,y)) (G (H ,i ,j)) )                                  (T (P ,j ,i) ,y ,x) )
+;;  left: (fun (foo (A ,a       ) (G (H ,i ,j)) ) (bar (B ,a          (P ,j ,i) ) )                      )
+;; right: (fun                                    (bar (B (C ,d ,e)   ,q        ) )  (T ,q        ,e ,d) )
+;;  red0:      (foo (A (C  X  Y)) (G (H  W  Z)) ) (bar (B (C  X  Y)   (P Z  W)  ) )
+;;  red1:                                         (bar (B (C  X  Y)   (P Z  W)  ) )  (T (P  Z  W) Y  X)
+;;  both: (fun (foo (A (C ,x ,y)) (G (H ,i ,j)) )                                    (T (P ,j ,i) ,y ,x) )
