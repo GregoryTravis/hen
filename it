@@ -1,1 +1,1 @@
-mzscheme -e '(load "h.ss")' -e '(test)'
+mzscheme -e '(load "internal-tests.ss")' -e '(test)'
