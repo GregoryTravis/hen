@@ -201,10 +201,11 @@
 (define (blurg e0 e1)
   (cond
    ((and (null? e0) (null? e1)) (just '()))
-   ((and (var? e0) (var? e1)) (just `((,e0 . ,e0))))
+   ((and (var? e0) (var? e1) (equal? e0 e1)) (just '()))
+;   ((and (var? e0) (var? e1)) (just `((,e0 . ,e0))))
    ((var? e0) (just `((,e0 . ,e1))))
    ((var? e1) (just `((,e1 . ,e0))))
-   ((and (data? e0) (data? e1)) (just '()))
+   ((and (data? e0) (data? e1)) (if (equal? e0 e1) (just '()) fail))
    ((and (pair? e0) (pair? e1)) (maybe-append (blurg (car e0) (car e1)) (blurg (cdr e0) (cdr e1))))
    (#t (err 'blurg e0 e1))))
 
@@ -249,7 +250,14 @@
          ,(list (chain-rules '(fun (foo (A ,a       ) (G (H ,i ,j)) ) (bar (B ,a        (P ,j ,i) )))
                              '(fun                                    (bar (B (C ,d ,e)   ,q        ) )  (T ,q        ,e ,d) ))
                 '(fun (foo (A (C ,a2 ,a1)) (G (H ,i ,j))) (T (P ,j ,i) ,a1 ,a2)))
+
+         ,(list (blurg '(A ,a) '(B ,a)) fail)
+         ,(list (unify-rules '(fun (A ,a) ,a) '(fun (B ,a) ,a)) '((fun (A (B ,a0)) (B ,a0)) (fun (B ,a0) ,a0)))
+         ,(list (chain-rules '(fun (A ,a) ,a) '(fun (B ,a) ,a)) '(fun (A (B ,a0)) ,a0))
+         ,(list (chain-rules '(fun (A ,a) ,a) '(fun (B ,a) (C ,a ,a))) '(fun (A (B ,a0)) (C ,a0 ,a0)))
          )))
+
+;(tracefun blurg)
 
 ;(tracefun unify var? data?)
 
