@@ -15,4 +15,8 @@
       (= (data? (Cons 'a Nil)) False)
       (= (app? (Cons 'a Nil)) True)
       (= (map swap (Cons (P A B) (Cons (P C D) app))) (Cons (P B A) (Cons (P D C) (map swap app))))
+      (= (if False Yes No) No)
+      (= (if True Yes No) Yes)
+      (= (if (= (Cons a Nil) (Cons a Nil)) Yes No) Yes)
+      (= (if (= (Cons a Nil) (Cons b Nil)) Yes No) No)
       ))
