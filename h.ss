@@ -81,73 +81,11 @@
 
 (define reify-src consify)
 
-(define (run-test test) (mtch test (a b) (if (equal? a b) 'ok `(fail ,a ,b))))
-
-(define (gather-vars e)
-  (cond
-   ((var? e) (list e))
-   ((pair? e) (let* ((a-vars (gather-vars (car e)))
-                     (d-vars (gather-vars (cdr e))))
-                (unique (append a-vars d-vars))))
-   (#t '())))
-
 (define (var-generator-generator prefix)
   (let ((symbol-generator (symbol-generator-generator prefix)))
     (lambda () (list 'quote (symbol-generator)))))
 
-(define (alpha-rename-rule rule symbol-generator)
-  (mtch rule
-        ('fun pattern body)
-        (let ((bindings (build-mapping-for-list (gather-vars (list pattern body)) symbol-generator)))
-          `(fun ,(apply-bindings pattern bindings) ,(apply-bindings body bindings)))))
-
-(define (unify-rules left right)
-  (mtch (list left (alpha-rename-rule right (var-generator-generator 'a)))
-        (('fun left-pattern left-body) ('fun right-pattern right-body))
-        (mtch (blurg left-body right-pattern)
-              (just bindings)
-              `((fun ,(apply-bindings-friendly left-pattern bindings) ,(apply-bindings-friendly left-body bindings))
-                (fun ,(apply-bindings-friendly right-pattern bindings) ,(apply-bindings-friendly right-body bindings))))))
-
-(define (chain-rules left right)
-  (mtch (unify-rules left right)
-        (('fun left-pattern left-body) ('fun right-pattern right-body))
-        (begin
-          (assert (equal? left-body right-pattern))
-          `(fun ,left-pattern ,right-body))))
-
-;; (define (unify e0 e1)
-;;   (cond
-;;    ((and (null? e0) (null? e1)) (just '()))
-;;    ((and (var? e0) (var? e1)) (just e0))
-;;    ((var? e0) (just e1))
-;;    ((var? e1) (just e0))
-;;    ((and (data? e0) (data? e1)) (if (equal? e0 e1) (just e0) fail))
-;;    ((and (pair? e0) (pair? e1)) (maybe-cons (unify (car e0) (car e1)) (unify (cdr e0) (cdr e1))))
-;;    (#t (err 'unify e0 e1))))
-
-;; Unify can thus be written by calling blurg to get the bindings and
-;; then applying them to either term.  This produces the same results,
-;; except in the case of two vars, where you will get either one or
-;; the other.
-(define (unify e0 e1)
-  (mtch (blurg e0 e1)
-        ('just bindings) (just (apply-bindings-friendly e0 bindings))
-        'fail fail))
-
-;; Bindings (substitution, really) to make two terms identical.  But
-;; see comment on (unify).
-(define (blurg e0 e1)
-  (cond
-   ((and (null? e0) (null? e1)) (just '()))
-   ((and (var? e0) (var? e1) (equal? e0 e1)) (just '()))
-   ((and (var? e0) (var? e1)) (just '()))
-   ((var? e0) (just `((,e0 . ,e1))))
-   ((var? e1) (just `((,e1 . ,e0))))
-   ((and (data? e0) (data? e1)) (if (equal? e0 e1) (just '()) fail))
-   ((and (pair? e0) (pair? e1)) (maybe-append (blurg (car e0) (car e1)) (blurg (cdr e0) (cdr e1))))
-   (#t (err 'blurg e0 e1))))
-
+(define (run-test test) (mtch test (a b) (if (equal? a b) 'ok `(fail ,a ,b))))
 (define (test)
   (let ((results
          (let ((some-funs '((fun (map 'f Nil) ('f Nil))
@@ -192,14 +130,8 @@
                   (,(run '(apply swap (P A B)) some-funs) (P B A))
 
                   ,(list (build-mapping-for-list '(1 2 3) (var-generator-generator 'a)) '((1 . 'a0) (2 . 'a1) (3 . 'a2)))
-                  ,(list (gather-vars '(A (B 'c 'c (R 'u 'v 'd) 'd) 'j)) '('c 'u 'v 'd 'j))
-                  ,(list (alpha-rename-rule '(fun (foo (A (B 'c 'c (R 'u 'v 'd) 'd) 'j)) (Bart 'u 'v 'j 'c 'c))
-                                            (var-generator-generator 'a))
-                         '(fun (foo (A (B 'a4 'a4 (R 'a1 'a2 'a0) 'a0) 'a3)) (Bart 'a1 'a2 'a3 'a4 'a4)))
                   ,(list (build-mapping-for-list '(1 2 3) (var-generator-generator 'a))
                          '((1 . 'a0) (2 . 'a1) (3 . 'a2)))
-                  ,(list (gather-vars '(A (B 'c 'c (R 'u 'v 'd) 'd) 'j))
-                         '('c 'u 'v 'd 'j))
                   ,(list (match-maybe '(bar (B (C 'd 'e))) '(bar (B 'a)))
                          '(just (('a C 'd 'e))))
                   ,(list (match-maybe '(bar (B 'a)) '(bar (B (C 'd 'e))))
@@ -207,50 +139,6 @@
                   ,(list (apply-bindings '(bar (B 'a)) (just-value (match-maybe '(bar (B (C 'd 'e))) '(bar (B 'a)))))
                          '(bar (B (C 'd 'e))))
 
-                  ,(list (unify 'a 'a) (just 'a))
-                  ,(list (unify 'a 'b) 'fail)
-                  ,(list (unify '(a . b) '(a . b)) (just '(a . b)))
-                  ,(list (unify '(a . b) '(a . x)) 'fail)
-                  ,(list (unify '(a . x) '(a . b)) 'fail)
-                  ,(list (unify '(a . (b . c)) '(a . (b . c))) (just '(a . (b . c))))
-                  ,(list (unify '(a . (b . c)) '(x . (b . c))) fail)
-                  ,(list (unify '(a . (b . c)) '(a . (x . c))) fail)
-                  ,(list (unify '(a . (b . c)) '(a . (b . x))) fail)
-                  ,(list (unify ''v 'a) (just 'a))
-                  ,(list (unify 'a '(quote v)) (just 'a))
-                  ,(list (unify ''v '(a . b)) (just '(a . b)))
-                  ,(list (unify '(a . b) ''v) (just '(a . b)))
-                  ,(list (unify ''u ''v) (just ''u))
-                  ,(list (unify '(A 'u) '(A 'v)) (just '(A 'u)))
-                  ,(list (unify '('a . ('c . 'd)) '(('e . 'f) . 'g))
-                         (just '(('e . 'f) . ('c . 'd))))
-                  ,(list (unify '(bar (B 'a          (P 'j 'i) ) )
-                                '(bar (B (C 'd 'e)   'q        ) ))
-                         '(just (bar (B (C 'd 'e) (P 'j 'i)))))
-
-                  ,(list (blurg '(bar (B 'a          (P 'j 'i) ) )
-                                '(bar (B (C 'd 'e)   'q        ) ))
-                         '(just (('a C 'd 'e) ('q P 'j 'i))))
-                  ,(list (apply-bindings-friendly '(bar (B 'a          (P 'j 'i) ) )
-                                                  (just-value (blurg '(bar (B 'a          (P 'j 'i) ) ) '(bar (B (C 'd 'e)   'q        ) ))))
-                         '(bar (B (C 'd 'e) (P 'j 'i))))
-                  ,(list (apply-bindings-friendly '(bar (B (C 'd 'e)   'q        ) )
-                                                  (just-value (blurg '(bar (B 'a          (P 'j 'i) ) ) '(bar (B (C 'd 'e)   'q        ) ))))
-                         '(bar (B (C 'd 'e) (P 'j 'i))))
-
-                  ,(list (unify-rules '(fun (foo (A 'a       ) (G (H 'i 'j)) ) (bar (B 'a        (P 'j 'i) )))
-                                      '(fun                                    (bar (B (C 'd 'e)   'q        ) )  (T 'q        'e 'd) ))
-                         '((fun (foo (A (C 'a2 'a1)) (G (H 'i 'j))) (bar (B (C 'a2 'a1) (P 'j 'i))))
-                           (fun (bar (B (C 'a2 'a1) (P 'j 'i))) (T (P 'j 'i) 'a1 'a2))))
-
-                  ,(list (chain-rules '(fun (foo (A 'a       ) (G (H 'i 'j)) ) (bar (B 'a        (P 'j 'i) )))
-                                      '(fun                                    (bar (B (C 'd 'e)   'q        ) )  (T 'q        'e 'd) ))
-                         '(fun (foo (A (C 'a2 'a1)) (G (H 'i 'j))) (T (P 'j 'i) 'a1 'a2)))
-
-                  ,(list (blurg '(A 'a) '(B 'a)) fail)
-                  ,(list (unify-rules '(fun (A 'a) 'a) '(fun (B 'a) 'a)) '((fun (A (B 'a0)) (B 'a0)) (fun (B 'a0) 'a0)))
-                  ,(list (chain-rules '(fun (A 'a) 'a) '(fun (B 'a) 'a)) '(fun (A (B 'a0)) 'a0))
-                  ,(list (chain-rules '(fun (A 'a) 'a) '(fun (B 'a) (C 'a 'a))) '(fun (A (B 'a0)) (C 'a0 'a0)))
                   )))))
     (if (all? (map ($ eq? _ 'ok) results))
         '(ok)
