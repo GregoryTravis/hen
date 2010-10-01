@@ -220,6 +220,7 @@
            ,(list (unify ',v '(a . b)) (just '(a . b)))
            ,(list (unify '(a . b) ',v) (just '(a . b)))
            ,(list (unify ',u ',v) (just ',u))
+           ,(list (unify '(A ,u) '(A ,v)) (just '(A ,u)))
            ,(list (unify '(,a . (,c . ,d)) '((,e . ,f) . ,g))
                   (just '((,e . ,f) . (,c . ,d))))
            ,(list (unify '(bar (B ,a          (P ,j ,i) ) )
