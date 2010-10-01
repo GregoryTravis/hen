@@ -260,4 +260,5 @@
 ;(tracefun match-maybe apply-bindings)
 ;(tracefun reify-src)
 
-(test)
+;(test)
+(run '(main) (read-objects "src.k"))
