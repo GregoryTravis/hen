@@ -116,21 +116,32 @@
           (assert (equal? left-body right-pattern))
           `(fun ,left-pattern ,right-body))))
 
-(define (unify e0 e1)
-  (cond
-   ((and (null? e0) (null? e1)) (just '()))
-   ((and (var? e0) (var? e1)) (just e0))
-   ((var? e0) (just e1))
-   ((var? e1) (just e0))
-   ((and (data? e0) (data? e1)) (if (equal? e0 e1) (just e0) fail))
-   ((and (pair? e0) (pair? e1)) (maybe-cons (unify (car e0) (car e1)) (unify (cdr e0) (cdr e1))))
-   (#t (err 'unify e0 e1))))
+;; (define (unify e0 e1)
+;;   (cond
+;;    ((and (null? e0) (null? e1)) (just '()))
+;;    ((and (var? e0) (var? e1)) (just e0))
+;;    ((var? e0) (just e1))
+;;    ((var? e1) (just e0))
+;;    ((and (data? e0) (data? e1)) (if (equal? e0 e1) (just e0) fail))
+;;    ((and (pair? e0) (pair? e1)) (maybe-cons (unify (car e0) (car e1)) (unify (cdr e0) (cdr e1))))
+;;    (#t (err 'unify e0 e1))))
 
-;; Bindings (substitution, really) to make two terms identical
+;; Unify can thus be written by calling blurg to get the bindings and
+;; then applying them to either term.  This produces the same results,
+;; except in the case of two vars, where you will get either one or
+;; the other.
+(define (unify e0 e1)
+  (mtch (blurg e0 e1)
+        ('just bindings) (just (apply-bindings-friendly e0 bindings))
+        'fail fail))
+
+;; Bindings (substitution, really) to make two terms identical.  But
+;; see comment on (unify).
 (define (blurg e0 e1)
   (cond
    ((and (null? e0) (null? e1)) (just '()))
    ((and (var? e0) (var? e1) (equal? e0 e1)) (just '()))
+   ((and (var? e0) (var? e1)) (just '()))
    ((var? e0) (just `((,e0 . ,e1))))
    ((var? e1) (just `((,e1 . ,e0))))
    ((and (data? e0) (data? e1)) (if (equal? e0 e1) (just '()) fail))
