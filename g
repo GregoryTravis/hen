@@ -1,1 +1,1 @@
-mzscheme -e '(load "h.ss")'
+mzscheme -e '(load "h.ss")' -e '(run-file "src.k")'

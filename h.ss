@@ -260,6 +260,5 @@
 ;(tracefun match-maybe apply-bindings)
 ;(tracefun reify-src)
 
-;(test)
-(run '(main) (read-objects "src.k"))
-;(run '(main) (read-objects "test.k"))
+(define (run-file filename)
+  (run '(main) (read-objects filename)))
