@@ -79,7 +79,7 @@
    ((pair? e) `(Cons ,(consify (car e)) ,(consify (cdr e))))
    (#t (err 'consify e))))
 
-(define reify-src consify) ; (reify-src e) (foldr (lambda (a d) `(Cons ,a ,d)) 'Nil e))
+(define reify-src consify)
 
 (define (run-test test) (mtch test (a b) (if (equal? a b) 'ok `(fail ,a ,b))))
 
@@ -131,7 +131,6 @@
   (cond
    ((and (null? e0) (null? e1)) (just '()))
    ((and (var? e0) (var? e1) (equal? e0 e1)) (just '()))
-;   ((and (var? e0) (var? e1)) (just `((,e0 . ,e0))))
    ((var? e0) (just `((,e0 . ,e1))))
    ((var? e1) (just `((,e1 . ,e0))))
    ((and (data? e0) (data? e1)) (if (equal? e0 e1) (just '()) fail))
