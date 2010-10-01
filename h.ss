@@ -262,3 +262,4 @@
 
 ;(test)
 (run '(main) (read-objects "src.k"))
+;(run '(main) (read-objects "test.k"))
