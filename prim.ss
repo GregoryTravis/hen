@@ -5,6 +5,7 @@
 (define primitives
   `(
     (= . ,(ctorize-predicate equal?))
+    (app? . ,(ctorize-predicate (lambda (x) (and (pair? x) (not (quote? x))))))
     (data? . ,(ctorize-predicate data?))
     (var? . ,(ctorize-predicate var?))
     ))
