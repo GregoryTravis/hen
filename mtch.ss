@@ -30,7 +30,7 @@
      ((mtch-is-quote? pat)
       `(if (equal? ',(cadr pat) ,target)
            ,body
-           (fail)))     ((pair? pat)
+           (___fail)))     ((pair? pat)
       `(if (pair? ,target)
            (let ((,carvar (car ,target))
                  (,cdrvar (cdr ,target)))
@@ -39,24 +39,24 @@
                           (mtch-clause cdrvar
                                       (cdr pat)
                                       body)))
-           (fail)))
+           (___fail)))
      ((eq? '_ pat) body)
      ((symbol? pat)
       `(let ((,pat ,target)) ,body))
      ((mtch-literal? pat)
       `(if (equal? ',pat ,target)
            ,body
-           (fail)))
+           (___fail)))
      (#t (err 'mtch-clause target pat body)))))
 
 (define-for-syntax (mtch-clauses target clauses all-clauses)
   (if (null? clauses)
-      `(err 'match-failure target ',all-clauses)
+      `(err 'match-___failure target ',all-clauses)
       (let ((pat (car clauses))
             (body (cadr clauses))
             (rest (cddr clauses)))
         (let ((next (mtch-clauses target rest all-clauses)))
-          `(let ((fail (lambda () ,next)))
+          `(let ((___fail (lambda () ,next)))
              ,(mtch-clause target pat body))))))
 
 (define-for-syntax (mtch-render target clauses)
