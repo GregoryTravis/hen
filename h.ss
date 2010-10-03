@@ -20,9 +20,10 @@
    ((atom? e) e)
    ((pair? e)
     (let ((e (map ($ rewrite _ src) e)))
-      (if (is-primitive-call? e)
-          (run-primitive e)
-          (rewrite-this-rule-list e src))))
+      (cond
+       ((cton? e) e)
+       ((is-primitive-call? e) (run-primitive e))
+       (#t (rewrite-this-rule-list e src)))))
    (#t (err 'rewrite-step e src))))
 
 (define (rewrite-if e src)
@@ -39,13 +40,11 @@
                              ('just result) result)))
 
 (define (rewrite-this e rule)
-  (if (cton? e)
-      (just e)
-      (mtch rule
-            ('fun pat body)
-            (mtch (match-maybe e pat)
-                  'fail 'fail
-                  ('just bindings) (just (apply-bindings-friendly body bindings))))))
+  (mtch rule
+        ('fun pat body)
+        (mtch (match-maybe e pat)
+              'fail 'fail
+              ('just bindings) (just (apply-bindings-friendly body bindings)))))
 
 (define (match-maybe e pat)
   (cond
