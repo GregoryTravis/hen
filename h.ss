@@ -13,10 +13,13 @@
    ((and (pair? e) (eq? 'if (car e))) (rewrite-if e src))
    ((atom? e) e)
    ((pair? e)
-    (let ((new-e (rewrite-this-rule-list (map ($ rewrite _ src) e) src)))
-      (if (equal? new-e e)
-          new-e
-          (rewrite new-e src))))
+    (let ((e (map ($ rewrite _ src) e)))
+      (mtch (try-primitive-rewrite e)
+            ('just result) result
+            _ (let ((new-e (rewrite-this-rule-list e src)))
+                (if (equal? new-e e)
+                    new-e
+                    (rewrite new-e src))))))
    (#t (err 'rewrite e src))))
 
 (define (rewrite-if e src)
@@ -26,16 +29,11 @@
               'False (rewrite e src))))
 
 (define (rewrite-this-rule-list e src)
-  (mtch (try-primitive-rewrite e)
-        ('just result)
-        result
-
-        _
-        (mtch src
-              '() e
-              (rule . rules) (mtch (rewrite-this e rule)
-                                   'fail (rewrite-this-rule-list e rules)
-                                   ('just result) result))))
+  (mtch src
+        '() e
+        (rule . rules) (mtch (rewrite-this e rule)
+                             'fail (rewrite-this-rule-list e rules)
+                             ('just result) result)))
 
 (define (rewrite-this e rule)
   (if (cton? e)
