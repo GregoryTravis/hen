@@ -39,11 +39,13 @@
                                        ('just result) result)))))
 
 (define (rewrite-this e rule)
-  (mtch rule
-        ('fun pat body)
-        (mtch (match-maybe e pat)
-              'fail 'fail
-              ('just bindings) (just (apply-bindings-friendly body bindings)))))
+  (if (cton? e)
+      (just e)
+      (mtch rule
+            ('fun pat body)
+            (mtch (match-maybe e pat)
+                  'fail 'fail
+                  ('just bindings) (just (apply-bindings-friendly body bindings))))))
 
 (define (match-maybe e pat)
   (cond
