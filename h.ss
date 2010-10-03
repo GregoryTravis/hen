@@ -8,6 +8,12 @@
 (load "prim.ss")
 
 (define (rewrite e src)
+  (let ((new-e (rewrite-step e src)))
+    (if (equal? new-e e)
+        new-e
+        (rewrite new-e src))))
+
+(define (rewrite-step e src)
   (cond
    ((equal? e '(current-program)) (reify-src src))
    ((and (pair? e) (eq? 'if (car e))) (rewrite-if e src))
@@ -16,11 +22,8 @@
     (let ((e (map ($ rewrite _ src) e)))
       (mtch (try-primitive-rewrite e)
             ('just result) result
-            _ (let ((new-e (rewrite-this-rule-list e src)))
-                (if (equal? new-e e)
-                    new-e
-                    (rewrite new-e src))))))
-   (#t (err 'rewrite e src))))
+            _ (rewrite-this-rule-list e src))))
+   (#t (err 'rewrite-step e src))))
 
 (define (rewrite-if e src)
   (mtch e ('if b t e)
