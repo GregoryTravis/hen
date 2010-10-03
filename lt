@@ -1,0 +1,1 @@
+mzscheme -e '(load "lib-tests.ss")' -e '(test)'

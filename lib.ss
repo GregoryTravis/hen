@@ -1284,3 +1284,50 @@
   (if (null? l)
       '()
       (cons (list 'unquote (car l)) (unquote-list (cdr l)))))
+
+;; Traverse tree and apply f to each node.  If f returns fail, change
+;; nothing.  If f returns (just (substitution additional)), replace
+;; the node with substitution and continue descending.  At the end,
+;; return (new-tree list-of-additionals).  f is applied before
+;; descending.
+;;
+;; This works by storing both the substitution and the additional at
+;; the site of the original node, and then doing two more scans to
+;; extract the additionals and the tree with only the substitutions.
+;;
+;; Yeah, I know, it seems weird, but it happens so much that I just
+;; have to do this.
+(define descend-and-substitute-marker 'dgkuashf76768764hwkhasdfhf)
+(define (descend-and-substitute e f)
+  (let ((altered (descend-and-substitute-annotate e f)))
+    (list (descend-and-substitute-just-tree altered)
+          (descend-and-substitute-additionals altered))))
+
+(define (descend-and-substitute-annotate e f)
+  (mtch (f e)
+        'fail
+        (descend-and-substitute-annotate-descend e f)
+
+        ('just (substitution additional))
+        (list descend-and-substitute-marker
+              (descend-and-substitute-annotate-descend substitution f)
+              additional)))
+
+(define (descend-and-substitute-annotate-descend e f)
+  (if (pair? e)
+      (map ($ descend-and-substitute-annotate _ f) e)
+      e))
+
+(define (descend-and-substitute-just-tree e)
+  (cond
+   ((and (pair? e) (eq? (car e) descend-and-substitute-marker))
+    (mtch e (descend-and-substitute-marker substitution additional) (descend-and-substitute-just-tree substitution)))
+   ((pair? e) (map descend-and-substitute-just-tree e))
+   (#t e)))
+
+(define (descend-and-substitute-additionals e)
+  (cond
+   ((and (pair? e) (eq? (car e) descend-and-substitute-marker))
+    (mtch e (descend-and-substitute-marker substitution additional) (list additional)))
+   ((pair? e) (map-append descend-and-substitute-additionals e))
+   (#t '())))
