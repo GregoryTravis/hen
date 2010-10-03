@@ -2,6 +2,7 @@
 
 (define data? symbol?)
 (define var? quoted-symbol?)
+(define (lambda? e) (and (pair? e) (eq? '/. (car e))))
 
 (load "prim.ss")
 
@@ -75,9 +76,44 @@
    (data? e)
    (var? e)))
 
+(define (gather-vars e)
+  (cond
+   ((var? e) (list e))
+   ((pair? e) (let* ((a-vars (gather-vars (car e)))
+                     (d-vars (gather-vars (cdr e))))
+                (unique (append a-vars d-vars))))
+   (#t '())))
+
+(define (lift-lambda e generator)
+  (mtch e
+        ('/. pattern body)
+        (let ((lifted-name (generator))
+              (closed-over (set-difference (gather-vars body) (gather-vars pattern))))
+          (list `(,lifted-name . ,closed-over)
+                `(fun ((,lifted-name . ,closed-over) . ,pattern) ,body)))))
+
+(define (lift-lambdas-exp e generator)
+  (descend-and-substitute
+   e
+   (lambda (e)
+     (mtch e
+           ('/. pattern body) (just (lift-lambda e generator))
+           _ fail))))
+
+;; Ooky.  I should only be descending through the bodies of the rules,
+;; not the patterns as well, but that's more complicated so I'm not
+;; doing that.  But it's going to bite me when I write the
+;; metacircular interpreter and have /. in a pattern.
+(define (lift-lambdas src)
+  (mtch (lift-lambdas-exp src (symbol-generator-generator 'lambda-))
+        (new-src lifted) (append new-src lifted)))
+
+(define (preprocess src)
+  (lift-lambdas src))
+
 (define (run src)
   (assert (check-exp src))
-  (rewrite '(main) src))
+  (rewrite '(main) (preprocess src)))
 
 (define (consify e)
   (cond
@@ -95,6 +131,7 @@
 ;(tracefun rewrite rewrite-this rewrite-this-rule-list)
 ;(tracefun match-maybe apply-bindings)
 ;(tracefun reify-src)
+;(tracefun lift-lambdas lift-lambdas-exp lift-lambda)
 
 (define (run-file filename)
   (run (read-objects filename)))

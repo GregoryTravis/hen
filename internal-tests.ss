@@ -58,6 +58,9 @@
                                       '((fun ((larp 'a 'b) 'c) (Cons 'a (Cons 'b (Cons 'c Nil))))
                                         (fun (vook 'a) (map (larp 'a BB) (Cons C (Cons D Nil)))) (fun (main) (vook AA)))))
                          '(Cons (Cons AA (Cons BB (Cons C Nil))) (Cons (Cons AA (Cons BB (Cons D Nil))) Nil)))
+                  ,(list (run '((fun (poo 'x) (/. ('y) (Cons 'x 'y))) (fun (main) ((poo A) B))))
+                         '(Cons A B))
+
                   )))))
     (if (all? (map ($ eq? _ 'ok) results))
         '(ok)
