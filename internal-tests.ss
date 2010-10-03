@@ -24,7 +24,7 @@
                                                    (fun (boot (Cons 'a Nil)) (Cons 'a (Cons 'a Nil))))) (Cons Dop (Cons Dop Jerk)))
                   (,(run '((fun (main) (dumbify (Cons A (Cons B (Cons C Nil))))) (fun (dumbify Nil) Nil) (fun (dumbify (Cons 'a 'd)) (Cons (Cons Dumb 'a) (dumbify 'd)))))
                    (Cons (Cons Dumb A) (Cons (Cons Dumb B) (Cons (Cons Dumb C) Nil))))
-                  (,(run '((fun (main) (= Joe Joe)) )) True)
+                  (,(run '((fun (main) (== Joe Joe)) )) True)
                   (,(run '((fun (main) (car (Cons Haha Nil))) (fun (car (Cons 'a 'd)) 'a) (fun (cdr (Cons 'a 'd)) 'd) (fun (cons 'a 'd) (Cons 'a 'd)))) Haha)
                   (,(run '((fun (main) (car (Cons Haha (Cons HoHo Nil)))) (fun (car (Cons 'a 'd)) 'a) (fun (cdr (Cons 'a 'd)) 'd) (fun (cons 'a 'd) (Cons 'a 'd)))) Haha)
                   (,(run '((fun (main) (cdr (Cons Haha Nil))) (fun (car (Cons 'a 'd)) 'a) (fun (cdr (Cons 'a 'd)) 'd) (fun (cons 'a 'd) (Cons 'a 'd)))) Nil)
