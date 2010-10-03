@@ -2,6 +2,7 @@
 
 (define data? symbol?)
 (define var? quoted-symbol?)
+(define atom? (for data? var?))
 (define (lambda? e) (and (pair? e) (eq? '/. (car e))))
 
 (load "prim.ss")
@@ -9,7 +10,7 @@
 (define (rewrite e src)
   (cond
    ((and (pair? e) (eq? 'if (car e))) (rewrite-if e src))
-   ((or (var? e) (data? e)) e)
+   ((atom? e) e)
    ((pair? e)
     (let ((new-e (rewrite-this-rule-list (map ($ rewrite _ src) e) src)))
       (if (equal? new-e e)
