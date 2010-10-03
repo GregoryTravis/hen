@@ -9,6 +9,7 @@
 
 (define (rewrite e src)
   (cond
+   ((equal? e '(current-program)) (reify-src src))
    ((and (pair? e) (eq? 'if (car e))) (rewrite-if e src))
    ((atom? e) e)
    ((pair? e)
@@ -25,18 +26,16 @@
               'False (rewrite e src))))
 
 (define (rewrite-this-rule-list e src)
-  (if (equal? e '(current-program))
-      (reify-src src)
-      (mtch (try-primitive-rewrite e)
-            ('just result)
-            result
+  (mtch (try-primitive-rewrite e)
+        ('just result)
+        result
 
-            _
-            (mtch src
-                  '() e
-                  (rule . rules) (mtch (rewrite-this e rule)
-                                       'fail (rewrite-this-rule-list e rules)
-                                       ('just result) result)))))
+        _
+        (mtch src
+              '() e
+              (rule . rules) (mtch (rewrite-this e rule)
+                                   'fail (rewrite-this-rule-list e rules)
+                                   ('just result) result))))
 
 (define (rewrite-this e rule)
   (if (cton? e)
