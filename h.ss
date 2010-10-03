@@ -7,16 +7,15 @@
 (load "prim.ss")
 
 (define (rewrite e src)
-  (if (and (pair? e) (eq? 'if (car e)))
-      (rewrite-if e src)
-      (cond
-       ((or (var? e) (data? e)) e)
-       ((pair? e)
-        (let ((new-e (rewrite-this-rule-list (map ($ rewrite _ src) e) src)))
-          (if (equal? new-e e)
-              new-e
-              (rewrite new-e src))))
-       (#t (err 'rewrite e src)))))
+  (cond
+   ((and (pair? e) (eq? 'if (car e))) (rewrite-if e src))
+   ((or (var? e) (data? e)) e)
+   ((pair? e)
+    (let ((new-e (rewrite-this-rule-list (map ($ rewrite _ src) e) src)))
+      (if (equal? new-e e)
+          new-e
+          (rewrite new-e src))))
+   (#t (err 'rewrite e src))))
 
 (define (rewrite-if e src)
   (mtch e ('if b t e)
