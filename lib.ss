@@ -619,6 +619,8 @@
 (define (just-value o)
   (assert (just? o) o)
   (cadr o))
+(define (just-or value fallback)
+  (mtch value ('just value) value _ fallback))
 
 (define (maybe-combine combiner args)
   (if (any? (map fail? args))
@@ -696,6 +698,13 @@
     (if (any? (map (lambda (p) (eq? 'fail p)) args))
         'fail
         (apply f args))))
+
+(define (map-until-success f lyst)
+  (if (null? lyst)
+      'fail
+      (mtch (f (car lyst))
+            ('just result) (just result)
+            _ (map-until-success f (cdr lyst)))))
 
 (define (map-until-not-fail f lyst)
   (if (null? lyst)

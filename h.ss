@@ -26,12 +26,8 @@
        (#t (rewrite-this-rule-list e src)))))
    (#t (err 'rewrite-step e src))))
 
-(define (rewrite-this-rule-list e src)
-  (mtch src
-        '() e
-        (rule . rules) (mtch (rewrite-this e rule)
-                             'fail (rewrite-this-rule-list e rules)
-                             ('just result) result)))
+(define (rewrite-this-rule-list e rules)
+  (just-or (map-until-success (lambda (rule) (rewrite-this e rule)) rules) e))
 
 (define (rewrite-this e rule)
   (mtch rule
