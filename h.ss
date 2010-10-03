@@ -28,7 +28,7 @@
   (if (equal? e '(current-program))
       (reify-src src)
       (mtch (try-primitive-rewrite e)
-            (just result)
+            ('just result)
             result
 
             _
