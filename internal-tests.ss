@@ -3,7 +3,7 @@
 (define (run-test test) (mtch test (a b) (if (equal? a b) 'ok `(fail ,a ,b))))
 (define (test)
   (let ((results
-         (let ((some-funs '((fun (map 'f Nil) ('f Nil))
+         (let ((some-funs '((fun (map 'f Nil) Nil)
                             (fun (map 'f (Cons 'a 'd)) (Cons ('f 'a) (map 'f 'd)))
                             (fun (swap (P 'a 'd)) (P 'd 'a))
                             (fun (apply 'f . 'a) ('f . 'a)))))
@@ -42,7 +42,7 @@
                                                       (Cons (Cons Cons (Cons 'a (Cons (Cons Cons (Cons 'a (Cons Jerk Nil))) Nil))) Nil)))
                                       (Cons (Cons fun (Cons (Cons boot (Cons (Cons Cons (Cons 'a (Cons Nil Nil))) Nil))
                                                             (Cons (Cons Cons (Cons 'a (Cons (Cons Cons (Cons 'a (Cons Nil Nil))) Nil))) Nil))) Nil))))
-                  (,(run (cons '(fun (main) (map swap (Cons (P A B) (Cons (P C D) Nil)))) some-funs)) (Cons (P B A) (Cons (P D C) (swap Nil))))
+                  (,(run (cons '(fun (main) (map swap (Cons (P A B) (Cons (P C D) Nil)))) some-funs)) (Cons (P B A) (Cons (P D C) Nil)))
                   (,(run (cons '(fun (main) (apply swap (P A B))) some-funs)) (P B A))
 
                   ,(list (build-mapping-for-list '(1 2 3) (var-generator-generator 'a)) '((1 . 'a0) (2 . 'a1) (3 . 'a2)))
@@ -54,7 +54,10 @@
                          'fail)
                   ,(list (apply-bindings '(bar (B 'a)) (just-value (match-maybe '(bar (B (C 'd 'e))) '(bar (B 'a)))))
                          '(bar (B (C 'd 'e))))
-
+                  ,(list (run (append some-funs
+                                      '((fun ((larp 'a 'b) 'c) (Cons 'a (Cons 'b (Cons 'c Nil))))
+                                        (fun (vook 'a) (map (larp 'a BB) (Cons C (Cons D Nil)))) (fun (main) (vook AA)))))
+                         '(Cons (Cons AA (Cons BB (Cons C Nil))) (Cons (Cons AA (Cons BB (Cons D Nil))) Nil)))
                   )))))
     (if (all? (map ($ eq? _ 'ok) results))
         '(ok)
