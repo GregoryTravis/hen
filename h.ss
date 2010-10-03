@@ -75,10 +75,9 @@
    (data? e)
    (var? e)))
 
-(define (run e src)
-  (assert (check-exp e))
+(define (run src)
   (assert (check-exp src))
-  (rewrite e src))
+  (rewrite '(main) src))
 
 (define (consify e)
   (cond
@@ -98,4 +97,4 @@
 ;(tracefun reify-src)
 
 (define (run-file filename)
-  (run '(main) (read-objects filename)))
+  (run (read-objects filename)))
