@@ -20,9 +20,9 @@
    ((atom? e) e)
    ((pair? e)
     (let ((e (map ($ rewrite _ src) e)))
-      (mtch (try-primitive-rewrite e)
-            ('just result) result
-            _ (rewrite-this-rule-list e src))))
+      (if (is-primitive-call? e)
+          (run-primitive e)
+          (rewrite-this-rule-list e src))))
    (#t (err 'rewrite-step e src))))
 
 (define (rewrite-if e src)

@@ -10,9 +10,7 @@
     (var? . ,(ctorize-predicate var?))
     ))
 
-(define (try-primitive-rewrite e)
-  (mtch e
-        (fun . args) (if (lookup-exists? fun primitives) (just (apply (lookup fun primitives) args)) 'fail)
-        _ fail))
+(define (is-primitive-call? e) (and (pair? e) (lookup-exists? (car e) primitives)))
+(define (run-primitive e) (mtch e (fun . args) (apply (lookup fun primitives) args)))
 
 ;(tracefun try-primitive-rewrite lookup lookup-exists?)
