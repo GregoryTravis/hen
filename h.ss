@@ -16,7 +16,7 @@
 (define (rewrite-step e src)
   (cond
    ((equal? e '(current-program)) (reify-src src))
-   ((and (pair? e) (eq? 'if (car e))) (rewrite-if e src))
+   ((and (pair? e) (eq? 'if (car e))) (mtch e ('if b t e) (rewrite (mtch (rewrite b src) 'True t 'False e) src)))
    ((atom? e) e)
    ((pair? e)
     (let ((e (map ($ rewrite _ src) e)))
@@ -25,12 +25,6 @@
        ((is-primitive-call? e) (run-primitive e))
        (#t (rewrite-this-rule-list e src)))))
    (#t (err 'rewrite-step e src))))
-
-(define (rewrite-if e src)
-  (mtch e ('if b t e)
-        (mtch (rewrite b src)
-              'True (rewrite t src)
-              'False (rewrite e src))))
 
 (define (rewrite-this-rule-list e src)
   (mtch src
