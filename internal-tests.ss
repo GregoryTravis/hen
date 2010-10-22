@@ -60,7 +60,9 @@
                          '(Cons (Cons AA (Cons BB (Cons C Nil))) (Cons (Cons AA (Cons BB (Cons D Nil))) Nil)))
                   ,(list (run '((fun (poo 'x) (/. ('y) (Cons 'x 'y))) (fun (main) ((poo A) B))))
                          '(Cons A B))
-
+                  ,(list (prelex-string "(Fork [1 [5 6 (Hote 5)] 2] [3 4]) (Fork [1 [5 6 (Hote 5)] 2] [3 4])")
+                         '((Fork (Cons 1 (Cons (Cons 5 (Cons 6 (Cons (Hote 5) Nil))) (Cons 2 Nil))) (Cons 3 (Cons 4 Nil)))
+                           (Fork (Cons 1 (Cons (Cons 5 (Cons 6 (Cons (Hote 5) Nil))) (Cons 2 Nil))) (Cons 3 (Cons 4 Nil)))))
                   )))))
     (if (all? (map ($ eq? _ 'ok) results))
         '(ok)
