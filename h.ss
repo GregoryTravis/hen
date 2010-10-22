@@ -1,4 +1,5 @@
 (load "lib.ss")
+(load "prelex.ss")
 
 (define data? symbol?)
 (define var? quoted-symbol?)
@@ -126,3 +127,5 @@
 
 (define (run-file filename)
   (run (read-objects filename)))
+
+(shew (prelex-read "src.k"))
