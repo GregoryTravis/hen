@@ -13,9 +13,9 @@
 
 (define (prelex-read filename) (prelex-string (read-file filename)))
 
-(define (prelex-string file-contents-string) (listify-wonkiness (read-from-string-all (list->string (prelex (string->list file-contents-string))))))
+(define (prelex-string file-contents-string) (listify-wonkiness (read-from-string-all (list->string (subst-prelex-tokens (string->list file-contents-string))))))
 
-(define (prelex chars)
+(define (subst-prelex-tokens chars)
   (let* ((chars (replace-char-with-chars chars #\[ wonky-left-bracket-replacement-string))
          (chars (replace-char-with-chars chars #\] wonky-right-bracket-replacement-string))
          (chars (replace-char-with-chars chars #\. wonky-dot-replacement-string)))
@@ -43,4 +43,4 @@
    ((null? e) (err 'bad-prelex))
    (#t (listify-wonkiness e))))
 
-(tracefun prelex listify-wonkiness listify-wonkiness-cons-list)
+;(tracefun subst-prelex-tokens listify-wonkiness listify-wonkiness-cons-list)
