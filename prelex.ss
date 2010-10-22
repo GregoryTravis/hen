@@ -45,7 +45,26 @@
 
 ;(tracefun subst-prelex-tokens listify-wonkiness listify-wonkiness-cons-list)
 
-;; (define (un-prelex-write filename e) (write-file filename (un-prelex-to-string e)))
+(define (un-prelex-write filename e) (write-file filename (un-prelex-to-string e)))
 
-;; (define (un-prelex-to-string e)
-;;   (unlistify-wonkiness e)
+(define (sexp-to-string e) (with-output-to-string (lambda () (write e))))
+
+(define (un-prelex-to-string e) (unsubst-prelex-tokens (apply ++ (map sexp-to-string (unlistify-wonkiness e)))))
+
+(define (unlistify-wonkiness e)
+  (mtch e
+        ('Cons a b) (cons wonky-left-bracket-token (append (map unlistify-wonkiness (unlistify-wonkiness-listified-list e)) (list wonky-right-bracket-token)))
+        'Nil (list wonky-right-bracket-token)
+        (a . d) (map unlistify-wonkiness e)
+        _ e))
+
+(define (unlistify-wonkiness-listified-list e)
+  (mtch e
+        ('Cons a d) (cons a (unlistify-wonkiness-listified-list d))
+        'Nil '()))
+
+(define (unsubst-prelex-tokens s)
+  (let* ((s (regexp-replace* (regexp-quote wonky-left-bracket-replacement-string) s "["))
+         (s (regexp-replace* (regexp-quote wonky-right-bracket-replacement-string) s "]"))
+         (s (regexp-replace* (regexp-quote wonky-dot-replacement-string) s ".")))
+    s))

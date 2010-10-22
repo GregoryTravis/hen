@@ -128,4 +128,7 @@
 (define (run-file filename)
   (run (read-objects filename)))
 
-(shew (prelex-read "src.k"))
+;; (shew (read-objects "src.k"))
+;; (shew (prelex-read "src.k"))
+;(un-prelex-to-string (prelex-read "src.k"))
+;; (un-prelex-write "out" (prelex-read "src.k"))
