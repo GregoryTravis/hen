@@ -5,9 +5,9 @@
 (define wonky-right-bracket-token 'R)
 (define wonky-dot-token 'DOT)
 
-(define wonky-left-bracket-replacement-string (++ "(" wonky-left-bracket-token " "))
-(define wonky-right-bracket-replacement-string (++ " " wonky-right-bracket-token ")"))
-(define wonky-dot-replacement-string (++ " " wonky-dot-token " "))
+(define wonky-left-bracket-replacement-string (++ "(" wonky-left-bracket-token))
+(define wonky-right-bracket-replacement-string (++ wonky-right-bracket-token ")"))
+(define wonky-dot-replacement-string (->string wonky-dot-token))
 
 (define wonky-tokens (list wonky-left-bracket-token wonky-right-bracket-token wonky-dot-token))
 
@@ -16,9 +16,9 @@
 (define (prelex-string file-contents-string) (listify-wonkiness (read-from-string-all (subst-prelex-tokens file-contents-string))))
 
 (define (subst-prelex-tokens s)
-  (let* ((s (regexp-replace* "\\[" s wonky-left-bracket-replacement-string))
-         (s (regexp-replace* "\\]" s wonky-right-bracket-replacement-string))
-         (s (regexp-replace* "\\." s wonky-dot-replacement-string)))
+  (let* ((s (regexp-replace* "\\[" s (++ wonky-left-bracket-replacement-string " ")))
+         (s (regexp-replace* "\\]" s (++ " " wonky-right-bracket-replacement-string)))
+         (s (regexp-replace* "\\." s (++ " " wonky-dot-replacement-string " "))))
     s))
 
 (define (replace-char-with-chars chars find replace)
@@ -47,9 +47,9 @@
 
 (define (un-prelex-write filename e) (write-file filename (un-prelex-to-string e)))
 
-(define (sexp-to-string e) (with-output-to-string (lambda () (write e))))
+(define (sexp-to-string e) (with-output-to-string (lambda () (pretty-print e))))
 
-(define (un-prelex-to-string e) (unsubst-prelex-tokens (apply ++ (map sexp-to-string (unlistify-wonkiness e)))))
+(define (un-prelex-to-string e) (unsubst-prelex-tokens (sexp-to-string (unlistify-wonkiness e))))
 
 (define (unlistify-wonkiness e)
   (mtch e

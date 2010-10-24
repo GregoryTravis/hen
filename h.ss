@@ -126,9 +126,5 @@
 ;(tracefun lift-lambdas lift-lambdas-exp lift-lambda)
 
 (define (run-file filename)
-  (run (read-objects filename)))
-
-;; (shew (read-objects "src.k"))
-;; (shew (prelex-read "src.k"))
-;(un-prelex-to-string (prelex-read "src.k"))
-;; (un-prelex-write "out" (prelex-read "src.k"))
+  (display (un-prelex-to-string (run (prelex-read filename))))
+  (display "\n"))
