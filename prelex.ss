@@ -29,24 +29,32 @@
    (#t (err 'bad-prelex-replace))))
 
 (define (listify-wonkiness e)
+  (listify-wonkiness-dots (listify-wonkiness-square-brackets e)))
+
+(define (listify-wonkiness-square-brackets e)
   (cond
    ((and (pair? e) (eq? (car e) wonky-left-bracket-token)) (listify-wonkiness-cons-list (cdr e)))
-   ((and (pair? e) (pair? (cdr e)) (eq? (cadr e) wonky-dot-token) (not (null? (cddr e))) (null? (cdddr e)))
-    (cons (listify-wonkiness (car e)) (listify-wonkiness (caddr e))))
-   ((pair? e) (map listify-wonkiness e))
-   ((member? e wonky-tokens) (err 'bad-prelex))
+   ((pair? e) (map listify-wonkiness-square-brackets e))
+   ((or (eq? e wonky-left-bracket-token) (eq? e wonky-right-bracket-token)) (err 'bad-prelex))
    (#t e)))
 
 (define (listify-wonkiness-cons-list e)
   (cond
    ((and (pair? e) (eq? (car e) wonky-right-bracket-token) (null? (cdr e))) 'Nil)
-   ((and (pair? e) (pair? (cdr e)) (eq? (cadr e) wonky-dot-token) (not (null? (cddr e))) (null? (cdddr e)))
-    `(Cons ,(listify-wonkiness (car e)) ,(listify-wonkiness (cddr e))))
-   ((pair? e) `(Cons ,(listify-wonkiness (car e)) ,(listify-wonkiness-cons-list (cdr e))))
+   ((pair? e) `(Cons ,(listify-wonkiness-square-brackets (car e)) ,(listify-wonkiness-cons-list (cdr e))))
    ((null? e) (err 'bad-prelex))
-   (#t (listify-wonkiness e))))
+   (#t (listify-wonkiness-square-brackets e))))
 
-(tracefun subst-prelex-tokens listify-wonkiness listify-wonkiness-cons-list)
+(define (listify-wonkiness-dots e)
+  (cond
+   ((mtch e ('Cons a ('Cons b 'Nil)) (eq? a wonky-dot-token) _ #f) (listify-wonkiness-dots (cadr (caddr e))))
+   ((mtch e ('Cons a ('Cons b _)) (eq? a wonky-dot-token) _ #f) (err 'bad-prelex))
+   ((and (pair? e) (eq? (car e) wonky-dot-token) (pair? (cdr e)) (not (pair? (cddr e)))) (listify-wonkiness-dots (cadr e)))
+   ((pair? e) (cons (listify-wonkiness-dots (car e)) (listify-wonkiness-dots (cdr e))))
+   ((eq? e wonky-dot-token) (err 'bad-prelex))
+   (#t e)))
+
+;(tracefun subst-prelex-tokens listify-wonkiness listify-wonkiness-cons-list listify-wonkiness-square-brackets listify-wonkiness-dots)
 
 (define (un-prelex-write filename e) (write-file filename (un-prelex-to-string e)))
 

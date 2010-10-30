@@ -66,6 +66,8 @@
                   ,(list (un-prelex-to-string '((Fork (Cons 1 (Cons (Cons 5 (Cons 6 (Cons (Hote 5) Nil))) (Cons 2 Nil))) (Cons 3 (Cons 4 Nil)))
                                                 (Fork (Cons 1 (Cons (Cons 5 (Cons 6 (Cons (Hote 5) Nil))) (Cons 2 Nil))) (Cons 3 (Cons 4 Nil)))))
                          "((Fork [1 [5 6 (Hote 5)] 2] [3 4])\n (Fork [1 [5 6 (Hote 5)] 2] [3 4]))\n")
+                  ,(list (listify-wonkiness-dots `(a ,wonky-dot-token b)) '(a . b))
+                  ,(list (listify-wonkiness-dots `(Cons a (Cons ,wonky-dot-token (Cons b Nil)))) '(Cons a b))
                   )))))
     (if (all? (map ($ eq? _ 'ok) results))
         '(ok)
