@@ -31,7 +31,8 @@
 (define (listify-wonkiness e)
   (cond
    ((and (pair? e) (eq? (car e) wonky-left-bracket-token)) (listify-wonkiness-cons-list (cdr e)))
-   ((and (pair? e) (eq? (car e) wonky-dot-token) (not (null? (cdr e))) (null? (cddr e))) (listify-wonkiness (cadr e)))
+   ((and (pair? e) (pair? (cdr e)) (eq? (cadr e) wonky-dot-token) (not (null? (cddr e))) (null? (cdddr e)))
+    (cons (listify-wonkiness (car e)) (listify-wonkiness (caddr e))))
    ((pair? e) (map listify-wonkiness e))
    ((member? e wonky-tokens) (err 'bad-prelex))
    (#t e)))
@@ -39,6 +40,8 @@
 (define (listify-wonkiness-cons-list e)
   (cond
    ((and (pair? e) (eq? (car e) wonky-right-bracket-token) (null? (cdr e))) 'Nil)
+   ((and (pair? e) (pair? (cdr e)) (eq? (cadr e) wonky-dot-token) (not (null? (cddr e))) (null? (cdddr e)))
+    `(Cons ,(listify-wonkiness (car e)) ,(listify-wonkiness (cddr e))))
    ((pair? e) `(Cons ,(listify-wonkiness (car e)) ,(listify-wonkiness-cons-list (cdr e))))
    ((null? e) (err 'bad-prelex))
    (#t (listify-wonkiness e))))

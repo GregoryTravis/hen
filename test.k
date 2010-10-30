@@ -3,6 +3,8 @@
 
 (fun (swap (P 'a 'b)) (P 'b 'a))
 
+(fun (allargs . 'a) (Jerk 'a))
+
 (fun (main)
      (Tests
       (== (var? Nil)  False)
@@ -19,4 +21,5 @@
       (== (if True Yes No) Yes)
       (== (if (== (Cons a Nil) (Cons a Nil)) Yes No) Yes)
       (== (if (== (Cons a Nil) (Cons b Nil)) Yes No) No)
+      (== (allargs A B C) (Jerk (A B C)))
       ))
