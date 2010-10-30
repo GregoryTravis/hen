@@ -126,5 +126,4 @@
 ;(tracefun lift-lambdas lift-lambdas-exp lift-lambda)
 
 (define (run-file filename)
-  (display (un-prelex-to-string (run (prelex-read filename))))
-  (display "\n"))
+  (display (un-prelex-to-string (run (prelex-read filename)))))
