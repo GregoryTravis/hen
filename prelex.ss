@@ -5,8 +5,8 @@
 (define wonky-right-bracket-token 'R)
 (define wonky-dot-token 'DOT)
 
-(define wonky-left-bracket-replacement-string (++ "(" wonky-left-bracket-token))
-(define wonky-right-bracket-replacement-string (++ wonky-right-bracket-token ")"))
+(define wonky-left-bracket-replacement-string (++ "(" wonky-left-bracket-token " "))
+(define wonky-right-bracket-replacement-string (++ " " wonky-right-bracket-token ")"))
 (define wonky-dot-replacement-string (->string wonky-dot-token))
 
 (define wonky-tokens (list wonky-left-bracket-token wonky-right-bracket-token wonky-dot-token))
