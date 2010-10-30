@@ -46,7 +46,7 @@
    ((null? e) (err 'bad-prelex))
    (#t (listify-wonkiness e))))
 
-;(tracefun subst-prelex-tokens listify-wonkiness listify-wonkiness-cons-list)
+(tracefun subst-prelex-tokens listify-wonkiness listify-wonkiness-cons-list)
 
 (define (un-prelex-write filename e) (write-file filename (un-prelex-to-string e)))
 
