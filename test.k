@@ -5,12 +5,12 @@
 
 (fun (allargs . 'a) (Jerk 'a))
 
-(fun (all-true (Tests True . 'rest)) (all-true (Tests . 'rest)))
-(fun (all-true (Tests)) (ok))
+(fun (all-true True . 'rest) (all-true . 'rest))
+(fun (all-true) (ok))
 (fun (all-true _) (Fail))
 
 (fun (main)
-     (Tests
+     (all-true
       (== (var? Nil)  False)
       (== (data? Nil) True)
       (== (app? Nil) False)
