@@ -68,6 +68,7 @@
                          "((Fork [1 [5 6 (Hote 5)] 2] [3 4])\n (Fork [1 [5 6 (Hote 5)] 2] [3 4]))\n")
                   ,(list (listify-wonkiness-dots `(a ,wonky-dot-token b)) '(a . b))
                   ,(list (listify-wonkiness-dots `(Cons a (Cons ,wonky-dot-token (Cons b Nil)))) '(Cons a b))
+                  ,(list (unlistify-wonkiness-listified-list '(Cons all-true (quote rest))) '(all-true quote rest))
                   )))))
     (if (all? (map ($ eq? _ 'ok) results))
         '(ok)

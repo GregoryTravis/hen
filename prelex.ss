@@ -54,8 +54,6 @@
    ((eq? e wonky-dot-token) (err 'bad-prelex))
    (#t e)))
 
-;(tracefun subst-prelex-tokens listify-wonkiness listify-wonkiness-cons-list listify-wonkiness-square-brackets listify-wonkiness-dots)
-
 (define (un-prelex-write filename e) (write-file filename (un-prelex-to-string e)))
 
 (define (sexp-to-string e) (with-output-to-string (lambda () (pretty-print e))))
@@ -72,6 +70,7 @@
 (define (unlistify-wonkiness-listified-list e)
   (mtch e
         ('Cons a d) (cons a (unlistify-wonkiness-listified-list d))
+        ('quote s) e
         'Nil '()))
 
 (define (unsubst-prelex-tokens s)
@@ -79,3 +78,6 @@
          (s (regexp-replace* (++ " *" (regexp-quote wonky-right-bracket-replacement-string)) s "]"))
          (s (regexp-replace* (regexp-quote wonky-dot-replacement-string) s ".")))
     s))
+
+;(tracefun subst-prelex-tokens listify-wonkiness listify-wonkiness-cons-list listify-wonkiness-square-brackets listify-wonkiness-dots)
+;(tracefun unlistify-wonkiness-listified-list unlistify-wonkiness unsubst-prelex-tokens unsubst-prelex-tokens)

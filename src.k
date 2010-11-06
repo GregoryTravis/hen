@@ -1,4 +1,5 @@
-(fun (all-true (Tests True . 'rest)) (all-true (Tests . 'rest)))
-(fun (all-true (Tests)) (ok))
-(fun (all-true _) (Fail))
-(fun (main) (all-true (Test True True True)))
+(fun (all-true True . 'rest) (all-true . 'rest))
+;; (fun (all-true) (ok))
+;; (fun (all-true _) (Fail))
+
+(fun (main) (current-program))
