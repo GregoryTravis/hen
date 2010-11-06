@@ -1,6 +1,8 @@
 (load "lib.ss")
 (load "prelex.ss")
 
+(define src-tracing #f)
+
 (define data? symbol?)
 (define var? quoted-symbol?)
 (define atom? (for data? var?))
@@ -27,6 +29,10 @@
        (#t (rewrite-this-rule-list e src)))))
    (#t (err 'rewrite-step e src))))
 
+;; (define rewrite-step
+;;   (let ((old rewrite-step))
+;;     (lambda args (begin (display args) (display "\n") (apply old args)))))
+
 (define (rewrite-this-rule-list e rules)
   (just-or (map-until-success (lambda (rule) (rewrite-this e rule)) rules) e))
 
@@ -35,7 +41,20 @@
         ('fun pat body)
         (mtch (match-maybe e pat)
               'fail 'fail
-              ('just bindings) (just (apply-bindings-friendly body bindings)))))
+              ('just bindings) (trace-it e rule (just (apply-bindings-friendly body bindings))))))
+
+(define (trace-it e rule result)
+  (if src-tracing
+      (begin
+        (display "---------------------------------\n")
+        (display (un-prelex-to-string e))
+        (display "  ==>\n")
+        (display (un-prelex-to-string result))
+        (display "  by\n")
+        (display (un-prelex-to-string rule))
+        (display "---------------------------------\n")
+        result)
+      result))
 
 (define (match-maybe e pat)
   (cond
