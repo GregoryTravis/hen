@@ -63,15 +63,16 @@
 (define (unlistify-wonkiness e)
   (mtch e
         ('Cons a b) (cons wonky-left-bracket-token (append (map unlistify-wonkiness (unlistify-wonkiness-listified-list e)) (list wonky-right-bracket-token)))
-        'Nil (list wonky-right-bracket-token)
+        'Nil (list wonky-left-bracket-token wonky-right-bracket-token) ; (list wonky-right-bracket-token)
         (a . d) (map unlistify-wonkiness e)
-        _ e))
+        e e))
 
 (define (unlistify-wonkiness-listified-list e)
   (mtch e
         ('Cons a d) (cons a (unlistify-wonkiness-listified-list d))
         ('quote s) e
-        'Nil '()))
+        'Nil '()
+        x x))
 
 (define (unsubst-prelex-tokens s)
   (let* ((s (regexp-replace* (++ (regexp-quote wonky-left-bracket-replacement-string) " *") s "["))
@@ -79,5 +80,5 @@
          (s (regexp-replace* (regexp-quote wonky-dot-replacement-string) s ".")))
     s))
 
-;(tracefun subst-prelex-tokens listify-wonkiness listify-wonkiness-cons-list listify-wonkiness-square-brackets listify-wonkiness-dots)
-;(tracefun unlistify-wonkiness-listified-list unlistify-wonkiness unsubst-prelex-tokens unsubst-prelex-tokens)
+(tracefun subst-prelex-tokens listify-wonkiness listify-wonkiness-cons-list listify-wonkiness-square-brackets listify-wonkiness-dots)
+(tracefun unlistify-wonkiness-listified-list unlistify-wonkiness unsubst-prelex-tokens unsubst-prelex-tokens)
