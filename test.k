@@ -6,8 +6,8 @@
 (fun (allargs . 'a) (Jerk 'a))
 
 (fun (all-true (Cons True 'rest)) (all-true 'rest))
-(fun (all-true 'Nil) (ok))
-(fun (all-true _) (Fail))
+(fun (all-true (Cons '_ 'rest)) (Fail))
+(fun (all-true Nil) (ok))
 
 (fun (main)
      (all-true
@@ -21,7 +21,7 @@
        (== (var? (Cons 'a Nil)) False)
        (== (data? (Cons 'a Nil)) False)
        (== (app? (Cons 'a Nil)) True)
-       (== (map swap (Cons (P A B) (Cons (P C D) app))) (Cons (P B A) (Cons (P D C) (map swap app))))
+       (== (map swap (Cons (P A B) (Cons (P C D) Nil))) (Cons (P B A) (Cons (P D C) Nil)))
        (== (if False Yes No) No)
        (== (if True Yes No) Yes)
        (== (if (== (Cons a Nil) (Cons a Nil)) Yes No) Yes)
