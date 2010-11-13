@@ -85,6 +85,7 @@
    (null? e)
    (and (pair? e) (check-exp (car e)) (check-exp (cdr e)))
    (data? e)
+   (string? e)
    (var? e)))
 
 (define (gather-vars e)
@@ -120,7 +121,13 @@
         (new-src lifted) (append new-src lifted)))
 
 (define (preprocess src)
-  (lift-lambdas src))
+  (lift-lambdas (expand-includes src)))
+
+(define (expand-includes e)
+  (mtch e
+        (('include filename) . d) (append (prelex-read filename) (expand-includes d))
+        (a . d) (cons a (expand-includes d))
+        '() '()))
 
 (define (run src)
   (assert (check-exp src))
