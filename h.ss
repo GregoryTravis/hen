@@ -5,7 +5,7 @@
 
 (define data? symbol?)
 (define var? quoted-symbol?)
-(define atom? (for data? var?))
+(define katom? (for data? var?))
 (define (lambda? e) (and (pair? e) (eq? '/. (car e))))
 
 (load "prim.ss")
@@ -20,7 +20,7 @@
   (cond
    ((equal? e '(current-program)) (reify-src src))
    ((and (pair? e) (eq? 'if (car e))) (mtch e ('if b t e) (rewrite (mtch (rewrite b src) 'True t 'False e) src)))
-   ((atom? e) e)
+   ((katom? e) e)
    ((pair? e)
     (let ((e (map ($ rewrite _ src) e)))
       (cond

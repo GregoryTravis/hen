@@ -18,7 +18,7 @@
 (define (subst-prelex-tokens s)
   (let* ((s (regexp-replace* "\\[" s (++ wonky-left-bracket-replacement-string " ")))
          (s (regexp-replace* "\\]" s (++ " " wonky-right-bracket-replacement-string)))
-         (s (regexp-replace* "\\." s (++ " " wonky-dot-replacement-string " "))))
+         (s (regexp-replace* "\\." s (++ wonky-dot-replacement-string))))
     s))
 
 (define (replace-char-with-chars chars find replace)
@@ -28,8 +28,12 @@
    ((null? chars) '())
    (#t (err 'bad-prelex-replace))))
 
+;; Turn [marker .. marker] etc into (Cons ..)
 (define (listify-wonkiness e)
-  (listify-wonkiness-dots (listify-wonkiness-square-brackets e)))
+  (listify-fix-strings (listify-wonkiness-dots (listify-wonkiness-square-brackets e))))
+
+(define (listify-fix-strings e)
+  (atom-traverse (lambda (x) (if (string? x) (unsubst-prelex-tokens x) x)) e))
 
 (define (listify-wonkiness-square-brackets e)
   (cond
