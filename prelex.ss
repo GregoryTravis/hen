@@ -80,5 +80,5 @@
          (s (regexp-replace* (regexp-quote wonky-dot-replacement-string) s ".")))
     s))
 
-(tracefun subst-prelex-tokens listify-wonkiness listify-wonkiness-cons-list listify-wonkiness-square-brackets listify-wonkiness-dots)
-(tracefun unlistify-wonkiness-listified-list unlistify-wonkiness unsubst-prelex-tokens unsubst-prelex-tokens)
+;; (tracefun subst-prelex-tokens listify-wonkiness listify-wonkiness-cons-list listify-wonkiness-square-brackets listify-wonkiness-dots)
+;; (tracefun unlistify-wonkiness-listified-list unlistify-wonkiness unsubst-prelex-tokens unsubst-prelex-tokens)
