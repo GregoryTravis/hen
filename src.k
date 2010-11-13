@@ -1,6 +1,6 @@
-(fun (all-true True . 'rest) (all-true . 'rest))
-;; (fun (all-true) (ok))
-;; (fun (all-true _) (Fail))
+(fun (all-true (Cons True 'rest)) (all-true 'rest))
+(fun (all-true 'Nil) (ok))
+(fun (all-true _) (Fail))
 
 ;; (fun (parse (fun ('f . 'args))) (Fun 'f (parse-args 'args)))
 ;; (fun (parse (quote 's)) (Quote 's))
