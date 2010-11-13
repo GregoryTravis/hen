@@ -1340,3 +1340,9 @@
     (mtch e (descend-and-substitute-marker substitution additional) (list additional)))
    ((pair? e) (map-append descend-and-substitute-additionals e))
    (#t '())))
+
+;; Only applies f if p
+(define (predmap p f l)
+  (mtch l
+        (a . d) (cons (if (p a) (f a) a) (predmap p f d))
+        '() '()))
