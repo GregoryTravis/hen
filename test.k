@@ -25,5 +25,5 @@
       (== (if True Yes No) Yes)
       (== (if (== (Cons a Nil) (Cons a Nil)) Yes No) Yes)
       (== (if (== (Cons a Nil) (Cons b Nil)) Yes No) No)
-      (== (allargs A B C) (Jerk (A B C)))
+      (== (allargs A B C) (Jerk [A B C]))
       ))

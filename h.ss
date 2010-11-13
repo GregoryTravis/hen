@@ -61,8 +61,29 @@
    ((and (null? e) (null? pat)) (just '()))
    ((var? pat) (just `((,pat . ,e))))
    ((data? pat) (if (equal? e pat) (just '()) fail))
-   ((and (pair? pat) (pair? e)) (maybe-append (match-maybe (car e) (car pat)) (match-maybe (cdr e) (cdr pat))))
+   ((and (pair? pat) (pair? e) (var? (cdr e))) (match-maybe (cons (car e) (unlistify (cdr e))) pat))
+   ((and (pair? pat) (pair? e)) (maybe-append (match-maybe (car e) (car pat)) (match-maybe-cdr (cdr e) (cdr pat))))
    (#t fail)))
+
+(define (match-maybe-cdr e pat)
+  (cond
+   ((and (null? e) (null? pat)) (just '()))
+   ((var? pat) (just `((,pat . ,(listify e)))))
+   ((data? pat) (if (equal? e pat) (just '()) fail))
+   ((and (pair? pat) (pair? e)) (maybe-append (match-maybe (car e) (car pat)) (match-maybe-cdr (cdr e) (cdr pat))))
+   (#t fail)))
+
+(define (listify l)
+  (cond
+   ((pair? l) `(Cons ,(car l) ,(listify (cdr l))))
+   ((null? l) 'Nil)))
+
+(define (unlistify l)
+  (mtch l
+        ('Cons a d) (cons a (unlistify d))
+        'Nil '()))
+
+(tracefun unlistify)
 
 (define (apply-bindings e bindings)
   (cond

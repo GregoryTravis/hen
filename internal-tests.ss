@@ -6,7 +6,8 @@
          (let ((some-funs '((fun (map 'f Nil) Nil)
                             (fun (map 'f (Cons 'a 'd)) (Cons ('f 'a) (map 'f 'd)))
                             (fun (swap (P 'a 'd)) (P 'd 'a))
-                            (fun (apply 'f . 'a) ('f . 'a)))))
+                            ;(fun (apply 'f . 'a) ('f . 'a))
+                            )))
 
            (map run-test
                 `(
@@ -43,7 +44,7 @@
                                       (Cons (Cons fun (Cons (Cons boot (Cons (Cons Cons (Cons 'a (Cons Nil Nil))) Nil))
                                                             (Cons (Cons Cons (Cons 'a (Cons (Cons Cons (Cons 'a (Cons Nil Nil))) Nil))) Nil))) Nil))))
                   (,(run (cons '(fun (main) (map swap (Cons (P A B) (Cons (P C D) Nil)))) some-funs)) (Cons (P B A) (Cons (P D C) Nil)))
-                  (,(run (cons '(fun (main) (apply swap (P A B))) some-funs)) (P B A))
+;                  (,(run (cons '(fun (main) (apply swap (P A B))) some-funs)) (P B A))
 
                   ,(list (build-mapping-for-list '(1 2 3) (var-generator-generator 'a)) '((1 . 'a0) (2 . 'a1) (3 . 'a2)))
                   ,(list (build-mapping-for-list '(1 2 3) (var-generator-generator 'a))
