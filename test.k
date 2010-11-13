@@ -5,8 +5,8 @@
 
 (fun (allargs . 'a) (Jerk 'a))
 
-(fun (all-true (Cons True 'rest)) (all-true 'rest))
-(fun (all-true (Cons '_ 'rest)) (Fail))
+(fun (all-true [True . 'rest]) (all-true 'rest))
+(fun (all-true ['_ . 'rest]) (Fail))
 (fun (all-true Nil) (ok))
 
 (fun (main)

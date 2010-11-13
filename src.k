@@ -1,5 +1,5 @@
-(fun (all-true (Cons True 'rest)) (all-true 'rest))
-(fun (all-true (Cons '_ 'rest)) (Fail))
+(fun (all-true [True . 'rest]) (all-true 'rest))
+(fun (all-true ['_ . 'rest]) (Fail))
 (fun (all-true Nil) (ok))
 
 ;; (fun (parse (fun ('f . 'args))) (Fun 'f (parse-args 'args)))
@@ -9,7 +9,7 @@
 ;; (fun (parse Nil) Nil)
 (fun (parse 'a) 'a)
 
-(fun (main) (parse (current-program)))
+;(fun (main) (parse (current-program)))
 
 (fun (main) [(all-true [True True True])
              (all-true [True False True])])
