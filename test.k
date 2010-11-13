@@ -1,5 +1,5 @@
-(fun (map 'f Nil) Nil)
-(fun (map 'f (Cons 'a 'd)) (Cons ('f 'a) (map 'f 'd)))
+(fun (map 'f []) [])
+(fun (map 'f ['a . 'd]) [('f 'a) . (map 'f 'd)])
 
 (fun (swap (P 'a 'b)) (P 'b 'a))
 
@@ -22,6 +22,7 @@
        (== (data? (Cons 'a Nil)) False)
        (== (app? (Cons 'a Nil)) True)
        (== (map swap (Cons (P A B) (Cons (P C D) Nil))) (Cons (P B A) (Cons (P D C) Nil)))
+       (== (map swap [(P A B) (P C D)]) [(P B A) (P D C)])
        (== (if False Yes No) No)
        (== (if True Yes No) Yes)
        (== (if (== (Cons a Nil) (Cons a Nil)) Yes No) Yes)
