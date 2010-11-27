@@ -1,5 +1,7 @@
 (include "overture.ss")
 
+(fun (joe ['x . 'xs]) (Poo 'xs (Cons 'x [C D])))
+
 (fun (main)
      (all-true
       [
@@ -20,4 +22,5 @@
        (== (if (== [a] [b]) Yes No) No)
        (== (allargs A B C) (Jerk (A B C)))
        (== (foldr cons Nil [A B C]) [A B C])
+       (== (joe [A B C]) (Poo [B C] [A C D]))
        ]))
