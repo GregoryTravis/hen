@@ -12,3 +12,10 @@
 (fun (all-true ['_ . 'rest]) (Fail))
 (fun (all-true Nil) (ok))
 
+(fun (foldl 'f 'z (Cons 'x 'xs)) (foldl 'f ('f 'z 'x) 'xs))
+(fun (foldl 'f 'z Nil) 'z)
+
+(fun (foldr 'f 'z Nil) 'z)
+(fun (foldr 'f 'z (Cons 'x 'xs)) ('f 'x (foldr 'f 'z 'xs)))
+
+(fun (cons 'x 'xs) (Cons 'x 'xs))

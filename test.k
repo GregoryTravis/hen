@@ -19,4 +19,5 @@
        (== (if (== [a] [a]) Yes No) Yes)
        (== (if (== [a] [b]) Yes No) No)
        (== (allargs A B C) (Jerk (A B C)))
+       (== (foldr cons Nil [A B C]) [A B C])
        ]))
