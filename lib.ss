@@ -619,6 +619,8 @@
 (define (just-value o)
   (assert (just? o) o)
   (cadr o))
+(define (just-or value fallback)
+  (mtch value ('just value) value _ fallback))
 
 (define (maybe-combine combiner args)
   (if (any? (map fail? args))
@@ -632,6 +634,11 @@
 
 (define (maybe-list . things)
   (maybe-combine list things))
+
+(define (maybe-cons a d)
+  (if (and (just? a) (just? d))
+      (just (cons (just-value a) (just-value d)))
+      fail))
 
 (define (maybe-compose . fs)
   (assert (not (null? fs)))
@@ -692,6 +699,13 @@
         'fail
         (apply f args))))
 
+(define (map-until-success f lyst)
+  (if (null? lyst)
+      'fail
+      (mtch (f (car lyst))
+            ('just result) (just result)
+            _ (map-until-success f (cdr lyst)))))
+
 (define (map-until-not-fail f lyst)
   (if (null? lyst)
       'fail
@@ -735,20 +749,29 @@
    (eq? o #f)
    (string? o)))
 
-(define (is-quote? o)
+(define (quote? o)
   (and (pair? o)
        (eq? (car o) 'quote)
        (pair? (cdr o))
        (null? (cddr o))))
 
+(define (unquote? o)
+  (and (pair? o)
+       (eq? (car o) 'unquote)
+       (pair? (cdr o))
+       (null? (cddr o))))
+
 (define (quoted-symbol? e)
-  (and (is-quote? e) (symbol? (cadr e))))
+  (and (quote? e) (symbol? (cadr e))))
+
+(define (unquoted-symbol? e)
+  (and (unquote? e) (symbol? (cadr e))))
 
 (define (quote-quoted o)
   (cadr o))
 
 (define (literal? o)
-  (or ;(is-quote? o)
+  (or ;(quote? o)
       (string? o)
       (number? o)
       (null? o)
@@ -795,9 +818,15 @@
         (set! serial (1+ serial))
         (->symbol (concat (->string tag) (number->string s)))))))
 
-(define (symbol-generator-generator)
+(define (symbol-generator-generator prefix)
   (let ((tsg (tagged-symbol-generator-generator)))
-    (lambda () (tsg "a"))))
+    (lambda () (tsg prefix))))
+
+(define (build-mapping-for-list l symbol-generator)
+  (if (null? l)
+      '()
+      (let ((new-symbol (symbol-generator)))
+        (cons (cons (car l) new-symbol) (build-mapping-for-list (cdr l) symbol-generator)))))
 
 (define (lambda? e)
   (and (proper-list? e)
@@ -821,7 +850,7 @@
 
 (define (app? e)
   (and (pair? e)
-       (not (or (is-quote? e)
+       (not (or (quote? e)
                 (var? e)))))
 
 (define (1-arg-app? e)
@@ -1040,6 +1069,12 @@
         (err 'lookup k env)
         (cdr v))))
 
+(define (lookup-or-key k env)
+  (let ((v (assoc k env)))
+    (if (eq? #f v)
+        k
+        (cdr v))))
+
 (define (lookup-or k env or-this)
   (let ((v (assoc k env)))
     (if (eq? #f v)
@@ -1057,18 +1092,18 @@
 (define 3rd caddr)
 (define 4th cadddr)
 
-;; This doesn't really ever change.
-(define (consify l)
-  (cond
-   ((pair? l) `(Cons ,(consify (car l)) ,(consify (cdr l))))
-   ((null? l) 'Nil)
-   (#t l)))
+;; ;; This doesn't really ever change.
+;; (define (consify l)
+;;   (cond
+;;    ((pair? l) `(Cons ,(consify (car l)) ,(consify (cdr l))))
+;;    ((null? l) 'Nil)
+;;    (#t l)))
 
-(define (consify-top-layer l)
-  (cond
-   ((pair? l) `(Cons ,(car l) ,(consify-top-layer (cdr l))))
-   ((null? l) 'Nil)
-   (#t l)))
+;; (define (consify-top-layer l)
+;;   (cond
+;;    ((pair? l) `(Cons ,(car l) ,(consify-top-layer (cdr l))))
+;;    ((null? l) 'Nil)
+;;    (#t l)))
 
 (define (== a b)
   (or (and (number? a) (= a b))
@@ -1100,8 +1135,8 @@
       (+ (tree-size (car a)) (tree-size (cdr a)))
       1))
 
-(define (quoted-symbol? o)
-  (and (pair? o) (eq? (car o) 'quote) (symbol? (cadr o)) (null? (cddr o))))
+;(define (quoted-symbol? o)
+;  (and (pair? o) (eq? (car o) 'quote) (symbol? (cadr o)) (null? (cddr o))))
 
 (define (join-things-list glue things)
   (cond
@@ -1253,3 +1288,70 @@
   (if (null? b)
       a
       (set-difference (remove (car b) a) (cdr b))))
+
+(define (unquote-list l)
+  (if (null? l)
+      '()
+      (cons (list 'unquote (car l)) (unquote-list (cdr l)))))
+
+;; Traverse tree and apply f to each node.  If f returns fail, change
+;; nothing.  If f returns (just (substitution additional)), replace
+;; the node with substitution and continue descending.  At the end,
+;; return (new-tree list-of-additionals).  f is applied before
+;; descending.
+;;
+;; This works by storing both the substitution and the additional at
+;; the site of the original node, and then doing two more scans to
+;; extract the additionals and the tree with only the substitutions.
+;;
+;; Yeah, I know, it seems weird, but it happens so much that I just
+;; have to do this.
+(define descend-and-substitute-marker 'dgkuashf76768764hwkhasdfhf)
+(define (descend-and-substitute e f)
+  (let ((altered (descend-and-substitute-annotate e f)))
+    (list (descend-and-substitute-just-tree altered)
+          (descend-and-substitute-additionals altered))))
+
+(define (descend-and-substitute-annotate e f)
+  (mtch (f e)
+        'fail
+        (descend-and-substitute-annotate-descend e f)
+
+        ('just (substitution additional))
+        (list descend-and-substitute-marker
+              (descend-and-substitute-annotate-descend substitution f)
+              additional)))
+
+(define (descend-and-substitute-annotate-descend e f)
+  (if (pair? e)
+      (map ($ descend-and-substitute-annotate _ f) e)
+      e))
+
+(define (descend-and-substitute-just-tree e)
+  (cond
+   ((and (pair? e) (eq? (car e) descend-and-substitute-marker))
+    (mtch e (descend-and-substitute-marker substitution additional) (descend-and-substitute-just-tree substitution)))
+   ((pair? e) (map descend-and-substitute-just-tree e))
+   (#t e)))
+
+(define (descend-and-substitute-additionals e)
+  (cond
+   ((and (pair? e) (eq? (car e) descend-and-substitute-marker))
+    (mtch e (descend-and-substitute-marker substitution additional) (list additional)))
+   ((pair? e) (map-append descend-and-substitute-additionals e))
+   (#t '())))
+
+;; Only applies f if p
+(define (predmap p f l)
+  (mtch l
+        (a . d) (cons (if (p a) (f a) a) (predmap p f d))
+        '() '()))
+
+(define (ut . args)
+  (if (null? args)
+      'tests-pass
+      (let* ((actual (car args))
+             (expected (cadr args)))
+        (if (not (equal? expected actual))
+            (shew 'test-failure: 'expected expected 'actual actual)
+            (apply ut (cddr args))))))
