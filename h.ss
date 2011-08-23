@@ -6,7 +6,7 @@
 
 (define (preprocess-pattern e)
   (cond
-   ((ctor? e) `(ctor ,e))
+   ((ctor? e) `(const ,e))
    ((symbol? e) `(var ,e))
    ((pair? e) `(pair ,(preprocess-pattern (car e)) ,(preprocess-pattern (cdr e))))
    ((null? e) '(nil))
