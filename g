@@ -1,1 +1,1 @@
-mzscheme -e '(load "main.ss")'
+mzscheme -e '(begin (load "h.ss") (main))'
