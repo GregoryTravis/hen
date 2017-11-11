@@ -84,9 +84,11 @@
          (read-objects filename))))
 
 (define (cmpl-def def)
+  (shew 121212 def)
+(exit 1)
   (mtch def
         (name . e)
-        (++ (render `(store_global ,name ,(cmpl e))) ";\n")))
+        (++ (render `(store_global2 ,name ,(cmpl e))) ";\n")))
 
 (define (cmpl-top src-e e)
   (++ (render `(evl_top ,(sdisplay src-e) ,(cmpl e))) ";\n"))
