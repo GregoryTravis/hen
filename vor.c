@@ -18,7 +18,7 @@ void count_reductions_start() {
 }
 void count_reductions_end() {
   if (count_reductions) {
-    printf("%d reductions.\n");
+    printf("%d reductions.\n", n_reductions);
   }
 }
 
@@ -173,7 +173,7 @@ bool nilp(yeah* e) {
   return (e->t == CSYMBOL || e->t == SYMBOL) && !strcmp(e->u.csymbol.s, "Nil");
 }
 
-yeah* store_global(char *s, yeah* v) {
+void store_global(char *s, yeah* v) {
   globals = pair(pair(symbol(s), v), globals);
 }
 
@@ -200,6 +200,7 @@ yeah* lookup(char *s, yeah* local_env) {
   if (v == NULL) {
     err(("No such variable %s\n", s));
   }
+  return v;
 }
 
 yeah* freeze(yeah* e, yeah* env) {
@@ -234,6 +235,7 @@ bool equal(yeah* a, yeah* b) {
   default: printf("DIE %d\n", a->t); A(0); break;
   }
   A(0);
+  return false;
 }
 
 #define ISTAG(_e, _t) ((_e)->t == (_t))
@@ -320,7 +322,7 @@ void* opaque_val(yeah* y) {
   return y->u.opaque.q;
 }
 
-void* opaque_set(yeah* y, void* v) {
+void opaque_set(yeah* y, void* v) {
   A(ISOPAQUE(y));
   y->u.opaque.q = v;
 }
@@ -401,7 +403,7 @@ void dump(yeah* y) {
   case INTEGER: printf( "%d", y->u.integer.i ); break;
   case SYMBOL: printf( "%s", y->u.symbol.s ); break;
   case CSYMBOL: printf( "'%s", y->u.symbol.s ); break;
-  case OPAQUE: printf("(Q 0x%x)", y->u.opaque.q); break;
+  case OPAQUE: printf("(Q 0x%x)", (unsigned int)y->u.opaque.q); break;
   case PAIR:
     if (pretty && is_cton(y)) {
       dump_cton(y);

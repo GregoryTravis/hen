@@ -1,1 +1,0 @@
-mzscheme -r main.ss

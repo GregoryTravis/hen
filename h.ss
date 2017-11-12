@@ -25,7 +25,8 @@
         `(/. ,args ,body)))
 
 (define (funs->defs funs)
-  (let ((blap (group-by fun-name funs)))
+  (let ((blap (group-byy fun-name funs)))
+;(shew blap) (err)
     (map (lambda (boo)
            (mtch boo
                  (name . funs)
@@ -33,6 +34,7 @@
          blap)))
 
 (define (forms->defs-n-tlfs tops)
+  ;(shew (group-by-preds (list def? fun? (fnot (for def? fun?))) tops)) (err)
   (mtch (group-by-preds (list def? fun? (fnot (for def? fun?))) tops)
         (defs funs tlfs)
         (list (append defs (funs->defs funs)) tlfs)))
@@ -40,7 +42,11 @@
 (define (preprocess-program forms)
   (mtch (forms->defs-n-tlfs forms)
         (defs src-tlfs)
-        (begin (map define-def (map preprocess defs))
+        (begin 
+;(shew defs)
+;(shew src-tlfs)
+;(err)
+(map define-def (map preprocess defs))
                ;(shew global-env)
                (list src-tlfs (map preprocess src-tlfs)))))
 
@@ -68,8 +74,10 @@
   (++ (render `(evl_top ,(sdisplay src-e) ,(cmpl e))) ";\n"))
 
 (define (crun-src forms)
+;(shew forms) (err)
   (mtch (preprocess-program forms)
         (src-tlfs tlfs)
+;(begin (shew src-tlfs tlfs) (err)
         (crun-obj (apply ++ (append
                              (map cmpl-def global-env)
                              (map cmpl-top src-tlfs tlfs))))))

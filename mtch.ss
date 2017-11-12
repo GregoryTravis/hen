@@ -1,3 +1,4 @@
+(require compatibility/defmacro)
 (define-for-syntax mtch-show-expansion #f)
 
 (define-for-syntax (shew . args) (map pretty-print args))

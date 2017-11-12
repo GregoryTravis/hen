@@ -1,16 +1,17 @@
-(require scheme/system)
-(require (lib "ports-6.ss" "rnrs/io"))
-;(require (lib "simple-6.ss" "rnrs/io")) ; bad one
-(require (lib "32.ss" "srfi"))
-(require (lib "13.ss" "srfi"))
-(require (lib "35.ss" "srfi"))
-(require (lib "defmacro.ss"))
-(require (lib "pregexp.ss"))
-(require (lib "process.ss"))
-(require (lib "compat.ss"))
-(require (for-syntax (lib "pretty.ss")))
-;(require (lib "../errortrace/errortrace.ss"))
-;(require-for-syntax (lib "list.ss"))
+(require mzlib/compat)
+;(require scheme/system)
+;(require (lib "ports-6.ss" "rnrs/io"))
+;;(require (lib "simple-6.ss" "rnrs/io")) ; bad one
+;(require (lib "32.ss" "srfi"))
+;(require (lib "13.ss" "srfi"))
+;(require (lib "35.ss" "srfi"))
+;(require (lib "defmacro.ss"))
+;(require (lib "pregexp.ss"))
+;(require (lib "process.ss"))
+;(require (lib "compat.ss"))
+;(require (for-syntax (lib "pretty.ss")))
+;;(require (lib "../errortrace/errortrace.ss"))
+;;(require-for-syntax (lib "list.ss"))
 (load "mtch.ss")
 
 (define impl-tracefun-indentation 0)
@@ -484,7 +485,7 @@
 (define (divide-by-pred p lyst)
   (cons (grep p lyst) (grep (fnot p) lyst)))
 
-(define (group-by f lyst)
+(define (group-byy f lyst)
   (if (null? lyst)
       '()
       (let* ((group-of-car (f (car lyst)))
@@ -494,7 +495,7 @@
              (in-group (car divided))
              (not-in-group (cdr divided)))
         (cons (cons group-of-car in-group)
-              (group-by f not-in-group)))))
+              (group-byy f not-in-group)))))
 
 ;; Elements may match more than one predicate; they are grouped with
 ;; the first one they match.  Every element must match at least one
