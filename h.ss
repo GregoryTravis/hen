@@ -43,7 +43,7 @@
         `(/. ,args ,body)))
 
 (define (funs->defs funs)
-  (let ((blap (group-by fun-name funs)))
+  (let ((blap (group-byy fun-name funs)))
     (map (lambda (boo)
            (mtch boo
                  (name . funs)
@@ -84,11 +84,11 @@
          (read-objects filename))))
 
 (define (cmpl-def def)
-  (shew 121212 def)
-(exit 1)
+  ;(shew 121212 def)
+;(exit 1)
   (mtch def
         (name . e)
-        (++ (render `(store_global2 ,name ,(cmpl e))) ";\n")))
+        (++ (render `(store_global ,name ,(cmpl e))) ";\n")))
 
 (define (cmpl-top src-e e)
   (++ (render `(evl_top ,(sdisplay src-e) ,(cmpl e))) ";\n"))
@@ -157,7 +157,7 @@
 
 (define (ext f e) (++ f "." e))
 (define (exter e) ($ ext _ e))
-(define (gco f) `(gcc -std=c99 -g -c -o ,(output (ext f 'o)) ,(input f)))
+(define (gco f) `(gcc -std=c99  -fbracket-depth=1024 -g -c -o ,(output (ext f 'o)) ,(input f)))
 (define (ss-to-c modules mod) `(,compile-ss-to-c ,modules ,(input (ext mod "stub.ss")) ,(output (ext mod "stub.ss.c")) ,mod))
 (define (co f) (ext f 'c.o))
 (define (c f) (ext f 'c))
@@ -238,9 +238,9 @@
                     (implicit (output ,(ext "ref" 'impl.h)))
                     (implicit (output ,(ext "ref" 'impl.c)))
                     (implicit (output ,(ext "ref" 'stub.ss))))
-              (gcc -std=c99 -g -c -o (output "ref.impl.c.o") (input "ref.impl.c"))
-              (gcc -std=c99 -g -c -o (output "ref.c.o") (input "ref.c"))
-              (gcc -std=c99 -g -c -o (output "ref.stub.ss.c.o") (input "ref.stub.ss.c"))
+              (gcc -std=c99  -fbracket-depth=1024 -g -c -o (output "ref.impl.c.o") (input "ref.impl.c"))
+              (gcc -std=c99  -fbracket-depth=1024 -g -c -o (output "ref.c.o") (input "ref.c"))
+              (gcc -std=c99  -fbracket-depth=1024 -g -c -o (output "ref.stub.ss.c.o") (input "ref.stub.ss.c"))
               (,compile-ss-to-c () (input "ref.stub.ss") (output "ref.stub.ss.c") "ref")))
            (cvt-rules
             `((rigg "cvt"
@@ -248,30 +248,30 @@
                     (implicit (output ,(ext "cvt" 'impl.h)))
                     (implicit (output ,(ext "cvt" 'impl.c)))
                     (implicit (output ,(ext "cvt" 'stub.ss))))
-              (gcc -std=c99 -g -c -o (output "cvt.impl.c.o") (input "cvt.impl.c"))
-              (gcc -std=c99 -g -c -o (output "cvt.c.o") (input "cvt.c"))
-              (gcc -std=c99 -g -c -o (output "cvt.stub.ss.c.o") (input "cvt.stub.ss.c"))
+              (gcc -std=c99  -fbracket-depth=1024 -g -c -o (output "cvt.impl.c.o") (input "cvt.impl.c"))
+              (gcc -std=c99  -fbracket-depth=1024 -g -c -o (output "cvt.c.o") (input "cvt.c"))
+              (gcc -std=c99  -fbracket-depth=1024 -g -c -o (output "cvt.stub.ss.c.o") (input "cvt.stub.ss.c"))
               (,compile-ss-to-c () (input "cvt.stub.ss") (output "cvt.stub.ss.c") "cvt")))
            (ss-c-rules
             `((,compile-ss-to-c () (input ,includer.stub.ss) (output ,includer.stub.ss.c) ,includer)))
            (co-rules
-            `((gcc -std=c99 -g -c -o (output ,includer.impl.c.o) (input ,includer.impl.c))
-              (gcc -std=c99 -g -c -o (output ,includer.stub.ss.c.o) (input ,includer.stub.ss.c))))
+            `((gcc -std=c99  -fbracket-depth=1024 -g -c -o (output ,includer.impl.c.o) (input ,includer.impl.c))
+              (gcc -std=c99  -fbracket-depth=1024 -g -c -o (output ,includer.stub.ss.c.o) (input ,includer.stub.ss.c))))
            (src-rules
             `((,compile-ss-to-c () (input ,src.ss) (output ,src.ss.c) ,src)
-              (gcc -std=c99 -g -c -o (output ,src.ss.c.o) (input ,src.ss.c))))
+              (gcc -std=c99  -fbracket-depth=1024 -g -c -o (output ,src.ss.c.o) (input ,src.ss.c))))
            (runtime-rules
-            `((gcc -std=c99 -g -c -o (output "vor.c.o") (input "vor.c"))
-              (gcc -std=c99 -g -c -o (output "mem.c.o") (input "mem.c"))
-              (gcc -std=c99 -g -c -o (output "primcalls.c.o") (input "primcalls.c"))
-              (gcc -std=c99 -g -c -o (output "spew.c.o") (input "spew.c"))
-              (gcc -std=c99 -g -c -o (output "GLee.c.o") (input "GLee.c"))
-              (gcc -std=c99 -g -c -o (output "shew.impl.c.o") (input "shew.impl.c"))))
+            `((gcc -std=c99  -fbracket-depth=1024 -g -c -o (output "vor.c.o") (input "vor.c"))
+              (gcc -std=c99  -fbracket-depth=1024 -g -c -o (output "mem.c.o") (input "mem.c"))
+              (gcc -std=c99  -fbracket-depth=1024 -g -c -o (output "primcalls.c.o") (input "primcalls.c"))
+              (gcc -std=c99  -fbracket-depth=1024 -g -c -o (output "spew.c.o") (input "spew.c"))
+              (gcc -std=c99  -fbracket-depth=1024 -g -c -o (output "GLee.c.o") (input "GLee.c"))
+              (gcc -std=c99  -fbracket-depth=1024 -g -c -o (output "shew.impl.c.o") (input "shew.impl.c"))))
            (main-rules
             `((,gen-main "fbo" ("fbo_includer" "ref" "cvt") (output "fbo_main.c") (implicit (input "ref.impl.h")) (implicit (input "cvt.impl.h")))
-              (gcc -std=c99 -g -c -o (output "fbo_main.c.o") (input "fbo_main.c"))))
+              (gcc -std=c99  -fbracket-depth=1024 -g -c -o (output "fbo_main.c.o") (input "fbo_main.c"))))
            (link-rules
-            `((gcc -std=c99 -o (output ,src) (input ,src.ss.c.o) (input ,includer.stub.ss.c.o) ,@(map input link-objs)
+            `((gcc -std=c99  -fbracket-depth=1024 -o (output ,src) (input ,src.ss.c.o) (input ,includer.stub.ss.c.o) ,@(map input link-objs)
                    (input "ref.c.o") (input "ref.stub.ss.c.o") (input "ref.impl.c.o")
                    (input "cvt.c.o") (input "cvt.stub.ss.c.o") (input "cvt.impl.c.o")
                    (input "GLee.c.o") (input "shew.impl.c.o") "-framework GLUT -framework OpenGL -framework CoreFoundation")))
@@ -283,7 +283,7 @@
 (define (_build-exe srcfile)
   (let* ((stub (remove-extension srcfile))
          (src (read-objects srcfile))
-         (imports (group-by car (map-append cdr (grep import? src))))
+         (imports (group-byy car (map-append cdr (grep import? src))))
          (src (grep (fnot import?) src))
          (import-strings (map cadr (lookup-or 'ffi imports '())))
 
@@ -301,7 +301,7 @@
          (mods (append ffis fmods))
          (main (++ (c-identifier-safe stub) "_main")))
      (make stub
-(sr        `((gcc -std=c99 -g -o
+(sr        `((gcc -std=c99  -fbracket-depth=1024 -g -o
               (output ,stub)
               (input ,(ssco stub))
               ,@(map input (append (map stub-ssco mods) (map impl-co mods) (map co runtime) (map co (map remove-extension .c-imports)) (map ($ ext _ 'o) linkcs) (list .h-includer)))
@@ -317,7 +317,7 @@
          (,gen-main ,stub ,mods (output ,(c main)))
 ;         ,@(map hootie ffis); import-strings)
          ,@(map hootie (map remove-extension import-strings))
-         (gcc -std=c99 -g -c -o (output ,(ssco stub)) (input ,(ext stub 'ss.c)))
+         (gcc -std=c99  -fbracket-depth=1024 -g -c -o (output ,(ssco stub)) (input ,(ext stub 'ss.c)))
          (,compile-ss-to-c ,ffis (input ,(ext stub 'ss)) (output ,(ext stub 'ss.c))
                            ,@(map implicit (map input (map (exter 'stub.ss) ffis)))
                            ,stub)

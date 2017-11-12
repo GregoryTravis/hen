@@ -501,7 +501,7 @@
 (define (divide-by-pred p lyst)
   (cons (grep p lyst) (grep (fnot p) lyst)))
 
-(define (group-by f lyst)
+(define (group-byy f lyst)
   (if (null? lyst)
       '()
       (let* ((group-of-car (f (car lyst)))
@@ -511,7 +511,7 @@
              (in-group (car divided))
              (not-in-group (cdr divided)))
         (cons (cons group-of-car in-group)
-              (group-by f not-in-group)))))
+              (group-byy f not-in-group)))))
 
 ;; Elements may match more than one predicate; they are grouped with
 ;; the first one they match.  Every element must match at least one
@@ -745,14 +745,14 @@
   (let ((suflen (string-length suffix))
         (slen (string-length string)))
     (and (>= slen suflen)
-         (string= suffix (substring string (- (string-length string)
+         (string=? suffix (substring string (- (string-length string)
                                               (string-length suffix)))))))
 
 (define (starts-with string prefix)
   (let ((prelen (string-length prefix))
         (slen (string-length string)))
     (and (>= slen prelen)
-         (string= prefix (substring string 0 prelen)))))
+         (string=? prefix (substring string 0 prelen)))))
 
 (define (->symbol o)
   (cond
@@ -1046,7 +1046,7 @@
 
 (define (smart== a b)
   (or (and (number? a) (= a b))
-      (and (string? a) (string= a b))
+      (and (string? a) (string=? a b))
       (equal? a b)))
 
 (define (til-same f arg)
