@@ -1,8 +1,10 @@
-(define-for-syntax mtch-show-expansion #f)
+(define mtch-show-expansion #f)
+;(define mtch-show-expansion #f)
+;(set! mtch-show-expansion #f)
 
-(define-for-syntax (shew . args) (map pretty-print args))
+(define (shew . args) (map pretty-print args))
 
-(define-for-syntax (mtch-literal? o)
+(define (mtch-literal? o)
   (or ;(is-quote? o)
       (string? o)
       (number? o)
@@ -10,20 +12,20 @@
       (eq? #t o)
       (eq? #f o)))
 
-(define-for-syntax (mtch-is-quote? o)
+(define (mtch-is-quote? o)
   (and (pair? o)
        (eq? (car o) 'quote)
        (pair? (cdr o))
        (null? (cddr o))))
 
-(define-for-syntax mtch-vargen
+(define mtch-vargen
   (let ((serial 0))
     (lambda ()
       (let ((s serial))
         (set! serial (+ serial 1))
         (string->symbol (string-append "_m" (number->string s)))))))
 
-(define-for-syntax (mtch-clause target pat body)
+(define (mtch-clause target pat body)
   (let ((carvar (mtch-vargen))
         (cdrvar (mtch-vargen)))
     (cond
@@ -49,7 +51,7 @@
            (fail)))
      (#t (err 'mtch-clause target pat body)))))
 
-(define-for-syntax (mtch-clauses target clauses all-clauses)
+(define (mtch-clauses target clauses all-clauses)
   (if (null? clauses)
       `(err 'match-failure target ',all-clauses)
       (let ((pat (car clauses))
@@ -59,7 +61,7 @@
           `(let ((fail (lambda () ,next)))
              ,(mtch-clause target pat body))))))
 
-(define-for-syntax (mtch-render target clauses)
+(define (mtch-render target clauses)
   (let ((code
          `(let ((target ,target))
             ,(mtch-clauses 'target clauses clauses))))
@@ -71,6 +73,15 @@
           (pretty-print code))
         '())
     code))
+
+(define-syntax define-macro
+  (syntax-rules ()
+    ((define-macro (name . args) body ...)
+     (define-syntax name
+       (rsc-macro-transformer
+         (let ((transformer (lambda args body ...)))
+           (lambda (exp env)
+              (apply transformer (cdr exp)))))))))
 
 (define-macro (mtch target . clauses)
   (mtch-render target clauses))

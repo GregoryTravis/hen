@@ -1,6 +1,8 @@
 ;; (load "h.ss")
 (load "lib.ss")
 
+(set! *parser-canonicalize-symbols?* #f)
+
 (define match-debug #f)
 (define atexit #f)
 
@@ -371,6 +373,7 @@
    (map (lambda (rule) (mtch rule ('Rule (('Sym name) . args) body) name)) rules)))
 
 (define (render-program rules ffi-decls start)
+;(shew rules)
   (let* ((c-functions (rules->c-functions rules))
          (rendered-functions (map render c-functions))
          (rendered-declarations (map render-declarations c-functions))
@@ -527,11 +530,13 @@
     (mtch (split-program preprocessed)
           ('Parts ('Funs funs) ('FFIDecls ffi-decls))
           (let ((simplified (simplify-program (map parse-rule funs))))
-            (gather-ffi-info ffi-decls)
+;(display simplified)
+            ;(gather-ffi-info ffi-decls)
             (gather-globals simplified)
             (gather-global-refs simplified)
             ;(shew objects global-refs (get-undefined-globals))
             (render-program simplified ffi-decls '((Sym main)))))))
+;(tracefun compile-program)
 
 (define (compile src-stub)
   (let* ((src-file (++ src-stub ".ss"))
