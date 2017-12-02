@@ -1,17 +1,24 @@
+#lang scheme
+(require compatibility/defmacro)
 (require scheme/system)
-(require (lib "ports-6.ss" "rnrs/io"))
-(require (lib "32.ss" "srfi"))
-(require (lib "13.ss" "srfi"))
-(require (lib "35.ss" "srfi"))
-(require (lib "defmacro.ss"))
-(require (lib "pregexp.ss"))
-(require (lib "process.ss"))
-(require (lib "compat.ss"))
-(require (for-syntax (lib "pretty.ss")))
-(require (lib "pretty.ss"))
-;(require (lib "../errortrace/errortrace.ss"))
-;(require-for-syntax (lib "list.ss"))
-(load "mtch.ss")
+(require mzlib/compat)
+;(require (lib "ports-6.ss" "rnrs/io"))
+;(require (lib "32.ss" "srfi"))
+;(require (lib "13.ss" "srfi"))
+(require srfi/13)
+;(require (lib "35.ss" "srfi"))
+;(require (lib "defmacro.ss"))
+;(require (lib "pregexp.ss"))
+;(require (lib "process.ss"))
+;(require (lib "compat.ss"))
+;(require (for-syntax (lib "pretty.ss")))
+;(require (lib "pretty.ss"))
+;;(require (lib "../errortrace/errortrace.ss"))
+;;(require-for-syntax (lib "list.ss"))
+load "mtch.ss")
+
+;(provide tagged-symbol-generator-generator)
+(provide (all-defined-out))
 
 (define impl-tracefun-indentation 0)
 (define trace-stump-level 1000)
@@ -84,7 +91,7 @@
                `(set! ,f (trace-wrap ,tracer ',f ,f)))
              funs)))
 
-(define-macro (hook-with hookist . funs)
+(define-macro (_hook-with hookist . funs)
   (cons 'begin
         (map (lambda (f)
                `(set! ,f (,hookist ',f ,f)))
@@ -212,6 +219,7 @@
            (all? (map proper-tree? t)))
       #t))
 
+#|
 (define (make-dict . args)
   (cond
    ((null? args) (make-dict equal?))
@@ -300,6 +308,7 @@
 (define (fun-dict-map lyst f)
   (let ((dict (make-autoadd-fun-dict f)))
     (map (lambda (x) (dict 'get x)) lyst)))
+|#
 
 (define (unique lyst)
   (cond
@@ -717,7 +726,7 @@
        (pair? (cdr o))
        (null? (cddr o))))
 
-(define (quoted-symbol? e)
+(define (_quoted-symbol? e)
   (and (is-quote? e) (symbol? (cadr e))))
 
 (define (quote-quoted o)
@@ -811,7 +820,7 @@
              (rest (apply compose (cdr funs))))
          (lambda (x) (first (rest x)))))))
 
-(define (conditional? e)
+(define (_conditional? e)
   (and (pair? e)
        (eq? 'if (car e))
        (let ((l (length e)))
@@ -1050,12 +1059,14 @@
   (or (and (number? a) (= a b))
       (and (string? a) (string= a b))
       (equal? a b)))
+#|
 
 (define (til-same f arg)
   (let ((result (f arg)))
     (if (smart== arg result)
         result
         (til-same f result))))
+|#
 
 (define (map-when f lyst pred)
   (if (null? lyst)

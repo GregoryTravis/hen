@@ -1,5 +1,7 @@
+#lang scheme
 ;; (load "h.ss")
-(load "lib.ss")
+(require "lib.ss")
+(require "mtch.ss")
 
 (define match-debug #f)
 (define atexit #f)

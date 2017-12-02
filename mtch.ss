@@ -1,6 +1,12 @@
+#lang scheme
+(require compatibility/defmacro)
+;(require racket/pretty)
+;(define pretty-print display)
 (define-for-syntax mtch-show-expansion #f)
 
 (define-for-syntax (shew . args) (map pretty-print args))
+
+;(pretty-print 12)
 
 (define-for-syntax (mtch-literal? o)
   (or ;(is-quote? o)
@@ -65,10 +71,10 @@
             ,(mtch-clauses 'target clauses clauses))))
     (if mtch-show-expansion
         (begin
-          (pretty-print 'mtch)
-          (pretty-print target)
-          (pretty-print clauses)
-          (pretty-print code))
+          (display 'mtch)
+          (display target)
+          (display clauses)
+          (display code))
         '())
     code))
 
