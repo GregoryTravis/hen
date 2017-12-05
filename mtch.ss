@@ -82,3 +82,4 @@
 ;(shew (mtch '(Foo 1) ('Foo a) `(ff ,a) ('Bar b c) `(,c ,b)))
 ;(shew (mtch '(Bar 2 3) ('Foo a) `(ff ,a) ('Bar b c) `(,c ,b)))
 ;(shew (expand '(mtch '(Bar 2 3) ('Foo a) `(ff ,a) ('Bar b c) `(,c ,b))))
+;(shew (expand '(let ((ee '(1 .2))) (mtch ee (a . b) (cons b a) e e))))

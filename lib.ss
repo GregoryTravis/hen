@@ -20,7 +20,7 @@
 (define (flush-output)
   (flush-output-port (current-output-port)))
 
-(load "srfi-13/srfi-13.scm")
+;(load "srfi-13/srfi-13.scm")
 
 (define impl-tracefun-indentation 0)
 (define trace-stump-level 1000)
@@ -1203,11 +1203,13 @@
 (define (make-get-dependencies target rules)
   (map make-strip-annotation (make-inputs-of-rule (make-lookup-rule-for target rules))))
 
+(define (time->ns t) (+ (* 1000000000 (time-second t)) (time-nanosecond t)))
+
 (define (make-newer-than? file files)
   (if (or (pair? files) (null? files))
       (all? (map (lambda (f) (make-newer-than? file f)) files))
-      (> (file-modification-time file)
-         (file-modification-time files))))
+      (> (time->ns (file-modification-time file))
+         (time->ns (file-modification-time files)))))
 
 (define (make target rules)
   (let ((dependencies (make-get-dependencies target rules)))
