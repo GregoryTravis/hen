@@ -2,6 +2,7 @@
 ;; (load "h.ss")
 (require "lib.ss")
 (require "mtch.ss")
+(provide build)
 
 (define match-debug #f)
 (define atexit #f)
@@ -340,7 +341,7 @@
   (mtch b
         ('Sym sym) (list (csym sym))
         ('Var var) (list (csym var))
-        ('Num n) (list (cnum n))
+        ('Num n) (list (cint n))
         (a . d) (list "mkpair(\n" (render-pat a) ",\n" (render-pat d) ")")
         () "mknil()"))
 

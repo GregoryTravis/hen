@@ -1,10 +1,13 @@
 #lang scheme
 (require compatibility/defmacro)
+(require racket/pretty)
 ;(require racket/pretty)
 ;(define pretty-print display)
+(provide mtch)
+
 (define-for-syntax mtch-show-expansion #f)
 
-(define-for-syntax (shew . args) (map pretty-print args))
+(define-for-syntax (shew . args) (map display args))
 
 ;(pretty-print 12)
 
@@ -28,6 +31,12 @@
       (let ((s serial))
         (set! serial (+ serial 1))
         (string->symbol (string-append "_m" (number->string s)))))))
+
+(define-for-syntax (err . args)
+  (flush-output)
+  (display "Error!\n")
+  ;(shew (map show-shorten args))
+  (car '()))
 
 (define-for-syntax (mtch-clause target pat body)
   (let ((carvar (mtch-vargen))
