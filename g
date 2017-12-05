@@ -1,3 +1,6 @@
+#chez --script mtch.ss
+#exit
+
 # rm -f fbo fbo.c
 # hen fbo.ss
 # ./fbo

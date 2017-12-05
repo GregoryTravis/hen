@@ -17,6 +17,9 @@
   (let lp ((val val))
     (if (pred val) val (lp (error "Bad argument" val pred caller)))))
 
+(define (flush-output)
+  (flush-output-port (current-output-port)))
+
 (load "srfi-13/srfi-13.scm")
 
 (define impl-tracefun-indentation 0)
@@ -81,6 +84,7 @@
                 r))
       r)))
 
+#|
 (define-macro (tracefun . funs)
   `(tracefun-with plain-ol-tracer ,@funs))
 
@@ -101,6 +105,7 @@
         (map (lambda (f)
                `(set! ,f (,hookist ',f ,f)))
              funs)))
+|#
 
 (define (args-and-result-hook cb)
   (lambda (name f)
@@ -339,10 +344,12 @@
           (same (cdr lyst))
           #f)))
 
-(define-macro (assert exp . stuff)
-  `(if ,exp
-       '()
-       (err "Assertion failure" ',exp ,@stuff)))
+(define-syntax assert
+  (syntax-rules ()
+    ((_ exp . stuff)
+     (if exp
+         '(6)
+         (err "Assertion failure" 'exp . stuff)))))
 
 (define (id x) x)
 
@@ -352,6 +359,7 @@
   (shew (map show-shorten args))
 (car '()))
 ;  (exit))
+
 
 (define show-shorten-length 50)
 (define (show-shorten-list lyst) (show-shorten-list1 lyst 0))
@@ -750,8 +758,8 @@
   (let ((suflen (string-length suffix))
         (slen (string-length string)))
     (and (>= slen suflen)
-         (string= suffix (substring string (- (string-length string)
-                                              (string-length suffix)))))))
+         (string= suffix (substring string 0 (- (string-length string)
+                                                (string-length suffix)))))))
 
 (define (starts-with string prefix)
   (let ((prelen (string-length prefix))
@@ -1229,6 +1237,7 @@
   (lambda args1
     (apply f ($-zip args0 args1))))
 
+#|
 (define-macro (pv . vars)
   `(begin
      ,@(apply append (map (lambda (var)
@@ -1238,6 +1247,7 @@
                               (lshew ,var)
                               (display "\n")))
                           vars))))
+|#
 
 (define (+++ o)
   (cond

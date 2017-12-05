@@ -74,14 +74,11 @@
         '())
     code))
 
-(define-syntax define-macro
+(define-syntax mtch
   (syntax-rules ()
-    ((define-macro (name . args) body ...)
-     (define-syntax name
-       (rsc-macro-transformer
-         (let ((transformer (lambda args body ...)))
-           (lambda (exp env)
-              (apply transformer (cdr exp)))))))))
+    ((_ target . clauses)
+     (eval (mtch-render 'target 'clauses)))))
 
-(define-macro (mtch target . clauses)
-  (mtch-render target clauses))
+;(shew (mtch '(Foo 1) ('Foo a) `(ff ,a) ('Bar b c) `(,c ,b)))
+;(shew (mtch '(Bar 2 3) ('Foo a) `(ff ,a) ('Bar b c) `(,c ,b)))
+;(shew (expand '(mtch '(Bar 2 3) ('Foo a) `(ff ,a) ('Bar b c) `(,c ,b))))

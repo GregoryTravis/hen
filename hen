@@ -1,1 +1,1 @@
-mit-scheme --load main.ss #$1
+chez main.ss

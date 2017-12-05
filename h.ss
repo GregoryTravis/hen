@@ -1,6 +1,7 @@
 ;; (load "h.ss")
 (load "lib.ss")
 
+(set! make-show-commands #t)
 (set! *parser-canonicalize-symbols?* #f)
 
 (define match-debug #f)
