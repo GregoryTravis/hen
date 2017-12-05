@@ -15,7 +15,7 @@
 ;(require (lib "pretty.ss"))
 ;;(require (lib "../errortrace/errortrace.ss"))
 ;;(require-for-syntax (lib "list.ss"))
-load "mtch.ss")
+(load "mtch.ss")
 
 ;(provide tagged-symbol-generator-generator)
 (provide (all-defined-out))
