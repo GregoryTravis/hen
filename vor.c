@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -32,7 +33,7 @@ void count_reductions_start() {
 }
 void count_reductions_end() {
   if (count_reductions) {
-    printf("%d reductions.\n");
+    printf("%d reductions.\n", n_reductions);
   }
 }
 
@@ -142,7 +143,7 @@ bool isnil(yeah* e) {
   return (e->t == CSYMBOL || e->t == SYMBOL) && !strcmp(e->u.csymbol.s, "Nil");
 }
 
-yeah* store_global(char *s, yeah* v) {
+void store_global(char *s, yeah* v) {
   globals = pair(pair(symbol(s), v), globals);
 }
 
@@ -168,7 +169,12 @@ yeah* lookup(char *s, yeah* local_env) {
   }
   if (v == NULL) {
     err(("No such variable %s\n", s));
+    A(0);
+  } else {
+    return v;
   }
+  A(0);
+  return NULL;
 }
 
 yeah* freeze(yeah* e, yeah* env) {
@@ -212,6 +218,7 @@ bool equal(yeah* a, yeah* b) {
   default: printf("DIE %d\n", a->t); A(0); break;
   }
   A(0);
+  return false;
 }
 
 #define ISTAG(_e, _t) ((_e)->t == (_t))
@@ -542,7 +549,7 @@ bool hmatch_list3(yeah* e, yeah** a, yeah** b, yeah** c) {
 
 yeah* evl_completely_list(yeah* e, yeah* env) {
   if (ISPAIR(e)) {
-    pair(
+    return pair(
       evl_completely(car(e), env),
       evl_completely_list(cdr(e), env));
   } else if (isnil(e)) {
@@ -550,6 +557,8 @@ yeah* evl_completely_list(yeah* e, yeah* env) {
   } else {
     err((""));
   }
+  A(0);
+  return NULL;
 }
 
 yeah* primcalls;
@@ -663,6 +672,8 @@ bool try_prim(yeah* e, yeah* env, yeah** result) {
   } else {
     return false;
   }
+  A(0);
+  return false;
 }
 
 yeah* evl_step(yeah* e, yeah* env);
@@ -696,6 +707,8 @@ yeah* evl_step_(yeah* e, yeah* env) {
     dumpn(e);
     err((""));
   }
+  A(0);
+  return NULL;
 }
 
 yeah* evl_step(yeah* e, yeah* env) {

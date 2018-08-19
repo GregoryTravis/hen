@@ -83,7 +83,7 @@ struct yeah {
 
 typedef yeah* (*foreign_function)(yeah* arg);
 
-yeah* store_global(char *s, yeah* v);
+void store_global(char *s, yeah* v);
 yeah* closure(yeah* lambda, yeah* env);
 yeah* lambda(yeah* arg, yeah* body);
 yeah* thunk(yeah* exp, yeah* env);

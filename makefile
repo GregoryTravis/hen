@@ -3,7 +3,7 @@ libs=-I/Developer/SDKs/MacOSX10.4u.sdk/System/Library/Frameworks/GLUT.framework/
 all: vor fbo
 
 clean:
-	rm -f *.o fbo vor
+	rm -f *.o fbo vor src another-program
 
 vor.o: vor.c a.h spew.h mem.h
 	gcc -std=c99 -c -g vor.c $(libs)
