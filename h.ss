@@ -151,7 +151,7 @@
 ;    (rmtemps objfile exefile)
     (preclean objfile exefile)
     (rcmd (++ "make -s " objs))
-    (srcmd (++ "gcc -std=c99 -g -o " exefile " " objcfile " " objs " " libs))
+    (srcmd (++ "gcc -std=c99 -fbracket-depth=2048 -g -o " exefile " " objcfile " " objs " " libs))
     (cleanup-module-stuff)))
 
 (define (compile filename) (crun-file filename #f #f))
