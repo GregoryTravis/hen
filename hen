@@ -1,1 +1,1 @@
-mzscheme -r main.ss $*
+racket -f main.ss $*

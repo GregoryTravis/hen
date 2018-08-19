@@ -485,7 +485,7 @@
 (define (divide-by-pred p lyst)
   (cons (grep p lyst) (grep (fnot p) lyst)))
 
-(define (group-by f lyst)
+(define (group-byy f lyst)
   (if (null? lyst)
       '()
       (let* ((group-of-car (f (car lyst)))
@@ -495,7 +495,7 @@
              (in-group (car divided))
              (not-in-group (cdr divided)))
         (cons (cons group-of-car in-group)
-              (group-by f not-in-group)))))
+              (group-byy f not-in-group)))))
 
 ;; Elements may match more than one predicate; they are grouped with
 ;; the first one they match.  Every element must match at least one

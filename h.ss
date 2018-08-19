@@ -46,7 +46,7 @@
         `(/. ,args ,body)))
 
 (define (funs->defs funs)
-  (let ((blap (group-by fun-name funs)))
+  (let ((blap (group-byy fun-name funs)))
     (map (lambda (boo)
            (mtch boo
                  (name . funs)
