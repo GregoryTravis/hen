@@ -51,8 +51,6 @@ generate two "albums" of procedural music.  I got really obsessed with thinking
 about pattern matching as tree rewriting, thought of a way to inline tree
 rewrites, and decided to start from scratch, resulting in hen.
 
-scheme macro
-
 I created an idiosyncratic FFI autogen module using a GCC command line option
 that no longer exists.  The option dumped a flat file describing the entire
 program's call graph, including types, and wrote a Perl (!) script to extract
@@ -60,4 +58,5 @@ function signatures from this.  I call it idiosyncratic because it only really
 works with APIs that are largely simple scalar types and arrays, which happens
 to be true of a lot of OpenGL.
 
-Developed under MzScheme (precursor of Racket) and ported partially or completely to MIT Scheme, Racket, and Chez Scheme.
+Developed under MzScheme (precursor of Racket) and ported partially or
+completely to MIT Scheme, Racket, and Chez Scheme.
